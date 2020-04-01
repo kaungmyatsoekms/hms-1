@@ -1,2 +1,14 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hms_hms,hms.hms,model_hms_hms,base.group_user,1,1,1,1
+access_property_property,property.property,model_property_property,base.group_user,1,1,1,1
+access_building_building,building.building,model_building_building,base.group_user,1,1,1,1
+access_building_type,building.type,model_building_type,base.group_user,1,1,1,1
+access_room_location,room.location,model_room_location,base.group_user,1,1,1,1
+access_room_type,room.type,model_room_type,base.group_user,1,1,1,1
+access_room_view,room.view,model_room_view,base.group_user,1,1,1,1
+access_room_facility,room.facility,model_room_facility,base.group_user,1,1,1,1
+access_room_facility_type,room.facility.type,model_room_facility_type,base.group_user,1,1,1,1
+access_property_room,property.room,model_property_room,base.group_user,1,1,1,1
+access_hotel_group,hotel.group,model_hotel_group,base.group_user,1,1,1,1
+access_contact_contact,contact.contact,model_contact_contact,base.group_user,1,1,1,1
+access_market_segment,market.segment,model_market_segment,base.group_user,1,1,1,1
+access_market_group,market.group,model_market_group,base.group_user,1,1,1,1
