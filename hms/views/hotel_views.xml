@@ -3,7 +3,7 @@
 
     <!-- Top menu item -->
 
-    <menuitem id="hotel_menu_root" name="HMS" sequence="5"/>
+    <menuitem id="hotel_menu_root" name="HMS-System" sequence="5"/>
 
     <!-- menu categories -->
 
@@ -82,6 +82,19 @@
                 <group>
                   <div><field name="building_ids" options="{'no_create_edit':True, 'no_create':True}"/></div>
                   <div><field name="roomtype_ids" options="{'no_create_edit':True, 'no_create':True}"/></div>
+                  <div>
+                    <field name="propertyroom_ids"/>
+                    <!-- <field name="propertyroom_ids" context="{'default_property_id':id}"/>
+                    <tree editable="bottom">
+                      <field name="id"/>
+                      <field name="propertyroom_ids.room_no"/> -->
+                      <!-- <button string="Open" 
+                              type="object"
+                              name="open_one2many_line"
+                              context="{'dafault_active_id': active_id }">
+                      </button> -->
+                    <!-- </tree> -->
+                  </div>
                 </group> 
               </page>
               <page string='Hotel License'>
@@ -220,10 +233,10 @@
               </group>
                 <notebook>
                 <page string="Room Location">
-                  <field name="location_ids" type="object">
-                    <!-- <tree string="Mapping Room Location"
+                  <field name="location_ids" options="{'limit': 3, 'create': false, 'create_edit': false}" widget="many2many">
+                    <!-- <tree string="Mapping Room Location">
                       <field name="location_code"/>
-                      <field name="location_des"/>
+                      <field name="location_desc"/>
                       <button
                         string="opem"
                         type="object"

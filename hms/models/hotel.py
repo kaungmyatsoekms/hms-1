@@ -45,6 +45,7 @@ class Property(models.Model):
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
     building_ids = fields.Many2many('building.building')
+    propertyroom_ids = fields.One2many('property.room', inverse_name='property_id', string="Property Room")
     building_count = fields.Integer("Building",
                                     compute='_compute_building_count')
 
@@ -70,9 +71,40 @@ class Property(models.Model):
             'default_type': 'out_building',
         }
         return action
-
+    
     def _compute_building_count(self):
         self.building_count = len(self.building_ids)
+    
+    # @api.depends('id')    
+    # def _property_pc(self):
+    #     for rec in self:
+    #         # if(rec.id.propertyroom_ids):
+    #         for roomno in rec.id.propertyroom_ids:
+    #             roomno.property_id = int(roomno.property_id)
+
+    # @api.onchange('property_id')
+    # def onchange_property_id(self):
+    #     roomtype_list =[]
+    #     domain={}
+    #     for rec in self:
+    #         if(rec.property_id.roomtype_ids):
+    #             for roomtype in rec.property_id.building_ids:
+    #                 roomtype_list.append(roomtype.id)
+    #             domain = {'roomtype_id':[('id','=', roomtype_list)]}
+    #             return{'domain': domain}
+
+
+    # def open_one2many_line(self):
+    #     context = self.env.context
+    #     return{
+    #         'type': 'ir.actions.act_window',
+    #         'name': 'Open Line',
+    #         'view_type': 'form',
+    #         'res_model': self._name,
+    #         'res_id' : context.get('default_active_id'),
+    #         'target': 'new',
+    #     }
+
 
 
 class Contact(models.Model):
@@ -110,27 +142,28 @@ class Building(models.Model):
             result.append((record.id, "{}".format(record.building_name)))
         return result
 
-    def action_room_location_count(self):
-        locations = self.mapped('location_ids')
-        building_capacity = self.mapped('building_capacity')
-        action = self.env.ref('hms.room_location_action_window').read()[0]
-        if len(locations) < building_capacity:
-            form_view = [(self.env.ref('hms.room_location_view_form').id, 'form')]
-            if 'views' in action:
-                action['views'] = form_view + [
-                    (state, view)
-                    for state, view in action['views'] if view != 'form'
-                ]
-            else:
-                action['views'] = form_view
-            action['res_id'] = locations.id
-        else:
-            action = {'type': 'ir.actions.act_window_close'}
+    # def action_room_location_count(self):
+    #     locations = self.mapped('location_ids')
+    #     building_capacity = self.mapped('building_capacity')
+    #     action = self.env.ref('hms.room_location_action_window').read()[0]
+    #     if len(locations) < building_capacity:
+    #         form_view = [(self.env.ref('hms.room_location_view_form').id, 'form')]
+    #         if 'views' in action:
+    #             action['views'] = form_view + [
+    #                 (state, view)
+    #                 for state, view in action['views'] if view != 'form'
+    #             ]
+    #         else:
+    #             action['views'] = form_view
+    #         action['res_id'] = locations.id
+    #     else:
+    #         action = {'type': 'ir.actions.act_window_close'}
 
-        context = {
-            'default_type': 'limit_capacity',
-        }
-        return action
+    #     context = {
+    #         'default_type': 'limit_capacity',
+    #     }
+    #     return action
+
 
 class BuildingType(models.Model):
     _name = "building.type"
@@ -229,7 +262,7 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
 
     room_no = fields.Char(string="Room No", required=True)
-    property_id = fields.Many2one('property.property', string="Property", required=True)
+    property_id = fields.Many2one('property.property', string="Property", select=True, copy=False, required=True)
     roomtype_id = fields.Many2one('room.type', string="Room Type", required=True)
     roomview_id = fields.Char(string="Room View Code", required=True)
     building_id = fields.Many2one('building.building', string="Room Building", required=True)
