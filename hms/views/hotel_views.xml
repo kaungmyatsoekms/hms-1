@@ -26,23 +26,23 @@
               <button name="action_building_count"
                   type="object"
                   class="oe_stat_button"
-                  icon="fa-tasks">
+                  icon="fa-building">
                   <field name="building_count" widget='statinfo'/>
               </button>
             </div>
-            <field name="logo" placeholder="Your Logo" widget="image" class="oe_avatar"/>
+            <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
               <label for="hotelgroup_id" class="oe_edit_only"/>
               <h1>
-                <field name="hotelgroup_id" style="width:60%%"/>
+                <field name="hotelgroup_id" style="width:80%%"/>
               </h1>
               <label for="name" class="oe_edit_only"/>
               <h2>
-                <field name="name" string="Hotel Name" placeholder="Hotel Name" style="width:60%%"/>
+                <field name="name" placeholder="Hotel Name" style="width:80%%"/>
               </h2>
               <label for="code" class="oe_edit_only"/>
               <h3>
-                <field name="code" style="width:60%%"/>
+                <field name="code" style="width:80%%"/>
               </h3>
             </div>
             <group>
@@ -80,8 +80,8 @@
               </page>
               <page string='Hotel Configuration'>
                 <group>
-                  <div><field name="building_ids" options="{'no_create_edit':True, 'no_create':True}"/></div>
-                  <div><field name="roomtype_ids" options="{'no_create_edit':True, 'no_create':True}"/></div>
+                  <div><field name="building_ids"/></div>
+                  <div><field name="roomtype_ids" /></div>
                   <div>
                     <field name="propertyroom_ids"/>
                     <!-- <field name="propertyroom_ids" context="{'default_property_id':id}"/>
@@ -117,14 +117,14 @@
         <tree string="Property">
           <field name="name"/>
           <field name="code"/>
-          <field name="city_id"/>
-          <field name="state_id"/>
-          <field name="country_id"/>
-          <field name="phone"/>
-          <field name="email"/>
-          <field name="website"/>
-          <field name="rating"/>
-          <field name="logo"/>
+          <field name="city_id" optional="show"/>
+          <field name="state_id" optional="hide"/>
+          <field name="country_id" optional="show"/>
+          <field name="phone" optional="show"/>
+          <field name="email" optional="hide"/>
+          <field name="website" optional="hide"/>
+          <field name="rating" optional="hide"/>
+          <field name="logo" optional="hide"/>
         </tree>
       </field>
     </record>
@@ -154,12 +154,15 @@
                 </div>
                 <div class="oe_kanban_details">
                   <div><field name="name"/></div>
-                  <div>Address: <field name="city_id"/>,<field name="country_id"/></div>
-                  <div>Group: <field name="hotelgroup_id"/></div>
-                  <div> Phone: <field name="phone"/></div>
-                  <div> Email: <field name="email"/></div>
-                  <div>Website:<field name="website"/></div>
-                  <div><field name="rating"/></div>
+                  <div><field name="hotelgroup_id"/></div>
+                  <div>
+                    <field t-if="record.city_id.raw_value" name="city_id"/>
+                    <field t-if="record.country_id.raw_value" name="country_id"/>
+                  </div>
+                  <div t-if="record.phone.raw_value"><field name="phone"/></div>
+                  <div t-if="record.email.raw_value"><field name="email"/></div>
+                  <div t-if="record.website.raw_value"><field  name="website"/></div>
+                  <div t-if="record.rating.raw_value"><field name="rating"/></div>
                 </div>
               </div>
             </t>
@@ -191,8 +194,8 @@
                   <div class="oe_kanban_details">
                     <field name="name"/>
                     <div><field name="position"/></div>
-                    <div> Phone: <field name="phone"/></div>
-                    <div> Email: <field name="email"/></div>
+                    <div><field name="phone"/></div>
+                    <div><field name="email"/></div>
                   </div>
                 </div>
               </div>
@@ -440,7 +443,6 @@
                 <field name="roomview_id"/>
                 <field name="building_id"/>
                 <field name="roomlocation_id"/>
-                <field name="facility_id"/>
               </group>
               <group>
                 <field name="ratecode_id"/>
@@ -449,6 +451,13 @@
                 <field name="room_extension"/>
                 <field name="room_desc"/>
                 <field name="room_img"/>
+              </group>
+              <group>
+                <notebook>
+                  <page string="Room Facility">
+                    <field name="facility_ids"/>
+                  </page>
+                </notebook>
               </group>
             </group>
           </sheet>
@@ -467,7 +476,7 @@
           <field name="roomview_id"/>
           <field name="building_id"/>
           <field name="roomlocation_id"/>
-          <field name="facility_id"/>
+          <field name="facility_ids"/>
           <field name="ratecode_id"/>
           <field name="room_bedqty"/>
           <field name="room_size"/>

@@ -15,7 +15,7 @@ class Property(models.Model):
     hotelgroup_id = fields.Many2one('hotel.group',
                                     string='Hotel Group',
                                     required=True)
-    name = fields.Char(required=True, index=True)
+    name = fields.Char(required=True, string='Hotel Name', index=True)
     code = fields.Char(string='Hotel Code', required=True)
     address1 = fields.Char(string='Address 1')
     address2 = fields.Char(string='Address 2')
@@ -112,11 +112,11 @@ class Contact(models.Model):
     _description = "Contact"
 
     name = fields.Char(string='Contact Person', required=True)
-    image = fields.Binary(string='Image', attachment=True, store=True)
-    title = fields.Many2one('res.partner.title')
-    position = fields.Char(string='Job Position')
     email = fields.Char(string='Email')
+    title = fields.Many2one('res.partner.title')
     phone = fields.Char(string='Phone')
+    position = fields.Char(string='Job Position')
+    image = fields.Binary(string='Image', attachment=True, store=True)
 
 
 class Building(models.Model):
@@ -267,7 +267,7 @@ class PropertyRoom(models.Model):
     roomview_id = fields.Char(string="Room View Code", required=True)
     building_id = fields.Many2one('building.building', string="Room Building", required=True)
     roomlocation_id = fields.Many2one('room.location', string="Location", required=True)
-    facility_id = fields.Char(string="Room Facility", required=True)
+    facility_ids = fields.Many2many('room.facility', string="Room Facility", required=True)
     ratecode_id = fields.Char(string="Room Ratecode", required=True)
     room_bedqty = fields.Integer(string="Number of Beds", required=True)
     room_size = fields.Char(string="Room Size")
