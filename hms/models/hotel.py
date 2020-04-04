@@ -5,6 +5,15 @@ from odoo.modules import get_module_resource
 from odoo.tools import *
 import base64
 
+AVAILABLE_STARS = [
+    ('0', 'Low'),
+    ('1', 'One Star'),
+    ('2', 'Two Star'),
+    ('3', 'Three Star'),
+    ('4', 'Four Star'),
+    ('5', 'Five Star'),
+]
+
 class HotelGroup(models.Model):
     _name = "hotel.group"
     _description = "Hotel Group"
@@ -35,18 +44,19 @@ class Property(models.Model):
     sociallink = fields.Char(string='Social Link')
     roomqty = fields.Integer(string='Total Rooms')
     property_license = fields.Char(string='Property License')
-    rating = fields.Selection([
-        ('one', 'One Star'),
-        ('two', 'Two Star'),
-        ('three', 'Three Star'),
-        ('four', 'Four Star'),
-        ('five', 'Five Star'),
-    ],
-                              string='Property Rating')
+    rating = fields.Selection(AVAILABLE_STARS, string='Rating', index=True, default=AVAILABLE_STARS[0][0])
+    # rating = fields.Selection([
+    #     ('one', 'One Star'),
+    #     ('two', 'Two Star'),
+    #     ('three', 'Three Star'),
+    #     ('four', 'Four Star'),
+    #     ('five', 'Five Star'),
+    # ],
+    #                           string='Property Rating')
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
     contact_ids = fields.Many2many('contact.contact')
-    bankinfo_ids = fields.Many2many('bank.info', string="Bank Info")
+    bankinfo_ids = fields.One2many('bank.info','property_id', string="Bank Info")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
     building_ids = fields.Many2many('building.building')
@@ -126,16 +136,16 @@ class BankInfo(models.Model):
     _name = "bank.info"
     _description = "Bank Information"
 
+    property_id = fields.Many2one('property.property', string="Property", required=True, readonly=True)
     bank_name = fields.Char(string="Bank Name", required=True)
     bank_branch = fields.Char(string="Branch Name", required=True)
     bank_account = fields.Char(string="Bank Account", required=True)
+    bank_logo = fields.Binary(string="Bank Logo")
     bank_desc = fields.Text(string="Description")
-
 
 class Building(models.Model):
     _name = "building.building"
     _description = "Building"
-    _rec_name = 'building_type'
 
     building_name = fields.Char(string='Building Name', required=True)
     building_type = fields.Many2one('building.type',
@@ -149,6 +159,18 @@ class Building(models.Model):
     building_capacity = fields.Integer(string='Capacity', required=True)
     location_ids = fields.Many2many('room.location', string="Room Location", required=True)
     # location_number = fields.Integer("Location Number", compute="_room_location_count", readonly=True)
+
+    # def get_name(self,cr, uid, ids, context=None):
+    #     if context is None:
+    #         context = {}
+    #     if isinstance(ids, (int, long)):
+    #         ids = [ids]
+
+    #     res = []
+    #     for record in self.browse(cr, uid, ids, context=context):
+    #         name = record.building_name
+    #         res.append(record.id, name)
+    #     return res
 
     # @api.model
     # def name_get(self):
@@ -171,8 +193,6 @@ class Building(models.Model):
             if len(values['location_ids'][0][2]) > building_capacity:
                 raise UserError(_("Location number must less than building capacity."))
         return super(Building, self).create(values)
-
-
     
 class BuildingType(models.Model):
     _name = "building.type"

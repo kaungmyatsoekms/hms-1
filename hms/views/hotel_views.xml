@@ -14,7 +14,6 @@
 
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
-
     <record id="property_view_form" model="ir.ui.view">
       <field name="name">property.view.form</field>
       <field name="model">property.property</field>
@@ -64,7 +63,8 @@
               </group>
               <group>
                 <field name="roomqty"/>
-                <field name="rating"/> 
+                <!-- <field name="rating"/>  -->
+                <field name="rating" widget="priority"/>
                 <field name="phone"/>
                 <field name="fax"/>
                 <field name="email"/>
@@ -77,7 +77,7 @@
                 <field name="contact_ids" mode="kanban"/>
               </page>
               <page string='Bank Information'>
-                <field name="bankinfo_ids"/>
+                <field name="bankinfo_ids" context="{'default_property_id' : id}" mode="kanban"/>
               </page>
               <page string='Buildings (or) Zone'>
                 <div><field name="building_ids"/></div>
@@ -124,7 +124,7 @@
           <field name="phone" optional="show"/>
           <field name="email" optional="hide"/>
           <field name="website" optional="hide"/>
-          <field name="rating" optional="hide"/>
+          <field name="rating" optional="show"/>
           <field name="logo" optional="hide"/>
         </tree>
       </field>
@@ -151,7 +151,7 @@
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
                 <div class="o_kanban_image">
-                  <img alt="" t-att-src="kanban_image('property.property', 'logo')"/>
+                  <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
                 </div>
                 <div class="oe_kanban_details">
                   <div><field name="name"/></div>
@@ -163,7 +163,7 @@
                   <div t-if="record.phone.raw_value"><field name="phone"/></div>
                   <div t-if="record.email.raw_value"><field name="email"/></div>
                   <div t-if="record.website.raw_value"><field  name="website"/></div>
-                  <div t-if="record.rating.raw_value"><field name="rating"/></div>
+                  <div t-if="record.rating.raw_value"><field name="rating" widget='priority'/></div>
                 </div>
               </div>
             </t>
@@ -190,7 +190,7 @@
               <div class="oe_kanban_global_click">
                 <div>
                   <div class="o_kanban_image">
-                    <img alt="" t-att-src="kanban_image('contact.contact', 'image')"/>
+                    <img t-att-src="kanban_image('contact.contact', 'image',record.id.raw_value)" alt="image"/>
                   </div>
                   <div class="oe_kanban_details">
                     <field name="name"/>
@@ -206,34 +206,58 @@
       </field>
     </record>
 
-       <!-- List View of Bank Info -->
-    <record id="bank_info_view_list" model="ir.ui.view">
-      <field name="name">bank.info.view.list</field>
-      <field name="model">bank.info</field>
-      <field name="arch" type="xml">
-        <tree string="Bank Info">
-          <field name="bank_name"/>
-          <field name="bank_branch"/>
-          <field name="bank_account"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- Form View of Bank Info --> 
+ <!-- Form View of Bank Info -->
     <record id="bank_info_view_form" model="ir.ui.view">
       <field name="name">bank.info.view.form</field>
       <field name="model">bank.info</field>
       <field name="arch" type="xml">
-        <form string="Bank Info">
+        <form>
           <sheet>
             <group>
-              <field name="bank_name"/>
-              <field name="bank_branch"/>
-              <field name="bank_account"/>
-              <field name="bank_desc"/>
+              <field name="property_id" options='{"no_open": True}'/>
+              <field name="bank_name" placeholder="Eg. Bank Name..."/>
+              <field name="bank_branch" placeholder="Eg. Mayangone Branch..."/>
+              <field name="bank_account" placeholder="Eg. 00345678923434..."/>
+              <field name="bank_desc" placeholder="...Description (or) Remark..."/>
+              <field name="bank_logo" widget="image"/>
             </group>
           </sheet>
         </form>
+      </field>
+    </record>
+
+    <!-- Kanban View of Bank Info-->
+    <record id="bank_info_view_kanban" model="ir.ui.view">
+      <field name="name">bank.info.view.kanban</field>
+      <field name="model">bank.info</field>
+      <field name="arch" type="xml">
+        <kanban>
+          <field name="id"/>
+          <field name="bank_name"/>
+          <field name="bank_branch"/>
+          <field name="bank_account"/>
+          <field name="bank_desc"/>
+          <templates>
+            <t t-name="kanban-box">
+              <div t-attf-class="oe_kanban_global_click">
+                <div>
+                  <div class="o_kanban_image">
+                    <img alt="image" t-att-src="kanban_image('bank.info', 'bank_logo',record.id.raw_value)"/>
+                  </div>
+                  <div class="oe_kanban_details">
+                    <field name="bank_name"/>
+                    <div><field name="bank_branch"/></div>
+                    <div>
+                      <group>
+                        <field name="bank_account"/>
+                      </group>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
       </field>
     </record>
 
@@ -671,7 +695,7 @@
     <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
     <menuitem id="room_menu" name="Room Number" parent="hotel_menu_2" sequence="4" action="property_room_action_window"/>
 
-    <menuitem id="define_we_sp" name="Weeekend and Special Days" parent="hotel_menu_3" sequence="1"/>
+    <menuitem id="define_we_sp" name="Define Weeekend" parent="hotel_menu_3" sequence="1"/>
       <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/>
       <menuitem id="special_day_menu" name="Special Day" parent="define_we_sp" sequence="2" action="special_day_action_window"/>
       

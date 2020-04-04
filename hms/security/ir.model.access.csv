@@ -12,3 +12,6 @@ access_hotel_group,hotel.group,model_hotel_group,base.group_user,1,1,1,1
 access_contact_contact,contact.contact,model_contact_contact,base.group_user,1,1,1,1
 access_market_segment,market.segment,model_market_segment,base.group_user,1,1,1,1
 access_market_group,market.group,model_market_group,base.group_user,1,1,1,1
+access_bank_info,bank.info,model_bank_info,base.group_user,1,1,1,1
+access_market_source,market.source,model_market_source,base.group_user,1,1,1,1
+
