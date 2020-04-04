@@ -1,5 +1,9 @@
-from odoo import models, fields, api, tools
-
+from odoo import models, fields, api, tools, _
+from odoo.exceptions import UserError
+from odoo.modules import get_module_resource
+#from odoo.tools import image_colorize, image_resize_image_big
+from odoo.tools import *
+import base64
 
 class HotelGroup(models.Model):
     _name = "hotel.group"
@@ -42,12 +46,18 @@ class Property(models.Model):
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
     contact_ids = fields.Many2many('contact.contact')
+    bankinfo_ids = fields.Many2many('bank.info', string="Bank Info")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
     building_ids = fields.Many2many('building.building')
-    propertyroom_ids = fields.One2many('property.room', inverse_name='property_id', string="Property Room")
+    propertyroom_ids = fields.One2many('property.room','property_id', string="Property Room")
     building_count = fields.Integer("Building",
                                     compute='_compute_building_count')
+
+    # @api.depends('propertyroom_ids')
+    # def _compute_property_id(self):
+    #     for statement in self:
+    #         statement.propertyroom_ids.property_id = statement.property.id
 
     def action_building_count(self):
         buildings = self.mapped('building_ids')
@@ -93,20 +103,6 @@ class Property(models.Model):
     #             domain = {'roomtype_id':[('id','=', roomtype_list)]}
     #             return{'domain': domain}
 
-
-    # def open_one2many_line(self):
-    #     context = self.env.context
-    #     return{
-    #         'type': 'ir.actions.act_window',
-    #         'name': 'Open Line',
-    #         'view_type': 'form',
-    #         'res_model': self._name,
-    #         'res_id' : context.get('default_active_id'),
-    #         'target': 'new',
-    #     }
-
-
-
 class Contact(models.Model):
     _name = "contact.contact"
     _description = "Contact"
@@ -118,10 +114,28 @@ class Contact(models.Model):
     position = fields.Char(string='Job Position')
     image = fields.Binary(string='Image', attachment=True, store=True)
 
+    @api.model
+    def _get_default_image(self, colorize=False):
+        image = image_colorize(
+            open(
+                odoo.modules.get_module_resource('base', 'static/src/img',
+                                                 'avatar_grey/png')).read())
+        return image_resize_image_big(image.encode('base64'))
+
+class BankInfo(models.Model):
+    _name = "bank.info"
+    _description = "Bank Information"
+
+    bank_name = fields.Char(string="Bank Name", required=True)
+    bank_branch = fields.Char(string="Branch Name", required=True)
+    bank_account = fields.Char(string="Bank Account", required=True)
+    bank_desc = fields.Text(string="Description")
+
 
 class Building(models.Model):
     _name = "building.building"
     _description = "Building"
+    _rec_name = 'building_type'
 
     building_name = fields.Char(string='Building Name', required=True)
     building_type = fields.Many2one('building.type',
@@ -134,37 +148,32 @@ class Building(models.Model):
     building_desc = fields.Text(string='Description')
     building_capacity = fields.Integer(string='Capacity', required=True)
     location_ids = fields.Many2many('room.location', string="Room Location", required=True)
+    # location_number = fields.Integer("Location Number", compute="_room_location_count", readonly=True)
+
+    # @api.model
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         result.append((record.id, "{}".format(record.building_name)))
+    #     return result
+
+    
+    # @api.depends('building_capacity','location_ids')
+    # def _room_location_count(self):
+       
+    #         return len(locations)
 
     @api.model
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "{}".format(record.building_name)))
-        return result
-
-    # def action_room_location_count(self):
-    #     locations = self.mapped('location_ids')
-    #     building_capacity = self.mapped('building_capacity')
-    #     action = self.env.ref('hms.room_location_action_window').read()[0]
-    #     if len(locations) < building_capacity:
-    #         form_view = [(self.env.ref('hms.room_location_view_form').id, 'form')]
-    #         if 'views' in action:
-    #             action['views'] = form_view + [
-    #                 (state, view)
-    #                 for state, view in action['views'] if view != 'form'
-    #             ]
-    #         else:
-    #             action['views'] = form_view
-    #         action['res_id'] = locations.id
-    #     else:
-    #         action = {'type': 'ir.actions.act_window_close'}
-
-    #     context = {
-    #         'default_type': 'limit_capacity',
-    #     }
-    #     return action
+    def create(self, values):
+        locations = values['location_ids']
+        building_capacity = values['building_capacity']
+        if values['location_ids'][0][2]:
+            if len(values['location_ids'][0][2]) > building_capacity:
+                raise UserError(_("Location number must less than building capacity."))
+        return super(Building, self).create(values)
 
 
+    
 class BuildingType(models.Model):
     _name = "building.type"
     _description = "Building Type"
@@ -197,22 +206,6 @@ class RoomLocation(models.Model):
         return result
 
 
-# class AreaType(models.Model):
-#     _name = "area.type"
-#     _description = "Area Type"
-
-#     name = fields.Char(string='Name', required=True)
-#     code = fields.Char(string='Code', required=True)
-
-#     @api.model
-#     def name_get(self):
-#         result = []
-#         for record in self:
-#             result.append((record.id, "{} ({})".format(record.name,
-#                                                        record.code)))
-#         return result
-
-
 class RoomType(models.Model):
     _name = "room.type"
     _description = "Room Type"
@@ -236,25 +229,27 @@ class RoomView(models.Model):
 class RoomFacility(models.Model):
     _name = "room.facility"
     _description = "Room Facility"
+    _order = 'facilitytype_id'
 
     name = fields.Char(string="Room Facility", required=True)
-    facilitytype_id =  fields.Many2one('room.facility.type', required=True)
+    facilitytype_id =  fields.Many2one('room.facility.type', string='Facility Type', required=True)
     facility_desc= fields.Text(string="Description")
 
 
 class RoomFacilityType(models.Model):
     _name = "room.facility.type"
     _description = "Room Facility Type"
+    _rec_name = 'facilitytype_desc'
 
-    facility_type = fields.Char(string="Room Facility Type ", required=True)
+    facility_type = fields.Char(string="Room Facility Type ", size=3, required=True)
     facilitytype_desc = fields.Char(string="Description", required=True)
     
-    @api.model
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "{} ({})".format(record.facility_type, record.facilitytype_desc)))
-        return result
+    # @api.model
+    # def name_get(self):
+    #     res = []
+    #     for record in self:
+    #         res.append((record.id, "{} ({})".format(record.facilitytype_desc, record.facility_type)))
+    #     return res
 
 
 class PropertyRoom(models.Model):
@@ -262,19 +257,36 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
 
     room_no = fields.Char(string="Room No", required=True)
-    property_id = fields.Many2one('property.property', string="Property", select=True, copy=False, required=True)
+    property_id = fields.Many2one('property.property', string="Property", required=True)
     roomtype_id = fields.Many2one('room.type', string="Room Type", required=True)
-    roomview_id = fields.Char(string="Room View Code", required=True)
+    roomview_ids = fields.Many2many('room.view', string="Room View Code")
     building_id = fields.Many2one('building.building', string="Room Building", required=True)
     roomlocation_id = fields.Many2one('room.location', string="Location", required=True)
     facility_ids = fields.Many2many('room.facility', string="Room Facility", required=True)
-    ratecode_id = fields.Char(string="Room Ratecode", required=True)
+    ratecode_id = fields.Char(string="Ratecode")
     room_bedqty = fields.Integer(string="Number of Beds", required=True)
     room_size = fields.Char(string="Room Size")
     room_extension = fields.Char(string="Room Extension")
     room_img = fields.Binary(string="Image", attachment=True, store=True)
     room_desc = fields.Text(string="Description")
     room_connect = fields.Char(string="Connecting Room")
+
+    # def open_one2many_line(self):
+    #     context = self.env.context
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'name': 'Open Line',
+    #         'view_type': 'form',
+    #         'view_mode': 'form',
+    #         'res_model': 'property.room',
+    #         'res_id': context.get('default_active_id'),
+    #         'target': 'new',
+    #     }
+
+
+    # def _get_default_property_id(self, cr, uid, context=None):
+    #     res = self.pool.get('property.property').search(cr, uid, [('property_id','=','')], context=context)
+    #     return res and res[0] or False
 
     # Building Link with Property 
     @api.onchange('property_id')
@@ -290,12 +302,12 @@ class PropertyRoom(models.Model):
     
     # Room Type link with Property
     @api.onchange('property_id')
-    def onchange_property_id(self):
+    def onchange_property_id1(self):
         roomtype_list =[]
         domain={}
         for rec in self:
             if(rec.property_id.roomtype_ids):
-                for roomtype in rec.property_id.building_ids:
+                for roomtype in rec.property_id.roomtype_ids:
                     roomtype_list.append(roomtype.id)
                 domain = {'roomtype_id':[('id','=', roomtype_list)]}
                 return{'domain': domain}
@@ -312,20 +324,28 @@ class PropertyRoom(models.Model):
                 domain = {'roomlocation_id': [('id','=', location_list)]}
                 return {'domain': domain}
 
+
 class MarketSegment(models.Model):
     _name="market.segment"
     _description="Maret Segment"
+    _order='group_id'
 
     market_code = fields.Char(string="Market Code", size=3, required=True)
     market_name = fields.Char(string="Market Name", required=True)
     group_id = fields.Many2one('market.group', string="Group Code", required=True)
+    options = fields.Selection([
+        ('W', 'Walk In'),
+        ('H', 'House Use'),
+        ('C', 'Complimentary'),
+        ('O', 'Others'),], string="Options")
 
 class MarketGroup(models.Model):
-    _name = "market.group"
+    _name = "market.group" 
     _description = "Market Group"
 
     group_code = fields.Char(string="Group Code", size=3, required=True)
     group_name = fields.Char(string="Group Name", required=True)
+
 
     @api.model
     def name_get(self):
@@ -333,3 +353,40 @@ class MarketGroup(models.Model):
         for record in self:
             result.append((record.id, "{} ({})".format(record.group_code, record.group_name)))
         return result
+
+class MarketSource(models.Model):
+    _name = "market.source"
+    _description = "Market Source"
+
+    source_code = fields.Char(string="Source Code", size=3, required=True)
+    source_desc = fields.Char(string="Description")
+
+
+class SpecialDay(models.Model):
+    _name = "special.day"
+    _description = "Special Day"
+
+    special_date_from = fields.Date(string="Special Date From", required=True)
+    special_date_to = fields.Date(string="Special Date To", required=True)
+    special_desc = fields.Char(string="Description")
+
+
+class Weekend(models.Model):
+    _name = "weekend.weekend"
+    _description = "Weekend"
+
+    monday = fields.Boolean(string="Monday")
+    tuesday = fields.Boolean(string="Tuesday")
+    wednesday = fields.Boolean(string="Wednesday")
+    thursday = fields.Boolean(string="Thursday")
+    friday = fields.Boolean(string="Friday")
+    saturday = fields.Boolean(string="Saturday")
+    sunday = fields.Boolean(string="Sunday")
+
+
+class Package(models.Model):
+    _name = "package.package"
+    _description = "Package"
+
+    package_code = fields.Char(string="Package Code", size=3, required=True)
+    package_name = fields.Char(string="Package Name", required=True)

@@ -7,9 +7,9 @@
 
     <!-- menu categories -->
 
-    <menuitem id="hotel_menu_1" name="Hotel Configuration" parent="hotel_menu_root" sequence="5"/>
-      
-    <menuitem id="hotel_menu_2" name="Room Configuration" parent="hotel_menu_root" sequence="10"/>
+    <menuitem id="hotel_menu_1" name="Hotel Configuration" parent="hotel_menu_root" sequence="1"/> 
+    <menuitem id="hotel_menu_2" name="Room Configuration" parent="hotel_menu_root" sequence="2"/>
+    <menuitem id="hotel_menu_3" name="Package Configuration" parent="hotel_menu_root" sequence="3"/>
       
 
     <!-- ========== Hotel Property Setup ========== -->
@@ -77,23 +77,24 @@
                 <field name="contact_ids" mode="kanban"/>
               </page>
               <page string='Bank Information'>
+                <field name="bankinfo_ids"/>
               </page>
-              <page string='Hotel Configuration'>
+              <page string='Buildings (or) Zone'>
+                <div><field name="building_ids"/></div>
+              </page> 
+              <page string='Room Type'>
+                <field name="roomtype_ids"/> 
+              </page>
+              <page string='Room Number'>
                 <group>
-                  <div><field name="building_ids"/></div>
-                  <div><field name="roomtype_ids" /></div>
                   <div>
-                    <field name="propertyroom_ids"/>
-                    <!-- <field name="propertyroom_ids" context="{'default_property_id':id}"/>
-                    <tree editable="bottom">
-                      <field name="id"/>
-                      <field name="propertyroom_ids.room_no"/> -->
-                      <!-- <button string="Open" 
-                              type="object"
-                              name="open_one2many_line"
-                              context="{'dafault_active_id': active_id }">
-                      </button> -->
-                    <!-- </tree> -->
+                    <field name="propertyroom_ids" context="{'default_property_id' : id}"/>
+                      <!-- <field name="propertyroom_ids" context="{'default_property_id' : id}">
+                      <tree editable="bottom">
+                        <field name="property_id"/>
+                        <field name="room_no"/>
+                      </tree>
+                    </field> -->
                   </div>
                 </group> 
               </page>
@@ -205,6 +206,37 @@
       </field>
     </record>
 
+       <!-- List View of Bank Info -->
+    <record id="bank_info_view_list" model="ir.ui.view">
+      <field name="name">bank.info.view.list</field>
+      <field name="model">bank.info</field>
+      <field name="arch" type="xml">
+        <tree string="Bank Info">
+          <field name="bank_name"/>
+          <field name="bank_branch"/>
+          <field name="bank_account"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Form View of Bank Info --> 
+    <record id="bank_info_view_form" model="ir.ui.view">
+      <field name="name">bank.info.view.form</field>
+      <field name="model">bank.info</field>
+      <field name="arch" type="xml">
+        <form string="Bank Info">
+          <sheet>
+            <group>
+              <field name="bank_name"/>
+              <field name="bank_branch"/>
+              <field name="bank_account"/>
+              <field name="bank_desc"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
     <!-- action of property setup -->
     <record id="property_action_window" model="ir.actions.act_window">
       <field name="name">Hotel Property</field>
@@ -214,7 +246,6 @@
 
    <!-- ========== Hotel Building Setup ========== -->
     <!-- Building Setup Form View -->
-
     <record id="building_view_form" model="ir.ui.view">
       <field name="name">building.view.form</field>
       <field name="model">building.building</field>
@@ -233,20 +264,11 @@
                 <field name="building_desc"/>
                 <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities"/>
                 <field name="building_img" widget="image" class="float-left oe_avatar"/>
+                <!-- <field name="location_number" invisible ='1'/> -->
               </group>
                 <notebook>
                 <page string="Room Location">
-                  <field name="location_ids" options="{'limit': 3, 'create': false, 'create_edit': false}" widget="many2many">
-                    <!-- <tree string="Mapping Room Location">
-                      <field name="location_code"/>
-                      <field name="location_desc"/>
-                      <button
-                        string="opem"
-                        type="object"
-                        name="open_one2many_line"
-                        context="{'defautl_active_id': active_id}">
-                        </button>
-                    </tree> -->
+                  <field name="location_ids" widget="many2many">
                   </field>
                 </page>
               </notebook>
@@ -263,8 +285,8 @@
       <field name="arch" type="xml">
         <tree string="Building">
           <field name="building_name"/>
-          <field name="building_type"/>
-          <field name="building_location"/>
+          <field name="building_type" optional="hide"/>
+          <field name="building_location" optional="hide"/>
         </tree>
       </field>
     </record>
@@ -278,7 +300,6 @@
 
     <!-- ========== Hotel Room Location Setup ========== -->
     <!-- Room Location Setup Form View -->
-    
     <record id="room_location_view_form" model="ir.ui.view">
       <field name="name">room.location.view.form</field>
       <field name="model">room.location</field>
@@ -385,8 +406,8 @@
             <h2>Room View Setup</h2>
             <br></br>
             <group>
-              <field name="name"/>
-              <field name="roomview_desc"/>
+              <field name="name" placeholder="Eg. MTV....."/>
+              <field name="roomview_desc" placeholder="Eg. Mountain View"/>
             </group>
           </sheet>
         </form>
@@ -396,7 +417,7 @@
     <record id="room_view_action_window" model="ir.actions.act_window">
       <field name="name">Room View</field>
       <field name="res_model">room.view</field>
-      <field name="view_mode">form</field>
+      <field name="view_mode">tree,form</field>
     </record>
 
     <!-- ========== Room Facility Setup ========== -->
@@ -407,12 +428,12 @@
       <field name="arch" type="xml">
         <form string="Room Facility">
           <sheet>
-            <h2>Room Facility Setup</h2>
+            <h2>Room Facility</h2>
             <br></br>
             <group>
-              <field name="name"/>
-              <field name="facility_desc"/>
               <field name="facilitytype_id"/>
+              <field name="name" placeholder="Eg. Aircon..."/>
+              <field name="facility_desc" placeholder="Eg. Aircon....."/> 
             </group>
           </sheet>
         </form>
@@ -422,7 +443,7 @@
     <record id="room_facility_action_window" model="ir.actions.act_window">
       <field name="name">Room Facility</field>
       <field name="res_model">room.facility</field>
-      <field name="view_mode">form</field>
+      <field name="view_mode">tree,form</field>
     </record>
 
     <!-- ========== Hotel Room Setup ========== -->
@@ -438,24 +459,26 @@
             <group>
               <group>
                 <field name="property_id"/>
-                <field name="room_no"/>
+                <field name="room_no" placeholder="Eg. 101..."/>
                 <field name="roomtype_id"/>
-                <field name="roomview_id"/>
                 <field name="building_id"/>
                 <field name="roomlocation_id"/>
               </group>
               <group>
                 <field name="ratecode_id"/>
                 <field name="room_bedqty"/>
-                <field name="room_size"/>
-                <field name="room_extension"/>
-                <field name="room_desc"/>
-                <field name="room_img"/>
+                <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
+                <field name="room_extension" placeholder="Eg. 101... "/>
+                <field name="room_desc" placeholder="Eg. Special Remark"/>
+                <field name="room_img" widget="image" class="float-left oe_avatar"/>
               </group>
               <group>
                 <notebook>
                   <page string="Room Facility">
                     <field name="facility_ids"/>
+                  </page>
+                  <page string="Room Views">
+                    <field name="roomview_ids"/>
                   </page>
                 </notebook>
               </group>
@@ -470,19 +493,19 @@
       <field name="model">property.room</field>
       <field name="arch" type="xml">
         <tree string="Room Setup">
-          <field name="property_id"/>
-          <field name="room_no"/>
-          <field name="roomtype_id"/>
-          <field name="roomview_id"/>
-          <field name="building_id"/>
-          <field name="roomlocation_id"/>
-          <field name="facility_ids"/>
-          <field name="ratecode_id"/>
-          <field name="room_bedqty"/>
-          <field name="room_size"/>
-          <field name="room_extension"/>
-          <field name="room_desc"/>
-          <field name="room_img"/>
+          <field name="property_id" optional="hide"/>
+          <field name="room_no" optional="show"/>
+          <field name="building_id" optional="show"/>
+          <field name="roomtype_id" optional="show"/>
+          <field name="roomlocation_id" optional="show"/>
+          <field name="room_bedqty" optional="show"/>
+          <field name="room_extension" optional="show"/>
+          <field name="roomview_ids" optional="hide"/>
+          <field name="facility_ids" optional="hide"/>
+          <field name="ratecode_id" optional="hide"/>
+          <field name="room_size" optional="hide"/>
+          <field name="room_desc" optional="hide"/>
+          <field name="room_img" optional="hide"/>
         </tree>
       </field>
     </record>
@@ -503,9 +526,10 @@
             <h2>Market Segment</h2>
             <br></br>
             <group>
-                <field name="market_code"/>
-                <field name="market_name"/>
+                <field name="market_code" placeholder="Eg. CMP..."/>
+                <field name="market_name" placeholder="Eg. Complimentry..."/>
                 <field name="group_id"/>  
+                <field name="options"/>
             </group>
           </sheet>
         </form>
@@ -516,20 +540,145 @@
     <record id="market_segment_action_window" model="ir.actions.act_window">
       <field name="name">Market Segment</field>
       <field name="res_model">market.segment</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+        <!-- Market Source Form View -->
+    <record id="market_source_view_form" model="ir.ui.view">
+      <field name="name">market.source.view.form</field>
+      <field name="model">market.source</field>
+      <field name="arch" type="xml">
+        <form string="Market Source">
+          <sheet>
+            <h2>Market Source</h2>
+            <br></br>
+            <group>
+              <field name="source_code"/>
+              <field name="source_desc"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- action of market source -->
+    <record id="market_source_action_window" model="ir.actions.act_window">
+      <field name="name">Market Source</field>
+      <field name="res_model">market.source</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Special Day Form View -->
+    <record id="special_day_view_form" model="ir.ui.view">
+      <field name="name">special.day.view.form</field>
+      <field name="model">special.day</field>
+      <field name="arch" type="xml">
+        <form string="Special Day">
+          <sheet>
+            <h2>Special Day</h2>
+            <br></br>
+            <group>
+              <label for="special_date_from" string="Special Date"/>
+              <div>
+                <field name="special_date_from" placeholder="From"/>
+                <field name="special_date_to" placeholder="To"/>
+              </div>
+              <label for="special_desc" string="Description"/>
+              <div>
+                <field name="special_desc"/>
+              </div>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- action of special day -->
+    <record id="special_day_action_window" model="ir.actions.act_window">
+      <field name="name">Special Day</field>
+      <field name="res_model">special.day</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Weekend Form View -->
+    <record id="weekend_view_form" model="ir.ui.view">
+      <field name="name">weekend.view.form</field>
+      <field name="model">weekend.weekend</field>
+      <field name="arch" type="xml">
+        <form string="Weekend">
+          <sheet>
+            <h2>Please Select Weekend Days</h2>
+            <br></br>
+            <group>
+              <field name="monday"/>
+              <field name="tuesday"/>
+              <field name="wednesday"/>
+              <field name="thursday"/>
+              <field name="friday"/>
+              <field name="saturday"/>
+              <field name="sunday"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- action of weekend -->
+    <record id="weekend_action_window" model="ir.actions.act_window">
+      <field name="name">Weekend</field>
+      <field name="res_model">weekend.weekend</field>
+      <field name="view_mode">form</field>
+    </record>
+
+    <!-- Package Form View -->
+    <record id="package_view_form" model="ir.ui.view">
+      <field name="name">package.view.form</field>
+      <field name="model">package.package</field>
+      <field name="arch" type="xml">
+        <form string="Package">
+          <sheet>
+            <h2>Package</h2>
+            <br></br>
+            <group>
+              <field name="package_code"/>
+              <field name="package_name"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- action of package -->
+
+    <record id="package_action_window" model="ir.actions.act_window">
+      <field name="name">Package</field>
+      <field name="res_model">package.package</field>
       <field name="view_mode">form</field>
     </record>
     
     <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_1" sequence="1" action="property_action_window"/>
+
     <menuitem id="building_config" name="Room Configuration" parent="hotel_menu_1" sequence="2"/>
       <menuitem id="building_menu" name="Hotel Building" parent="building_config" sequence="5" action="building_action_window"/>
       <menuitem id="room_location_menu" name="Room Location" parent="building_config" sequence="10" action="room_location_action_window"/>
     
     <menuitem id="market_config" name="Market Segment" parent="hotel_menu_1" sequence="3"/>
         <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="15" action="market_segment_action_window"/>
+        <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="1" action="market_source_action_window"/>
 
     <menuitem id="room_type_menu" name="Room Type" parent="hotel_menu_2" sequence="1" action="room_type_action_window"/>
-      <menuitem id="room_view_menu" name="Room View" parent="hotel_menu_2" sequence="2" action="room_view_action_window"/>
-      <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
-      <menuitem id="room_menu" name="Room Number" parent="hotel_menu_2" sequence="4" action="property_room_action_window"/>
+    <menuitem id="room_view_menu" name="Room View" parent="hotel_menu_2" sequence="2" action="room_view_action_window"/>
+    <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
+    <menuitem id="room_menu" name="Room Number" parent="hotel_menu_2" sequence="4" action="property_room_action_window"/>
+
+    <menuitem id="define_we_sp" name="Weeekend and Special Days" parent="hotel_menu_3" sequence="1"/>
+      <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/>
+      <menuitem id="special_day_menu" name="Special Day" parent="define_we_sp" sequence="2" action="special_day_action_window"/>
+      
+    <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/>
+      <menuitem id="package_menu" name="Package" parent="pkg_st_menu" sequence="1" action="package_action_window"/>
+
+      
+      
   </data>
 </odoo>
