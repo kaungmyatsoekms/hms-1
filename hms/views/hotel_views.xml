@@ -6,7 +6,6 @@
     <menuitem id="hotel_menu_root" name="HMS-System" sequence="5"/>
 
     <!-- menu categories -->
-
     <menuitem id="hotel_menu_1" name="Hotel Configuration" parent="hotel_menu_root" sequence="1"/> 
     <menuitem id="hotel_menu_2" name="Room Configuration" parent="hotel_menu_root" sequence="2"/>
     <menuitem id="hotel_menu_3" name="Package Configuration" parent="hotel_menu_root" sequence="3"/>
@@ -28,23 +27,32 @@
                   icon="fa-building">
                   <field name="building_count" widget='statinfo'/>
               </button>
+              <button name="action_room_count"
+                  type="object"
+                  class="oe_stat_button"
+                  icon="fa-trello">
+                  <field name="room_count" widget='statinfo'/>
+              </button>
+              <button name="action_room_type_count"
+                  type="object"
+                  class="oe_stat_button"
+                  icon="fa-windows">
+                  <field name="roomtype_count" widget='statinfo'/>
+              </button>
             </div>
+            <separator colspan='1' string="Main Data Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
-              <label for="hotelgroup_id" class="oe_edit_only"/>
-              <h1>
-                <field name="hotelgroup_id" style="width:80%%"/>
-              </h1>
-              <label for="name" class="oe_edit_only"/>
-              <h2>
-                <field name="name" placeholder="Hotel Name" style="width:80%%"/>
-              </h2>
-              <label for="code" class="oe_edit_only"/>
-              <h3>
-                <field name="code" style="width:80%%"/>
-              </h3>
+              <label for ="code" string="Hotel ID"/>
+              <h3><field name="code" style="width:80%%"/></h3>
+              <label for="name" string="Hotel Name"/>
+              <h3><field name="name" placeholder="Hotel Name" style="width:80%%"/></h3>
+              <label for="hotelgroup_id" string="Hotel Group" />
+              <h3><field name="hotelgroup_id" style="width:80%%"/></h3>
             </div>
+            <newline/>
             <group>
+              <separator colspan='4' string="Property Information" />
               <group>
                 <label for="address1" string="Address"/>
                 <div class="o_address_format">
@@ -58,12 +66,11 @@
                 </div>
                 <label for="image" string="Image"/>
                 <div>
-                  <field name="image" widget="image" class="float-left oe_avatar"/>
+                  <field name="image"/>
                 </div>
               </group>
-              <group>
-                <field name="roomqty"/>
-                <!-- <field name="rating"/>  -->
+             <group>
+             <newline/>
                 <field name="rating" widget="priority"/>
                 <field name="phone"/>
                 <field name="fax"/>
@@ -71,6 +78,7 @@
                 <field name="website" widget="url"/>
                 <field name="sociallink" widget="url"/>
               </group>
+            <newline/>
             </group>
             <notebook colspan="5">
               <page string='Contact Information' autofocus="autofocus">
@@ -89,16 +97,17 @@
                 <group>
                   <div>
                     <field name="propertyroom_ids" context="{'default_property_id' : id}"/>
-                      <!-- <field name="propertyroom_ids" context="{'default_property_id' : id}">
-                      <tree editable="bottom">
-                        <field name="property_id"/>
-                        <field name="room_no"/>
-                      </tree>
-                    </field> -->
                   </div>
                 </group> 
               </page>
+              <page string='Packages'>
+                <field name="package_ids" context="{'default_property_id' : id}"/>
+              </page>
+              <page string='Transaction'>
+                <field name="transaction_ids" context="{'default_property_id' : id}"/>
+              </page>
               <page string='Hotel License'>
+                <field name="roomqty"/>
                 <field name="property_license"/>
               </page>
               <page string='Internal Notes'>
@@ -281,7 +290,7 @@
             <group>
               <group>
                 <field name="building_name" placeholder="Eg. Story Building (or) Villa" />
-                <field name="building_type" placeholder="Eg. Building Type"/>
+                <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}'/>
               </group>
               <group>
                 <field name="building_location"/>
@@ -320,6 +329,43 @@
       <field name="name">Hotel Building</field>
       <field name="res_model">building.building</field>
       <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ===========Building Type Setup============-->
+      <!-- Building Type View List -->
+    <record id="building_type_view_list" model="ir.ui.view">
+          <field name="name">building.type.view.list</field>
+          <field name="model">building.type</field>
+          <field name="arch" type="xml">
+              <tree string="State" editable="bottom">
+                  <field name="building_type"/>
+                  <field name="buildingtype_desc"/>
+              </tree>
+          </field>
+      </record>
+    <!-- Building Type View Form -->
+    <record id="building_type_view_form" model="ir.ui.view">
+        <field name="name">building.type.view.form</field>
+        <field name="model">building.type</field>
+        <field name="arch" type="xml">
+            <form string="Building Type">
+                <sheet>
+                    <group>
+                        <field name="building_type"/>
+                        <field name="buildingtype_desc"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action of Room Type-->
+    <record id="action_country_state" model="ir.actions.act_window">
+            <field name="name">Fed. States</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">building.type</field>
+            <field name="view_id" ref="building_type_view_list"/>
+            <field name="help">You can manage the different federal states you are working on from here. Each state is attached to one country.</field>
     </record>
 
     <!-- ========== Hotel Room Location Setup ========== -->
@@ -416,7 +462,7 @@
     <record id="room_type_action_window" model="ir.actions.act_window">
       <field name="name">Room Type</field>
       <field name="res_model">room.type</field>
-      <field name="view_mode">form</field>
+      <field name="view_mode">kanban,tree,form</field>
     </record>
 
     <!-- ========== Room View Setup ========== -->
@@ -476,33 +522,51 @@
       <field name="name">property.room.view.form</field>
       <field name="model">property.room</field>
       <field name="arch" type="xml">
-        <form string="Room Setup">
+        <form string="Property Room">
           <sheet>
-            <h2>Room Setup</h2>
+            <h2>Property Room</h2>
             <br></br>
+            <field name="room_img" widget="image" class="oe_avatar"/>
             <group>
               <group>
                 <field name="property_id"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
                 <field name="roomtype_id"/>
-                <field name="building_id"/>
-                <field name="roomlocation_id"/>
+                 <field name="building_id"/> <!--domain="[('property_id', '=', context.get('default_property_id'))]" -->
+                <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                <field name="roomview_ids" widget="many2many_tags"/>
               </group>
               <group>
                 <field name="ratecode_id"/>
                 <field name="room_bedqty"/>
                 <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
                 <field name="room_extension" placeholder="Eg. 101... "/>
-                <field name="room_desc" placeholder="Eg. Special Remark"/>
-                <field name="room_img" widget="image" class="float-left oe_avatar"/>
+                <field name="room_desc" placeholder="Eg. Special Remark"/> 
               </group>
-              <group>
-                <notebook>
-                  <page string="Room Facility">
-                    <field name="facility_ids"/>
-                  </page>
-                  <page string="Room Views">
-                    <field name="roomview_ids"/>
+            <group>
+              <notebook>
+                <page string="Room Facility">
+                    <field name="facility_ids" widget="many2many_kanban">
+                    <kanban quick_create="false" create="true" delete="true">
+                      <field name="name"/>
+                      <field name="facilitytype_id"/>
+                      <field name="facility_desc"/>
+                      <templates>
+                        <t t-name="kanban-box">
+                          <div class="oe_kanban_global_click" style="position: relative">
+                            <a t-if="! read_only_mode" type="delete" style="position: absolute; right: 0; padding: 4px; display: inline-block">X</a>
+                            <div class="oe_module_vignette">
+                                <div class="oe_module_desc">
+                                  <field name="name"/>
+                                  <field name="facilitytype_id"/>
+                                  <field name="facility_desc"/>
+                                </div>
+                            </div>
+                          </div>
+                        </t>
+                      </templates>
+                    </kanban>
+                    </field>
                   </page>
                 </notebook>
               </group>
@@ -679,6 +743,78 @@
       <field name="res_model">package.package</field>
       <field name="view_mode">form</field>
     </record>
+
+     <!-- Transaction Group Form View -->
+    <!-- <record id="transaction_group_view_form" model="ir.ui.view">
+      <field name="name">transaction.group.view.form</field>
+      <field name="model">transaction.group</field>
+      <field name="arch" type="xml">
+        <form string="Transaction Group">
+          <sheet>
+            <group>
+              <field name="property_id" context="{'default_property_id' : active_id}"/>
+              <field name="group_name"/>
+              <field name="group_desc"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record> -->
+
+    <!-- Transaction Form View -->
+    <record id="transaction_view_form" model="ir.ui.view">
+      <field name="name">transaction.view.form</field>
+      <field name="model">transaction.transaction</field>
+      <field name="arch" type="xml">
+        <form string="Transaction">
+          <sheet>
+            <h2>Transaction Setup</h2>
+            <br></br>
+            <group>
+              <group>
+                <field name="property_id"/>
+                <field name="trans_code"/>
+                <field name="trans_name"/>
+                <field name="transgroup_id" context="{'default_property_id' : property_id}"/>
+                <field name="trans_revtype"/>
+                <field name="trans_unitprice"/>
+                <field name="trans_utilities"/>
+                <field name="trans_svc"/>
+                <field name="trans_tax"/>
+                <field name="trans_internal"/>
+                <field name="trans_minus"/>
+                <field name="trans_type"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <!-- Transaction List View -->
+    <record id="transaction_view_list" model="ir.ui.view">
+      <field name="name">transaction.view.list</field>
+      <field name="model">transaction.transaction</field>
+      <field name="arch" type="xml">
+        <tree string="Transaction">
+          <field name="trans_name"/>
+          <field name="trans_revtype"/>
+          <field name="trans_unitprice"/>
+          <field name="trans_utilities" optional="hide"/>
+          <field name="trans_svc" optional="hide"/>
+          <field name="trans_tax" optional="hide"/>
+          <field name="trans_internal" optional="hide"/>
+          <field name="trans_minus" optional="hide"/>
+          <field name="trans_type" optional="hide"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- action of transaction -->
+    <record id="transaction_action_window" model="ir.actions.act_window">
+      <field name="name">Transaction</field>
+      <field name="res_model">transaction.transaction</field>
+      <field name="view_mode">tree,form</field>
+    </record>
     
     <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_1" sequence="1" action="property_action_window"/>
 
@@ -701,8 +837,6 @@
       
     <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/>
       <menuitem id="package_menu" name="Package" parent="pkg_st_menu" sequence="1" action="package_action_window"/>
-
-      
       
   </data>
 </odoo>

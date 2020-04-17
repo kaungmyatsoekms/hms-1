@@ -14,4 +14,9 @@ access_market_segment,market.segment,model_market_segment,base.group_user,1,1,1,
 access_market_group,market.group,model_market_group,base.group_user,1,1,1,1
 access_bank_info,bank.info,model_bank_info,base.group_user,1,1,1,1
 access_market_source,market.source,model_market_source,base.group_user,1,1,1,1
+access_special_day,special.day,model_special_day,base.group_user,1,1,1,1
+access_weekend_weekend,weekend.weekend,model_weekend_weekend,base.group_user,1,1,1,1
+access_package_package,package.package,model_package_package,base.group_user,1,1,1,1
+access_transaction_group,transaction.group,model_transaction_group,base.group_user,1,1,1,1
+access_transaction_transaction,transaction.transaction,model_transaction_transaction,base.group_user,1,1,1,1
 
