@@ -6,6 +6,7 @@ access_room_location,room.location,model_room_location,base.group_user,1,1,1,1
 access_room_type,room.type,model_room_type,base.group_user,1,1,1,1
 access_room_view,room.view,model_room_view,base.group_user,1,1,1,1
 access_room_facility,room.facility,model_room_facility,base.group_user,1,1,1,1
+access_room_amenity,room.amenity,model_room_amenity,base.group_user,1,1,1,1
 access_room_facility_type,room.facility.type,model_room_facility_type,base.group_user,1,1,1,1
 access_property_room,property.room,model_property_room,base.group_user,1,1,1,1
 access_hotel_group,hotel.group,model_hotel_group,base.group_user,1,1,1,1
@@ -19,4 +20,7 @@ access_weekend_weekend,weekend.weekend,model_weekend_weekend,base.group_user,1,1
 access_package_package,package.package,model_package_package,base.group_user,1,1,1,1
 access_transaction_group,transaction.group,model_transaction_group,base.group_user,1,1,1,1
 access_transaction_transaction,transaction.transaction,model_transaction_transaction,base.group_user,1,1,1,1
+access_rsvn_type,rsvn.type,model_rsvn_type,base.group_user,1,1,1,1
+access_rsvn_status,rsvn.status,model_rsvn_status,base.group_user,1,1,1,1
+access_credit_limit,credit.limit,model_credit_limit,base.group_user,1,1,1,1
 

@@ -10,7 +10,6 @@
     <menuitem id="hotel_menu_2" name="Room Configuration" parent="hotel_menu_root" sequence="2"/>
     <menuitem id="hotel_menu_3" name="Package Configuration" parent="hotel_menu_root" sequence="3"/>
       
-
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -19,6 +18,10 @@
       <field name="priority" eval="1"/>
       <field name="arch" type="xml">
         <form string="Property">
+        <header>
+          <field name='is_property' invisible='1'/>
+            <button string="Package" name="action_package" type="object" class="btn btn-primary"><i class="fa fa-paint-brush"></i></button>
+        </header> 
           <sheet>
             <div class="oe_button_box" name="button_box">
               <button name="action_building_count"
@@ -72,11 +75,11 @@
              <group>
              <newline/>
                 <field name="rating" widget="priority"/>
-                <field name="phone"/>
-                <field name="fax"/>
-                <field name="email"/>
-                <field name="website" widget="url"/>
-                <field name="sociallink" widget="url"/>
+                <field name="phone" placeholder="Eg. 09123456789....."/>
+                <field name="fax" placeholder="Eg. 01-123456"/>
+                <field name="email" placeholder="example@company.com....."/>
+                <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
+                <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
               </group>
             <newline/>
             </group>
@@ -84,14 +87,17 @@
               <page string='Contact Information' autofocus="autofocus">
                 <field name="contact_ids" mode="kanban"/>
               </page>
-              <page string='Bank Information'>
-                <field name="bankinfo_ids" context="{'default_property_id' : id}" mode="kanban"/>
-              </page>
               <page string='Buildings (or) Zone'>
                 <div><field name="building_ids"/></div>
               </page> 
-              <page string='Room Type'>
+              <page string='Room Type / Market Segment'>
+                <h2> Room Type</h2>
                 <field name="roomtype_ids"/> 
+                <h2>Market Segment</h2>
+                <field name="market_ids"/>
+              </page>
+              <page string='Bank Information'>
+                <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" context="{'default_property_id' : id}" mode="kanban"/>
               </page>
               <page string='Room Number'>
                 <group>
@@ -104,7 +110,10 @@
                 <field name="package_ids" context="{'default_property_id' : id}"/>
               </page>
               <page string='Transaction'>
+                <h2> Transaction </h2>
                 <field name="transaction_ids" context="{'default_property_id' : id}"/>
+                <h2>Credit Limit</h2>
+                <field name="creditlimit_ids" context="{'default_property_id' : id}"/>
               </page>
               <page string='Hotel License'>
                 <field name="roomqty"/>
@@ -291,11 +300,11 @@
               <group>
                 <field name="building_name" placeholder="Eg. Story Building (or) Villa" />
                 <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}'/>
+                <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities"/>
               </group>
               <group>
                 <field name="building_location"/>
                 <field name="building_desc"/>
-                <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities"/>
                 <field name="building_img" widget="image" class="float-left oe_avatar"/>
                 <!-- <field name="location_number" invisible ='1'/> -->
               </group>
@@ -351,8 +360,8 @@
             <form string="Building Type">
                 <sheet>
                     <group>
-                        <field name="building_type"/>
-                        <field name="buildingtype_desc"/>
+                        <field name="building_type" placeholder="Eg. BLD....."/>
+                        <field name="buildingtype_desc" placeholder="Eg. Building Type....."/>
                     </group>
                 </sheet>
             </form>
@@ -502,13 +511,27 @@
             <br></br>
             <group>
               <field name="facilitytype_id"/>
-              <field name="name" placeholder="Eg. Aircon..."/>
+              <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags"/>
               <field name="facility_desc" placeholder="Eg. Aircon....."/> 
             </group>
           </sheet>
         </form>
       </field>
     </record>
+
+    <!-- Room Facility List View -->
+    <record id="room_facility_view_tree" model="ir.ui.view">
+      <field name="name">room.facility.view.tree</field>
+      <field name="model">room.facility</field>
+      <field name="arch" type="xml">
+        <tree string="Room Facility">
+          <field name="facilitytype_id"/>
+          <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags"/>
+          <field name="facility_desc" placeholder="Eg. Aircon....."/>
+        </tree>
+      </field>
+    </record>
+
     <!-- action of room facility setup -->
     <record id="room_facility_action_window" model="ir.actions.act_window">
       <field name="name">Room Facility</field>
@@ -531,16 +554,18 @@
               <group>
                 <field name="property_id"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
+                <field name="roomtype_ids" invisible="1"/>
                 <field name="roomtype_id"/>
-                 <field name="building_id"/> <!--domain="[('property_id', '=', context.get('default_property_id'))]" -->
+                <field name="building_ids" invisible="1"/>
+                <field name="building_id" />
                 <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
-                <field name="roomview_ids" widget="many2many_tags"/>
+                <field name="room_bedqty"/>
               </group>
               <group>
-                <field name="ratecode_id"/>
-                <field name="room_bedqty"/>
-                <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
                 <field name="room_extension" placeholder="Eg. 101... "/>
+                <field name="roomview_ids" widget="many2many_tags"/>
+                <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
+                <field name="ratecode_id"/>
                 <field name="room_desc" placeholder="Eg. Special Remark"/> 
               </group>
             <group>
@@ -548,7 +573,7 @@
                 <page string="Room Facility">
                     <field name="facility_ids" widget="many2many_kanban">
                     <kanban quick_create="false" create="true" delete="true">
-                      <field name="name"/>
+                      <field name="amenity_ids"/>
                       <field name="facilitytype_id"/>
                       <field name="facility_desc"/>
                       <templates>
@@ -557,9 +582,9 @@
                             <a t-if="! read_only_mode" type="delete" style="position: absolute; right: 0; padding: 4px; display: inline-block">X</a>
                             <div class="oe_module_vignette">
                                 <div class="oe_module_desc">
-                                  <field name="name"/>
                                   <field name="facilitytype_id"/>
                                   <field name="facility_desc"/>
+                                  <field name="amenity_ids"/>
                                 </div>
                             </div>
                           </div>
@@ -624,6 +649,20 @@
       </field>
     </record>
 
+     <!-- Market Segment List View -->
+    <record id="market_segment_view_tree" model="ir.ui.view">
+      <field name="name">market.segment.view.tree</field>
+      <field name="model">market.segment</field>
+      <field name="arch" type="xml">
+        <tree string="Market Segment">
+          <field name="market_code" />
+          <field name="market_name" />
+          <field name="group_id"/>  
+          <field name="options"/>
+        </tree>
+      </field>
+    </record>
+
     <!-- action of market segment -->
     <record id="market_segment_action_window" model="ir.actions.act_window">
       <field name="name">Market Segment</field>
@@ -641,8 +680,8 @@
             <h2>Market Source</h2>
             <br></br>
             <group>
-              <field name="source_code"/>
-              <field name="source_desc"/>
+              <field name="source_code" placeholder="Eg. PH...."/>
+              <field name="source_desc" placeholder="Eg. Phone....."/>
             </group>
           </sheet>
         </form>
@@ -666,10 +705,10 @@
             <h2>Special Day</h2>
             <br></br>
             <group>
-              <label for="special_date_from" string="Special Date"/>
+              <field name="property_id"/>
+              <label for="special_date" string="Special Date"/>
               <div>
-                <field name="special_date_from" placeholder="From"/>
-                <field name="special_date_to" placeholder="To"/>
+                <field name="special_date" placeholder="Eg. Water Festival Date....."/>
               </div>
               <label for="special_desc" string="Description"/>
               <div>
@@ -693,18 +732,18 @@
       <field name="name">weekend.view.form</field>
       <field name="model">weekend.weekend</field>
       <field name="arch" type="xml">
-        <form string="Weekend">
+        <form string="Weekend" create="false">>
           <sheet>
-            <h2>Please Select Weekend Days</h2>
+            <h2>Define Weekends</h2>
             <br></br>
             <group>
-              <field name="monday"/>
-              <field name="tuesday"/>
-              <field name="wednesday"/>
-              <field name="thursday"/>
-              <field name="friday"/>
-              <field name="saturday"/>
-              <field name="sunday"/>
+              <field name="monday" widget="boolean_toggle"/>
+              <field name="tuesday" widget="boolean_toggle"/>
+              <field name="wednesday" widget="boolean_toggle"/>
+              <field name="thursday" widget="boolean_toggle"/>
+              <field name="friday" widget="boolean_toggle"/>
+              <field name="saturday" widget="boolean_toggle"/>
+              <field name="sunday" widget="boolean_toggle"/>
             </group>
           </sheet>
         </form>
@@ -728,8 +767,9 @@
             <h2>Package</h2>
             <br></br>
             <group>
-              <field name="package_code"/>
-              <field name="package_name"/>
+              <field name="property_id"/>
+              <field name="package_code" placeholder="Eg. INBF....."/>
+              <field name="package_name" placeholder="Eg. Including Breakfast....."/>
             </group>
           </sheet>
         </form>
@@ -768,21 +808,21 @@
       <field name="arch" type="xml">
         <form string="Transaction">
           <sheet>
-            <h2>Transaction Setup</h2>
+            <h2>Transaction</h2>
             <br></br>
             <group>
               <group>
                 <field name="property_id"/>
-                <field name="trans_code"/>
-                <field name="trans_name"/>
-                <field name="transgroup_id" context="{'default_property_id' : property_id}"/>
                 <field name="trans_revtype"/>
+                <field name="transgroup_id" context="{'default_property_id' : property_id}"/>
+                <field name="trans_code" placeholder="Eg. 1001....."/>
+                <field name="trans_name" placeholder="Eg. Room Charge ....."/>
                 <field name="trans_unitprice"/>
                 <field name="trans_utilities"/>
-                <field name="trans_svc"/>
-                <field name="trans_tax"/>
-                <field name="trans_internal"/>
-                <field name="trans_minus"/>
+                <field name="trans_svc" widget="boolean_toggle"/>
+                <field name="trans_tax" widget="boolean_toggle"/>
+                <field name="trans_internal" widget="boolean_toggle"/>
+                <field name="trans_minus" widget="boolean_toggle"/>
                 <field name="trans_type"/>
               </group>
             </group>
@@ -815,6 +855,142 @@
       <field name="res_model">transaction.transaction</field>
       <field name="view_mode">tree,form</field>
     </record>
+
+    <!-- Reservation Type Form View-->
+    <record id="rsvn_type_view_form" model="ir.ui.view">
+      <field name="name">rsvn.type.view.form</field>
+      <field name="model">rsvn.type</field>
+      <field name="arch" type="xml">
+        <form string="Reservation Type">
+          <sheet>
+            <h2>Reservation Type</h2>
+            <br></br>
+            <group>
+              <group>
+                <field name="rsvn_name" placeholder="Eg. Confirmed (or) Unconfirmed....."/>
+                <field name="rsvn_options"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <!-- Reservation Type List View -->
+    <record id="rsvn_type_view_list" model="ir.ui.view">
+      <field name="name">rsvn.type.view.list</field>
+      <field name="model">rsvn.type</field>
+      <field name="arch" type="xml">
+        <tree string="Reservation Type">
+          <field name="rsvn_name"/>
+          <field name="rsvn_options"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- action of Reservation Type -->
+    <record id="rsvn_type_action_window" model="ir.actions.act_window">
+      <field name="name">Reservation Type</field>
+      <field name="res_model">rsvn.type</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Reservation Status Form View-->
+    <record id="rsvn_status_view_form" model="ir.ui.view">
+      <field name="name">rsvn.status.view.form</field>
+      <field name="model">rsvn.status</field>
+      <field name="arch" type="xml">
+        <form string="Reservation Type">
+          <sheet>
+            <h2>Reservation Type</h2>
+            <br></br>
+            <group>
+              <group>
+                <field name="rsvn_code" placeholder="Eg. CMG....."/>
+                <field name="rsvn_status" placeholder="Eg. Company Granteed....."/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <!-- Reservation Status List View -->
+    <record id="rsvn_status_view_list" model="ir.ui.view">
+      <field name="name">rsvn.status.view.list</field>
+      <field name="model">rsvn.status</field>
+      <field name="arch" type="xml">
+        <tree string="Reservation Type">
+          <field name="rsvn_code"/>
+          <field name="rsvn_status"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- action of Reservation Status -->
+    <record id="rsvn_status_action_window" model="ir.actions.act_window">
+      <field name="name">Reservation Status</field>
+      <field name="res_model">rsvn.status</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Credit Limit Form View -->
+    <record id="credit_limit_view_form" model="ir.ui.view">
+      <field name="name">credit.limit.view.form</field>
+      <field name="model">credit.limit</field>
+      <field name="arch" type="xml">
+        <form string="Credit Limit">
+          <sheet>
+            <h2>Credit Limit</h2>
+            <br></br>
+            <group>
+              <group>
+                <field name="property_id"/>
+                <field name="crd_startdate"/>
+                <field name="crd_enddate"/>
+                <field name="crd_cash" />
+                <field name="crd_cl" />
+                <field name="crd_ax" />
+                <field name="crd_dc"/>
+                <field name="crd_mc"/>
+                <field name="crd_vs"/>
+                <field name="crd_jcb"/>
+                <field name="crd_lc"/>
+                <field name="crd_un"/>
+                <field name="crd_others"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Credit Limit List View -->
+    <record id="credit_limit_view_list" model="ir.ui.view">
+      <field name="name">credit.limit.view.list</field>
+      <field name="model">credit.limit</field>
+      <field name="arch" type="xml">
+        <tree string="Credit Limit">
+          <field name="crd_startdate"/>
+          <field name="crd_enddate"/>
+          <field name="crd_cash" optional="show"/>
+          <field name="crd_cl" optional="show"/>
+          <field name="crd_ax" optional="hide"/>
+          <field name="crd_dc" optional="hide"/>
+          <field name="crd_mc" optional="hide"/>
+          <field name="crd_vs" optional="hide"/>
+          <field name="crd_jcb" optional="hide"/>
+          <field name="crd_lc" optional="hide"/>
+          <field name="crd_un" optional="hide"/>
+          <field name="crd_others" optional="hide"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- action of Credit Limit -->
+    <record id="credit_limit_action_window" model="ir.actions.act_window">
+      <field name="name">Credit Limit</field>
+      <field name="res_model">credit.limit</field>
+      <field name="view_mode">tree,form</field>
+    </record>
     
     <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_1" sequence="1" action="property_action_window"/>
 
@@ -829,7 +1005,6 @@
     <menuitem id="room_type_menu" name="Room Type" parent="hotel_menu_2" sequence="1" action="room_type_action_window"/>
     <menuitem id="room_view_menu" name="Room View" parent="hotel_menu_2" sequence="2" action="room_view_action_window"/>
     <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
-    <menuitem id="room_menu" name="Room Number" parent="hotel_menu_2" sequence="4" action="property_room_action_window"/>
 
     <menuitem id="define_we_sp" name="Define Weeekend" parent="hotel_menu_3" sequence="1"/>
       <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/>
@@ -837,6 +1012,11 @@
       
     <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/>
       <menuitem id="package_menu" name="Package" parent="pkg_st_menu" sequence="1" action="package_action_window"/>
+    
+    <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hotel_menu_3" sequence="3"/>
+      <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="rsvn_type_action_window"/>
+      <menuitem id="rsvn_status_menu" name="Reservation Status" parent="rsvn_type_set_menu" sequence="2" action="rsvn_status_action_window"/>
+      <!-- <menuitem id="transaction_menu" name="Transactions" parent="rsvn_type_set_menu" sequence="3" action="transaction_action_window"/> -->
       
   </data>
 </odoo>

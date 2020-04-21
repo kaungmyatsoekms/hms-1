@@ -1,5 +1,5 @@
 from odoo import models, fields, api, tools, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 #from odoo.tools import image_colorize, image_resize_image_big
 from odoo.tools import *
@@ -24,6 +24,7 @@ class Property(models.Model):
     _name = "property.property"
     _description = "Property"
 
+    is_property = fields.Boolean(string ='Is Property', compute='_compute_is_property')
     hotelgroup_id = fields.Many2one('hotel.group',
                                     string='Hotel Group',
                                     required=True)
@@ -51,6 +52,7 @@ class Property(models.Model):
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
     building_ids = fields.Many2many('building.building')
+    market_ids = fields.Many2many('market.segment', string="Market Segment")
     propertyroom_ids = fields.One2many('property.room','property_id', string="Property Room")
     building_count = fields.Integer("Building", compute='_compute_building_count')
     room_count = fields.Integer("Room", compute='_compute_room_count')
@@ -58,6 +60,33 @@ class Property(models.Model):
     package_ids = fields.One2many('package.package', 'property_id', string="Package")
     transgroup_ids = fields.One2many('transaction.group', 'property_id', string="Transaction Group")
     transaction_ids = fields.One2many('transaction.transaction', 'property_id', string="Transaction")
+    creditlimit_ids = fields.One2many('credit.limit', 'property_id', string="Credit Limit")
+
+    def _compute_is_property(self):
+        self.is_property=True
+
+    def action_package(self):
+        packages = self.mapped('package_ids')
+        action = self.env.ref('hms.package_action_window').read()[0]
+        if len(packages) >= 1:
+            action['domain'] = [('id', 'in', packages.ids)]
+        elif len(packages) == 0:
+            form_view = [(self.env.ref('hms.package_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = packages.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'} 
+
+        context = {
+            'default_property_id': 'id',
+        }
+        return action
 
     def action_building_count(self):
         buildings = self.mapped('building_ids')
@@ -204,7 +233,7 @@ class Building(models.Model):
                                  attachment=True,
                                  store=True)
     building_desc = fields.Text(string='Description')
-    building_capacity = fields.Integer(string='Capacity', required=True)
+    building_capacity = fields.Integer(string='Capacity', default=1, required=True)
     location_ids = fields.Many2many('room.location', string="Room Location", required=True)
     # location_number = fields.Integer("Location Number", compute="_room_location_count", readonly=True)
 
@@ -299,16 +328,23 @@ class RoomFacility(models.Model):
     _description = "Room Facility"
     _order = 'facilitytype_id'
 
-    name = fields.Char(string="Room Facility", required=True)
+    amenity_ids = fields.Many2many('room.amenity',string="Room Facility", required=True)
     facilitytype_id =  fields.Many2one('room.facility.type', string='Facility Type', required=True)
     facility_desc= fields.Text(string="Description")
+
+class RoomAmenitiy(models.Model):
+    _name = "room.amenity"
+    _description = "Room Amenity"
+
+    name = fields.Char(string="Amenity Name", required=True)
+    amenity_desc = fields.Text(string="Descripton")
 
 class RoomFacilityType(models.Model):
     _name = "room.facility.type"
     _description = "Room Facility Type"
 
-    facility_type = fields.Char(string="Room Facility Type ", size=3, required=True)
-    facilitytype_desc = fields.Char(string="Description", required=True)
+    facility_type = fields.Char(string="Room Facility Type ", help='Eg. EQP.....', size=3, required=True)
+    facilitytype_desc = fields.Char(string="Description", help='Eg.Room Equipment.....', required=True)
     
     def name_get(self):
         res = []
@@ -326,36 +362,39 @@ class PropertyRoom(models.Model):
                 #     domain = {'roomtype_id': [('id', '=', roomtype_list)]}
                 #     return {'domain': domain} 
 
-    # def _default_property_id(self):
-    #     rec = self.env['property.property'].browse(self._context.get('active_id'))
-    #     return rec
-    
+
+    # @api.model
     # def _default_roomtype_id(self):
     #     roomtype_list =[]
     #     domain = {}
-    #     for rec in self:
-    #         if(rec.property_id.roomtype_ids):
-    #             for roomtype in rec.property_id.roomtype_ids:
-    #                 roomtype_list.append(roomtype.id)
-    #                 domain = {'roomtype_id': [('id', '=', roomtype_list)]}
-    #         return {'domain': domain} 
+    #     property_id = self.env['property.property'].browse(self._context.get('default_property_id'))
+    #     if  property_id.roomtype_ids:
+    #         for roomtype in property_id.roomtype_ids:
+    #             roomtype_list.append(roomtype.id)
+    #         domain = {'roomtype_id':  [('id', 'in', roomtype_list)]} 
+    #         return {'domain': domain}
 
-    def _default_roomtype_id(self):
-        rec = self.env['property.property'].browse(self._context.get('default_property_id'))
-        if(rec.roomtype_ids):
-            return rec.roomtype_ids
-        return False
+    # def _default_property_id(self):
+    #     rec = self.env['property.property'].browse(self._context.get('active_id'))
+    #     return rec
+
+    # def _default_roomtype_id(self):
+    #     rec = self.env['property.property'].browse(self._context.get('default_property_id'))
+    #     if(rec.roomtype_ids):
+    #         return rec.roomtype_ids
+    #     return False
     
     room_no = fields.Char(string="Room No", required=True)
     property_id = fields.Many2one('property.property', string="Property", required=True)
-    roomtype_id = fields.Many2one('room.type', string="Room Type", default=_default_roomtype_id, required=True)
-    # roomtype_id = fields.Many2one('room.type', string="Room Type", related='property_id.roomtype_ids', required=True)
+    roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
+    roomtype_id = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
     roomview_ids = fields.Many2many('room.view', string="Room View Code")
-    building_id = fields.Many2one('building.building', string="Room Building", required=True)
+    building_ids = fields.Many2many("building.building", related="property_id.building_ids")
+    building_id = fields.Many2one('building.building', string="Room Building", domain="[('id', '=?', building_ids)]", required=True)
     roomlocation_id = fields.Many2one('room.location', string="Location", required=True)
     facility_ids = fields.Many2many('room.facility', string="Room Facility", required=True)
     ratecode_id = fields.Char(string="Ratecode")
-    room_bedqty = fields.Integer(string="Number of Beds", required=True)
+    room_bedqty = fields.Integer(string="Number of Beds", required=True, default=1, size=2)
     room_size = fields.Char(string="Room Size")
     room_extension = fields.Char(string="Room Extension")
     room_img = fields.Binary(string="Image", attachment=True, store=True)
@@ -364,8 +403,8 @@ class PropertyRoom(models.Model):
     room_fostatus = fields.Char(string="FO Room Status", size=2, default='VC', invisible=True)
     room_hkstatus = fields.Char(string="HK Room Status", size=2, default='VC', invisible=True)
     room_status = fields.Char(string="Room Status",size=2, default='CL', invisible=True) 
-    
 
+    
     # Building Link with Property 
     # @api.onchange('property_id')
     # def onchange_bulding(self):
@@ -387,7 +426,7 @@ class PropertyRoom(models.Model):
             if (rec.building_id.location_ids):
                 for location in rec.building_id.location_ids:
                     location_list.append(location.id)
-                domain = {'roomlocation_id': [('id', '=', location_list)]}
+                domain = {'roomlocation_id': [('id', 'in', location_list)]}
                 return {'domain': domain}
 
     # Room Type Link with Property 12.4.20
@@ -439,12 +478,18 @@ class MarketSegment(models.Model):
         ('C', 'Complimentary'),
         ('O', 'Others'),], string="Options")
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.market_name, record.market_code)))
+        return result
+
 class MarketGroup(models.Model):
     _name = "market.group" 
     _description = "Market Group"
 
-    group_code = fields.Char(string="Group Code", size=3, required=True)
-    group_name = fields.Char(string="Group Name", required=True)
+    group_code = fields.Char(string="Group Code", help='Eg. COR.....', size=3, required=True)
+    group_name = fields.Char(string="Group Name", help='Eg. Corporate.....', required=True)
 
     def name_get(self):
         result = []
@@ -462,9 +507,12 @@ class MarketSource(models.Model):
 class SpecialDay(models.Model):
     _name = "special.day"
     _description = "Special Day"
+    _rec_name = 'special_date'
 
-    special_date_from = fields.Date(string="Special Date From", required=True)
-    special_date_to = fields.Date(string="Special Date To", required=True)
+    property_id = fields.Many2one('property.property',
+                                  string="Property",
+                                  required=True)
+    special_date = fields.Date(string="Special Date", required=True)
     special_desc = fields.Char(string="Description")
 
 class Weekend(models.Model):
@@ -475,8 +523,8 @@ class Weekend(models.Model):
     tuesday = fields.Boolean(string="Tuesday")
     wednesday = fields.Boolean(string="Wednesday")
     thursday = fields.Boolean(string="Thursday")
-    friday = fields.Boolean(string="Friday")
-    saturday = fields.Boolean(string="Saturday")
+    friday = fields.Boolean(string="Friday", default=True)
+    saturday = fields.Boolean(string="Saturday", default=True)
     sunday = fields.Boolean(string="Sunday")
 
 class Package(models.Model):
@@ -541,3 +589,45 @@ class Transaction(models.Model):
         ('V', 'Tax'),
     ],
                                   string="Transaction Type")
+
+# Reservation Type
+class RsvnType(models.Model):
+    _name = "rsvn.type"
+    _description = "Reservation Type"
+
+    rsvn_name = fields.Char(string="Reservation Type", size=30, required=True)
+    rsvn_options = fields.Selection([
+        ('CF', 'Confirmed'),
+        ('UC', 'Unconfirmed'),
+    ], string="Options", required=True)
+    
+#Reservation Status
+class RsvnStatus(models.Model):
+
+    _name = "rsvn.status"
+    _description = "Reservation Status"
+
+    rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
+    rsvn_status = fields.Char(string="Description", required=True)
+
+#Credit Limit
+class CreditLimit(models.Model):
+    _name = "credit.limit"
+    _description = "Credit Limit"
+
+    property_id = fields.Many2one('property.property',
+                                  string="Property",
+                                  required=True, readonly=True)
+    crd_startdate = fields.Date(string="Start Date", required=True)
+    crd_enddate = fields.Date(string="End Date", required=True)
+    crd_cash = fields.Float(string="Cash")
+    crd_cl = fields.Float(string="City Ledger")
+    crd_ax = fields.Float(string="Amex Card")
+    crd_dc = fields.Float(string="Diner Club")
+    crd_mc = fields.Float(string="Master Card")
+    crd_vs = fields.Float(string="Visa Card")
+    crd_jcb = fields.Float(string="JCB Card")
+    crd_lc = fields.Float(string="Local Card")
+    crd_un = fields.Float(string="Union Pay Card")
+    crd_others = fields.Float(string="Others")
+
