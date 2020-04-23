@@ -61,9 +61,43 @@ class Property(models.Model):
     transgroup_ids = fields.One2many('transaction.group', 'property_id', string="Transaction Group")
     transaction_ids = fields.One2many('transaction.transaction', 'property_id', string="Transaction")
     creditlimit_ids = fields.One2many('credit.limit', 'property_id', string="Credit Limit")
+    weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
 
     def _compute_is_property(self):
         self.is_property=True
+
+    def action_weekend(self):
+        weekend= self.mapped('weekend_id')
+        action = self.env.ref('hms.weekend_action_window').read()[0]
+        if(len(weekend)) == 1:
+            # action['domain'] = [('id', '=', weekend.id)]
+            form_view = [(self.env.ref('hms.weekend_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] 
+                        if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = weekend.id
+        elif len(weekend) == 0:
+            form_view = [(self.env.ref('hms.weekend_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] 
+                        if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = weekend.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_weekend',
+        }
+        return action
 
     def action_package(self):
         packages = self.mapped('package_ids')
@@ -81,10 +115,31 @@ class Property(models.Model):
                 action['views'] = form_view
             action['res_id'] = packages.id
         else:
-            action = {'type': 'ir.actions.act_window_close'} 
-
+            action = {'type': 'ir.actions.act_window_close'}
         context = {
-            'default_property_id': 'id',
+            'default_type': 'out_package',
+        }
+        return action
+
+    def action_transaction(self):
+        transactions = self.mapped('transaction_ids')
+        action = self.env.ref('hms.transaction_action_window').read()[0]
+        if len(transactions) >= 1:
+            action['domain'] = [('id', 'in', transactions.ids)]
+        elif len(transactions) == 0:
+            form_view = [(self.env.ref('hms.transaction_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = transactions.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_transaction',
         }
         return action
 
@@ -519,6 +574,9 @@ class Weekend(models.Model):
     _name = "weekend.weekend"
     _description = "Weekend"
 
+    property_id = fields.Many2one('property.property',
+                                  string="Property",
+                                  required=True)
     monday = fields.Boolean(string="Monday")
     tuesday = fields.Boolean(string="Tuesday")
     wednesday = fields.Boolean(string="Wednesday")
@@ -531,7 +589,7 @@ class Package(models.Model):
     _name = "package.package"
     _description = "Package"
 
-    property_id = fields.Many2one('property.property', string="Property", required=True)
+    property_id = fields.Many2one('property.property', string="Property", readonly=True, required=True)
     package_code = fields.Char(string="Package Code", size=3, required=True)
     package_name = fields.Char(string="Package Name", required=True)
 
@@ -559,7 +617,7 @@ class Transaction(models.Model):
                                   string="Property",
                                   required=True, readonly=True)
     trans_revtype = fields.Selection([
-        ('R', 'Revenue'),
+        ('R', 'Room Revenue'),
         ('F', 'F&B Revenue'),
         ('M', 'Miscellaneous'),
         ('N', 'Non Revenue'),

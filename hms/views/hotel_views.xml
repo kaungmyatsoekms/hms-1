@@ -8,7 +8,7 @@
     <!-- menu categories -->
     <menuitem id="hotel_menu_1" name="Hotel Configuration" parent="hotel_menu_root" sequence="1"/> 
     <menuitem id="hotel_menu_2" name="Room Configuration" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hotel_menu_3" name="Package Configuration" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hotel_menu_3" name="Configuration" parent="hotel_menu_root" sequence="3"/>
       
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
@@ -20,8 +20,10 @@
         <form string="Property">
         <header>
           <field name='is_property' invisible='1'/>
-            <button string="Package" name="action_package" type="object" class="btn btn-primary"><i class="fa fa-paint-brush"></i></button>
-        </header> 
+            <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+        </header>
           <sheet>
             <div class="oe_button_box" name="button_box">
               <button name="action_building_count"
@@ -81,6 +83,8 @@
                 <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
                 <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
               </group>
+              <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
+              <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
             <newline/>
             </group>
             <notebook colspan="5">
@@ -106,12 +110,7 @@
                   </div>
                 </group> 
               </page>
-              <page string='Packages'>
-                <field name="package_ids" context="{'default_property_id' : id}"/>
-              </page>
               <page string='Transaction'>
-                <h2> Transaction </h2>
-                <field name="transaction_ids" context="{'default_property_id' : id}"/>
                 <h2>Credit Limit</h2>
                 <field name="creditlimit_ids" context="{'default_property_id' : id}"/>
               </page>
@@ -732,18 +731,19 @@
       <field name="name">weekend.view.form</field>
       <field name="model">weekend.weekend</field>
       <field name="arch" type="xml">
-        <form string="Weekend" create="false">>
+        <form string="Weekend" create="false"  delete="false" no_create_edit="True">
           <sheet>
             <h2>Define Weekends</h2>
             <br></br>
             <group>
+              <field name="property_id"/>
               <field name="monday" widget="boolean_toggle"/>
-              <field name="tuesday" widget="boolean_toggle"/>
-              <field name="wednesday" widget="boolean_toggle"/>
-              <field name="thursday" widget="boolean_toggle"/>
-              <field name="friday" widget="boolean_toggle"/>
-              <field name="saturday" widget="boolean_toggle"/>
-              <field name="sunday" widget="boolean_toggle"/>
+              <field name="tuesday" widget="boolean_toggle" />
+              <field name="wednesday" widget="boolean_toggle" />
+              <field name="thursday" widget="boolean_toggle" />
+              <field name="friday" widget="boolean_toggle" />
+              <field name="saturday" widget="boolean_toggle" />
+              <field name="sunday" widget="boolean_toggle" />
             </group>
           </sheet>
         </form>
@@ -755,6 +755,7 @@
       <field name="name">Weekend</field>
       <field name="res_model">weekend.weekend</field>
       <field name="view_mode">form</field>
+      <field name="limit">1</field>
     </record>
 
     <!-- Package Form View -->
@@ -776,12 +777,51 @@
       </field>
     </record>
 
-    <!-- action of package -->
+    <!-- Package List View -->
+    <record id="package_view_list" model="ir.ui.view">
+      <field name="name">package.view.list</field>
+      <field name="model">package.package</field>
+      <field name="arch" type="xml">
+        <tree string="Package">
+          <field name="property_id"/>
+          <field name="package_code"/>
+          <field name="package_name"/>
+        </tree>
+      </field>
+    </record>
 
+  <!-- Kanban View of Package -->
+    <record id="package_view_kanban" model="ir.ui.view">
+      <field name="name">package.view.kanban</field>
+      <field name="model">package.package</field>
+      <field name="arch" type="xml">
+        <kanban>
+          <field name="id"/>
+          <field name="property_id"/>
+          <field name="package_code"/>
+          <field name="package_name"/>
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click">
+                <div>
+                  <div class="oe_kanban_details">
+                    <field name="package_code"/>
+                    <div></div>
+                    <div><field name="package_name"/></div>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+
+    <!-- action of package -->
     <record id="package_action_window" model="ir.actions.act_window">
       <field name="name">Package</field>
       <field name="res_model">package.package</field>
-      <field name="view_mode">form</field>
+      <field name="view_mode">kanban,tree,form</field>
     </record>
 
      <!-- Transaction Group Form View -->
@@ -792,7 +832,7 @@
         <form string="Transaction Group">
           <sheet>
             <group>
-              <field name="property_id" context="{'default_property_id' : active_id}"/>
+              <field name="property_id"/>
               <field name="group_name"/>
               <field name="group_desc"/>
             </group>
@@ -830,19 +870,22 @@
         </form>
       </field>
     </record>
+
     <!-- Transaction List View -->
     <record id="transaction_view_list" model="ir.ui.view">
       <field name="name">transaction.view.list</field>
       <field name="model">transaction.transaction</field>
       <field name="arch" type="xml">
         <tree string="Transaction">
-          <field name="trans_name"/>
-          <field name="trans_revtype"/>
-          <field name="trans_unitprice"/>
-          <field name="trans_utilities" optional="hide"/>
-          <field name="trans_svc" optional="hide"/>
-          <field name="trans_tax" optional="hide"/>
-          <field name="trans_internal" optional="hide"/>
+          <field name="transgroup_id"/>
+          <field name="trans_code" string="Code"/>
+          <field name="trans_name" string="Description"/>
+          <field name="trans_revtype" string="Rev Type"/>
+          <field name="trans_unitprice" string="Price"/>
+          <field name="trans_utilities" string="Utility" optional="hide"/>
+          <field name="trans_svc" string="SVC"/>
+          <field name="trans_tax" string="TAX"/>
+          <field name="trans_internal" string="Internal" optional="hide"/>
           <field name="trans_minus" optional="hide"/>
           <field name="trans_type" optional="hide"/>
         </tree>
@@ -875,6 +918,7 @@
         </form>
       </field>
     </record>
+
     <!-- Reservation Type List View -->
     <record id="rsvn_type_view_list" model="ir.ui.view">
       <field name="name">rsvn.type.view.list</field>
@@ -999,19 +1043,19 @@
       <menuitem id="room_location_menu" name="Room Location" parent="building_config" sequence="10" action="room_location_action_window"/>
     
     <menuitem id="market_config" name="Market Segment" parent="hotel_menu_1" sequence="3"/>
-        <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="15" action="market_segment_action_window"/>
-        <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="1" action="market_source_action_window"/>
+        <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="market_segment_action_window"/>
+        <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="market_source_action_window"/>
 
     <menuitem id="room_type_menu" name="Room Type" parent="hotel_menu_2" sequence="1" action="room_type_action_window"/>
     <menuitem id="room_view_menu" name="Room View" parent="hotel_menu_2" sequence="2" action="room_view_action_window"/>
     <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
 
-    <menuitem id="define_we_sp" name="Define Weeekend" parent="hotel_menu_3" sequence="1"/>
-      <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/>
+    <menuitem id="define_we_sp" name="Special Days" parent="hotel_menu_3" sequence="1"/>
+      <!-- <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/> -->
       <menuitem id="special_day_menu" name="Special Day" parent="define_we_sp" sequence="2" action="special_day_action_window"/>
       
-    <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/>
-      <menuitem id="package_menu" name="Package" parent="pkg_st_menu" sequence="1" action="package_action_window"/>
+    <!-- <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/> -->
+      <!-- <menuitem id="package_menu" name="Package" parent="pkg_st_menu" sequence="1" action="package_action_window"/> -->
     
     <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hotel_menu_3" sequence="3"/>
       <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="rsvn_type_action_window"/>
