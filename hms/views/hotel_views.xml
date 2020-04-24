@@ -854,6 +854,7 @@
               <group>
                 <field name="property_id"/>
                 <field name="trans_revtype"/>
+                <field name="transgroup_ids" invisible="1"/>
                 <field name="transgroup_id" context="{'default_property_id' : property_id}"/>
                 <field name="trans_code" placeholder="Eg. 1001....."/>
                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>

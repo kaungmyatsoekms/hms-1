@@ -63,6 +63,9 @@ class Property(models.Model):
     creditlimit_ids = fields.One2many('credit.limit', 'property_id', string="Credit Limit")
     weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
 
+    _sql_constraints = [('code_unique', 'UNIQUE(code)',
+                         'Hotel ID already exists! Hotel ID must be unique!')]
+
     def _compute_is_property(self):
         self.is_property=True
 
@@ -292,6 +295,11 @@ class Building(models.Model):
     location_ids = fields.Many2many('room.location', string="Room Location", required=True)
     # location_number = fields.Integer("Location Number", compute="_room_location_count", readonly=True)
 
+    _sql_constraints = [
+        ('building_name_unique', 'UNIQUE(building_name)',
+         'Building name already exists! Building name must be unique!')
+    ]
+
     # def get_name(self,cr, uid, ids, context=None):
     #     if context is None:
     #         context = {}
@@ -339,6 +347,11 @@ class BuildingType(models.Model):
     building_type = fields.Char(string='Building Type', required=True)
     buildingtype_desc = fields.Char(string='Description', required=True)
 
+    _sql_constraints = [(
+        'building_type_unique', 'UNIQUE(building_type)',
+        'Building type already exists with this name! Building type name must be unique!'
+    )]
+
     def name_get(self):
         result = []
         for record in self:
@@ -351,6 +364,11 @@ class RoomLocation(models.Model):
 
     location_code = fields.Char(string='Code', size=3, required=True)
     location_name = fields.Char(string='Name', required=True)
+
+    _sql_constraints = [(
+        'location_code_unique', 'UNIQUE(location_code)',
+        'Location code already exists with this name! Location code must be unique!'
+    )]
 
     @api.model
     def name_get(self):
@@ -371,12 +389,22 @@ class RoomType(models.Model):
     image = fields.Binary(string='Image', attachment=True, store=True)
     roomtype_desc = fields.Text(string='Description')
 
+    _sql_constraints = [(
+        'code_unique', 'UNIQUE(code)',
+        'Room code already exists with this name! Room code name must be unique!'
+    )]
+
 class RoomView(models.Model):
     _name = "room.view"
     _description = "Room View"
 
     name = fields.Char(string='Room View', required=True)
     roomview_desc = fields.Text(string='Description')
+
+    _sql_constraints = [(
+        'name_unique', 'UNIQUE(name)',
+        'Room view already exists with this name! Room view name must be unique!'
+    )]
 
 class RoomFacility(models.Model):
     _name = "room.facility"
@@ -440,7 +468,7 @@ class PropertyRoom(models.Model):
     #     return False
     
     room_no = fields.Char(string="Room No", required=True)
-    property_id = fields.Many2one('property.property', string="Property", required=True)
+    property_id = fields.Many2one('property.property', string="Property", required=True, readonly=True)
     roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
     roomtype_id = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
     roomview_ids = fields.Many2many('room.view', string="Room View Code")
@@ -459,18 +487,10 @@ class PropertyRoom(models.Model):
     room_hkstatus = fields.Char(string="HK Room Status", size=2, default='VC', invisible=True)
     room_status = fields.Char(string="Room Status",size=2, default='CL', invisible=True) 
 
-    
-    # Building Link with Property 
-    # @api.onchange('property_id')
-    # def onchange_bulding(self):
-    #     building_list = []
-    #     domain = {}
-    #     for rec in self:
-    #         if (rec.property_id.building_ids):
-    #             for building in rec.property_id.building_ids:
-    #                 building_list.append(building.id)
-    #             domain = {'building_id': [('id', '=', building_list)]}
-    #             return {'domain': domain}
+    _sql_constraints = [
+        ('room_no_unique', 'UNIQUE(property_id, room_no)',
+         'Room number already exists! Room number must be unique!')
+    ]
 
     # Room location link with Building
     @api.onchange('building_id')
@@ -483,41 +503,6 @@ class PropertyRoom(models.Model):
                     location_list.append(location.id)
                 domain = {'roomlocation_id': [('id', 'in', location_list)]}
                 return {'domain': domain}
-
-    # Room Type Link with Property 12.4.20
-    # @api.depends('property_id')
-    # def _compute_roomtype_id(self):
-    #     roomtype_list =[]
-    #     domain = {}
-    #     for rec in self:
-    #         if(rec.property_id.roomtype_ids):
-    #             for roomtype in rec.property_id.roomtype_ids:
-    #                 roomtype_list.append(roomtype.id)
-    #                 domain = {'roomtype_id': [('id', '=', roomtype_list)]}
-    #         rec.roomtype_id =domain
-
-    # @api.depends('property_id')
-    # def onchange_roomtype_id(self):
-    #     roomtype_list = []
-    #     domain = {}
-    #     for rec in self:
-    #         if (rec.property_id.roomtype_ids):
-    #             for roomtype in rec.property_id.roomtype_ids:
-    #                 roomtype_list.append(roomtype.id)
-    #             domain = {'roomtype_id': [('id', '=', roomtype_list)]}
-    #             return {'domain': domain}  
-
-    # @api.model
-    # def default_get_roomtype_id(self,fields):
-    #     res = super(PropertyRoom, self).default_get(fields)
-    #     roomtype_list= []
-    #     for rec in self:
-    #         if('property_id' in fields):
-    #             if (rec.property_id.roomtype_ids):
-    #                 for roomtype in rec.property_id.roomtype_ids:
-    #                     roomtype_list.append(roomtype.id)
-    #                 domain = {'roomtype_id': [('id', '=', roomtype_list)]}
-    #                 return {'domain': domain}
     
 class MarketSegment(models.Model):
     _name="market.segment"
@@ -532,6 +517,11 @@ class MarketSegment(models.Model):
         ('H', 'House Use'),
         ('C', 'Complimentary'),
         ('O', 'Others'),], string="Options")
+    
+    _sql_constraints = [(
+        'market_code_unique', 'UNIQUE(market_code)',
+        'Market code already exists with this name! Market code must be unique!'
+    )]
 
     def name_get(self):
         result = []
@@ -558,6 +548,11 @@ class MarketSource(models.Model):
 
     source_code = fields.Char(string="Source Code", size=3, required=True)
     source_desc = fields.Char(string="Description")
+
+    _sql_constraints = [(
+        'source_code_unique', 'UNIQUE(source_code)',
+        'Source code already exists with this name! Source code must be unique!'
+    )]
 
 class SpecialDay(models.Model):
     _name = "special.day"
@@ -590,8 +585,13 @@ class Package(models.Model):
     _description = "Package"
 
     property_id = fields.Many2one('property.property', string="Property", readonly=True, required=True)
-    package_code = fields.Char(string="Package Code", size=3, required=True)
+    package_code = fields.Char(string="Package Code", size=4, required=True)
     package_name = fields.Char(string="Package Name", required=True)
+
+    _sql_constraints = [(
+        'package_code_unique', 'UNIQUE(property_id, package_code)',
+        'Package code already exists with this name! Package code must be unique!'
+    )]
 
 class TransactionGroup(models.Model):
     _name = "transaction.group"
@@ -627,9 +627,8 @@ class Transaction(models.Model):
                                      required=True)
     trans_code = fields.Char(string="Transaction Code", size=4, required=True)
     trans_name = fields.Char(string="Transaction Name", required=True)
-    transgroup_id = fields.Many2one('transaction.group',
-                                    string="Transaction Group",
-                                    required=True)
+    transgroup_ids = fields.One2many("transaction.group", 'property_id', related="property_id.transgroup_ids")
+    transgroup_id = fields.Many2one("transaction.group", string="Transaction Group", domain="[('id', '=?', transgroup_ids)]", required=True)
     trans_unitprice = fields.Float(string="Unit Price", required=True)
     trans_utilities = fields.Selection([
         ('Y', 'Yes'),
@@ -647,6 +646,11 @@ class Transaction(models.Model):
         ('V', 'Tax'),
     ],
                                   string="Transaction Type")
+
+    _sql_constraints = [(
+        'trans_code_unique', 'UNIQUE(property_id, trans_code)',
+        'Transaction code already exists with this name! Transaction code must be unique!'
+    )]
 
 # Reservation Type
 class RsvnType(models.Model):
