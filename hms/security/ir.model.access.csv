@@ -19,8 +19,12 @@ access_special_day,special.day,model_special_day,base.group_user,1,1,1,1
 access_weekend_weekend,weekend.weekend,model_weekend_weekend,base.group_user,1,1,1,1
 access_package_package,package.package,model_package_package,base.group_user,1,1,1,1
 access_transaction_group,transaction.group,model_transaction_group,base.group_user,1,1,1,1
+access_revenue_type,revenue.type,model_revenue_type,base.group_user,1,1,1,1
+access_sub_group,sub.group,model_sub_group,base.group_user,1,1,1,1
 access_transaction_transaction,transaction.transaction,model_transaction_transaction,base.group_user,1,1,1,1
+access_transaction_root,transaction.root,model_transaction_root,base.group_user,1,1,1,1
 access_rsvn_type,rsvn.type,model_rsvn_type,base.group_user,1,1,1,1
 access_rsvn_status,rsvn.status,model_rsvn_status,base.group_user,1,1,1,1
 access_credit_limit,credit.limit,model_credit_limit,base.group_user,1,1,1,1
+access_rate_code,rate.code,model_rate_code,base.group_user,1,1,1,1
 

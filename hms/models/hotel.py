@@ -4,6 +4,7 @@ from odoo.modules import get_module_resource
 #from odoo.tools import image_colorize, image_resize_image_big
 from odoo.tools import *
 import base64
+import datetime
 
 AVAILABLE_STARS = [
     ('0', 'Low'),
@@ -13,6 +14,32 @@ AVAILABLE_STARS = [
     ('4', 'Four Star'),
     ('5', 'Five Star'),
 ]
+
+AVAILABLE_REV = [
+    ('R', 'Room Revenue'),
+    ('F', 'F&B Revenue'),
+    ('M', 'Miscellaneous'),
+    ('N', 'Non Revenue'),
+    ('P', 'Payment'),
+]
+
+AVAILABLE_RATETYPE = [
+    ('D', 'Daily'),
+    ('M', 'Monthly'),
+]
+
+AVAILABLE_PAY = [
+    ('CA','Cash'),
+    ('CL','City Ledger'),
+    ('AX','American Express'),
+    ('DC','Diner Club'),
+    ('MC','Master Card'),
+    ('VS','Visa Card'),
+    ('JC','JCB Card'),
+    ('LC','Local Card'),
+    ('UP','Union Pay Card'),
+    ('OT','Others'),
+    ]
 
 class HotelGroup(models.Model):
     _name = "hotel.group"
@@ -58,10 +85,12 @@ class Property(models.Model):
     room_count = fields.Integer("Room", compute='_compute_room_count')
     roomtype_count = fields.Integer("Room Type", compute='_compute_roomtype_count')
     package_ids = fields.One2many('package.package', 'property_id', string="Package")
-    transgroup_ids = fields.One2many('transaction.group', 'property_id', string="Transaction Group")
+    subgroup_ids = fields.One2many('sub.group','property_id',string="Sub Group")
+    transgroup_ids = fields.One2many('transaction.group','property_id', string="Transaction Group")
     transaction_ids = fields.One2many('transaction.transaction', 'property_id', string="Transaction")
     creditlimit_ids = fields.One2many('credit.limit', 'property_id', string="Credit Limit")
     weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
+    ratecode_ids = fields.One2many('rate.code','property_id', string="Rate Code")
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
@@ -143,6 +172,50 @@ class Property(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         context = {
             'default_type': 'out_transaction',
+        }
+        return action
+
+    def action_creditlimit(self):
+        credit_limit = self.mapped('creditlimit_ids')
+        action = self.env.ref('hms.credit_limit_action_window').read()[0]
+        if len(credit_limit) >= 1:
+            action['domain'] = [('id', 'in', credit_limit.ids)]
+        elif len(credit_limit) == 0:
+            form_view = [(self.env.ref('hms.credit_limit_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = credit_limit.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_creditlimit',
+        }
+        return action
+
+    def action_ratecode(self):
+        rate_code = self.mapped('ratecode_ids')
+        action = self.env.ref('hms.rate_code_action_window').read()[0]
+        if len(rate_code) >= 1:
+            action['domain'] = [('id', 'in', rate_code.ids)]
+        elif len(rate_code) == 0:
+            form_view = [(self.env.ref('hms.rate_code_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = rate_code.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_ratecode',
         }
         return action
 
@@ -335,7 +408,7 @@ class Building(models.Model):
     #     return super(Building, self).create(values)
 
     @api.constrains('location_ids')
-    def check_capacity(self):
+    def _check_capacity(self):
         for record in self:
             if len(record.location_ids) > record.building_capacity:
                 raise UserError(_("Location number must not larger than building capacity."))
@@ -389,10 +462,24 @@ class RoomType(models.Model):
     image = fields.Binary(string='Image', attachment=True, store=True)
     roomtype_desc = fields.Text(string='Description')
 
+    # propertyroom_ids = fields.One2many('property.room',
+    #                                    'roomtype_id',
+    #                                    string="Property Room")
+    # count_roomtype = fields.Integer(
+    #     string="Total Room",
+    #     compute='count_room_no',
+    #     store=True,
+    #     help='Contains number of room that belong to this room type')
+
     _sql_constraints = [(
         'code_unique', 'UNIQUE(code)',
         'Room code already exists with this name! Room code name must be unique!'
     )]
+
+    # @api.depends('propertyroom_ids')
+    # def count_room_no(self):
+    #     for roomtype in self:
+    #         roomtype.count_roomtype = len(roomtype.propertyroom_ids)
 
 class RoomView(models.Model):
     _name = "room.view"
@@ -571,7 +658,7 @@ class Weekend(models.Model):
 
     property_id = fields.Many2one('property.property',
                                   string="Property",
-                                  required=True)
+                                  required=True, readonly=True)
     monday = fields.Boolean(string="Monday")
     tuesday = fields.Boolean(string="Tuesday")
     wednesday = fields.Boolean(string="Wednesday")
@@ -581,6 +668,7 @@ class Weekend(models.Model):
     sunday = fields.Boolean(string="Sunday")
 
 class Package(models.Model):
+
     _name = "package.package"
     _description = "Package"
 
@@ -593,22 +681,134 @@ class Package(models.Model):
         'Package code already exists with this name! Package code must be unique!'
     )]
 
-class TransactionGroup(models.Model):
-    _name = "transaction.group"
-    _description = "Transaction Group"    
+class RevenueType(models.Model):
+    _name = "revenue.type"
+    _description = "Revenue Type"    
 
-    property_id = fields.Many2one('property.property', string="Property", required=True, readonly=True)
-    group_name = fields.Char(string="Group Name", size=3, required=True)
-    group_desc = fields.Char(string="Description")
+    rev_code = fields.Char(string="Group Code", size=1, required=True)
+    rev_type = fields.Selection(AVAILABLE_REV, string="Revenue Type", required=True)
+    revtype_name = fields.Char(string="Revenue")
+    rev_subgroup = fields.Boolean(string="Sub Group")
+    subgroup_ids = fields.One2many('sub.group','revtype_id',string="Sub Group")
+    transaction_id = fields.Many2one('transaction.transaction','trans_revtype')
+
+    _sql_constraints = [(
+        'rev_code_unique', 'UNIQUE(rev_code)',
+        'This code already exists with this name! This Group code must be unique!'
+    )]
+
+    # def _compute_revtype_name(self):
+    #     # self.revtype_name = dict(AVAILABLE_REV)[self.rev_type]
+    #     # self.revtype_name = dict(self._fields['rev_type']._description_selection(self.env))
+    #     self.revtype_name = dict(self.fields_get(allfields=['rev_type'])['rev_type']['selection'])['1']
+
+    # dict(self._fields['rev_type']._description_selection(self.env)) --> get description
+    # @api.onchange('rev_type')
+    # def onchange_revtype_name(self):
+    #     for record in self:
+    #         for item in VALUES:
+    #             if item[0] == self.rev_type:
+    #             record.revtype_name = item[1]
+        # self.revtype_name= dict(AVAILABLE_REV)[self.rev_type]
 
 
     def name_get(self):
         result = []
         for record in self:
-            result.append((record.id, "{} ({})".format(record.group_name,
-                                                        record.group_desc)))
+            result.append((record.id, "({} {}) {}".format(record.rev_code, record.rev_type,record.revtype_name)))
         return result
 
+    @api.onchange('rev_type')
+    def onchange_rev_code(self):
+        for record in self:
+            rev_type = record.rev_type
+            record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
+            if rev_type == 'P':
+                 record.rev_code = '9'
+            elif rev_type =='N':
+                record.rev_code = '8'
+            else:
+                record.rev_code = ''
+
+
+    @api.constrains('rev_code','rev_type')
+    def _check_rev_code(self):
+        for record in self:
+            rev_code = record.rev_code
+            rev_type = record.rev_type
+            if rev_code and not str(rev_code).isdigit():
+                raise UserError(_("Transaction code must be digit"))
+            else:
+                if rev_code == '0':
+                    raise UserError(_("This code not start with '0'"))
+                else:
+                    if rev_type == 'P':
+                        if int(rev_code) != 9:
+                            raise UserError(_("Payment code must be 9 "))
+                    elif rev_type =='N':
+                        if int(rev_code) != 8:
+                            raise UserError(_("Non Revenue code must be 8"))
+                    elif rev_type !='P' and rev_type !='N':
+                        if int(rev_code) == 8 or int(rev_code) == 9:
+                            raise UserError(_("Revenue code must be 1 ~ 7 "))                    
+
+# Revenue Sub Group
+class SubGroup(models.Model):
+    _name = "sub.group"
+    _description = "Revenue Sub Group"    
+
+    property_id = fields.Many2one('property.property', string="Property", required=True)
+    revtype_id = fields.Many2one('revenue.type', string="Revenue Type", domain="[('rev_subgroup', '=?', True)]", required=True)
+    sub_group = fields.Char(string="Sub Group Code", size=1, required=True)
+    sub_desc = fields.Char(string="Description", required=True)
+    transsub_id = fields.Many2one('transaction.transaction','subgroup_id')
+
+
+    _sql_constraints = [(
+        'sub_group_unique', 'UNIQUE(property_id, revtype_id, sub_group)',
+        'This Sub Group code already exists with this name! This code must be unique!'
+    )]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.sub_group, record.sub_desc)))
+        return result
+
+    @api.constrains('sub_group')
+    def _check_sub_group(self):
+        for record in self:
+            sub_code = record.sub_group
+            if sub_code and not str(sub_code).isdigit():
+                raise UserError(_("Transaction code must be digit"))
+
+# Transaction Group
+class TransactionGroup(models.Model):
+    _name = "transaction.group"
+    _description = "Transaction Group"    
+
+    property_id = fields.Many2one('property.property', string="Property", required=True)
+    group_name = fields.Char(string="Sub Group Code", size=1, required=True)
+    group_desc = fields.Char(string="Description", required=True)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.group_name, record.group_desc)))
+        return result
+
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         if record.group_desc:
+    #             name="{} ({})".format(record.group_desc,
+    #             record.group_name)
+    #         else:
+    #             name="{}".format(record.group_name)
+    #     result.append((record.id,name))
+    #     return result
+
+# Transaction 
 class Transaction(models.Model):
     _name = "transaction.transaction"
     _description = "Transaction"
@@ -616,26 +816,21 @@ class Transaction(models.Model):
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   required=True, readonly=True)
-    trans_revtype = fields.Selection([
-        ('R', 'Room Revenue'),
-        ('F', 'F&B Revenue'),
-        ('M', 'Miscellaneous'),
-        ('N', 'Non Revenue'),
-        ('P', 'Payment'),
-    ],
-                                     string="Revenue Type",
-                                     required=True)
-    trans_code = fields.Char(string="Transaction Code", size=4, required=True)
+    revtype_id = fields.Many2one('revenue.type', string="Revenue Type", required=True)
+    revtype_name = fields.Char(String="Revenue Type")
+    revsub_active = fields.Boolean(string="SubGroup")
+    trans_ptype = fields.Selection(AVAILABLE_PAY,string="Pay Type")
+    subgroup_ids = fields.One2many('sub.group', related="property_id.subgroup_ids")
+    subgroup_id = fields.Many2one('sub.group', domain="[('id', '=?', subgroup_ids)]", string="Sub Group")
+    subgroup_name = fields.Char(string="Sub Group Name")
+    trans_code = fields.Char(string="Transaction Code", size=4, required=True, index=True)
     trans_name = fields.Char(string="Transaction Name", required=True)
-    transgroup_ids = fields.One2many("transaction.group", 'property_id', related="property_id.transgroup_ids")
-    transgroup_id = fields.Many2one("transaction.group", string="Transaction Group", domain="[('id', '=?', transgroup_ids)]", required=True)
     trans_unitprice = fields.Float(string="Unit Price", required=True)
     trans_utilities = fields.Selection([
         ('Y', 'Yes'),
         ('N', 'No'),
     ],
-                                       string="Utilities",
-                                       required=True)
+                                       string="Utilities")
     trans_svc = fields.Boolean(string="Service Charge")
     trans_tax = fields.Boolean(string="Tax")
     trans_internal = fields.Boolean(string="Internal Use")
@@ -646,11 +841,192 @@ class Transaction(models.Model):
         ('V', 'Tax'),
     ],
                                   string="Transaction Type")
+    root_id = fields.Many2one('transaction.root', compute='_compute_transaction_root', store=True)
+    ratecode_ids =fields.One2many('rate.code','transcation_id',string="Rate Code")
 
     _sql_constraints = [(
         'trans_code_unique', 'UNIQUE(property_id, trans_code)',
         'Transaction code already exists with this name! Transaction code must be unique!'
     )]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.trans_code, record.trans_name)))
+        return result
+
+
+    @api.onchange('subgroup_id')
+    def onchange_sub_name(self):
+        for record in self:
+            subgroup_id = record.subgroup_id
+            record.subgroup_name=subgroup_id.sub_desc
+
+
+    @api.onchange('revtype_id')
+    def onchange_revtype_name(self):
+        for record in self:
+            subgroup_list = []
+            domain = {}
+            revtype_id = record.revtype_id
+            record.revtype_name  = revtype_id.revtype_name
+            record.revsub_active = revtype_id.rev_subgroup        
+            if (record.revtype_id.subgroup_ids):
+                for subgroup in record.revtype_id.subgroup_ids:
+                    subgroup_list.append(subgroup.id)
+                domain = {'subgroup_id': [('id', 'in', subgroup_list)]}
+                return {'domain': domain}
+
+    # def _compute_get_sub_name(self):
+    #     self.subgroup_name=self.subgroup_id.sub_desc
+
+    @api.constrains('trans_code','revtype_id')
+    def _check_trans_code(self):
+        for record in self:
+            trans_revtype=record.revtype_id.rev_type
+            trans_code=record.trans_code
+            rev_code = record.revtype_id.rev_code
+            sub_code = record.subgroup_id.sub_group
+            if trans_revtype == 'P':
+                if trans_code and not str(trans_code).isdigit():
+                    raise UserError(_("Transaction code must be digit"))
+                else:
+                    if int(record.trans_code) < 9000:
+                        raise UserError(_("Payment Code must be greather than 9000 ")) 
+            elif trans_revtype != 'P':
+                if trans_code and not str(trans_code).isdigit():
+                    raise UserError(_("Transaction code must be digit"))
+                else:
+                    if int(record.trans_code) > 9000:
+                        raise UserError(_("Revenue code must be less than 9000 "))
+                    else:
+                        if int(record.trans_code) < 1000 :
+                            raise UserError(_("Revenue code must be 4 digits"))
+                        else:
+                            if record.trans_code[0:1] != rev_code:
+                                raise UserError(_("Transaction code must be started with Revenue Code"))
+                            else:
+                                if sub_code != False:
+                                    if record.trans_code[1:2] != sub_code:
+                                        raise UserError(_("Transaction code must be started with Revenue Code + Sub Group Code. Eg. F&B Revenu (2) and BF Revenue (0)-> Transaction code must started with '20'"))
+
+    @api.depends('trans_code')
+    def _compute_transaction_root(self):
+        # this computes the first 2 digits of the transaction.
+        # This field should have been a char, but the aim is to use it in a side panel view with hierarchy, and it's only supported by many2one fields so far.
+        # So instead, we make it a many2one to a psql view with what we need as records.
+        for record in self:
+            record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
+
+# class Transaction(models.Model):
+#     _name = "transaction.transaction"
+#     _description = "Transaction"
+
+#     property_id = fields.Many2one('property.property',
+#                                   string="Property",
+#                                   required=True, readonly=True)
+#     trans_revtype = fields.Selection([
+#         ('R', 'Room Revenue'),
+#         ('F', 'F&B Revenue'),
+#         ('M', 'Miscellaneous'),
+#         ('N', 'Non Revenue'),
+#         ('P', 'Payment'),
+#     ],
+#                                      string="Revenue Type",
+#                                      required=True)
+#     trans_code = fields.Char(string="Transaction Code", size=4, required=True, index=True)
+#     trans_name = fields.Char(string="Transaction Name", required=True)
+#     transgroup_ids = fields.One2many("transaction.group", 'property_id', related="property_id.transgroup_ids")
+#     transgroup_id = fields.Many2one("transaction.group", string="Transaction Group", domain="[('id', '=?', transgroup_ids)]", required=True)
+#     trans_unitprice = fields.Float(string="Unit Price", required=True)
+#     trans_utilities = fields.Selection([
+#         ('Y', 'Yes'),
+#         ('N', 'No'),
+#     ],
+#                                        string="Utilities",
+#                                        required=True)
+#     trans_svc = fields.Boolean(string="Service Charge")
+#     trans_tax = fields.Boolean(string="Tax")
+#     trans_internal = fields.Boolean(string="Internal Use")
+#     trans_minus = fields.Boolean(string="Minus Nature")
+#     trans_type = fields.Selection([
+#         ('R', 'Revenue'),
+#         ('S', 'Service'),
+#         ('V', 'Tax'),
+#     ],
+#                                   string="Transaction Type")
+#     root_id = fields.Many2one('transaction.root', compute='_compute_transaction_root', store=True)
+
+#     _sql_constraints = [(
+#         'trans_code_unique', 'UNIQUE(property_id, trans_code)',
+#         'Transaction code already exists with this name! Transaction code must be unique!'
+#     )]
+
+#     @api.constrains('trans_code','trans_revtype')
+#     def _check_trans_code(self):
+#         for record in self:
+#             trans_revtype=record.trans_revtype
+#             trans_code=record.trans_code
+#             if trans_revtype == 'P':
+#                 if trans_code and not str(trans_code).isdigit():
+#                     raise UserError(_("Transaction code must be digit"))
+#                 else:
+#                     if int(record.trans_code) < 9000:
+#                         raise UserError(_("Payment Code must be greather than 9000 "))
+                   
+#             elif record.trans_revtype != 'P':
+#                 if trans_code and not str(trans_code).isdigit():
+#                     raise UserError(_("Transaction code must be digit"))
+#                 else:
+#                     if int (record.trans_code) > 9000:
+#                         raise UserError(_("Revenue code must be less than 9000 "))
+
+#     @api.depends('trans_code')
+#     def _compute_transaction_root(self):
+#         # this computes the first 2 digits of the transaction.
+#         # This field should have been a char, but the aim is to use it in a side panel view with hierarchy, and it's only supported by many2one fields so far.
+#         # So instead, we make it a many2one to a psql view with what we need as records.
+#         for record in self:
+#             record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
+                    
+# Transaction Root
+class TransactionRoot(models.Model):
+    _name = 'transaction.root'
+    _description = 'Transaction codes first 2 digits'
+    _auto = False
+
+    name = fields.Char()
+    revname = fields.Char()
+    parent_id = fields.Many2one('transaction.root', string="Superior Level")
+    group = fields.Many2one('sub.group')
+    # transgroup_id = fields.Many2one('transaction.group')
+
+                    #   LEFT(trans_code,2) AS name, LEFT(revtype_id,1)
+    def init(self):
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        self.env.cr.execute('''
+            CREATE OR REPLACE VIEW %s AS (
+            SELECT DISTINCT ASCII(trans_code) * 1000 + ASCII(SUBSTRING(trans_code,2,1)) AS id,
+                   LEFT(trans_code,2) AS name,
+                   subgroup_name as revname,
+                   ASCII(trans_code) AS parent_id,
+                   subgroup_id as group
+            FROM transaction_transaction WHERE trans_code IS NOT NULL
+            UNION ALL
+            SELECT DISTINCT ASCII(trans_code) AS id,
+                   LEFT(trans_code,1) AS name,
+                   revtype_name as revname,
+                   NULL::int AS parent_id,
+                   subgroup_id as group
+            FROM transaction_transaction WHERE trans_code IS NOT NULL
+            )''' % (self._table,)
+        )
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.revname, record.name)))
+        return result
 
 # Reservation Type
 class RsvnType(models.Model):
@@ -676,20 +1052,87 @@ class RsvnStatus(models.Model):
 class CreditLimit(models.Model):
     _name = "credit.limit"
     _description = "Credit Limit"
+    _group = 'payment_type'
+
+
+    property_id = fields.Many2one('property.property',
+    string="Property",
+    required=True, readonly=True)
+    payment_type = fields.Selection(AVAILABLE_PAY, string="Payment Type", required=True)
+    crd_startdate = fields.Date(string="Start Date", required=True)
+    crd_enddate = fields.Date(string="End Date",required=True)#compute="get_end_date",
+    crd_limit = fields.Float(string="Credit Limit")
+
+    @api.onchange('crd_startdate','crd_enddate')
+    @api.constrains('crd_startdate','crd_enddate')
+    def get_two_date_comp(self):
+        start_date = self.crd_startdate
+        end_date = self.crd_enddate
+        if start_date and end_date and start_date > end_date:
+            raise ValidationError("End Date cannot be set before Start Date.")
+
+    @api.onchange('payment_type','crd_enddate')
+    def get_end_date(self):
+        same_payment_objs = self.env['credit.limit'].search([('payment_type','=',self.payment_type)])
+        tmp_end_date = datetime.date(1000, 1, 11)
+        same_payment = self.env['credit.limit'] # This is Null Object assignment
+        for rec in same_payment_objs:
+            if rec.crd_enddate > tmp_end_date:
+                tmp_end_date = rec.crd_enddate
+                same_payment = rec
+            if same_payment:
+                self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
+
+
+#Rate Code
+class RateCode(models.Model):
+    _name = "rate.code"
+    _description = "Rate Code"
+    
 
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   required=True, readonly=True)
-    crd_startdate = fields.Date(string="Start Date", required=True)
-    crd_enddate = fields.Date(string="End Date", required=True)
-    crd_cash = fields.Float(string="Cash")
-    crd_cl = fields.Float(string="City Ledger")
-    crd_ax = fields.Float(string="Amex Card")
-    crd_dc = fields.Float(string="Diner Club")
-    crd_mc = fields.Float(string="Master Card")
-    crd_vs = fields.Float(string="Visa Card")
-    crd_jcb = fields.Float(string="JCB Card")
-    crd_lc = fields.Float(string="Local Card")
-    crd_un = fields.Float(string="Union Pay Card")
-    crd_others = fields.Float(string="Others")
+    rate_code = fields.Char(string="Rate Code", size=10, required=True)
+    ratecode_name = fields.Char(string="Description", required=True)
+    roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
+    roomtype_id = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
+    transaction_ids = fields.One2many('transaction.transaction', related="property_id.transaction_ids")
+    transcation_id = fields.Many2one('transaction.transaction', domain="[('id', '=?', transaction_ids)]", string="Transcation", required=True)
+    ratecode_type = fields.Selection(AVAILABLE_RATETYPE, string="Type", default='D', required=True)
+    start_date = fields.Date(string="Start Date", required=True)
+    end_date = fields.Date(string="End Date", required=True)
+    normal_price1 = fields.Float(string="Normal Price 1")
+    normal_price2 = fields.Float(string="Normal Price 2")
+    normal_price3 = fields.Float(string="Normal Price 3")
+    normal_price4 = fields.Float(string="Normal Price 4")
+    weekend_price1 = fields.Float(string="Weekend Price 1")
+    weekend_price2 = fields.Float(string="Weekend Price 2")
+    weekend_price3 = fields.Float(string="Weekend Price 3")
+    weekend_price4 = fields.Float(string="Weekend Price 4")
+    special_price1 = fields.Float(string="Special Price 1")
+    special_price2 = fields.Float(string="Special Price 2")
+    special_price3 = fields.Float(string="Special Price 3")
+    special_price4 = fields.Float(string="Special Price 4")
+
+    @api.onchange('start_date','end_date')
+    @api.constrains('start_date','end_date')
+    def get_two_date_comp(self):
+        startdate = self.start_date
+        enddate = self.end_date
+        if startdate and enddate and startdate > enddate:
+            raise ValidationError("End Date cannot be set before Start Date.")
+
+    @api.onchange('rate_code','end_date')
+    def get_end_date(self):
+        same_ratecode_objs = self.env['rate.code'].search([('rate_code','=',self.rate_code)])
+        tmp_end_date = datetime.date(1000, 1, 11)
+        same_ratecode = self.env['rate.code'] # This is Null Object assignment
+        for rec in same_ratecode_objs:
+            if rec.end_date > tmp_end_date:
+                tmp_end_date = rec.end_date
+                same_ratecode = rec
+            if same_ratecode:
+                self.start_date = same_ratecode.end_date + timedelta(days = 1)
+
 

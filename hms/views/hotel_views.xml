@@ -22,7 +22,9 @@
           <field name='is_property' invisible='1'/>
             <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
-             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
         </header>
           <sheet>
             <div class="oe_button_box" name="button_box">
@@ -85,6 +87,7 @@
               </group>
               <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
               <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
+              <field name="creditlimit_ids" context="{'default_property_id' : id}" invisible="1"/>
             <newline/>
             </group>
             <notebook colspan="5">
@@ -94,9 +97,11 @@
               <page string='Buildings (or) Zone'>
                 <div><field name="building_ids"/></div>
               </page> 
-              <page string='Room Type / Market Segment'>
+              <page string='Room Type'>
                 <h2> Room Type</h2>
                 <field name="roomtype_ids"/> 
+              </page>
+               <page string='Market Segment'>
                 <h2>Market Segment</h2>
                 <field name="market_ids"/>
               </page>
@@ -110,10 +115,10 @@
                   </div>
                 </group> 
               </page>
-              <page string='Transaction'>
+              <!-- <page string='Transaction'>
                 <h2>Credit Limit</h2>
-                <field name="creditlimit_ids" context="{'default_property_id' : id}"/>
-              </page>
+                
+              </page> -->
               <page string='Hotel License'>
                 <field name="roomqty"/>
                 <field name="property_license"/>
@@ -350,7 +355,8 @@
                   <field name="buildingtype_desc"/>
               </tree>
           </field>
-      </record>
+    </record>
+
     <!-- Building Type View Form -->
     <record id="building_type_view_form" model="ir.ui.view">
         <field name="name">building.type.view.form</field>
@@ -731,7 +737,7 @@
       <field name="name">weekend.view.form</field>
       <field name="model">weekend.weekend</field>
       <field name="arch" type="xml">
-        <form string="Weekend" create="false"  delete="false" no_create_edit="True">
+        <form string="Weekend" create="false"  delete="false" no_create_edit="True" import="false">
           <sheet>
             <h2>Define Weekends</h2>
             <br></br>
@@ -824,24 +830,85 @@
       <field name="view_mode">kanban,tree,form</field>
     </record>
 
-     <!-- Transaction Group Form View -->
-    <!-- <record id="transaction_group_view_form" model="ir.ui.view">
-      <field name="name">transaction.group.view.form</field>
-      <field name="model">transaction.group</field>
+    <!-- Revenue Type Form View -->
+    <record id="revenue_type_view_form" model="ir.ui.view">
+      <field name="name">revenue.type.view.form</field>
+      <field name="model">revenue.type</field>
+      <field name="arch" type="xml">
+        <form string="Revenue Type">
+          <sheet>
+            <group>
+              <field name="rev_type"/>
+              <field name="revtype_name" invisible="1"/>
+              <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9"/>
+              <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" />
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Revenue Type View List -->
+    <record id="revenue_type_view_list" model="ir.ui.view">
+      <field name="name">revenue.type.list</field>
+      <field name="model">revenue.type</field>
+      <field name="arch" type="xml">
+        <tree string="Revenue Type">
+          <field name="rev_code" string="Code"/>
+          <field name="rev_type" string ="Revenue"/>
+          <field name="revtype_name" string="rev"/>
+          <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Revenue Type Action -->
+    <record id="revenue_type_action_window" model="ir.actions.act_window">
+      <field name="name">Revenue Type</field>
+      <field name="res_model">revenue.type</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Revenue Sub Group Form View -->
+    <record id="sub_group_view_form" model="ir.ui.view">
+      <field name="name">sub.group.view.form</field>
+      <field name="model">sub.group</field>
       <field name="arch" type="xml">
         <form string="Transaction Group">
           <sheet>
             <group>
               <field name="property_id"/>
-              <field name="group_name"/>
-              <field name="group_desc"/>
+              <field name="revtype_id"/>
+              <field name="sub_group"/>
+              <field name="sub_desc"/>
             </group>
           </sheet>
         </form>
       </field>
-    </record> -->
+    </record>
 
-    <!-- Transaction Form View -->
+    <!-- Revenue Sub Group View List -->
+    <record id="sub_group_view_list" model="ir.ui.view">
+      <field name="name">sub.group.list</field>
+      <field name="model">sub.group</field>
+      <field name="arch" type="xml">
+        <tree string="Sub Group">
+          <field name="property_id"/>
+          <field name="revtype_id"/>
+          <field name="sub_group"/>
+          <field name="sub_desc"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Revenue Sub Group Action -->
+    <record id="sub_group_action_window" model="ir.actions.act_window">
+      <field name="name">Revenue Sub Group</field>
+      <field name="res_model">sub.group</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Transaction Form View  --> 
     <record id="transaction_view_form" model="ir.ui.view">
       <field name="name">transaction.view.form</field>
       <field name="model">transaction.transaction</field>
@@ -853,18 +920,22 @@
             <group>
               <group>
                 <field name="property_id"/>
-                <field name="trans_revtype"/>
-                <field name="transgroup_ids" invisible="1"/>
-                <field name="transgroup_id" context="{'default_property_id' : property_id}"/>
+                <field name="revtype_id"/>
+                <field name="revtype_name" invisible="1"/>
+                <field name="trans_ptype" attrs="{'invisible': [('revtype_name', '!=', 'Payment')],'required': [('revtype_name', '=', 'Payment')]}"/>
+                <field name="revsub_active" invisible="1"/>
+                <field name="subgroup_ids" invisible="1"/>
+                <field name="subgroup_id" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
+                <field name="subgroup_name" invisible="1"/>
                 <field name="trans_code" placeholder="Eg. 1001....."/>
                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>
                 <field name="trans_unitprice"/>
-                <field name="trans_utilities"/>
-                <field name="trans_svc" widget="boolean_toggle"/>
-                <field name="trans_tax" widget="boolean_toggle"/>
+                <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
+                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                 <field name="trans_internal" widget="boolean_toggle"/>
-                <field name="trans_minus" widget="boolean_toggle"/>
-                <field name="trans_type"/>
+                <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                <field name="trans_type" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
               </group>
             </group>
           </sheet>
@@ -878,10 +949,10 @@
       <field name="model">transaction.transaction</field>
       <field name="arch" type="xml">
         <tree string="Transaction">
-          <field name="transgroup_id"/>
+          <!-- <field name="transgroup_id"/> -->
+          <!-- <field name="trans_revtype" string="Rev Type"/> -->
           <field name="trans_code" string="Code"/>
           <field name="trans_name" string="Description"/>
-          <field name="trans_revtype" string="Rev Type"/>
           <field name="trans_unitprice" string="Price"/>
           <field name="trans_utilities" string="Utility" optional="hide"/>
           <field name="trans_svc" string="SVC"/>
@@ -893,11 +964,36 @@
       </field>
     </record>
 
+
+    <record id="transaction_view_search" model="ir.ui.view">
+      <field name="name">transaction.transaction.search</field>
+      <field name="model">transaction.transaction</field>
+      <field name="arch" type="xml">
+          <search string="Transactions">
+              <field name="trans_name" filter_domain="['|', ('trans_name','ilike',self), ('code','=like',str(self)+'%')]" string="Transaction"/>
+              <filter string="Revenue Type" name="revtype_id"/>
+              <!-- <separator/>
+              <filter string="Account with Entries" name="used" domain="[('used', '=', True)]"/>
+              <separator/> -->
+               <field name="revtype_id"/>
+              <group expand="0" string="Group By">
+                  <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
+                  <filter string="Transaction Group" name="transgroup" domain="" context="{'group_by':'subgroup_id'}"/>
+              </group>
+              <searchpanel class="transaction_root">
+                  <field name="root_id" icon="fa-filter" string="Transaction"/>
+              </searchpanel>
+          </search>
+      </field>
+    </record>
+
     <!-- action of transaction -->
     <record id="transaction_action_window" model="ir.actions.act_window">
       <field name="name">Transaction</field>
       <field name="res_model">transaction.transaction</field>
       <field name="view_mode">tree,form</field>
+      <field name="search_view_id" ref="transaction_view_search"/>
+        <field name="view_id" ref="transaction_view_list"/>
     </record>
 
     <!-- Reservation Type Form View-->
@@ -989,18 +1085,10 @@
             <group>
               <group>
                 <field name="property_id"/>
+                <field name="payment_type"/>
                 <field name="crd_startdate"/>
                 <field name="crd_enddate"/>
-                <field name="crd_cash" />
-                <field name="crd_cl" />
-                <field name="crd_ax" />
-                <field name="crd_dc"/>
-                <field name="crd_mc"/>
-                <field name="crd_vs"/>
-                <field name="crd_jcb"/>
-                <field name="crd_lc"/>
-                <field name="crd_un"/>
-                <field name="crd_others"/>
+                <field name="crd_limit"/>
               </group>
             </group>
           </sheet>
@@ -1014,18 +1102,10 @@
       <field name="model">credit.limit</field>
       <field name="arch" type="xml">
         <tree string="Credit Limit">
+          <field name="payment_type"/>
           <field name="crd_startdate"/>
           <field name="crd_enddate"/>
-          <field name="crd_cash" optional="show"/>
-          <field name="crd_cl" optional="show"/>
-          <field name="crd_ax" optional="hide"/>
-          <field name="crd_dc" optional="hide"/>
-          <field name="crd_mc" optional="hide"/>
-          <field name="crd_vs" optional="hide"/>
-          <field name="crd_jcb" optional="hide"/>
-          <field name="crd_lc" optional="hide"/>
-          <field name="crd_un" optional="hide"/>
-          <field name="crd_others" optional="hide"/>
+          <field name="crd_limit"/>
         </tree>
       </field>
     </record>
@@ -1034,6 +1114,103 @@
     <record id="credit_limit_action_window" model="ir.actions.act_window">
       <field name="name">Credit Limit</field>
       <field name="res_model">credit.limit</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Rate Code Form View -->
+    <record id="rate_code_view_form" model="ir.ui.view">
+      <field name="name">rate.code.view.form</field>
+      <field name="model">rate.code</field>
+      <field name="arch" type="xml">
+        <form string="Rate Code">
+          <sheet>
+            <h2>Rate Code</h2>
+            <br></br>
+            <group>
+              <group>
+                <field name="property_id"/>
+                <field name="rate_code"/>
+                <field name="ratecode_name"/>
+                <group>
+                  <field name="transaction_ids" invisible="1"/>
+                  <field name="transcation_id"/>
+                </group>
+                <group>
+                  <field name="ratecode_type"/>
+                </group>
+                <group>
+                  <field name="start_date"/>
+                </group>
+                <group>
+                  <field name="end_date"/>
+                </group>
+              </group>
+              <group>
+              </group>
+              <group>
+                <field name="roomtype_ids" invisible="1"/>
+                <field name="roomtype_id"/>
+                <label for="normal_price1" string="Normal"/>
+                <div class="o_address_format">
+                <field name="normal_price1" style="width:20%%"/>
+                <field name="normal_price2" style="width:20%%"/>
+                <field name="normal_price3" style="width:20%%"/>
+                <field name="normal_price4" style="width:20%%"/>
+                </div>
+                <label for="weekend_price1" string="Weekend"/>
+                <div class="o_address_format">
+                <field name="weekend_price1" style="width:20%%"/>
+                <field name="weekend_price2" style="width:20%%"/>
+                <field name="weekend_price3" style="width:20%%"/>
+                <field name="weekend_price4" style="width:20%%"/>
+                </div>
+              <label for="special_price1" string="Special Day"/>
+                <div class="o_address_format">
+                <field name="special_price1" style="width:20%%"/>
+                <field name="special_price2" style="width:20%%"/>
+                <field name="special_price3" style="width:20%%"/>
+                <field name="special_price4" style="width:20%%"/>
+                </div>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Rate Code List View -->
+    <record id="rate_code_view_list" model="ir.ui.view">
+      <field name="name">rate.code.view.list</field>
+      <field name="model">rate.code</field>
+      <field name="arch" type="xml">
+        <tree string="Rate Code">
+          <field name="rate_code"/>
+          <field name="ratecode_name"/>
+          <field name="roomtype_id"/>
+          <field name="transcation_id"/>
+          <field name="ratecode_type"/>
+          <field name="start_date"/>
+          <field name="end_date"/>
+          <field name="normal_price1" optional="hide"/>
+          <field name="normal_price2" optional="hide"/>
+          <field name="normal_price3" optional="hide"/>
+          <field name="normal_price4" optional="hide"/>
+          <field name="weekend_price1" optional="hide"/>
+          <field name="weekend_price2" optional="hide"/>
+          <field name="weekend_price3" optional="hide"/>
+          <field name="weekend_price4" optional="hide"/>
+          <field name="special_price1" optional="hide"/>
+          <field name="special_price2" optional="hide"/>
+          <field name="special_price3" optional="hide"/>
+          <field name="special_price4" optional="hide"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- action of Rate Code -->
+    <record id="rate_code_action_window" model="ir.actions.act_window">
+      <field name="name">Rate Code</field>
+      <field name="res_model">rate.code</field>
       <field name="view_mode">tree,form</field>
     </record>
     
@@ -1051,12 +1228,14 @@
     <menuitem id="room_view_menu" name="Room View" parent="hotel_menu_2" sequence="2" action="room_view_action_window"/>
     <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
 
-    <menuitem id="define_we_sp" name="Special Days" parent="hotel_menu_3" sequence="1"/>
+    <menuitem id="revenue_type_menu" name="Revenue Type" parent="hotel_menu_3" sequence="1" action="revenue_type_action_window"/>
+    <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hotel_menu_3" sequence="2" action="sub_group_action_window"/>
+    <menuitem id="define_we_sp" name="Special Days" parent="hotel_menu_3" sequence="3"/>
       <!-- <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/> -->
       <menuitem id="special_day_menu" name="Special Day" parent="define_we_sp" sequence="2" action="special_day_action_window"/>
       
     <!-- <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/> -->
-      <!-- <menuitem id="package_menu" name="Package" parent="pkg_st_menu" sequence="1" action="package_action_window"/> -->
+      
     
     <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hotel_menu_3" sequence="3"/>
       <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="rsvn_type_action_window"/>
