@@ -722,13 +722,15 @@ class RevenueType(models.Model):
     def onchange_rev_code(self):
         for record in self:
             rev_type = record.rev_type
-            record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
             if rev_type == 'P':
                  record.rev_code = '9'
+                 record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
             elif rev_type =='N':
                 record.rev_code = '8'
+                record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
             else:
                 record.rev_code = ''
+                record.revtype_name = ''
 
 
     @api.constrains('rev_code','rev_type')
