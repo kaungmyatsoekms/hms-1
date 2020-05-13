@@ -1,0 +1,72 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_utilities_monthly_form">
+      <field name="name">Utilities Monthly Form</field>
+      <field name="model">pms.utilities.monthly</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <group> 
+                <field name="property_code" />
+                <field name="billingperiod"/>
+                <field name="utilities_supply_type" />
+                <field name="utilities_source_type"/>
+                <field name="utilities_no"/>
+              </group>
+              <group>
+                <field name='batchcode'/>
+                <field name="start_value"/>
+                <field name="end_value"/>
+                <field name="start_reading_date"/>
+                <field name="end_reading_date"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_utilities_monthly_tree">
+      <field name="name">Utilities Monthly list</field>
+      <field name="model">pms.utilities.monthly</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="property_code" />
+          <field name="billingperiod"/>
+          <field name="utilities_supply_type" />
+          <field name="utilities_source_type"/>
+          <field name="utilities_no"/>
+          <field name="start_value"/>
+          <field name="end_value"/>
+          <field name="start_reading_date"/>
+          <field name="end_reading_date"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_utilities_monthly_filter">
+      <field name="name">Utilities Monthly list</field>
+      <field name="model">pms.utilities.monthly</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="property_code" />
+            <field name="utilities_no"/>
+            <field name="utilities_supply_type" />
+            <field name="utilities_source_type"/> 
+        </search>
+      </field>
+    </record>
+     <record id="action_utilities_monthly_all" model="ir.actions.act_window">
+       <field name="name">Utilities Monthly</field>
+       <field name="res_model">pms.utilities.monthly</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_utilities_monthly_tree"/> 
+    </record> 
+    <menuitem  id="utilities_monthly_menu_root" 
+      name="Utilities Monthly" 
+      parent="property_management_menu"
+      action="action_utilities_monthly_all"
+      groups="base.group_no_one"
+      sequence="80"/>
+  </data>
+</odoo>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_lease_notify" model="ir.cron">
+            <field name="name">Lease Notify scheduler</field>
+            <field name="model_id" ref="model_pms_lease_agreement"/>
+            <field name="state">code</field>
+            <field name="code">model.send_notify_email()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_expired_notify" model="ir.cron">
+            <field name="name">Lease Expired Scheduler</field>
+            <field name="model_id" ref="model_pms_lease_agreement"/>
+            <field name="state">code</field>
+            <field name="code">model.lease_expired()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_terminate_notify" model="ir.cron">
+            <field name="name">Lease Terminate Scheduler</field>
+            <field name="model_id" ref="model_pms_lease_agreement"/>
+            <field name="state">code</field>
+            <field name="code">model.lease_terminate()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_floor_scheduler" model="ir.cron">
+            <field name="name">Floor Scheduler</field>
+            <field name="model_id" ref="model_pms_floor"/>
+            <field name="state">code</field>
+            <field name="code">model.floor_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record> 
+        <record id="ir_space_unit_scheduler" model="ir.cron">
+            <field name="name">Space Unit Scheduler</field>
+            <field name="model_id" ref="model_pms_space_unit"/>
+            <field name="state">code</field>
+            <field name="code">model.space_unit_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_property_scheduler" model="ir.cron">
+            <field name="name">Property Scheduler</field>
+            <field name="model_id" ref="model_pms_properties"/>
+            <field name="state">code</field>
+            <field name="code">model.property_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+         <record id="ir_facility_scheduler" model="ir.cron">
+            <field name="name">Facility Scheduler</field>
+            <field name="model_id" ref="model_pms_facilities"/>
+            <field name="state">code</field>
+            <field name="code">model.suf_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_crm_scheduler" model="ir.cron">
+            <field name="name">CRMAccount Scheduler</field>
+            <field name="model_id" ref="model_res_partner"/>
+            <field name="state">code</field>
+            <field name="code">model.crm_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_cron_utilities_monthly_sale" model="ir.cron">
+            <field name="name">Utilities Monthly Scheduler</field>
+            <field name="model_id" ref="model_pms_utilities_monthly"/>
+            <field name="state">code</field>
+            <field name="code">model.import_utilitiesmonthly()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+         <record id="ir_cron_lease_agreement_schedule" model="ir.cron">
+            <field name="name">Lease Agreement Scheduler</field>
+            <field name="model_id" ref="model_pms_lease_agreement"/>
+            <field name="state">code</field>
+            <field name="code">model.lease_agreement_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_cron_lease_agreement_line_schedule" model="ir.cron">
+            <field name="name">Lease Agreement Item Scheduler</field>
+            <field name="model_id" ref="model_pms_lease_agreement_line"/>
+            <field name="state">code</field>
+            <field name="code">model.lease_agreement_item_scheduler()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_cron_pms_rent_schedule" model="ir.cron">
+            <field name="name">Rent Schedule Schedular</field>
+            <field name="model_id" ref="model_pms_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">model.rent_schedule_schedular()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+        <record id="ir_cron_leaseunitpos_shcheule" model="ir.cron">
+            <field name="name">Lease Unit POS Schedular</field>
+            <field name="model_id" ref="model_pms_lease_unit_pos"/>
+            <field name="state">code</field>
+            <field name="code">model.leaseunitpos_schedular()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>
+         <record id="ir_cron_spaceunit_unactive" model="ir.cron">
+            <field name="name">SpaceUnit Unactive Schedular</field>
+            <field name="model_id" ref="model_pms_space_unit"/>
+            <field name="state">code</field>
+            <field name="code">model.spaceunit_unactive_schedular()</field>
+            <field name="user_id" ref="base.user_root" />
+            <field eval="True" name="active"/>            
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+        </record>    
+    </data>
+</odoo>

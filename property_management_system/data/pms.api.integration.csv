@@ -1,0 +1,2 @@
+id,name,base_url,auth_url,username,password,active
+pms_api_integration_id,MIMS Provider,http://192.168.100.11,http://192.168.100.11/connect/token,APIUSER,5E817517-7D9D-430C-A0B3-905298EA741C,True

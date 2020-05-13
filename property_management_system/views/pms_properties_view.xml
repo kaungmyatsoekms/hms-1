@@ -1,0 +1,287 @@
+<odoo>
+  <data>
+  <!-- <template id="asset_backend" inherit_id="web.assets_backend"> 
+     <xpath expr="." position="inside">
+         <link rel="stylesheet" href="/property_management_system/static/src/css/custom.css"/> 
+     </xpath>        
+  </template> -->
+    <menuitem id="pms_properties_menu_root"
+            name="ZPMS"
+            web_icon="property_management_system,static/description/icon.png"
+            sequence="-2"
+            groups="group_property_user,group_property_manager"/>
+    <record model="ir.ui.view" id="view_pms_properties_form">
+      <field name="name">Properites Form</field>
+      <field name="model">pms.properties</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_units" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('count_unit', '=', 0)]}">
+                  <field name="count_unit" widget="statinfo" string="Units"/>
+              </button>
+          </div>
+          <field name="image" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;image_medium&quot;}"/>
+          <div class="oe_title">
+            <label for="name" string="Property Name"/>
+            <h1>
+              <field name="name" placeholder="Property Name"/>
+            </h1>
+            <h4>
+              <field name="code"  placeholder="Property Code"/> 
+            </h4>
+          </div>
+            <group>
+              <group>
+                <label for="propertytype_id"/>
+                <field name="propertytype_id" nolabel="1"/>
+                <field name="project_start_date"/>
+                <field name="target_open_date"/>
+                <field name="actual_opening_date"/>
+                <field name="currency_id" 
+                required="1"
+                 options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" />
+                <field name="timezone"/>
+              </group>
+              <group>
+                <field name="uom_id"/>
+                <field name="gross_floor_area" placeholder="Gross Floor Area"/>
+                <field name="net_lett_able_area" placeholder="Net-Lett-able Area"/>
+                <field name="web_site_url" widget="url" placeholder="http://www.zandotech.com"/>
+                <field name="is_autogenerate_posid"/>
+              </group>
+            </group>
+            <notebook>
+              <page name="Property" string="Property Address">
+                <group>
+                  <group> 
+                    <label for="street" string="Address"/>
+                    <div class="o_address_format">
+                      <field name="no" placeholder="No..." class="o_address_street"/>
+                      <field name="street" placeholder="Street 2..." class="o_address_street"/>
+                      <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                      <field name="state_id" class="o_address_country" placeholder="State" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                      <field name="city_id" placeholder="City" class="o_address_country" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                      <field name="township" placeholder="Township" class="o_address_country" options="{'no_create':True,'no_creste_edit':True, 'no_open':True}"/>
+                      <field name="zip" placeholder="ZIP" class="o_address_country"/>
+                    </div>
+                  </group>
+                  <group>
+                  </group> 
+                </group>
+              </page>
+               <page name="Contact" string="Contact Information">
+                  <field name="property_contact_id" widget="kanban">                  
+                     <kanban>
+                      <field name="id"/>
+                      <field name="color"/>
+                      <field name="name"/>
+                      <field name="type"/>
+                      <field name="email"/>
+                      <field name="company_id"/>
+                      <field name="is_company"/>
+                      <field name="function"/>
+                      <field name="phone"/>
+                      <field name="street"/>
+                      <field name="street2"/>
+                      <field name="zip"/>
+                      <field name="city_id"/>
+                      <field name="country_id"/>
+                      <field name="mobile"/>
+                      <field name="state_id"/>
+                      <field name="image_small"/>
+                      <field name="customer"/>
+                      <templates>
+                          <t t-name="kanban-box">
+                              <t t-set="color" t-value="kanban_color(record.color.raw_value)"/>
+                              <div t-att-class="color + ' oe_kanban_global_click'">
+                                  <div class="o_kanban_image">
+                                      <img alt="image" t-if="record.image_small.raw_value" t-att-src="kanban_image('res.partner', 'image_small', record.id.raw_value)"/>
+                                      <t t-if="!record.image_small.raw_value">
+                                          <img alt="Invoice" t-if="record.type.raw_value === 'invoice'" t-att-src='_s + "/base/static/img/money.png"'/>
+                                          <t t-if="record.type.raw_value !== 'invoice' &amp;&amp; record.type.raw_value !== 'delivery'">
+                                              <img alt="Logo" t-if="record.is_company.raw_value === true" t-att-src='_s + "/base/static/img/company_image.png"'/>
+                                              <img alt="Avatar" t-if="record.is_company.raw_value === false" t-att-src='_s + "/base/static/img/avatar.png"'/>
+                                          </t>
+                                      </t>
+                                  </div>
+                                  <div class="oe_kanban_details">
+                                      <field name="name"/>
+                                      <div t-if="record.email.raw_value"><field name="email" widget="email"/></div>
+                                      <div t-if="record.phone.raw_value">Phone: <field name="phone"/></div>
+                                  </div>
+                              </div>
+                          </t>
+                        </templates>
+                      </kanban> 
+                  </field>
+              </page>
+              <page name="Management" string="Management">
+              <field name="property_management_id" widget="kanban">                  
+                     <kanban>
+                      <field name="id"/>
+                      <field name="name"/>
+                      <field name="email"/>
+                      <field name="phone"/>
+                      <field name="city"/>
+                      <field name="logo"/>
+                      <templates>
+                          <t t-name="kanban-box">
+                            <div t-att-class="' oe_kanban_global_click'">
+                                <div class="o_kanban_image">
+                                    <img alt="logo" t-if="record.logo.raw_value" t-att-src="kanban_image('res.company', 'logo', record.id.raw_value)"/> 
+                                    <t t-if="!record.logo.raw_value">
+                                        <img alt="Logo"  t-att-src='_s + "/base/static/img/company_image.png"'/>
+                                    </t>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <field name="name"/>
+                                    <div t-if="record.email.raw_value"><field name="email" widget="email"/></div>
+                                    <div t-if="record.phone.raw_value">Phone: <field name="phone"/></div>
+                                </div>
+                            </div>
+                          </t>
+                        </templates>
+                      </kanban> 
+                  </field>
+              </page>
+              <page name="Bank" string="Bank Information">
+              <group>
+                <group><field name="bank_id" string="Bank"/></group>
+                <group></group>
+              </group> 
+              </page>
+              <page name="Configuration" string="Configuration">
+                <group>
+                  <group string="Fixed Code Integration">
+                    <field name="property_code_len"/>
+                    <field name="unit_code_len"/>
+                    <field name="floor_code_len"/>
+                  </group>
+                  <group string="Define Lease Terms">
+                    <field name="new_lease_term" widget="selection"/>
+                    <field name="extend_lease_term" widget="selection"/>
+                    <field name="terminate_days"/>
+                    <field name="extend_count"/>
+                  </group>
+                  <group string="Format Definition">
+                    <field name="pos_id_format" widget="selection"/>
+                    <field name="unit_format" widget="selection"/>
+                    <field name="lease_format" widget="selection"/>
+                  </group>
+                  <group string="Define Rent Schedule Type">
+                    <field name="rentschedule_type"/>
+                  </group>
+                   <group string="API Information">
+                    <field name="api_integration" string="MIMS Integration"/>
+                  </group>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+           <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_pms_properites_tree">
+      <field name="name">Properties Lists</field>
+      <field name="model">pms.properties</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="code" string="Property Code"/>
+          <field name="propertytype_id" string="Property Type"/>
+          <field name="uom_id" string="UOM"/>
+          <field name="project_start_date" string="Start Date"/>
+          <field name="target_open_date" string="T Opening Date"/>
+          <field name="actual_opening_date" string="A Opening Date"/>
+          <field name="gross_floor_area" string="GFA"/>
+          <field name="net_lett_able_area" string="NLA"/>
+          <field name="web_site_url" widget="url" string="Website"/>
+        </tree>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="pms_property_kanbans_view">
+        <field name="name">pms.properties.kanban</field>
+        <field name="model">pms.properties</field>
+        <field name="arch" type="xml">
+        <kanban class="o_pms_partner_kanban">
+            <field name="id"/>
+            <field name="name"/>
+            <field name="web_site_url"/>
+            <field name="propertytype_id"/>
+            <field name="image_small"/>
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_pms_partner_kanban">
+                        <t t-if="record.image_small.raw_value">
+                          <div class="o_kanban_image_fill_left d-none d-md-block" t-attf-style="background-image:url('#{kanban_image('pms.properties', 'image_medium', record.id.raw_value)}')">
+                              <img alt="Logo" class="o_kanban_image_inner_pic" t-att-src="kanban_image('pms.properties', 'image_small',record.id.raw_value)"/>
+                          </div>
+                        </t>
+                        <t t-else="">
+                            <img alt="Logo" t-att-src='_s + "/property_management_system/static/src/image/property.png"'/>
+                        </t>
+                        <div class="oe_kanban_details">
+                            <strong class="o_kanban_record_title oe_partner_heading"><field name="name"/></strong>
+                            <div class="o_kanban_tags_section oe_kanban_partner_categories"/>
+                            <ul>
+                                <li t-if="record.web_site_url.raw_value"><field name="web_site_url" widget="url" placeholder="http://www.zandotech.com"/></li>
+                                <li t-if="record.propertytype_id.raw_value"><field name="propertytype_id"/></li>
+                            </ul>
+                            <div class="oe_kanban_partner_links"/>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_pms_properites_filter">
+      <field name="name">Properties Filter</field>
+      <field name="model">pms.properties</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="code" string="Property Code"/>
+          <field name="propertytype_id" string="Property Type"/>
+          <field name="uom_id" string="UOM"/>
+          <field name="project_start_date" string=" StartDate"/>
+          <field name="target_open_date" string="T Opening Date"/>
+          <field name="actual_opening_date" string="A Opening Date"/>
+          <field name="web_site_url" string="Website"/>
+        </search>
+      </field>
+    </record>
+    <record id="action_pms_properites_all" model="ir.actions.act_window">
+       <field name="name">Properties</field>
+       <field name="res_model">pms.properties</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">kanban,tree,form</field>
+       <field name="view_id" ref="pms_property_kanbans_view"/>
+    </record>
+     <menuitem  id="property_management_menu" 
+      name="Property Management" 
+      parent="pms_properties_menu_root"
+      sequence="1" groups="group_property_user,group_property_manager"/>
+    <menuitem  id="properties_menu_sub" 
+      name="Property" 
+      parent="property_management_menu" 
+      action="action_pms_properites_all"
+      sequence="1"/>
+    <menuitem  id="pms_menu_config" 
+      name="Setting" 
+      parent="pms_properties_menu_root" 
+      sequence="100"/>
+    <menuitem id="property_management_menu_sub" 
+      name="Property Management" 
+      parent="pms_menu_config"
+      sequence="1"/>
+    <menuitem id="property_type_menu" 
+      name="Property Type" 
+      parent="property_management_menu_sub"
+      action="action_pms_properties_all"
+      sequence="1"/>
+  </data>
+</odoo>

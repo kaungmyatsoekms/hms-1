@@ -2,13 +2,11 @@
   <data>
 
     <!-- Top menu item -->
-
     <menuitem id="hotel_menu_root" name="HMS-System" sequence="5"/>
 
     <!-- menu categories -->
-    <menuitem id="hotel_menu_1" name="Hotel Configuration" parent="hotel_menu_root" sequence="1"/> 
-    <menuitem id="hotel_menu_2" name="Room Configuration" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hotel_menu_3" name="Configuration" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hotel_menu_hms" name="Property Configuration" parent="hotel_menu_root" sequence="1"/> 
+    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="9"/>
       
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
@@ -21,10 +19,11 @@
         <header>
           <field name='is_property' invisible='1'/>
             <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
-            <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
-            <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
         </header>
           <sheet>
             <div class="oe_button_box" name="button_box">
@@ -47,20 +46,23 @@
                   <field name="roomtype_count" widget='statinfo'/>
               </button>
             </div>
-            <separator colspan='1' string="Main Data Property"/>
+            <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
-              <label for ="code" string="Hotel ID"/>
-              <h3><field name="code" style="width:80%%"/></h3>
               <label for="name" string="Hotel Name"/>
-              <h3><field name="name" placeholder="Hotel Name" style="width:80%%"/></h3>
+              <h1><field name="name" placeholder="Hotel Name" style="width:80%%"/></h1>
+              <label for ="code" string="Hotel ID code"/>
+              <h4><field name="code" style="width:80%%"/></h4>
               <label for="hotelgroup_id" string="Hotel Group" />
-              <h3><field name="hotelgroup_id" style="width:80%%"/></h3>
+              <h4><field name="hotelgroup_id" style="width:80%%"/></h4>
             </div>
             <newline/>
             <group>
               <separator colspan='4' string="Property Information" />
               <group>
+                <field name="currency_id" string="Currency" 
+                required="1"
+                options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" />
                 <label for="address1" string="Address"/>
                 <div class="o_address_format">
                   <field name="address1" placeholder="Street..." class="o_address_street"/>
@@ -106,7 +108,8 @@
                 <field name="market_ids"/>
               </page>
               <page string='Bank Information'>
-                <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" context="{'default_property_id' : id}" mode="kanban"/>
+                <!-- <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" context="{'default_property_id' : id}" mode="kanban"/> -->
+                <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
               </page>
               <page string='Room Number'>
                 <group>
@@ -115,19 +118,46 @@
                   </div>
                 </group> 
               </page>
-              <!-- <page string='Transaction'>
-                <h2>Credit Limit</h2>
-                
-              </page> -->
               <page string='Hotel License'>
                 <field name="roomqty"/>
                 <field name="property_license"/>
+              </page>
+              <page string="Configuration">
+                <group>
+                  <group string="Fixed Code Integration">
+                    <field name="property_code_len"/>
+                    <field name="building_code_len"/>
+                    <field name="location_code_len"/>
+                  </group>
+                  <!-- <group string="Define Lease Terms">
+                    <field name="new_lease_term" widget="selection"/>
+                    <field name="extend_lease_term" widget="selection"/>
+                    <field name="terminate_days"/>
+                    <field name="extend_count"/>
+                  </group> -->
+                  <group string="Format Definition">
+                    <field name="confirm_id_format" widget="selection"/>
+                    <field name="profile_id_format" widget="selection"/>
+                    <field name="cprofile_id_format" widget="selection"/>
+                    <field name="gprofile_id_format" widget="selection"/>
+                  </group>
+                  <!-- <group string="Define Rent Schedule Type">
+                    <field name="rentschedule_type"/>
+                  </group>
+                   <group string="API Information">
+                    <field name="api_integration" string="MIMS Integration"/>
+                  </group> -->
+                </group>
               </page>
               <page string='Internal Notes'>
                 <field name="comments" placeholder="Internal notes..."/>
               </page>
             </notebook>
           </sheet>
+          <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+          </div>
         </form>
       </field>
     </record>
@@ -193,6 +223,35 @@
         </kanban>
       </field>
     </record>
+    <!-- Kanban View of Property -->
+    <record model="ir.ui.view" id="view_pms_properites_filter">
+      <field name="name">Properties Filter</field>
+      <field name="model">property.property</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="code" string="Property Code"/>
+          <field name="name" string="Property Name"/>
+          <field name="website" string="Website"/>
+        </search>
+      </field>
+  </record>
+
+  <record id="property_action_tree" model="ir.actions.act_window">
+            <field name="name">Hotel Properties</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">property.property</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('id','=',active_id)]</field>
+        </record>
+
+  <!-- action of property setup -->
+    <record id="property_action_window" model="ir.actions.act_window">
+      <field name="name">Hotel Property</field>
+      <field name="res_model">property.property</field>
+      <field name="view_mode">kanban,tree,form</field>
+      <field name="view_id" ref="property_view_kanban"/>
+    </record>
+
 
     <!-- Kanban View of Contacts-->
     <record id="contact_view_kanban" model="ir.ui.view">
@@ -229,7 +288,7 @@
     </record>
 
  <!-- Form View of Bank Info -->
-    <record id="bank_info_view_form" model="ir.ui.view">
+    <!-- <record id="bank_info_view_form" model="ir.ui.view">
       <field name="name">bank.info.view.form</field>
       <field name="model">bank.info</field>
       <field name="arch" type="xml">
@@ -246,10 +305,10 @@
           </sheet>
         </form>
       </field>
-    </record>
+    </record> -->
 
     <!-- Kanban View of Bank Info-->
-    <record id="bank_info_view_kanban" model="ir.ui.view">
+    <!-- <record id="bank_info_view_kanban" model="ir.ui.view">
       <field name="name">bank.info.view.kanban</field>
       <field name="model">bank.info</field>
       <field name="arch" type="xml">
@@ -281,14 +340,8 @@
           </templates>
         </kanban>
       </field>
-    </record>
+    </record> -->
 
-    <!-- action of property setup -->
-    <record id="property_action_window" model="ir.actions.act_window">
-      <field name="name">Hotel Property</field>
-      <field name="res_model">property.property</field>
-      <field name="view_mode">kanban,tree,form</field>
-    </record>
 
    <!-- ========== Hotel Building Setup ========== -->
     <!-- Building Setup Form View -->
@@ -711,7 +764,7 @@
             <br></br>
             <group>
               <field name="property_id"/>
-              <label for="special_date" string="Special Date"/>
+              <label for="special_date" string="Date"/>
               <div>
                 <field name="special_date" placeholder="Eg. Water Festival Date....."/>
               </div>
@@ -722,6 +775,18 @@
             </group>
           </sheet>
         </form>
+      </field>
+    </record>
+
+     <!-- Special List View -->
+    <record id="special_day_view_tree" model="ir.ui.view">
+      <field name="name">special.day.view.tree</field>
+      <field name="model">special.day</field>
+      <field name="arch" type="xml">
+        <tree string="Special Days">
+          <field name="special_date" />
+          <field name="special_desc" />
+        </tree>
       </field>
     </record>
 
@@ -839,9 +904,10 @@
           <sheet>
             <group>
               <field name="rev_type"/>
-              <field name="revtype_name" invisible="1"/>
               <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9"/>
               <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" />
+              <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
+              <field name="subgroup_ids"  context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}"/>
             </group>
           </sheet>
         </form>
@@ -856,9 +922,27 @@
         <tree string="Revenue Type">
           <field name="rev_code" string="Code"/>
           <field name="rev_type" string ="Revenue"/>
-          <field name="revtype_name" string="rev"/>
           <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
+          <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
+          <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}"/>
         </tree>
+      </field>
+    </record>
+
+    <!-- Revenue Type View Search-->
+    <record id="revenue_type_view_search" model="ir.ui.view">
+      <field name="name">revenue.type.search</field>
+      <field name="model">revenue.type</field>
+      <field name="arch" type="xml">
+          <search string="Revenue Type">
+            <filter string="Revenue Type" name="rev_type"/>
+            <filter string="Sub Group" name="subgroup_ids"/>
+               <field name="subgroup_ids"/>
+              <group expand="0" string="Group By">
+                <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'rev_type'}"/>
+                <filter string="Sub Group" name="subgroup" domain="" context="{'group_by':'subgroup_ids'}"/>
+              </group>
+          </search>
       </field>
     </record>
 
@@ -894,10 +978,25 @@
       <field name="arch" type="xml">
         <tree string="Sub Group">
           <field name="property_id"/>
-          <field name="revtype_id"/>
           <field name="sub_group"/>
           <field name="sub_desc"/>
         </tree>
+      </field>
+    </record>
+
+    <record id="sub_group_view_search" model="ir.ui.view">
+      <field name="name">sub.group.search</field>
+      <field name="model">sub.group</field>
+      <field name="arch" type="xml">
+          <search string="Sub Group">
+              <field name="sub_desc" filter_domain="['|', ('sub_desc','ilike',self), ('sub_desc','=like',str(self)+'%')]" string="Sub Group"/>
+              <filter string="Property" name="property_id"/>
+               <field name="property_id"/>
+              <group expand="0" string="Group By">
+                  <filter string="Property" name="property" domain="" context="{'group_by':'property_id'}"/>
+                  <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
+              </group>
+          </search>
       </field>
     </record>
 
@@ -906,6 +1005,8 @@
       <field name="name">Revenue Sub Group</field>
       <field name="res_model">sub.group</field>
       <field name="view_mode">tree,form</field>
+      <field name="search_view_id" ref="sub_group_view_search"/>
+      <field name="view_id" ref="sub_group_view_list"/>
     </record>
 
     <!-- Transaction Form View  --> 
@@ -926,7 +1027,7 @@
                 <field name="revsub_active" invisible="1"/>
                 <field name="subgroup_ids" invisible="1"/>
                 <field name="subgroup_id" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
-                <field name="subgroup_name" invisible="1"/>
+                <field name="subgroup_name" attrs="{'invisible': [('revsub_active', '=', True)]}"/>
                 <field name="trans_code" placeholder="Eg. 1001....."/>
                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>
                 <field name="trans_unitprice"/>
@@ -949,8 +1050,6 @@
       <field name="model">transaction.transaction</field>
       <field name="arch" type="xml">
         <tree string="Transaction">
-          <!-- <field name="transgroup_id"/> -->
-          <!-- <field name="trans_revtype" string="Rev Type"/> -->
           <field name="trans_code" string="Code"/>
           <field name="trans_name" string="Description"/>
           <field name="trans_unitprice" string="Price"/>
@@ -972,9 +1071,6 @@
           <search string="Transactions">
               <field name="trans_name" filter_domain="['|', ('trans_name','ilike',self), ('code','=like',str(self)+'%')]" string="Transaction"/>
               <filter string="Revenue Type" name="revtype_id"/>
-              <!-- <separator/>
-              <filter string="Account with Entries" name="used" domain="[('used', '=', True)]"/>
-              <separator/> -->
                <field name="revtype_id"/>
               <group expand="0" string="Group By">
                   <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
@@ -1128,6 +1224,7 @@
             <br></br>
             <group>
               <group>
+                <field name='is_ratecode' invisible='1'/>
                 <field name="property_id"/>
                 <field name="rate_code"/>
                 <field name="ratecode_name"/>
@@ -1138,12 +1235,12 @@
                 <field name="transaction_ids" invisible="1"/>
                 <field name="transcation_id"  style="width:55%%"/>
                 <field name="ratecode_type"  style="width:20%%"/>
+                <field name="roomtype_ids" invisible="1"/>
+                <field name="roomtype_id"  options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" />
                 <!-- <label for="start_date" string="Start Date"/> -->
                 <field name="start_date"/>
                 <!-- <label for="end_date" string="End Date"/> -->
                 <field name="end_date" />
-                <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id"/>
                 <label for="normal_price1" string="Normal"/>
                 <div class="o_address_format">
                   <field name="normal_price1" style="width:25%%"/>
@@ -1165,6 +1262,9 @@
                   <field name="special_price3" style="width:25%%"/>
                   <field name="special_price4" style="width:25%%"/>
                 </div>
+                <button string="Change New Rate" name="action_change_new_rate" type="object" 
+                        context="{'default_property_id' : id,'default_roomtype_id' : active_id,'default_transcation_id' : active_id}" 
+                        class="btn btn-primary" attrs="{'invisible': [('is_ratecode', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
               </group>
             </group>
           </sheet>
@@ -1207,34 +1307,28 @@
       <field name="res_model">rate.code</field>
       <field name="view_mode">tree,form</field>
     </record>
-    
-    <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_1" sequence="1" action="property_action_window"/>
 
-    <menuitem id="building_config" name="Room Configuration" parent="hotel_menu_1" sequence="2"/>
-      <menuitem id="building_menu" name="Hotel Building" parent="building_config" sequence="5" action="building_action_window"/>
-      <menuitem id="room_location_menu" name="Room Location" parent="building_config" sequence="10" action="room_location_action_window"/>
+    <menuitem action="property_action_window" id="menu_action_property_form" parent="base.menu_users"/>
     
-    <menuitem id="market_config" name="Market Segment" parent="hotel_menu_1" sequence="3"/>
+    <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/>
+
+    <menuitem id="room_config" name="Room Config" parent="hms_menu_config" sequence="2"/>
+      <menuitem id="room_type_menu" name="Room Type" parent="room_config" sequence="1" action="room_type_action_window"/>
+      <menuitem id="room_view_menu" name="Room View" parent="room_config" sequence="2" action="room_view_action_window"/>
+      <menuitem id="room_facility_menu" name="Room Facility" parent="room_config" sequence="3" action="room_facility_action_window"/>
+      <menuitem id="building_menu" name="Hotel Building" parent="room_config" sequence="4" action="building_action_window"/>
+      <menuitem id="room_location_menu" name="Room Location" parent="room_config" sequence="5" action="room_location_action_window"/>
+
+    <menuitem id="revenue_type_menu" name="Revenue Type" parent="hms_menu_config" sequence="3" action="revenue_type_action_window"/>
+    <!-- <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hms_menu_config" sequence="3" action="sub_group_action_window"/> -->
+
+    <menuitem id="market_config" name="Market Config" parent="hms_menu_config" sequence="4"/>
         <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="market_segment_action_window"/>
         <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="market_source_action_window"/>
-
-    <menuitem id="room_type_menu" name="Room Type" parent="hotel_menu_2" sequence="1" action="room_type_action_window"/>
-    <menuitem id="room_view_menu" name="Room View" parent="hotel_menu_2" sequence="2" action="room_view_action_window"/>
-    <menuitem id="room_facility_menu" name="Room Facility" parent="hotel_menu_2" sequence="3" action="room_facility_action_window"/>
-
-    <menuitem id="revenue_type_menu" name="Revenue Type" parent="hotel_menu_3" sequence="1" action="revenue_type_action_window"/>
-    <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hotel_menu_3" sequence="2" action="sub_group_action_window"/>
-    <menuitem id="define_we_sp" name="Special Days" parent="hotel_menu_3" sequence="3"/>
-      <!-- <menuitem id="weekend_menu" name="Weekend" parent="define_we_sp" sequence="1" action="weekend_action_window"/> -->
-      <menuitem id="special_day_menu" name="Special Day" parent="define_we_sp" sequence="2" action="special_day_action_window"/>
       
-    <!-- <menuitem id="pkg_st_menu" name="Package" parent="hotel_menu_3" sequence="2"/> -->
-      
-    
-    <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hotel_menu_3" sequence="3"/>
+    <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hms_menu_config" sequence="5"/>
       <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="rsvn_type_action_window"/>
       <menuitem id="rsvn_status_menu" name="Reservation Status" parent="rsvn_type_set_menu" sequence="2" action="rsvn_status_action_window"/>
-      <!-- <menuitem id="transaction_menu" name="Transactions" parent="rsvn_type_set_menu" sequence="3" action="transaction_action_window"/> -->
       
   </data>
 </odoo>

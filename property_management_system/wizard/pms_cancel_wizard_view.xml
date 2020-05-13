@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_cancel_wiz" model="ir.ui.view">
+            <field name="name">Cancel Lease</field>
+            <field name="model">pms.lease_cancel_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cancel Lease">
+                    <p  style="font-weight:bold;">
+                        Will be changed from this booking to the cancel status.
+                    </p>
+                    <footer>
+                        <button name="action_cancel_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    <record id="action_cancel_wiz" model="ir.actions.act_window">
+        <field name="name">ZPMS</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">pms.lease_cancel_wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'active_id':active_id}</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

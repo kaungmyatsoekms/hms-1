@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_activate_wiz" model="ir.ui.view">
+            <field name="name">Activate Lease</field>
+            <field name="model">pms.lease.activate.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Activate Lease">
+                    <p style="font-weight:bold;">
+                        Are you sure want to Activate?
+                    </p>
+                    <footer>
+                        <button name="action_activate_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    <record id="action_activate_wiz" model="ir.actions.act_window">
+        <field name="name">ZPMS</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">pms.lease.activate.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'active_id':active_id}</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

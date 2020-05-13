@@ -1,0 +1,124 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_utilities_supply_type_form">
+      <field name="name">Utilities Supply Type Form</field>
+      <field name="model">pms.utilities.supply.type</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+           <div class="oe_button_box" name="button_box">
+              <button type="object" class="oe_stat_button" icon="fa-archive">
+                  <!-- <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/> -->
+              </button>
+            </div>
+            <div class="oe_title">
+            <label for="name" string="Utilities Supply Type"/>
+            <h1>
+                <field name="name" placeholder="Utilities Supply Type"/>
+            </h1>
+          </div>
+          <group>
+            <group>
+                <!-- <field name="property_id"/> -->
+                <field name="code" placeholder="Utilities Supply Code"/>
+            </group>
+          </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_utilities_supply_type_tree">
+      <field name="name">Utilities Supply Type list</field>
+      <field name="model">pms.utilities.supply.type</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="code"/>
+          <field name="name"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_utilities_supply_type_filter">
+      <field name="name">Utilities Supply Type list</field>
+      <field name="model">pms.utilities.supply.type</field>
+      <field name="arch" type="xml">
+      
+        <search>
+          <field name="code"/>
+          <field name="name"/>
+        </search>
+      </field>
+    </record>
+     <record id="action_utilities_supply_type_all" model="ir.actions.act_window">
+       <field name="name">Utilities Supply Types</field>
+       <field name="res_model">pms.utilities.supply.type</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_utilities_supply_type_tree"/> 
+    </record>
+    <record model="ir.ui.view" id="view_pms_utilities_source_type_form">
+      <field name="name">Utilities Source Type Form</field>
+      <field name="model">pms.utilities.source.type</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <div class="oe_button_box" name="button_box">
+              <button type="object" class="oe_stat_button" icon="fa-archive">
+                  <!-- <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/> -->
+              </button>
+            </div>
+            <div class="oe_title">
+            <label for="name" string="Utilities Source Type"/>
+            <h1>
+                <field name="name" placeholder="Utilities Source Type"/>
+            </h1>
+          </div>
+          <group>
+            <group> 
+                <field name="code" placeholder="GEN"/>
+                <field name="utilities_type_id" placeholder="PM"/>
+            </group>
+          </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_pms_utilities_source_type_tree">
+      <field name="name">Utilities Source Type list</field>
+      <field name="model">pms.utilities.source.type</field>
+      <field name="arch" type="xml">
+        <tree>
+            <field name="code"/>
+            <field name="name"/>
+            <field name="utilities_type_id"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_pms_utilities_source_type_filter">
+      <field name="name">Utilities Source Type list</field>
+      <field name="model">pms.utilities.source.type</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="code"/>
+            <field name="name"/>
+            <field name="utilities_type_id"/>
+        </search>
+      </field>
+    </record>
+    <record id="action_utilities_source_type_all" model="ir.actions.act_window">
+       <field name="name">Utilities Source Types</field>
+       <field name="res_model">pms.utilities.source.type</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_pms_utilities_source_type_tree"/> 
+    </record>
+    <menuitem  id="utilities_type_menu_root" 
+        name="Utilities Supply Type" 
+        parent="property_management_menu_sub"
+        groups="base.group_system"
+        action="action_utilities_supply_type_all"/>
+    <menuitem  id="utilities_source_type_menu_root" 
+        name="Utilities Source Type" 
+        parent="property_management_menu_sub"
+        action="action_utilities_source_type_all"/>
+  </data> 
+</odoo>

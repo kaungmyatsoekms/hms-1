@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="seq_lease_agreement" model="ir.sequence">
+            <field name="name">Lease Agreement</field>
+            <field name="code">pms.lease_agreement</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+         <record id="seq_lease_interface" model="ir.sequence">
+            <field name="name">Lease Interface Code</field>
+            <field name="code">pms.lease.interface.code</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+         <record id="seq_unit_reconfig" model="ir.sequence">
+            <field name="name">Unit Reconfig</field>
+            <field name="code">unit.reconfig</field>
+            <field name="prefix">URCF/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+         <record id="seq_unit_resurvey" model="ir.sequence">
+            <field name="name">Unit Resurvey</field>
+            <field name="code">unit.resurvey</field>
+            <field name="prefix">URSV/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

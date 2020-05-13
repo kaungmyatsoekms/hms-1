@@ -1,0 +1,153 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_space_unit_form">
+      <field name="name">Space Unit Form</field>
+      <field name="model">pms.space.unit</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <!-- <div class="oe_button_box" name="button_box">
+              <button type="object" class="oe_stat_button" icon="fa-archive">
+                  <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+              </button>
+            </div> -->
+              <div class="oe_title">
+                <label for="name" class="oe_edit_only" readonly="1" string="Unit No"/>
+                <h1  class="mt0">
+                  <field name="name" invisible='1' />
+                  <div>
+                      <field name="unit_code" readonly="1" class="oe_inline"/>
+                      <field name="unit_no" 
+                      required="1"
+                       class="oe_inline"/>
+                  </div>
+                </h1>
+              </div>
+              <group>
+                <group> 
+                  <field name="property_id" options="{'no_create': True, 'no_create_edit':True}"/>
+                  <field name="floor_id" options="{'no_create': True, 'no_create_edit':True}"/>
+                  <field name="spaceunittype_id"/>
+                  <field name="uom"/>
+                  <field name="config_flag" invisible="1"/>
+                </group>
+                <group> 
+                  <field name="area"/>
+                  <field name="min_rate" string="Min Rate($/sqft)" t-options='{"widget": "monetary", "display_currency": "currency"}'/>
+                  <field name="max_rate" string="Max Rate($/sqft)" t-options='{"widget": "monetary", "display_currency": "currency"}'/>
+                  <field name="start_date"/>
+                  <field name="end_date"/>
+                  <field name="meter_no" invisible='1'/>
+                  <field name="resurvey_date" attrs="{'invisible':[('config_flag','not in',['survey'])]}"/>
+                  <field name="active"/>
+                  <field name="remark"/>
+                </group>
+              </group>
+              <notebook>
+                <page string="Facilities" >
+                  <field name="facility_line" widget="many2many" domain="[('status', '=', False)]">
+                    <tree>
+                      <field name="utilities_type_id" options="{'no_create_edit': True}"/>
+                      <field name="interface_type" options="{'no_create_edit': True}"/>
+                      <field name="utilities_no" options="{'no_create_edit': True}"/>
+                      <field name="status" options="{'no_create_edit': True}"/>
+                    </tree>
+                  </field>
+                </page>
+              </notebook>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_space_tree">
+      <field name="name">Space Unit list</field>
+      <field name="model">pms.space.unit</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="property_id"/>
+          <field name="floor_id"/>
+          <field name="name"/> 
+          <field name="meter_no"/>
+          <field name="spaceunittype_id"/>
+          <field name="uom"/>   
+          <field name="start_date"/> 
+          <field name="end_date"/>
+          <field name="status"/>
+          <field name="active"/> 
+          <field name="config_flag" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="pms_unit_kanbans_view">
+         <field name="model">pms.space.unit.kanban</field>
+        <field name="model">pms.space.unit</field>
+        <field name="arch" type="xml">
+        <kanban class="o_pms_partner_kanban">
+            <field name="id"/>
+            <field name="name"/>
+            <field name="property_id"/>
+            <field name="floor_id"/>    
+            <field name="start_date"/>
+            <field name="status"/>   
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_pms_partner_kanban">
+                        <!-- <t t-if="record.id.raw_value">
+                          <div class="o_kanban_image_fill_left d-none d-md-block" t-attf-style="background-image:url('#{kanban_image('pms.lease_agreement', 'image_medium', record.id.raw_value)}')">
+                              <img alt="Logo" class="o_kanban_image_inner_pic" t-att-src="kanban_image('pms.lease_agreement', 'image_small',record.id.raw_value)"/>
+                          </div>
+                        </t> -->
+                        <t t-if="record.id.raw_value">
+                            <img alt="Logo" t-att-src='_s + "/property_management_system/static/src/image/units.jpg"'/>
+                        </t>
+                        <div class="oe_kanban_details">
+                            <strong class="o_kanban_record_title oe_partner_heading"><field name="name"/></strong>
+                            <div class="o_kanban_tags_section oe_kanban_partner_categories"/>
+                            <ul>
+                                <li t-if="record.property_id.raw_value"><field name="property_id"/></li>
+                                <li t-if="record.floor_id.raw_value"><field name="floor_id"/></li>
+                                <li t-if="record.start_date.raw_value"><field name="start_date"/></li>
+                                <li t-if="record.status.raw_value"><field name="status"/></li>
+                            </ul>
+                            <div class="oe_kanban_partner_links"/>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_space_filter">
+      <field name="name">Space Unit Filter</field>
+      <field name="model">pms.space.unit</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="property_id"/>
+          <field name="floor_id"/>
+          <field name="start_date"/> 
+          <group expand="0" string="Group By">
+            <filter name="group_property_id" string="Property" icon="terp-partner" context="{'group_by':'property_id'}"/>
+          </group> 
+        </search>
+      </field>
+    </record>
+     <record id="action_space_all" model="ir.actions.act_window">
+       <field name="name">Units</field>
+       <field name="res_model">pms.space.unit</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form,kanban</field>
+       <field name="view_id" ref="view_space_tree"/>
+       <!-- <field name="context">{'search_default_group_property_id': 1}</field> -->
+    </record>
+    <menuitem id="space_menu_root" 
+      name="Unit" 
+      parent="property_management_menu"
+      action="action_space_all"
+      sequence="2"/>
+  </data>
+</odoo>

@@ -1,0 +1,5 @@
+id,name,code
+utilities_supply_type_1,Electricity Meter,PM
+utilities_supply_type_2,TCA TYPE,TCA
+utilities_supply_type_3,Water Meter,WM
+utilities_supply_type_4,Gas Meter,GM

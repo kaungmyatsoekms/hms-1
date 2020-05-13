@@ -1,0 +1,40 @@
+<odoo>
+    <data>
+        <record id="id_pms_rent_schedule" model="ir.actions.server">
+            <field name="name">Generate Schedule Lists</field>
+            <field name="model_id" ref="model_pms_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">records.action_generate_rs()</field>
+        </record>
+        <record id="id_pms_gen_rent_schedule" model="ir.actions.server">
+            <field name="name">Create Invoice</field>
+            <field name="model_id" ref="model_pms_gen_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">records.action_create_invoice()</field>
+        </record>
+        <record id="id_pms_gen_submit_schedule" model="ir.actions.server">
+            <field name="name">Submit</field>
+            <field name="model_id" ref="model_pms_gen_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">records.action_submit()</field>
+        </record>
+        <record id="id_pms_gen_reject_schedule" model="ir.actions.server">
+            <field name="name">Reject</field>
+            <field name="model_id" ref="model_pms_gen_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">records.action_reject()</field>
+        </record>
+        <record id="id_pms_gen_confirm_schedule" model="ir.actions.server">
+            <field name="name">Confirm</field>
+            <field name="model_id" ref="model_pms_gen_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">records.action_confirm()</field>
+        </record>
+        <record id="id_pms_rent_schedule_reset_draft" model="ir.actions.server">
+            <field name="name">Reset To Draft</field>
+            <field name="model_id" ref="model_pms_rent_schedule"/>
+            <field name="state">code</field>
+            <field name="code">records.action_reset_drafts()</field>
+        </record>
+    </data>
+</odoo>

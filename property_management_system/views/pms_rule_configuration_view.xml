@@ -1,0 +1,196 @@
+<odoo>
+  <data>  
+          <record id="res_rule_view_form" model="ir.ui.view">
+          <field name="name">res.config.settings.view.form</field>
+          <field name="model">res.config.settings</field>
+          <field name="priority" eval="11"/>
+          <field name="inherit_id" ref="base.res_config_settings_view_form" />
+          <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="ZPMS" string="ZPMS" data-key="zpms" groups="base.group_erp_manager">
+                  <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Fixed Code Integration</h4>
+                  <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Maximum Property Code Length</span>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                        <div class="text-muted">
+                          Define the maximum property code length
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16">
+                            <field name="property_code_len" style="width: 100%;"/>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Maximum Floor Code Length</span>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                        <div class="text-muted">
+                          Define the maximum floor code length
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16">
+                            <field name="floor_code_len"  style="width: 100%;" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Maximum Space Unit Code Length</span>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                        <div class="text-muted">
+                          Define the maximum space unit code length
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16">
+                            <field name="space_unit_code_len"  style="width: 100%;" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Format Definition</h4>
+                  <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Space Unit Code Format</span>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                        <div class="text-muted">
+                          Set the space unit code format with the default
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16">
+                            <field name="space_unit_code_format"  style="width: 100%;" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">POS ID Format</span>
+                        <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                        <div class="text-muted">
+                          Define the POS ID format
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16 ">
+                            <field name="pos_id_format"  style="width: 100%;" />
+                            <field name="company_id"
+                            invisible="1"/>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                      <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Lease Agreement No Format</span>
+                        <div class="text-muted">
+                          Define lease agreement no format to apply when create a lease.
+                        </div>
+                        <div class="content-group">
+                         <div class="mt16">
+                            <field name="lease_agre_format_id"  style="width: 100%;"  />
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Define Lease Terms</h4>
+                  <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">New Lease Term</span>
+                        <div class="text-muted">
+                          Define new lease term to apply when create a lease.
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16">
+                            <field name="new_lease_term" style="width: 100%;"/>
+                          </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Extend Lease Term</span>
+                        <div class="text-muted">
+                          Define extend lease term to apply when create a lease.
+                        </div>
+                        <div class="content-group">
+                        <div class="mt16">
+                          <field name="extend_lease_term" style="width: 100%;"/>
+                          </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Pre-Terminate Term(Days)</span>
+                        <div class="text-muted">
+                          Define Pre-Terminate period term to terminate a lease.
+                        </div>
+                        <div class="content-group">
+                        <div class="mt16">
+                          </div>
+                            <!-- <field name="terminate_lease_term" style="width: 100%;"/> -->
+                            <field name="pre_notice_terminate_term" style="width: 100%;"/>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Extend Count</span>
+                        <div class="text-muted">
+                          Define extend count term to apply when extend a lease.
+                        </div>
+                        <div class="content-group">
+                        <div class="mt16">
+                          </div>
+                            <field name="extend_count" style="width: 100%;"/>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                  <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Define Rent Schedule Type</h4>
+                  <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-4 o_setting_box">
+                      <div class="o_setting_right_pane">
+                        <span class="o_form_label">Rent Schedule</span>
+                        <span class="fa fa-lg fa-building-o" title="Rent Schedule set here are company-specific." aria-label="Rent Schedule set here are company-specific." groups="base.group_multi_company" role="img"/>
+                        <div class="text-muted">
+                          Set the rent schedule type to create rent schedule for lease unit.
+                        </div>
+                        <div class="content-group">
+                          <div class="mt16">
+                            <field name="rentschedule_type" style="width: 100%;"/>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </xpath>
+            </field>
+          </record>
+        <record id="action_property_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_id" ref="res_rule_view_form"/>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'property_management_system'}</field>
+    </record>
+
+    <menuitem id="menu_property_general_settings"
+        name="Settings"
+        parent="pms_menu_config"
+        sequence="0"
+        action="action_property_config_settings"
+        groups="base.group_system"/>
+  </data>
+</odoo>

@@ -1,0 +1,91 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_space_unit_management_form">
+      <field name="name">Space Unit Management Form</field>
+      <field name="model">pms.space.unit.management</field>
+      <field name="arch" type="xml">
+        <form>
+            <header>
+                <button name="action_division" type="object" string="Division" attrs="{'invisible':['|',('action_type','=','combination'),('state','!=', 'draft')]}" class="btn-primary"/>
+                <button name="action_combination" type="object" string="Combination" attrs="{'invisible':['|',('action_type','=','division'),('state','!=', 'draft')]}" class="btn-primary"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+            </header>
+          <sheet>
+            <div class="oe_button_box" name="button_box">
+              <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                  <!-- <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/> -->
+              </button>
+            </div>
+            <div class="oe_title">
+              <label for="name" class="oe_edit_only" string="Type"/>
+              <h1>
+                  <field name="action_type" widget="radio" options="{'horizontal': true}"/>
+              </h1>
+            </div>
+            <group>
+                <group>
+                    <field name="floor_id" attrs="{'invisible':[('action_type','=','combination')]}"/>
+                    <field name="space_unit_id" attrs="{'invisible':[('action_type','=','combination')]}" />
+                    <field name="to_unit" attrs="{'invisible':[('action_type','=','division')]}"/> 
+                    <field name="area"/>
+                    <field name="no_of_unit" attrs="{'invisible':[('action_type','=','combination')]}"/>                  
+                    <field name="combination_type" attrs="{'invisible':[('action_type','=','division')]}" widget="radio" options="{'horizontal': true}"/>
+                </group>
+                <group>
+                </group>
+                <group colspan="4" attrs="{'invisible':[('action_type','=','division')]}">
+                    <group name="Available" string="Available">
+                         <field name="floor_id" />
+                    </group>
+                    <group name="Units" string="Units">
+                        <field name="space_unit" widget="many2many_tags"/>
+                    </group>
+                </group>
+            </group>
+            <!-- <div sytle="text-align:center;">
+              <button style="background-color:#5f5e97;" name="action_division" type="object" string="Division" attrs="{'invisible':[('action_type','=','combination')]}" class="oe center oe button box"/>
+            </div> -->
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_space_unit_management_tree">
+      <field name="name">Space Unit Management List</field>
+      <field name="model">pms.space.unit.management</field>
+      <field name="arch" type="xml">
+        <tree>
+            <field name="floor_id"/>
+            <field name="space_unit_id"/>
+            <field name="area"/>
+            <field name="no_of_unit"/>        
+            <field name="to_unit"/>
+            <field name="action_type"/>
+            <field name="combination_type"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_space_unit_management_filter">
+      <field name="name">Space Unit Management List</field>
+      <field name="model">pms.space.unit.management</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="floor_id"/>
+            <field name="space_unit_id"/>
+        </search>
+      </field>
+    </record>
+     <record id="action_space_unit_management_all" model="ir.actions.act_window">
+       <field name="name">Space Unit Management</field>
+       <field name="res_model">pms.space.unit.management</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_space_unit_management_tree"/> 
+    </record> 
+    <!-- <menuitem  id="space_unit_management_menu_root" 
+      name="Space Unit Management" 
+      parent="pms_menu_config"
+      action="action_space_unit_management_all"
+      groups="base.group_no_one"
+      sequence="2"/> -->
+  </data>
+</odoo>

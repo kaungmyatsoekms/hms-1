@@ -1,0 +1,185 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_rent_schedule_form">
+      <field name="name">Rent Schedule Form</field>
+      <field name="model">pms.rent_schedule</field>
+      <field name="arch" type="xml">
+        <form create="false" edit="false">
+            <header>
+                <button name="action_reset_draft" string="Reset To Draft" type="object" states="generated"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,confrimed,invoiced"/>
+            </header>
+          <sheet>
+            <group readonly='1'>
+              <group>
+                <field name="property_id"/>
+                <field name="unit_no"/>
+                <field name="lease_no"/>
+                <field name="lease_agreement_id" string="Shop"/>
+              </group>
+              <group>    
+                <field name="charge_type" readonly='0'/>        
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <!-- <field name="extend_to"/> -->
+                <field name="amount"/>
+                <field name="billing_date"/>
+              </group>
+            </group>
+          </sheet>
+          <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_rent_schedule_tree">
+      <field name="name">Rent Schedule list</field>
+      <field name="model">pms.rent_schedule</field>
+      <field name="arch" type="xml">
+        <tree create="false" edit="false" >
+            <field name="property_id"/>
+            <field name="lease_agreement_id" string="Shop"/>
+            <field name="lease_no"/>
+            <field name="unit_no"/>
+            <field name="charge_type"/>
+            <field name="start_date"/>
+            <field name="end_date"/>
+            <field name="amount"/>
+            <field name="state"/>
+            <field name="billing_date"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_rent_schedule_filter">
+      <field name="name">Rent Schedule list</field>
+      <field name="model">pms.rent_schedule</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="lease_agreement_id"/>
+            <field name="unit_no"/>
+            <field name="charge_type"/>
+            <field name="billing_date"/>
+           <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+            <separator/>
+            <group expand="0" string="Group By">
+                <filter string="Lease" name="lease_agreement_id" domain="[]" context="{'group_by':'lease_agreement_id'}"/>
+                <filter string="Unit" name="unit_no" domain="[]" context="{'group_by':'unit_no'}"/>
+                <filter string="Charge" name="charge_type" domain="[]" context="{'group_by':'charge_type'}"/>
+                <filter string="Start Date" name="start_date" domain="[]" context="{'group_by':'start_date:month'}"/>            </group>
+        </search>
+      </field>
+    </record>
+     <record id="action_rent_schedule_all" model="ir.actions.act_window">
+       <field name="name">Rent Schedules</field>
+       <field name="res_model">pms.rent_schedule</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_rent_schedule_tree"/>
+       <field name="context">{'search_default_draft':1}</field>
+       <field name="domain">[('state','in',['draft', 'generated'])]</field>
+    </record> 
+    <menuitem  id="rent_schedule_menu_root" 
+      name="Rent Schedule" 
+      parent="lease_management_menu_sub" 
+      action="action_rent_schedule_all"
+      sequence="2"/>
+
+    <record model="ir.ui.view" id="view_generate_rent_schedule_form">
+      <field name="name">Generate Rent Schedule Form</field>
+      <field name="model">pms.gen.rent.schedule</field>
+      <field name="arch" type="xml">
+        <form create="false" edit="false">
+            <header>
+                  <button name="action_submit" id="action_submit"
+                        string="Submit" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', ['draft'])]}"/>
+                  <button name="action_confirm" id="action_confirm"
+                        string="Confirm" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', ['submitted'])]}"/>
+                  <button name="action_reject" id="action_reject"
+                        string="Reject" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', ['submitted'])]}"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,invoiced"/>
+            </header>
+          <sheet>
+            <group>
+              <group>
+                <field name="property_id" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="unit_no" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="lease_no" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="lease_agreement_id" string="Shop" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+              </group>
+              <group>    
+                <field name="charge_type" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>        
+                <field name="start_date" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="end_date" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="amount" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="billing_date" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+                <field name="schedule_invoice" attrs="{'readonly':[('state','in',['confirmed','invoiced'])]}"/>
+              </group>
+            </group>
+          </sheet>
+          <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_generate_rent_schedule_tree">
+      <field name="name">Generate Rent Schedule list</field>
+      <field name="model">pms.gen.rent.schedule</field>
+      <field name="arch" type="xml">
+        <tree create="false" edit="false">
+            <field name="property_id"/>
+            <field name="lease_agreement_id" string="Shop"/>
+            <field name="lease_no"/>
+            <field name="unit_no"/>
+            <field name="charge_type"/>
+            <field name="start_date"/>
+            <field name="end_date"/>
+            <field name="amount"/>
+            <field name="state"/>
+            <field name="billing_date"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_generate_rent_schedule_filter">
+      <field name="name">Generate Rent Schedule list</field>
+      <field name="model">pms.gen.rent.schedule</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="lease_agreement_id"/>
+            <field name="unit_no"/>
+            <field name="charge_type"/>
+            <field name="billing_date"/>
+            <group expand="0" string="Group By">
+                <filter string="Lease" name="lease_agreement_id" domain="[]" context="{'group_by':'lease_agreement_id'}"/>
+                <filter string="Unit" name="unit_no" domain="[]" context="{'group_by':'unit_no'}"/>
+                <filter string="Charge" name="charge_type" domain="[]" context="{'group_by':'charge_type'}"/>
+                <filter string="Start Date" name="start_date" domain="[]" context="{'group_by':'start_date:month'}"/>            </group>
+        </search>
+      </field>
+    </record>
+     <record id="action_generate_rent_schedule_all" model="ir.actions.act_window">
+       <field name="name">Generated Rent Schedules</field>
+       <field name="res_model">pms.gen.rent.schedule</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_generate_rent_schedule_tree"/>
+       <field name="context">{}</field>
+    </record> 
+    <menuitem  id="generate_rent_schedule_menu_root" 
+      name="Generated Rent Schedule" 
+      parent="lease_management_menu_sub" 
+      action="action_generate_rent_schedule_all"
+      sequence="3"/>
+    <!-- <menuitem  id="generate_rent_schedule_menu_root" 
+      name="Generate Rent Schedule" 
+      parent="lease_management_menu_sub"
+      action="action_generate_wiz"
+      sequence="3"/> -->
+  </data>
+</odoo>

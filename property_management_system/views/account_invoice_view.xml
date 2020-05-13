@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="invoice_form_extension" model="ir.ui.view">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="payment_term_id" position="after">
+                    <field name="property_id" string="Mall"/>
+                    <field name="lease_no" string="Lease"/>
+                    <field name="lease_items" invisible='1'/>
+                    <field name="unit_no" sting="Unit"/>
+                </field>
+                <field name="partner_id" position="attributes">
+                    <attribute name="string">Shop</attribute>
+                </field>
+                <field name="date_due" position="after">
+                    <field name="inv_month" string="Month"/>
+                </field>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='name']" position="attributes">
+                    <attribute name="string">Charge Type</attribute>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='quantity']" position="attributes">
+                    <attribute name="string">Quantity</attribute>
+                </xpath>
+            </field>
+        </record>
+         <record id="invoice_tree_extension" model="ir.ui.view">
+            <field name="name">account.invoice.tree</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_tree"/>
+            <field name="arch" type="xml">
+                <!-- <field name="company_id" position="attributes">
+                    <attribute name="string">Mall</attribute>
+                </field> -->
+                <field name="company_id" position="before">
+                    <field name="property_id" string="Mall"/>
+                    <field name="unit_no" string="Unit"/>
+                    <field name="lease_no" string="Lease"/>
+                    <field name="lease_items" invisible='1'/>
+                    <field name="inv_month" string="Month"/>
+                </field>
+                <field name="company_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="user_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="origin" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record>
+        <menuitem id="lease_invoicing_menu_root" 
+            name="Invoicing" 
+            parent="pms_properties_menu_root"
+            sequence="99"/>
+         <menuitem id="lease_invoice_menu_root" 
+            name="Invoices" 
+            parent="lease_invoicing_menu_root"
+            action="account.action_invoice_tree1"
+            sequence="99"/>
+    </data>
+</odoo>

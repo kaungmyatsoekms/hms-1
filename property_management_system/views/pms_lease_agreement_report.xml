@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+       <report id="action_pms_lease_report" model="pms.lease_agreement"
+        string="Lease Report" report_type="qweb-pdf"
+        name="property_management_system.inventory_report_by_warehouse"
+        file="property_management_system.inventory_report_by_warehouse"
+        menu="False" />
+    </data>
+</odoo>

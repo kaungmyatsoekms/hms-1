@@ -1,0 +1,93 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_unit_form">
+        <field name="name">Unit Resurvey Form</field>
+        <field name="model">unit.resurvey</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_resurvey" string="Resurvey" class="btn-primary" states="draft" type="object"/>
+                    <button name="action_done" string="Validate" states="resurvey" type="object"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,resurvey,done"/>
+                </header>
+                <sheet>
+                    <group string="Resurvey Detail">
+                        <group> 
+                            <field name="name"/>
+                            <field name="property_id" required="1" options="{'no_create': True,'no_quick_edit':True, 'no_open': True}"/>
+                            <field name="resurveyunit_id" required="1" options="{'no_create': True,'no_quick_edit':True, 'no_open': True}"/>
+                            <field name="resunitfloor_id"/>
+                            <field name="resunitspace_type"/> 
+                            <field name="resunit_area"/>
+                            </group> 
+                        <group>
+                            <field name="resurvey_date" required="1"/>
+                            <field name="unactive_date" required="1"/>
+                            <field name="remark"/>
+                            <field name="company_id" invisible="1"/>
+                        </group> 
+                    </group>
+                    <notebook attrs="{'invisible': [('state','in', ['draft'])]}">
+                        <page name='new unit' string="New Unit"> 
+                            <group>
+                                <group>
+                                    <field name="newunit_id" attrs="{'readonly': [('state','in', ['resurvey','done'])]}"/>
+                                    <field name="newunit_floor_id"/>
+                                    <field name="newunit_space_type_id" options="{'no_create': True,'no_quick_edit':True, 'no_open': True}"/> 
+                                    <field name="newunit_area"/>
+                                    <field name="lease_agreement_id" invisible="1"/>
+                                </group>
+                                <group>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+        </record>
+        <record model="ir.ui.view" id="view_unit_survey_tree">
+        <field name="name">unit.resurvey Tree</field>
+        <field name="model">unit.resurvey</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="resurveyunit_id"/>
+                <field name="resurvey_date"/>
+                <field name="unactive_date"/>
+                <field name="newunit_id"/>
+                <field name="remark"/>
+                <field name="state" invisible="1"/>
+            </tree>
+        </field>
+        </record>
+        <record model="ir.ui.view" id="view_unit_survey_filter">
+        <field name="name">Unit resurvey Tree</field>
+        <field name="model">unit.resurvey</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="resurveyunit_id"/>
+                <field name="resurvey_date"/>
+                <field name="remark"/>
+                <field name="newunit_id"/>
+                <field name="unactive_date"/>
+            </search>
+        </field>
+        </record>
+        <record id="action_unit_resurvey" model="ir.actions.act_window">
+            <field name="name">Unit Resurvey</field>
+            <field name="res_model">unit.resurvey</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_unit_survey_tree"/> 
+        </record>
+        <menuitem  id="unit_resurvey_menu" 
+        name="Unit Resurvey" 
+        parent="property_management_menu"
+        action="action_unit_resurvey"
+        sequence="4"/>
+    </data>
+</odoo>

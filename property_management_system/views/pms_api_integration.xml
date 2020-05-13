@@ -1,0 +1,78 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_api_integration_form">
+      <field name="name">API Integration Form</field>
+      <field name="model">pms.api.integration</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+           <div class="oe_button_box" name="button_box">
+              <button type="object" class="oe_stat_button" icon="fa-archive">
+                <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+              </button>
+            </div>
+            <div class="oe_title">
+            <label for="name"/>
+            <h1>
+                <field name="name" placeholder="API Provider..."/>
+            </h1>
+          </div>
+          <group>
+            <group>
+                <field name="base_url" placeholder='https://google.com' widget="url"/>
+                <field name="auth_url" placeholder='https://google.com/connect/token'/>
+                <field name="username"/>
+                <field name="password" password="True"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Operations" >
+              <field name="api_integration_line">
+                <tree editable="bottom">
+                  <field name="name"/>
+                  <field name="http_method_type"/>
+                  <field name="api_url" placeholder='api/resouce/methodname'/>
+                </tree>
+              </field>                     
+            </page>
+          </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_api_integration_tree">
+      <field name="name">API Integration list</field>
+      <field name="model">pms.api.integration</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="base_url"/>
+          <field name="auth_url"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_api_integration_filter">
+      <field name="name">API Integration list</field>
+      <field name="model">pms.api.integration</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="base_url"/>
+          <field name="auth_url"/>
+        </search>
+      </field>
+    </record>
+     <record id="action_api_integration_all" model="ir.actions.act_window">
+       <field name="name">API Integration</field>
+       <field name="res_model">pms.api.integration</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_api_integration_tree"/> 
+    </record> 
+    <menuitem  id="api_integration_menu_root" 
+      name="API Integration" 
+      parent="pms_menu_config"
+      action="action_api_integration_all"
+      sequence="100"/>
+  </data>
+</odoo>

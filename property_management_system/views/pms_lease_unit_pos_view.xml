@@ -1,0 +1,96 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_lease_unit_pos_form">
+      <field name="name">Lease Unit POS Form</field>
+      <field name="model">pms.lease.unit.pos</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+           <div class="oe_button_box" name="button_box">
+              <button type="object" class="oe_stat_button" icon="fa-archive">
+                  <!-- <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/> -->
+              </button>
+            </div>
+            <div class="oe_title">
+            <label for="name" string="Name"/>
+            <h1>
+                <field name="name" placeholder="Name"/>
+            </h1>
+          </div>
+          <group>
+            <group>
+              <field name="posinterfacecode_id"/>
+              <field name="useposid"/>
+              <field name="posidisactive"/>
+            </group>
+            <group>
+              <field name="appaccesskey"/>
+              <field name="appsecretaccesskey"/>
+               <field name='inactivedate'/>
+            </group>
+          </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_lease_unit_pos_tree">
+      <field name="name">Lease Unit POS list</field>
+      <field name="model">pms.lease.unit.pos</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="posinterfacecode_id"/>
+          <field name='posidisactive'/>
+          <field name="useposid"/>
+          <field name="inactivedate"/>
+          <field name="appaccesskey"/>
+          <field name="appsecretaccesskey"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_lease_unit_pos_filter">
+      <field name="name">Lease Unit POS list</field>
+      <field name="model">pms.lease.unit.pos</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+        </search>
+      </field>
+    </record>
+    <record id="action_lease_unit_pos_all" model="ir.actions.act_window">
+       <field name="name">Lease Unit POS</field>
+       <field name="res_model">pms.lease.unit.pos</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_lease_unit_pos_tree"/> 
+    </record>
+  <record model="ir.ui.view" id="view_pos_interface_code_tree">
+      <field name="name">POS Interface Code list</field>
+      <field name="model">pms.lease.interface.code</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+        </tree>
+      </field>
+    </record>
+    <record id="action_pos_interface_code_all" model="ir.actions.act_window">
+       <field name="name">POS Interface Code</field>
+       <field name="res_model">pms.lease.interface.code</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_pos_interface_code_tree"/> 
+    </record>
+    <menuitem id="lease_unit_pos_menu_root" 
+        name="Lease Unit POS" 
+        parent="lease_management_menu_sub" 
+        action="action_lease_unit_pos_all"
+        groups="base.group_no_one"
+        sequence="100"/>
+    <menuitem id="pos_interface_code_menu_root" 
+        name="POS Interface Code" 
+        parent="lease_management_menu_sub" 
+        action="action_pos_interface_code_all"
+        groups="base.group_no_one"
+        sequence="200"/>
+  </data> 
+</odoo>

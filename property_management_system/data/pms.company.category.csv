@@ -1,0 +1,11 @@
+id,ordinal_no,code,name
+pms_company_cate_1,1,TENANT,Tenant
+pms_company_cate_2,2,NON-TENANT,POS Vendor
+pms_company_cate_3,3,CMO,CMO Office
+pms_company_cate_4,4,COMPANY,Company
+pms_company_cate_5,5,COMPANY;TENANT,Company & Tenant
+pms_company_cate_6,6,LANDLORD,Landlord
+pms_company_cate_7,7,VENDOR,Vendor
+pms_company_cate_8,8,PARTNER,Partner
+pms_company_cate_9,9,TENANT;COMPANY,Tenant & Company
+pms_company_cate_10,10,NONE,None

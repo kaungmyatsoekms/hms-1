@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_extend_wiz" model="ir.ui.view">
+            <field name="name">Extend Lease</field>
+            <field name="model">pms.lease_extend_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Extend Lease Details">
+                    <p style="font-weight:bold;">
+                        Extend will be extended in lease with the extend start date and end date.
+                    </p>
+                    <group>
+                        <group>
+                            <field name="lease_no" invisible="1"/>
+                             <field name="lease" readonly="1"/>
+                        </group>
+                        <group>
+                            <label string="Extend Start Date" for="extend_start_date"/>
+                            <div>
+                                <field name="extend_start_date" readonly="1"/>
+                            </div>
+                            <label string="Extend End Date" for="extend_end_date"/>
+                            <div>
+                                <field name="extend_end_date" />
+                            </div>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_extend_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    <record id="action_extend_wiz" model="ir.actions.act_window">
+        <field name="name">Extend Date</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">pms.lease_extend_wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'active_id':active_id}</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

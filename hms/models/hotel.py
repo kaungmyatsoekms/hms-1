@@ -41,19 +41,37 @@ AVAILABLE_PAY = [
     ('OT','Others'),
     ]
 
-class HotelGroup(models.Model):
-    _name = "hotel.group"
-    _description = "Hotel Group"
-
-    name = fields.Char(string='Hotel Group Name', required=True)
 
 class Property(models.Model):
     _name = "property.property"
+    _inherit = ['mail.thread']
     _description = "Property"
 
+    # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
+    # Default Get Country
+    def default_get_country(self):
+        country_id = None
+        if self.currency_id:
+            country_id = self.env['res.country'].search([
+                ('currency_id', '=', self.currency_id.id)
+            ])
+        else:
+            country_id = self.env['res.country'].search([('code', '=', "MM")])
+        return country_id
+
     is_property = fields.Boolean(string ='Is Property', compute='_compute_is_property')
-    hotelgroup_id = fields.Many2one('hotel.group',
-                                    string='Hotel Group',
+    hotelgroup_id = fields.Many2one('res.company',
+                                    string='Parent Company',
                                     required=True)
     name = fields.Char(required=True, string='Hotel Name', index=True)
     code = fields.Char(string='Property ID', required=True)
@@ -63,7 +81,13 @@ class Property(models.Model):
     city_id = fields.Char(string='City')
     state_id = fields.Many2one('res.country.state', string='State')
     zip = fields.Char(change_default=True)
-    country_id = fields.Many2one('res.country', string='Country')
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  default=default_get_curency,
+                                  readonly=False,
+                                  track_visibility=True,
+                                  store=True)
+    country_id = fields.Many2one('res.country', string='Country', readonly=False, requried=True, track_visibility=True, ondelete='restrict')
     phone = fields.Char(string='Phone')
     fax = fields.Char(string='Fax')
     email = fields.Char(string='Email')
@@ -75,7 +99,8 @@ class Property(models.Model):
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
     contact_ids = fields.Many2many('contact.contact')
-    bankinfo_ids = fields.One2many('bank.info','property_id', string="Bank Info")
+    bankinfo_ids = fields.One2many('res.bank','property_id', string="Bank Info")
+    # bankinfo_ids = fields.Many2one('res.bank', "Bank Information")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
     building_ids = fields.Many2many('building.building')
@@ -86,11 +111,45 @@ class Property(models.Model):
     roomtype_count = fields.Integer("Room Type", compute='_compute_roomtype_count')
     package_ids = fields.One2many('package.package', 'property_id', string="Package")
     subgroup_ids = fields.One2many('sub.group','property_id',string="Sub Group")
-    transgroup_ids = fields.One2many('transaction.group','property_id', string="Transaction Group")
     transaction_ids = fields.One2many('transaction.transaction', 'property_id', string="Transaction")
     creditlimit_ids = fields.One2many('credit.limit', 'property_id', string="Credit Limit")
+    specialday_ids = fields.One2many('special.day', 'property_id', string="Special Days")
     weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
     ratecode_ids = fields.One2many('rate.code','property_id', string="Rate Code")
+
+    property_code_len = fields.Integer(
+        "Property Code Length",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.property_code_len)
+    building_code_len = fields.Integer(
+        "Building Code Length",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.building_code_len)
+    location_code_len = fields.Integer(
+        "Floor Code Length",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.location_code_len)
+    
+    profile_id_format = fields.Many2one("pms.format",
+                                  "Guest Profile ID Format",
+                                  track_visibility=True,
+                                  default=lambda self: self.env.user.company_id
+                                  .profile_id_format.id)
+    confirm_id_format = fields.Many2one("pms.format",
+                                  "Confirm ID Format",
+                                  track_visibility=True,
+                                  default=lambda self: self.env.user.company_id
+                                  .confirm_id_format.id)
+    cprofile_id_format = fields.Many2one("pms.format",
+                                  "Company Profile ID Format",
+                                  track_visibility=True,
+                                  default=lambda self: self.env.user.company_id
+                                  .cprofile_id_format.id)
+    gprofile_id_format = fields.Many2one("pms.format",
+                                  "Group Profile ID Format",
+                                  track_visibility=True,
+                                  default=lambda self: self.env.user.company_id
+                                  .gprofile_id_format.id)
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
@@ -128,6 +187,28 @@ class Property(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         context = {
             'default_type': 'out_weekend',
+        }
+        return action
+
+    def action_specialday(self):
+        specialdays = self.mapped('specialday_ids')
+        action = self.env.ref('hms.special_day_action_window').read()[0]
+        if len(specialdays) >= 1:
+            action['domain'] = [('id', 'in', specialdays.ids)]
+        elif len(specialdays) == 0:
+            form_view = [(self.env.ref('hms.special_day_view_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = specialdays.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_specialday',
         }
         return action
 
@@ -301,24 +382,6 @@ class Property(models.Model):
     
     def _compute_roomtype_count(self):
         self.roomtype_count = len(self.roomtype_ids)
-    
-    # @api.depends('id')    
-    # def _property_pc(self):
-    #     for rec in self:
-    #         # if(rec.id.propertyroom_ids):
-    #         for roomno in rec.id.propertyroom_ids:
-    #             roomno.property_id = int(roomno.property_id)
-
-    # @api.onchange('property_id')
-    # def onchange_property_id(self):
-    #     roomtype_list =[]
-    #     domain={}
-    #     for rec in self:
-    #         if(rec.property_id.roomtype_ids):
-    #             for roomtype in rec.property_id.building_ids:
-    #                 roomtype_list.append(roomtype.id)
-    #             domain = {'roomtype_id':[('id','=', roomtype_list)]}
-    #             return{'domain': domain}
 
 class Contact(models.Model):
     _name = "contact.contact"
@@ -338,17 +401,6 @@ class Contact(models.Model):
                 odoo.modules.get_module_resource('base', 'static/src/img',
                                                  'avatar_grey/png')).read())
         return image_resize_image_big(image.encode('base64'))
-
-class BankInfo(models.Model):
-    _name = "bank.info"
-    _description = "Bank Information"
-
-    property_id = fields.Many2one('property.property', string="Property", required=True, readonly=True)
-    bank_name = fields.Char(string="Bank Name", required=True)
-    bank_branch = fields.Char(string="Branch Name", required=True)
-    bank_account = fields.Char(string="Bank Account", required=True)
-    bank_logo = fields.Binary(string="Bank Logo")
-    bank_desc = fields.Text(string="Description")
 
 class Building(models.Model):
     _name = "building.building"
@@ -648,7 +700,7 @@ class SpecialDay(models.Model):
 
     property_id = fields.Many2one('property.property',
                                   string="Property",
-                                  required=True)
+                                  required=True, readonly=True)
     special_date = fields.Date(string="Special Date", required=True)
     special_desc = fields.Char(string="Description")
 
@@ -684,6 +736,7 @@ class Package(models.Model):
 class RevenueType(models.Model):
     _name = "revenue.type"
     _description = "Revenue Type"    
+    _order = "rev_code"  
 
     rev_code = fields.Char(string="Group Code", size=1, required=True)
     rev_type = fields.Selection(AVAILABLE_REV, string="Revenue Type", required=True)
@@ -722,17 +775,13 @@ class RevenueType(models.Model):
     def onchange_rev_code(self):
         for record in self:
             rev_type = record.rev_type
+            if record.rev_type != False:
+                record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
             if rev_type == 'P':
-                 record.rev_code = '9'
-                 record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
+                record.rev_code = '9'
             elif rev_type =='N':
                 record.rev_code = '8'
-                record.revtype_name = dict(AVAILABLE_REV)[record.rev_type]
-            else:
-                record.rev_code = ''
-                record.revtype_name = ''
-
-
+                    
     @api.constrains('rev_code','rev_type')
     def _check_rev_code(self):
         for record in self:
@@ -757,7 +806,8 @@ class RevenueType(models.Model):
 # Revenue Sub Group
 class SubGroup(models.Model):
     _name = "sub.group"
-    _description = "Revenue Sub Group"    
+    _description = "Revenue Sub Group"
+    _order = "property_id, sub_group"   
 
     property_id = fields.Many2one('property.property', string="Property", required=True)
     revtype_id = fields.Many2one('revenue.type', string="Revenue Type", domain="[('rev_subgroup', '=?', True)]", required=True)
@@ -784,32 +834,6 @@ class SubGroup(models.Model):
             if sub_code and not str(sub_code).isdigit():
                 raise UserError(_("Transaction code must be digit"))
 
-# Transaction Group
-class TransactionGroup(models.Model):
-    _name = "transaction.group"
-    _description = "Transaction Group"    
-
-    property_id = fields.Many2one('property.property', string="Property", required=True)
-    group_name = fields.Char(string="Sub Group Code", size=1, required=True)
-    group_desc = fields.Char(string="Description", required=True)
-
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "({}) {}".format(record.group_name, record.group_desc)))
-        return result
-
-    # def name_get(self):
-    #     result = []
-    #     for record in self:
-    #         if record.group_desc:
-    #             name="{} ({})".format(record.group_desc,
-    #             record.group_name)
-    #         else:
-    #             name="{}".format(record.group_name)
-    #     result.append((record.id,name))
-    #     return result
-
 # Transaction 
 class Transaction(models.Model):
     _name = "transaction.transaction"
@@ -824,7 +848,7 @@ class Transaction(models.Model):
     trans_ptype = fields.Selection(AVAILABLE_PAY,string="Pay Type")
     subgroup_ids = fields.One2many('sub.group', related="property_id.subgroup_ids")
     subgroup_id = fields.Many2one('sub.group', domain="[('id', '=?', subgroup_ids)]", string="Sub Group")
-    subgroup_name = fields.Char(string="Sub Group Name")
+    subgroup_name = fields.Char(string="Sub Group Name", readonly=True)
     trans_code = fields.Char(string="Transaction Code", size=4, required=True, index=True)
     trans_name = fields.Char(string="Transaction Name", required=True)
     trans_unitprice = fields.Float(string="Unit Price", required=True)
@@ -872,11 +896,15 @@ class Transaction(models.Model):
             domain = {}
             revtype_id = record.revtype_id
             record.revtype_name  = revtype_id.revtype_name
-            record.revsub_active = revtype_id.rev_subgroup        
-            if (record.revtype_id.subgroup_ids):
-                for subgroup in record.revtype_id.subgroup_ids:
-                    subgroup_list.append(subgroup.id)
-                domain = {'subgroup_id': [('id', 'in', subgroup_list)]}
+            record.revsub_active = revtype_id.rev_subgroup
+            if (record.revsub_active is False):
+                record.subgroup_name= revtype_id.revtype_name
+            else:       
+                if (record.revtype_id.subgroup_ids):
+                    for subgroup in record.revtype_id.subgroup_ids:
+                        if(subgroup.property_id == record.property_id):
+                            subgroup_list.append(subgroup.id)
+                    domain = {'subgroup_id': [('id', 'in', subgroup_list)]}
                 return {'domain': domain}
 
     # def _compute_get_sub_name(self):
@@ -919,77 +947,6 @@ class Transaction(models.Model):
         # So instead, we make it a many2one to a psql view with what we need as records.
         for record in self:
             record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
-
-# class Transaction(models.Model):
-#     _name = "transaction.transaction"
-#     _description = "Transaction"
-
-#     property_id = fields.Many2one('property.property',
-#                                   string="Property",
-#                                   required=True, readonly=True)
-#     trans_revtype = fields.Selection([
-#         ('R', 'Room Revenue'),
-#         ('F', 'F&B Revenue'),
-#         ('M', 'Miscellaneous'),
-#         ('N', 'Non Revenue'),
-#         ('P', 'Payment'),
-#     ],
-#                                      string="Revenue Type",
-#                                      required=True)
-#     trans_code = fields.Char(string="Transaction Code", size=4, required=True, index=True)
-#     trans_name = fields.Char(string="Transaction Name", required=True)
-#     transgroup_ids = fields.One2many("transaction.group", 'property_id', related="property_id.transgroup_ids")
-#     transgroup_id = fields.Many2one("transaction.group", string="Transaction Group", domain="[('id', '=?', transgroup_ids)]", required=True)
-#     trans_unitprice = fields.Float(string="Unit Price", required=True)
-#     trans_utilities = fields.Selection([
-#         ('Y', 'Yes'),
-#         ('N', 'No'),
-#     ],
-#                                        string="Utilities",
-#                                        required=True)
-#     trans_svc = fields.Boolean(string="Service Charge")
-#     trans_tax = fields.Boolean(string="Tax")
-#     trans_internal = fields.Boolean(string="Internal Use")
-#     trans_minus = fields.Boolean(string="Minus Nature")
-#     trans_type = fields.Selection([
-#         ('R', 'Revenue'),
-#         ('S', 'Service'),
-#         ('V', 'Tax'),
-#     ],
-#                                   string="Transaction Type")
-#     root_id = fields.Many2one('transaction.root', compute='_compute_transaction_root', store=True)
-
-#     _sql_constraints = [(
-#         'trans_code_unique', 'UNIQUE(property_id, trans_code)',
-#         'Transaction code already exists with this name! Transaction code must be unique!'
-#     )]
-
-#     @api.constrains('trans_code','trans_revtype')
-#     def _check_trans_code(self):
-#         for record in self:
-#             trans_revtype=record.trans_revtype
-#             trans_code=record.trans_code
-#             if trans_revtype == 'P':
-#                 if trans_code and not str(trans_code).isdigit():
-#                     raise UserError(_("Transaction code must be digit"))
-#                 else:
-#                     if int(record.trans_code) < 9000:
-#                         raise UserError(_("Payment Code must be greather than 9000 "))
-                   
-#             elif record.trans_revtype != 'P':
-#                 if trans_code and not str(trans_code).isdigit():
-#                     raise UserError(_("Transaction code must be digit"))
-#                 else:
-#                     if int (record.trans_code) > 9000:
-#                         raise UserError(_("Revenue code must be less than 9000 "))
-
-#     @api.depends('trans_code')
-#     def _compute_transaction_root(self):
-#         # this computes the first 2 digits of the transaction.
-#         # This field should have been a char, but the aim is to use it in a side panel view with hierarchy, and it's only supported by many2one fields so far.
-#         # So instead, we make it a many2one to a psql view with what we need as records.
-#         for record in self:
-#             record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
                     
 # Transaction Root
 class TransactionRoot(models.Model):
@@ -1001,9 +958,7 @@ class TransactionRoot(models.Model):
     revname = fields.Char()
     parent_id = fields.Many2one('transaction.root', string="Superior Level")
     group = fields.Many2one('sub.group')
-    # transgroup_id = fields.Many2one('transaction.group')
 
-                    #   LEFT(trans_code,2) AS name, LEFT(revtype_id,1)
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute('''
@@ -1091,7 +1046,7 @@ class RateCode(models.Model):
     _name = "rate.code"
     _description = "Rate Code"
     
-
+    is_ratecode = fields.Boolean(string ='Is ratecode', compute='_compute_is_ratecode')
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   required=True, readonly=True)
@@ -1117,6 +1072,9 @@ class RateCode(models.Model):
     special_price3 = fields.Float(string="Special Price 3")
     special_price4 = fields.Float(string="Special Price 4")
 
+    def _compute_is_ratecode(self):
+        self.is_ratecode=True
+
     @api.onchange('start_date','end_date')
     @api.constrains('start_date','end_date')
     def get_two_date_comp(self):
@@ -1136,5 +1094,22 @@ class RateCode(models.Model):
                 same_ratecode = rec
             if same_ratecode:
                 self.start_date = same_ratecode.end_date + timedelta(days = 1)
+
+    def action_change_new_rate(self):
+        action = self.env.ref('hms.rate_code_action_window').read()[0]
+
+        return {
+            'name': _('Change New Rate'),
+            'view_type': 'form',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hms.rate_code_view_form').id,
+            'res_model': 'rate.code',
+            'context': "{'type':'out_ratecode','default_rate_code':'"+self.rate_code+
+                        "','default_ratecode_name':'"+self.ratecode_name+
+                        "','default_ratecode_type':'"+self.ratecode_type+
+                        "'}",
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
 
 

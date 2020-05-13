@@ -2,9 +2,9 @@
 {
     'name': "HMS",
     'summary': """
-        Property Management System """,
+        Hotel Property Management System """,
     'description': """
-        Property Management System :
+        Hotel Property Management System :
         -Reservations, Reception, cashier, NightAudit
     """,
     'author': "HMS-Projects HMS, Developer Name",
@@ -18,12 +18,17 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
-
+    'depends': ['base','mail'],
+    #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web'],
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/hotel_views.xml',
+        'views/hms_bank_view.xml',
+        'views/hms_format_view.xml',
+        'views/hms_rule_configuration_view.xml',
+        'data/hms_config_data.xml',
+        'views/hms_company_view.xml',
         #'views/views.xml',
         #'views/templates.xml',
     ],

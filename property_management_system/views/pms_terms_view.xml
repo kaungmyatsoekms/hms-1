@@ -1,0 +1,82 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="view_terms_form">
+      <field name="name">Terms Form</field>
+      <field name="model">pms.terms</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <div class="oe_button_box" name="button_box">
+              <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                  <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+              </button>
+            </div>
+            <div class="oe_title">
+              <label for="name" class="oe_edit_only" string="Terms Name"/>
+              <h1>
+                  <field name="name" placeholder="Name..."/>
+              </h1>
+              <div name="options_active"/>
+            </div>
+            <group>
+              <group>
+                <field name="space_unit_fromat_id"/>
+                <field name="is_auto_generate_posid"/>
+                <field name="property_code_len"/>
+                <field name="floor_code_len"/>
+                <field name="space_unit_code_len"/>
+              </group>
+              <group>
+                <field name="pos_id_format_id"/>
+                <field name="company_id"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="view_terms_tree">
+      <field name="name">Terms List</field>
+      <field name="model">pms.terms</field>
+      <field name="arch" type="xml">
+        <tree>
+            <field name="name"/>
+            <field name="space_unit_fromat_id"/>
+            <field name="pos_id_format_id"/>
+            <field name="company_id"/>
+            <field name="is_auto_generate_posid"/>
+            <field name="property_code_len"/>
+            <field name="floor_code_len"/>
+            <field name="space_unit_code_len"/>
+        </tree>
+      </field>
+    </record>
+     <record model="ir.ui.view" id="view_terms_filter">
+      <field name="name">Terms List</field>
+      <field name="model">pms.terms</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="space_unit_fromat_id"/>
+            <field name="pos_id_format_id"/>
+            <field name="company_id"/>
+        </search>
+      </field>
+    </record>
+     <record id="action_terms_all" model="ir.actions.act_window">
+       <field name="name">Terms</field>
+       <field name="res_model">pms.terms</field>
+       <field name="view_type">form</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_terms_tree"/> 
+    </record> 
+    <!-- <menuitem  id="terms_menu_root_sub" 
+      name="terms" 
+      parent="pms_properties_menu_root" 
+      sequence="2"/> -->
+    <!-- <menuitem  id="terms_menu_root" 
+      name="Terms" 
+      parent="pms_menu_config"
+      action="action_terms_all"
+      sequence="2"/> -->
+  </data>
+</odoo>

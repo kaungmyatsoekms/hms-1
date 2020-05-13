@@ -1,0 +1,70 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_pos_daily_sale_form">
+        <field name="name">POS Daily Sale Form</field>
+        <field name="model">pos.daily.sale</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group> 
+                            <field name="property_code"/>
+                            <field name="pos_interface_code"/>                            
+                            <field name="daily_sale_amt_b4tax"/>
+                            <field name="daily_servicechargeamt"/>
+                            <field name="currency"/>
+                        </group> 
+                        <group> 
+                            <field name="pos_receipt_date"/>
+                            <field name="grosssalesamount"/>
+                            <field name="tax_amount"/>
+                            <field name="manual_net_sales"/>
+                        </group> 
+                    </group>
+                </sheet>
+            </form>
+        </field>
+        </record>
+        <record model="ir.ui.view" id="view_pos_daily_sale_tree">
+        <field name="name">POS Daily Sale Tree</field>
+        <field name="model">pos.daily.sale</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="property_code"/>
+                <field name="pos_interface_code"/>
+                <field name="pos_receipt_date"/>
+                <field name="grosssalesamount"/>
+                <field name="currency"/>
+                <field name="daily_sale_amt_b4tax"/>
+                <field name="daily_servicechargeamt"/>
+                <field name="tax_amount"/>
+                <field name="manual_net_sales"/>
+            </tree>
+        </field>
+        </record>
+        <record model="ir.ui.view" id="view_pos_daily_sale_filter">
+        <field name="name">POS Daily Sale Tree</field>
+        <field name="model">pos.daily.sale</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="property_code"/>
+                <field name="pos_interface_code"/>
+                <field name="pos_receipt_date"/>
+            </search>
+        </field>
+        </record>
+        <record id="action_pos_daily_sale" model="ir.actions.act_window">
+            <field name="name">POS Daily Sale</field>
+            <field name="res_model">pos.daily.sale</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_pos_daily_sale_tree"/> 
+        </record>
+        <menuitem  id="pos_daily_sale_menu_root" 
+        name="POS Daily Sale" 
+        parent="property_management_menu"
+        action="action_pos_daily_sale"
+        groups="base.group_no_one"
+        sequence="2"/>
+    </data>
+</odoo>
