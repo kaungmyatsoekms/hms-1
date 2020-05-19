@@ -185,15 +185,19 @@ class Company(models.Model):
         if not self.confirm_id_format:
             return self.env.ref('base.main_company').confirm_id_format
 
+
     property_code_len = fields.Integer("Property Code Length",
                                     default=8,
                                     track_visibility=True)
     location_code_len = fields.Integer('Floor Code Length',
                                     track_visibility=True,
-                                    default=15)
+                                    default=2)
     building_code_len = fields.Integer('Building Code Length', 
                                     track_visibility=True,
-                                    default=30)
+                                    default=3)
+    roomtype_code_len = fields.Integer('Room Type Code Length', 
+                                    track_visibility=True,
+                                    default=3)
     confirm_id_format = fields.Many2one('pms.format',
                                     'Confirm No Format',
                                     default=_default_confirm_id_format, 
@@ -228,6 +232,9 @@ class ResConfigSettings(models.TransientModel):
     building_code_len = fields.Integer('Building Code Length',
                                     related="company_id.building_code_len",
                                     readonly=False)
+    roomtype_code_len = fields.Integer('Room Type Code Length',
+                                    related="company_id.roomtype_code_len",
+                                    readonly=False)
     confirm_id_format = fields.Many2one('pms.format',
                                     'Confirm No Format',
                                     related="company_id.confirm_id_format", 
@@ -260,6 +267,11 @@ class ResConfigSettings(models.TransientModel):
     def onchange_building_code_len(self):
         if self.building_code_len:
             self.company_id.building_code_len = self.building_code_len
+            
+    @api.onchange('roomtype_code_len')
+    def onchange_roomtype_code_len(self):
+        if self.roomtype_code_len:
+            self.company_id.roomtype_code_len = self.roomtype_code_len
     
     @api.onchange('confirm_id_format')
     def onchange_confirm_id_format(self):

@@ -11,7 +11,6 @@ access_room_facility,room.facility,model_room_facility,base.group_user,1,1,1,1
 access_room_amenity,room.amenity,model_room_amenity,base.group_user,1,1,1,1
 access_room_facility_type,room.facility.type,model_room_facility_type,base.group_user,1,1,1,1
 access_property_room,property.room,model_property_room,base.group_user,1,1,1,1
-access_contact_contact,contact.contact,model_contact_contact,base.group_user,1,1,1,1
 access_market_segment,market.segment,model_market_segment,base.group_user,1,1,1,1
 access_market_group,market.group,model_market_group,base.group_user,1,1,1,1
 access_market_source,market.source,model_market_source,base.group_user,1,1,1,1
@@ -26,4 +25,11 @@ access_rsvn_type,rsvn.type,model_rsvn_type,base.group_user,1,1,1,1
 access_rsvn_status,rsvn.status,model_rsvn_status,base.group_user,1,1,1,1
 access_credit_limit,credit.limit,model_credit_limit,base.group_user,1,1,1,1
 access_rate_code,rate.code,model_rate_code,base.group_user,1,1,1,1
-
+access_hms_city,hms.city,model_hms_city,base.group_user,1,1,1,1
+access_hms_country,hms.country,model_hms_country,base.group_user,1,1,1,1
+access_hms_township,hms.township,model_hms_township,base.group_user,1,1,1,1
+access_hms_company_category,hms.company.category,model_hms_company_category,base.group_user,1,1,1,1
+access_hms_nationality,hms.nationality,model_hms_nationality,base.group_user,1,1,1,1
+access_hms_passport,hms.passport,model_hms_passport,base.group_user,1,1,1,1
+access_hms_contract,hms.contract,model_hms_contract,base.group_user,1,1,1,1
+access_hms_guest_category,hms.guest.category,model_hms_guest_category,base.group_user,1,1,1,1

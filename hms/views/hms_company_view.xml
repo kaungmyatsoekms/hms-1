@@ -21,22 +21,29 @@
                       <div class="o_address_format">
                           <field name="street" placeholder="Street..." class="o_address_street"/>
                           <field name="street2" placeholder="Street 2..." class="o_address_street"/>
-                          <field name="city" placeholder="City" class="o_address_city"/>
+                          <field name="city" placeholder="City" class="o_address_city" options='{"no_open": True}'/>
                           <field name="state_id" class="o_address_state" placeholder="State" options='{"no_open": True}'/>
                           <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                           <field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True}'/>
+                          <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
                       </div>
                       <field name="phone"/>
                       <field name="email"/>
                       <field name="website" string="Website" widget="url" placeholder="e.g. https://www.odoo.com"/>
-                  </group>
-                  <group>
                       <field name="vat"/>
                       <field name="company_registry"/>
                       <field name="currency_id" options="{'no_create': True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
+                  </group>
+                  <group name="Format Definition" string="Format Definition">
                       <field name="property_code_len"/>
                       <field name="building_code_len"/>
                       <field name="location_code_len"/>
+                      <field name="roomtype_code_len"/>
+                      <br/>
+                      <field name="confirm_id_format" widget="selection"/>
+                      <field name="profile_id_format" widget="selection"/>
+                      <field name="cprofile_id_format" widget="selection"/>
+                      <field name="gprofile_id_format" widget="selection"/>
                   </group>
                   <group name="social_media"/>
               </group>

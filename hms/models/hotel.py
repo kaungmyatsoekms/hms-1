@@ -77,8 +77,16 @@ class Property(models.Model):
     code = fields.Char(string='Property ID', required=True)
     address1 = fields.Char(string='Address 1')
     address2 = fields.Char(string='Address 2')
-    address3 = fields.Char(string='Address 3')
-    city_id = fields.Char(string='City')
+    township = fields.Many2one("hms.township",
+                               string='Township',
+                               ondelete='restrict',
+                               track_visibility=True,
+                               domain="[('city_id', '=?', city_id)]")
+    city_id = fields.Many2one("hms.city",
+                            string='City',
+                            ondelete='restrict',
+                            track_visibility=True,
+                            domain="[('state_id', '=?', state_id)]")
     state_id = fields.Many2one('res.country.state', string='State')
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
@@ -86,7 +94,7 @@ class Property(models.Model):
                                   default=default_get_curency,
                                   readonly=False,
                                   track_visibility=True,
-                                  store=True)
+                                  domain="[('country_id', '=?', country_id)]")
     country_id = fields.Many2one('res.country', string='Country', readonly=False, requried=True, track_visibility=True, ondelete='restrict')
     phone = fields.Char(string='Phone')
     fax = fields.Char(string='Fax')
@@ -98,7 +106,14 @@ class Property(models.Model):
     rating = fields.Selection(AVAILABLE_STARS, string='Rating', index=True, default=AVAILABLE_STARS[0][0])
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
-    contact_ids = fields.Many2many('contact.contact')
+    # contact_ids = fields.Many2many('contact.contact')
+    contact_ids = fields.Many2many('res.partner',
+                            'property_property_contact_rel',
+                            'property_id',
+                            'partner_id',
+                            string='Contacts',
+                            track_visibility=True,
+                            domain="[('is_sales', '=', True)]")
     bankinfo_ids = fields.One2many('res.bank','property_id', string="Bank Info")
     # bankinfo_ids = fields.Many2one('res.bank', "Bank Information")
     comments = fields.Text(string='Notes')
@@ -129,6 +144,10 @@ class Property(models.Model):
         "Floor Code Length",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.location_code_len)
+    roomtype_code_len = fields.Integer(
+        "Room Type Code Length",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.roomtype_code_len)
     
     profile_id_format = fields.Many2one("pms.format",
                                   "Guest Profile ID Format",
@@ -153,6 +172,33 @@ class Property(models.Model):
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
+
+
+    @api.onchange('currency_id')
+    def onchange_currency_id(self):
+        for record in self:
+            country_id = None
+            if record.currency_id:
+                country_ids = self.env['res.country'].search([
+                    ('currency_id', '=', record.currency_id.id)
+                ])
+                if len(country_ids) > 1:
+                    country_id = country_ids[0]
+                else:
+                    country_id = country_ids
+            record.country_id = country_id
+
+    @api.onchange('code')
+    def onchange_code(self):
+        for record in self:
+            length = 0
+            if record.code:
+                length = len(record.code)
+            if record.property_code_len:
+                if length > record.property_code_len:
+                    raise UserError(
+                        _("Property Code Length must not exceed %s characters." %
+                        (record.property_code_len)))
 
     def _compute_is_property(self):
         self.is_property=True
@@ -383,24 +429,24 @@ class Property(models.Model):
     def _compute_roomtype_count(self):
         self.roomtype_count = len(self.roomtype_ids)
 
-class Contact(models.Model):
-    _name = "contact.contact"
-    _description = "Contact"
+# class Contact(models.Model):
+#     _name = "contact.contact"
+#     _description = "Contact"
 
-    name = fields.Char(string='Contact Person', required=True)
-    email = fields.Char(string='Email')
-    title = fields.Many2one('res.partner.title')
-    phone = fields.Char(string='Phone')
-    position = fields.Char(string='Job Position')
-    image = fields.Binary(string='Image', attachment=True, store=True)
+#     name = fields.Char(string='Contact Person', required=True)
+#     email = fields.Char(string='Email')
+#     title = fields.Many2one('res.partner.title')
+#     phone = fields.Char(string='Phone')
+#     position = fields.Char(string='Job Position')
+#     image = fields.Binary(string='Image', attachment=True, store=True)
 
-    @api.model
-    def _get_default_image(self, colorize=False):
-        image = image_colorize(
-            open(
-                odoo.modules.get_module_resource('base', 'static/src/img',
-                                                 'avatar_grey/png')).read())
-        return image_resize_image_big(image.encode('base64'))
+#     @api.model
+#     def _get_default_image(self, colorize=False):
+#         image = image_colorize(
+#             open(
+#                 odoo.modules.get_module_resource('base', 'static/src/img',
+#                                                  'avatar_grey/png')).read())
+#         return image_resize_image_big(image.encode('base64'))
 
 class Building(models.Model):
     _name = "building.building"
@@ -483,6 +529,18 @@ class BuildingType(models.Model):
             result.append((record.id, "{} ({})".format(record.buildingtype_desc, record.building_type)))
         return result
 
+    @api.onchange('building_type')
+    def onchange_code(self):
+        for record in self:
+            length = 0
+            if record.building_type:
+                length = len(record.building_type)
+            if record.env.user.company_id.building_code_len:
+                if length > record.env.user.company_id.building_code_len:
+                    raise UserError(
+                        _("Building Type Code Length must not exceed %s characters." %
+                        (record.env.user.company_id.building_code_len)))
+
 class RoomLocation(models.Model):
     _name = "room.location"
     _description = "Room Location"
@@ -503,11 +561,23 @@ class RoomLocation(models.Model):
                                                        record.location_name)))
         return result
 
+    @api.onchange('location_code')
+    def onchange_code(self):
+        for record in self:
+            length = 0
+            if record.location_code:
+                length = len(record.location_code)
+            if record.env.user.company_id.location_code_len:
+                if length > record.env.user.company_id.location_code_len:
+                    raise UserError(
+                        _("Location Code Length must not exceed %s characters." %
+                        (record.env.user.company_id.location_code_len)))
+
 class RoomType(models.Model):
     _name = "room.type"
     _description = "Room Type"
 
-    code = fields.Char(string='Code', size=3, required=True)
+    code = fields.Char(string='Code', size=50, required=True)
     name = fields.Char(string='Room Type', required=True)
     ratecode_id = fields.Char(string='Rate Code')
     totalroom = fields.Integer(string='Total Rooms')
@@ -528,10 +598,17 @@ class RoomType(models.Model):
         'Room code already exists with this name! Room code name must be unique!'
     )]
 
-    # @api.depends('propertyroom_ids')
-    # def count_room_no(self):
-    #     for roomtype in self:
-    #         roomtype.count_roomtype = len(roomtype.propertyroom_ids)
+    @api.onchange('code')
+    def onchange_code(self):
+        for record in self:
+            length = 0
+            if record.code:
+                length = len(record.code)
+            if record.env.user.company_id.roomtype_code_len:
+                if length > record.env.user.company_id.roomtype_code_len:
+                    raise UserError(
+                        _("Room Type Code Length must not exceed %s characters." %
+                        (record.env.user.company_id.roomtype_code_len)))
 
 class RoomView(models.Model):
     _name = "room.view"
@@ -848,7 +925,7 @@ class Transaction(models.Model):
     trans_ptype = fields.Selection(AVAILABLE_PAY,string="Pay Type")
     subgroup_ids = fields.One2many('sub.group', related="property_id.subgroup_ids")
     subgroup_id = fields.Many2one('sub.group', domain="[('id', '=?', subgroup_ids)]", string="Sub Group")
-    subgroup_name = fields.Char(string="Sub Group Name", readonly=True)
+    subgroup_name = fields.Char(string="Group Name", readonly=True)
     trans_code = fields.Char(string="Transaction Code", size=4, required=True, index=True)
     trans_name = fields.Char(string="Transaction Name", required=True)
     trans_unitprice = fields.Float(string="Unit Price", required=True)
@@ -882,13 +959,6 @@ class Transaction(models.Model):
         return result
 
 
-    @api.onchange('subgroup_id')
-    def onchange_sub_name(self):
-        for record in self:
-            subgroup_id = record.subgroup_id
-            record.subgroup_name=subgroup_id.sub_desc
-
-
     @api.onchange('revtype_id')
     def onchange_revtype_name(self):
         for record in self:
@@ -905,10 +975,23 @@ class Transaction(models.Model):
                         if(subgroup.property_id == record.property_id):
                             subgroup_list.append(subgroup.id)
                     domain = {'subgroup_id': [('id', 'in', subgroup_list)]}
-                return {'domain': domain}
+                    return {'domain': domain}
 
-    # def _compute_get_sub_name(self):
-    #     self.subgroup_name=self.subgroup_id.sub_desc
+    @api.onchange('subgroup_id')
+    def onchange_sub_name(self):
+        for record in self:
+            subgroup_id = record.subgroup_id
+            record.subgroup_name = subgroup_id.sub_desc
+
+    # @api.depends('revtype_id','subgroup_id','revsub_active')
+    # def _compute_get_subgroup_name(self):
+    #     for record in self:
+    #         revsub_active = record.revsub_active
+    #         if revsub_active is True:
+    #             record.subgroup_name = record.subgroup_id.sub_desc
+    #         else:
+    #             record.subgroup_name = record.revtype_id.revtype_name
+            
 
     @api.constrains('trans_code','revtype_id')
     def _check_trans_code(self):
@@ -946,7 +1029,9 @@ class Transaction(models.Model):
         # This field should have been a char, but the aim is to use it in a side panel view with hierarchy, and it's only supported by many2one fields so far.
         # So instead, we make it a many2one to a psql view with what we need as records.
         for record in self:
-            record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
+                record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
+
+
                     
 # Transaction Root
 class TransactionRoot(models.Model):
@@ -1020,6 +1105,7 @@ class CreditLimit(models.Model):
     crd_enddate = fields.Date(string="End Date",required=True)#compute="get_end_date",
     crd_limit = fields.Float(string="Credit Limit")
 
+    
     @api.onchange('crd_startdate','crd_enddate')
     @api.constrains('crd_startdate','crd_enddate')
     def get_two_date_comp(self):
@@ -1030,7 +1116,7 @@ class CreditLimit(models.Model):
 
     @api.onchange('payment_type','crd_enddate')
     def get_end_date(self):
-        same_payment_objs = self.env['credit.limit'].search([('payment_type','=',self.payment_type)])
+        same_payment_objs = self.env['credit.limit'].search([('payment_type','=',self.payment_type),('property_id.id','=',self.property_id.id)])
         tmp_end_date = datetime.date(1000, 1, 11)
         same_payment = self.env['credit.limit'] # This is Null Object assignment
         for rec in same_payment_objs:
@@ -1040,6 +1126,17 @@ class CreditLimit(models.Model):
             if same_payment:
                 self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
 
+    # @api.onchange('payment_type','crd_enddate')
+    # def get_end_date(self):
+    #     same_payment_objs = self.env['credit.limit'].search([('payment_type','=',self.payment_type)])
+    #     tmp_end_date = datetime.date(1000, 1, 11)
+    #     same_payment = self.env['credit.limit'] # This is Null Object assignment
+    #     for rec in same_payment_objs:
+    #         if rec.crd_enddate > tmp_end_date:
+    #             tmp_end_date = rec.crd_enddate
+    #             same_payment = rec
+    #         if same_payment:
+    #             self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
 
 #Rate Code
 class RateCode(models.Model):
@@ -1071,6 +1168,8 @@ class RateCode(models.Model):
     special_price2 = fields.Float(string="Special Price 2")
     special_price3 = fields.Float(string="Special Price 3")
     special_price4 = fields.Float(string="Special Price 4")
+    discount_percent = fields.Float(string="Discount Percentage", default=10.0)
+    discount_amount = fields.Float(string="Discount Amount", default=50.0)
 
     def _compute_is_ratecode(self):
         self.is_ratecode=True
@@ -1085,15 +1184,26 @@ class RateCode(models.Model):
 
     @api.onchange('rate_code','end_date')
     def get_end_date(self):
-        same_ratecode_objs = self.env['rate.code'].search([('rate_code','=',self.rate_code)])
+        same_ratecode_objs = self.env['rate.code'].search([('rate_code','=',self.rate_code),('property_id.id','=',self.property_id.id)])
         tmp_end_date = datetime.date(1000, 1, 11)
-        same_ratecode = self.env['rate.code'] # This is Null Object assignment
+        same_ratecode = self.env['rate.code']
         for rec in same_ratecode_objs:
             if rec.end_date > tmp_end_date:
                 tmp_end_date = rec.end_date
                 same_ratecode = rec
             if same_ratecode:
                 self.start_date = same_ratecode.end_date + timedelta(days = 1)
+    # @api.onchange('rate_code','end_date')
+    # def get_end_date(self):
+    #     same_ratecode_objs = self.env['rate.code'].search([('rate_code','=',self.rate_code)])
+    #     tmp_end_date = datetime.date(1000, 1, 11)
+    #     same_ratecode = self.env['rate.code'] # This is Null Object assignment
+    #     for rec in same_ratecode_objs:
+    #         if rec.end_date > tmp_end_date:
+    #             tmp_end_date = rec.end_date
+    #             same_ratecode = rec
+    #         if same_ratecode:
+    #             self.start_date = same_ratecode.end_date + timedelta(days = 1)
 
     def action_change_new_rate(self):
         action = self.env.ref('hms.rate_code_action_window').read()[0]
