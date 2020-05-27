@@ -119,6 +119,9 @@
                   </div>
                 </group> 
               </page>
+              <page string="Allotment">
+                <field name="allotment_ids" context="{'default_property_id' : id}"/>
+              </page>
               <page string='Hotel License'>
                 <field name="roomqty"/>
                 <field name="property_license"/>
@@ -189,12 +192,12 @@
       <field name="name">property.view.kanban</field>
       <field name="model">property.property</field>
       <field name="arch" type="xml">
-        <kanban>
+        <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" create="0">
           <field name="id"/>
           <field name="logo"/>
-          <h1><field name="hotelgroup_id"/></h1>
-          <h2><field name="name"/></h2>
-          <h3><field name="code"/></h3>
+          <field name="hotelgroup_id"/>
+          <field name="name"/>
+          <field name="code"/>
           <field name="city_id"/>
           <field name="country_id"/>
           <field name="phone"/>
@@ -206,6 +209,46 @@
               <div class="oe_kanban_global_click">
                 <div class="o_kanban_image">
                   <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
+                </div>
+                <!-- <div class="container o_kanban_card_content">
+                  <div class="row o_kanban_card_upper_content">
+                      <div class="col-5 o_kanban_primary_left" name="to_replace_in_sale_crm">
+                          <button type="object" class="btn btn-primary" name="action_primary_channel_button">Company Profile</button>
+                      </div>
+                  </div>
+                </div> -->
+                <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                  <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                      <span class="fa fa-bars fa-lg" />
+                  </a>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <t t-if="widget.editable">
+                        <li>
+                            <a type="edit">Edit</a>
+                        </li>
+                    </t>
+                    <t t-if="widget.deletable">
+                        <li>
+                            <a type="delete">Delete</a>
+                        </li>
+                    </t>
+                    <t>
+                      <li>
+                        Profile
+                        <ul>
+                          <li>
+                            <a type="object" name="action_companyprofile" context="{'default_property_id' : id}">Company Profile</a>
+                          </li>
+                          <li>
+                            <a type="object">Guest Profile</a>
+                          </li>
+                        </ul>
+                      </li>
+                    </t>
+                    <!-- <li>
+                        <ul class="oe_kanban_colorpicker" data-field="color" />
+                    </li> -->
+                  </ul>
                 </div>
                 <div class="oe_kanban_details">
                   <div><field name="name"/></div>
@@ -225,6 +268,47 @@
         </kanban>
       </field>
     </record>
+    <!-- <record id="property_view_kanban" model="ir.ui.view">
+      <field name="name">property.view.kanban</field>
+      <field name="model">property.property</field>
+      <field name="arch" type="xml">
+        <kanban>
+          <field name="id"/>
+          <field name="logo"/>
+          <h1><field name="hotelgroup_id"/></h1>
+          <h2><field name="name"/></h2>
+          <h3><field name="code"/></h3>
+          <field name="city_id"/>
+          <field name="country_id"/>
+          <field name="phone"/>
+          <field name="email"/>
+          <field name="website"/>
+          <field name="rating"/>
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click">
+                <div class="o_kanban_image">
+                  <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
+                  
+                </div>
+                <div class="oe_kanban_details">
+                  <div><field name="name"/></div>
+                  <div><field name="hotelgroup_id"/></div>
+                  <div>
+                    <field t-if="record.city_id.raw_value" name="city_id"/>
+                    <field t-if="record.country_id.raw_value" name="country_id"/>
+                  </div>
+                  <div t-if="record.phone.raw_value"><field name="phone"/></div>
+                  <div t-if="record.email.raw_value"><field name="email"/></div>
+                  <div t-if="record.website.raw_value"><field  name="website"/></div>
+                  <div t-if="record.rating.raw_value"><field name="rating" widget='priority'/></div>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record> -->
     <!-- Kanban View of Property -->
     <record model="ir.ui.view" id="view_pms_properites_filter">
       <field name="name">Properties Filter</field>
@@ -253,96 +337,6 @@
       <field name="view_mode">kanban,tree,form</field>
       <field name="view_id" ref="property_view_kanban"/>
     </record>
-
-    <!-- Kanban View of Contacts-->
-    <!-- <record id="contact_view_kanban" model="ir.ui.view">
-      <field name="name">contact.view.kanban</field>
-      <field name="model">contact.contact</field>
-      <field name="arch" type="xml">
-        <kanban>
-          <field name="id"/>
-          <field name="name"/>
-          <field name="title"/>
-          <field name="position"/>
-          <field name="phone"/>
-          <field name="email"/>
-          <field name="image"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div>
-                  <div class="o_kanban_image">
-                    <img t-att-src="kanban_image('contact.contact', 'image',record.id.raw_value)" alt="image"/>
-                  </div>
-                  <div class="oe_kanban_details">
-                    <field name="name"/>
-                    <div><field name="position"/></div>
-                    <div><field name="phone"/></div>
-                    <div><field name="email"/></div>
-                  </div>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record> -->
-
- <!-- Form View of Bank Info -->
-    <!-- <record id="bank_info_view_form" model="ir.ui.view">
-      <field name="name">bank.info.view.form</field>
-      <field name="model">bank.info</field>
-      <field name="arch" type="xml">
-        <form>
-          <sheet>
-            <group>
-              <field name="property_id" options='{"no_open": True}'/>
-              <field name="bank_name" placeholder="Eg. Bank Name..."/>
-              <field name="bank_branch" placeholder="Eg. Mayangone Branch..."/>
-              <field name="bank_account" placeholder="Eg. 00345678923434..."/>
-              <field name="bank_desc" placeholder="...Description (or) Remark..."/>
-              <field name="bank_logo" widget="image"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record> -->
-
-    <!-- Kanban View of Bank Info-->
-    <!-- <record id="bank_info_view_kanban" model="ir.ui.view">
-      <field name="name">bank.info.view.kanban</field>
-      <field name="model">bank.info</field>
-      <field name="arch" type="xml">
-        <kanban>
-          <field name="id"/>
-          <field name="bank_name"/>
-          <field name="bank_branch"/>
-          <field name="bank_account"/>
-          <field name="bank_desc"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div t-attf-class="oe_kanban_global_click">
-                <div>
-                  <div class="o_kanban_image">
-                    <img alt="image" t-att-src="kanban_image('bank.info', 'bank_logo',record.id.raw_value)"/>
-                  </div>
-                  <div class="oe_kanban_details">
-                    <field name="bank_name"/>
-                    <div><field name="bank_branch"/></div>
-                    <div>
-                      <group>
-                        <field name="bank_account"/>
-                      </group>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record> -->
-
 
    <!-- ========== Hotel Building Setup ========== -->
     <!-- Building Setup Form View -->
@@ -744,6 +738,18 @@
             </group>
           </sheet>
         </form>
+      </field>
+    </record>
+
+    <!-- Market Source List View -->
+    <record id="market_source_view_tree" model="ir.ui.view">
+      <field name="name">market.source.view.tree</field>
+      <field name="model">market.source</field>
+      <field name="arch" type="xml">
+        <tree string="Market Source">
+          <field name="source_code" />
+          <field name="source_desc" />
+        </tree>
       </field>
     </record>
 

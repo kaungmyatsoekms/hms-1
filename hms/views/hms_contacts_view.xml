@@ -6,32 +6,48 @@
             <field name="priority" eval="1"/>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button string="AR No" class="oe_stat_button" icon="fa-info-circle" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True)]}"/>
+                    <button string="Number of Visit" class="oe_stat_button" icon="fa-plane" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True),('is_group','!=', True)]}"/>
+                    <button string="Total Nights" class="oe_stat_button" icon="fa-moon-o" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True),('is_group','!=', True)]}"/>
+                    <button string="Room Revenue" class="oe_stat_button" icon="fa-dollar" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True),('is_group','!=', True)]}"/>
+                    <button string="F&amp;B Revenue" class="oe_stat_button" icon="fa-cutlery" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True),('is_group','!=', True)]}"/>
+                    <button string="MS Revenue" class="oe_stat_button" icon="fa-list" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True),('is_group','!=', True)]}"/>
+                    <button string="Allotment" class="oe_stat_button" icon="fa-columns" name="%(base.action_partner_form)d" type="action" attrs="{'invisible': [('is_guest','!=', True),('is_company','!=', True),('is_group','!=', True)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='image_1920']" position="replace">
+                    <field name="passport_image" widget="image" class="oe_avatar" attrs="{'invisible': [('is_guest','!=', True)]}" options='{"preview_image": "image_128"}'/>
+                    <field name="image_1920" widget='image' class="oe_avatar" attrs="{'invisible': [('is_guest','=', True)]}" options='{"preview_image": "image_128"}'/>
+                    <h3><field name="profile_no" class="oe_avatar" readonly="1"/></h3>
+                </xpath>
                 <xpath expr="//field[@name='company_type']" position="replace">
+                    <field name="property_id"/>
                     <field name="company_type" widget="radio"
                             class="oe_edit_only"
                             options="{'horizontal': true}"/>
                 </xpath>
 				<xpath expr="//field[@name='name']" position="replace">
                     <field name="is_person" invisible="1"/>
-                    <field name="is_contact" invisible="1"/>
+                    <field name="is_guest" invisible="1"/>
                     <field name="is_sale" invisible="1"/>
                     <field name="is_group" invisible="1"/>
-					<field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')]}"/>
+                    <field name="is_guest_exists" invisible="1"/>
+					<field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')], 'readonly': [('is_guest', '=', True)]}"/>
 				</xpath>
 				<xpath expr="//field[@name='parent_id']" position="before">
-					<field name="title" placeholder="title" options='{"no_open": True}' attrs="{'invisible': [('is_company', '=', True)]}"/>
+                    <field name="title" placeholder="title" options='{"no_open": True}' attrs="{'invisible': [('is_company', '=', True)]}"/>
                 </xpath>
                 <xpath expr="//form/sheet/group[1]" position="replace">
 					<group>
 						<group>
-                            <field name="first_name" attrs="{'invisible': [('is_person','!=', True)]}" placeholder="First Name"/>
-                            <field name="middle_name" attrs="{'invisible': [('is_person','!=', True)]}" placeholder="Middle Name"/>
-                            <field name="last_name" attrs="{'invisible': [('is_person','!=', True)]}" placeholder="Last Name"/>
-                            <field name="nationality_id" attrs="{'invisible': [('is_person','!=', True),('is_contact','!=', True),('is_sale','!=', True)]}" placeholder="Nationality"/>
-                            <field name="gender" attrs="{'invisible': [('is_person','!=', True),('is_contact','!=', True),('is_sale','!=', True)]}" />
-                            <field name="nrc_card" attrs="{'invisible': [('is_person','!=', True),('is_contact','!=', True),('is_sale','!=', True)]}" placeholder="NRC card"/>
-                            <field name="dob" attrs="{'invisible': [('is_person','!=', True),('is_contact','!=', True),('is_sale','!=', True)]}" placeholder="Date of Birth"/>
-                            <field name="passport_id" context="{'default_profile_id':active_id}" attrs="{'invisible': [('is_person','!=', True)]}" placeholder="Passport"/>
+                            <field name="last_name" attrs="{'invisible': [('is_guest','!=', True)], 'required': [('is_guest', '=', True)]}" placeholder="Last Name"/>
+                            <field name="first_name" attrs="{'invisible': [('is_guest','!=', True)]}" placeholder="First Name"/>
+                            <field name="middle_name" attrs="{'invisible': [('is_guest','!=', True)]}" placeholder="Middle Name"/> 
+                            <field name="gender" attrs="{'invisible': [('is_guest','!=', True),('is_person','!=', True),('is_sale','!=', True)]}"/>
+                            <field name="dob" attrs="{'invisible': [('is_guest','!=', True),('is_person','!=', True),('is_sale','!=', True)]}"/>
+                            <field name="nationality_id" attrs="{'invisible': [('is_guest','!=', True),('is_person','!=', True),('is_sale','!=', True)]}"/>
+                            <field name="nrc_card" attrs="{'invisible': [('is_guest','!=', True)]}"/>
+                            <field name="guest_channel_type" widget="many2many_tags" attrs="{'invisible': [('is_guest','!=', True)]}" placeholder="Guest Type"/>
                             <field name="group_code" attrs="{'invisible': [('is_group','!=', True)]}" placeholder="Group Code"/>
                             <field name="group_name" attrs="{'invisible': [('is_group','!=', True)]}" placeholder="Group Name"/>
 						    <field name="email" widget="email" placeholder="email" context="{'gravatar_image': True}" attrs="{'required': [('user_ids','!=', [])]}"/>
@@ -51,6 +67,7 @@
 						  <field name="category_id" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" invisible="1" placeholder="Tags..."/>
 						</group>
 						<group>
+                            <field name="passport_id" context="{'default_profile_id': active_id}" attrs="{'invisible': ['|', ('is_guest', '!=', True), ('is_guest_exists', '=', False)]}" domain="[('active', '=', True)]"/>
 							<field name="type" attrs="{'invisible': [('parent_id','=', False)]}" groups="base.group_no_one"/>
 							<label for="street" string="Address"/>
 							<div class="o_address_format">
@@ -179,7 +196,8 @@
                         <page name='sales_purchases' string="Sales &amp; Purchase">
                             <group name="container_row_2">
                                 <group string="Sales" name="sale" priority="1">
-                                    <field name="user_id"/>
+                                    <field name="user_id" invisible="1"/>
+                                    <field name="sales_id" context="{'default_company_type' : 'sales'}" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                                 </group>
                                 <group string="Purchase" name="purchase" priority="2">
                                 </group>

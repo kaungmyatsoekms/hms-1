@@ -6,13 +6,13 @@ from odoo.tools import *
 import base64
 import datetime
 
-
 class PmsFormat(models.Model):
     _name = "pms.format"
     _description = "Property Formats"
     _order = "name"
 
     name = fields.Char("Name", required=True)
+    code = fields.Char("Code", required=True)
     sample = fields.Char("Sample",
                          compute='get_sample_format',
                          store=True,
@@ -58,13 +58,23 @@ class PmsFormat(models.Model):
                 pt.active = self.active
         super(PmsFormat, self).toggle_active()
 
-
     @api.model
     def create(self, values):
+        # _logger.info(values)
         format_id = self.search([('name', '=', values['name'])])
         if format_id:
             raise UserError(_("%s is already existed" % values['name']))
-        return super(PmsFormat, self).create(values)
+        res = super(PmsFormat, self).create(values)
+        padding = res.format_line_id.filtered(lambda x: x.value_type=="digit")
+        self.env['ir.sequence'].create({'name':res.code,'code':res.code,'padding':padding.digit_value})
+        return res
+
+    # @api.model
+    # def create(self, values):
+    #     format_id = self.search([('name', '=', values['name'])])
+    #     if format_id:
+    #         raise UserError(_("%s is already existed" % values['name']))
+    #     return super(PmsFormat, self).create(values)
 
         # if 'name' in values:
         #     sample_id = self.search([('name', '=', values['name'])])
@@ -77,13 +87,13 @@ class PmsFormat(models.Model):
         #         raise UserError(_("%s is already existed" % values['name']))
         # return super(PmsFormat, self).create(values)
 
-    def write(self, vals):
-        format_id = None
-        if 'name' in vals:
-            sample_id = self.search([('name', '=', vals['name'])])
-            if sample_id:
-                raise UserError(_("%s is already existed" % vals['name']))
-        return super(PmsFormat, self).write(vals)
+    # def write(self, vals):
+    #     format_id = None
+    #     if 'name' in vals:
+    #         sample_id = self.search([('name', '=', vals['name'])])
+    #         if sample_id:
+    #             raise UserError(_("%s is already existed" % vals['name']))
+    #     return super(PmsFormat, self).write(vals)
 
 class PmsFormatDetail(models.Model):
     _name = "pms.format.detail"

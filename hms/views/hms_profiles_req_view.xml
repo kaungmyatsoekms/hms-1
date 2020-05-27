@@ -141,17 +141,17 @@
                                 <field name="passport"/>
                                     <field name="issue_date" />
                                     <field name="expire_date"/>
-                                <!-- <label for="image1" string="Image"/>
+                                    <field name="note" string="Notes" placeholder="Internal Notes..."/>
+                            </group>
+                            <group>
+                                <label for="image1" string="Image"/>
                                 <div class="o_image_format">
                                     <field name="image1" widget="image" class="float-left oe_avatar"/>
                                     <field name="image2" widget="image" class="float-left oe_avatar"/>
                                     <field name="image3" widget="image" class="float-left oe_avatar"/>
                                     <field name="image4" widget="image" class="float-left oe_avatar"/>
-                                </div> -->
-                                <field name="note" string="Notes" placeholder="Internal Notes..."/>
-                            </group>
-                            <group>
-                                <field name="image1" string="Image" widget="many2many_binary"/>
+                                </div>
+                                <!-- <field name="image1" string="Image" widget="many2many_binary"/> -->
                             </group>
                         </group>
                     </sheet>

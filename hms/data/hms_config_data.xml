@@ -5,21 +5,25 @@
         <record model="pms.format" id="pms_format_id1">
           <field name="name">Guest Profile ID Format</field>
           <field name="sample">P-property code-YYYY/xxxxx</field>
+          <field name="code">guest.format</field>
           <field name="active">True</field>
         </record>
         <record model="pms.format" id="pms_format_id2">
           <field name="name">Company Profile ID Format</field>
           <field name="sample">C-property code-YYYY/xxxxx</field>
+          <field name="code">company.format</field>
           <field name="active">True</field>
         </record>
          <record model="pms.format" id="pms_format_id3">
           <field name="name">Group Profile ID Format</field>
           <field name="sample">G-property code-YYYY/xxxxx</field>
+          <field name="code">group.format</field>
           <field name="active">True</field>
         </record>
         <record model="pms.format" id="pms_format_id4">
           <field name="name">Confirm ID Format</field>
           <field name="sample">R-property code-YYYY/xxxxx</field>
+          <field name="code">confirm.format</field>
           <field name="active">True</field>
         </record>
         <!-- Guest Profile ID Format-->

@@ -1,0 +1,158 @@
+<odoo>
+    <data>
+        <record id="reservation_view_form" model="ir.ui.view">
+            <field name="name">reservation.view.form</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="is_company" invisible="1"/>
+                            <field name="type" widget="radio"
+                                    class="oe_edit_only"
+                                    options="{'horizontal': true}"/>
+                            <field name="confirm_no"/>
+                            <field name="property_id"/>
+                            <field name="company_id"/>
+                            <field name="group_id"/>
+                            <field name="guest_id"/>
+                            <field name="arrival"/>
+                            <field name="departure"/>
+                            <field name="nights"/>
+                            <field name="no_ofrooms"/>
+                            <field name="market"/>
+                            <field name="source"/>
+                            <field name="sales_id"/>
+                            <field name="contact_id"/>
+                            <field name="reservation_type"/>
+                            <field name="reservation_status"/>
+                            <field name="arrival_flight"/>
+                            <field name="arrival_flighttime"/>
+                            <field name="dep_flight"/>
+                            <field name="dep_flighttime"/>
+                            <field name="eta"/>
+                            <field name="etd"/>
+                            <field name="reservation_line_ids"/>
+                            <field name="internal_notes"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="reservation_view_list" model="ir.ui.view">
+            <field name="name">reservation.view.list</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <tree string="Reservation">
+                    <field name="property_id" optional="hide"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="group_id" optional="hide"/>
+                    <field name="guest_id" optional="hide"/>
+                    <field name="arrival" optional="show"/>
+                    <field name="departure" optional="show"/>
+                    <field name="nights" optional="show"/>
+                    <field name="no_ofrooms" optional="show"/>
+                    <field name="market" optional="hide"/>
+                    <field name="source" optional="hide"/>
+                    <field name="sales_id" optional="hide"/>
+                    <field name="contact_id" optional="hide"/>
+                    <field name="reservation_type" optional="hide"/>
+                    <field name="reservation_status" optional="hide"/>
+                    <field name="arrival_flight" optional="hide"/>
+                    <field name="arrival_flighttime" optional="hide"/>
+                    <field name="dep_flight" optional="hide"/>
+                    <field name="dep_flighttime" optional="hide"/>
+                    <field name="eta" optional="hide"/>
+                    <field name="etd" optional="hide"/>
+                    <field name="reservation_line_ids" optional="hide"/>
+                    <field name="confirm_no" optional="hide"/>
+                    <field name="internal_notes" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="reservation_action_window" model="ir.actions.act_window">
+            <field name="name">Reservation</field>
+            <field name="res_model">hms.reservation</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="property_view_kanban"/>
+        </record>
+
+        <record id="reason_type_view_form" model="ir.ui.view">
+            <field name="name">hms.reasontype.view.form</field>
+            <field name="model">hms.reasontype</field>
+            <field name="arch" type="xml">
+                <form string="Reason Type">
+                    <sheet>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="reason_ids" context="{'default_type_id' : id}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Reason Type List View -->
+        <record id="reason_type_view_list" model="ir.ui.view">
+            <field name="name">reason.type.view.list</field>
+            <field name="model">hms.reasontype</field>
+            <field name="arch" type="xml">
+                <tree string="Reason Type">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="reason_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of Reason Type -->
+        <record id="reason_type_action_window" model="ir.actions.act_window">
+            <field name="name">Reason Type</field>
+            <field name="res_model">hms.reasontype</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Reason View Form-->
+        <record id="reason_view_form" model="ir.ui.view">
+            <field name="name">hms.reason.view.form</field>
+            <field name="model">hms.reason</field>
+            <field name="arch" type="xml">
+                <form string="Reason Type">
+                    <sheet>
+                        <group>
+                            <field name="type_id"/>
+                            <field name="code"/>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+                <!-- Reason List View -->
+        <record id="reason_view_list" model="ir.ui.view">
+            <field name="name">reason.view.list</field>
+            <field name="model">hms.reason</field>
+            <field name="arch" type="xml">
+                <tree string="Reason">
+                    <field name="type_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of Reason -->
+        <record id="reason_action_window" model="ir.actions.act_window">
+            <field name="name">Reason</field>
+            <field name="res_model">hms.reason</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
+        <menuitem id="reservation_menu" name="Reservation" parent="rsvn_type_set_menu" sequence="99" action="reservation_action_window"/>
+    </data>
+</odoo>

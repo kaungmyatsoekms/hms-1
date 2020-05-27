@@ -33,3 +33,11 @@ access_hms_nationality,hms.nationality,model_hms_nationality,base.group_user,1,1
 access_hms_passport,hms.passport,model_hms_passport,base.group_user,1,1,1,1
 access_hms_contract,hms.contract,model_hms_contract,base.group_user,1,1,1,1
 access_hms_guest_category,hms.guest.category,model_hms_guest_category,base.group_user,1,1,1,1
+access_hms_allotment,hms.allotment,model_hms_allotment,base.group_user,1,1,1,1
+access_hms_allotment_line,hms.allotment.line,model_hms_allotment_line,base.group_user,1,1,1,1
+access_hms_department,hms.department,model_hms_department,base.group_user,1,1,1,1
+access_hms_special_request,hms.special.request,model_hms_special_request,base.group_user,1,1,1,1
+access_hms_reservation,hms.reservation,model_hms_reservation,base.group_user,1,1,1,1
+access_hms_reservation_line,hms.reservation.line,model_hms_reservation_line,base.group_user,1,1,1,1
+access_hms_reason,hms.reason,model_hms_reason,base.group_user,1,1,1,1
+access_hms_reasontype,hms.reasontype,model_hms_reasontype,base.group_user,1,1,1,1

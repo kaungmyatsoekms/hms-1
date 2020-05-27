@@ -113,7 +113,7 @@ class Property(models.Model):
                             'partner_id',
                             string='Contacts',
                             track_visibility=True,
-                            domain="[('is_sales', '=', True)]")
+                            domain="[('is_sale', '=', True)]")
     bankinfo_ids = fields.One2many('res.bank','property_id', string="Bank Info")
     # bankinfo_ids = fields.Many2one('res.bank', "Bank Information")
     comments = fields.Text(string='Notes')
@@ -131,6 +131,7 @@ class Property(models.Model):
     specialday_ids = fields.One2many('special.day', 'property_id', string="Special Days")
     weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
     ratecode_ids = fields.One2many('rate.code','property_id', string="Rate Code")
+    allotment_ids = fields.One2many('hms.allotment','property_id', string="Allotment")
 
     property_code_len = fields.Integer(
         "Property Code Length",
@@ -368,13 +369,13 @@ class Property(models.Model):
             'default_type': 'out_building',
         }
         return action
-    
+
     def _compute_room_no_count(self):
         self.roomqty = len(self.propertyroom_ids)
 
     def _compute_building_count(self):
         self.building_count = len(self.building_ids)
-    
+
     # Room Count
     def action_room_count(self):
         rooms = self.mapped('propertyroom_ids')
@@ -770,6 +771,12 @@ class MarketSource(models.Model):
         'Source code already exists with this name! Source code must be unique!'
     )]
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.source_desc, record.source_code)))
+        return result
+
 class SpecialDay(models.Model):
     _name = "special.day"
     _description = "Special Day"
@@ -976,6 +983,23 @@ class Transaction(models.Model):
                             subgroup_list.append(subgroup.id)
                     domain = {'subgroup_id': [('id', 'in', subgroup_list)]}
                     return {'domain': domain}
+    # @api.onchange('revtype_id', 'subgroup_id')
+    # def onchange_sub_name(self):
+    #     for record in self:
+    #         subgroup_list = []
+    #         domain = {}
+    #         revtype_id = record.revtype_id
+    #         record.revtype_name  = revtype_id.revtype_name
+    #         record.revsub_active = revtype_id.rev_subgroup
+    #         if (record.revsub_active is False):
+    #             record.subgroup_name= revtype_id.revtype_name
+    #         else:       
+    #             if (record.revtype_id.subgroup_ids):
+    #                 for subgroup in record.revtype_id.subgroup_ids:
+    #                     if(subgroup.property_id == record.property_id):
+    #                         subgroup_list.append(subgroup.id)
+    #                 domain = {'subgroup_id': [('id', 'in', subgroup_list)]}
+    #                 return {'domain': domain}
 
     @api.onchange('subgroup_id')
     def onchange_sub_name(self):
@@ -993,7 +1017,7 @@ class Transaction(models.Model):
     #             record.subgroup_name = record.revtype_id.revtype_name
             
 
-    @api.constrains('trans_code','revtype_id')
+    @api.constrains('trans_code')
     def _check_trans_code(self):
         for record in self:
             trans_revtype=record.revtype_id.rev_type
@@ -1030,9 +1054,7 @@ class Transaction(models.Model):
         # So instead, we make it a many2one to a psql view with what we need as records.
         for record in self:
                 record.root_id = record.trans_code and (ord(record.trans_code[0]) * 1000 + ord(record.trans_code[1])) or False
-
-
-                    
+                 
 # Transaction Root
 class TransactionRoot(models.Model):
     _name = 'transaction.root'
@@ -1064,11 +1086,11 @@ class TransactionRoot(models.Model):
             )''' % (self._table,)
         )
 
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "({}) {}".format(record.revname, record.name)))
-        return result
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         result.append((record.id, "({}) {}".format(record.revname, record.name)))
+    #     return result
 
 # Reservation Type
 class RsvnType(models.Model):
@@ -1193,6 +1215,7 @@ class RateCode(models.Model):
                 same_ratecode = rec
             if same_ratecode:
                 self.start_date = same_ratecode.end_date + timedelta(days = 1)
+                
     # @api.onchange('rate_code','end_date')
     # def get_end_date(self):
     #     same_ratecode_objs = self.env['rate.code'].search([('rate_code','=',self.rate_code)])
