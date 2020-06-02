@@ -137,6 +137,7 @@
                         <br></br>
                         <group>
                             <group>
+                                <field name="active" widget="boolean_toggle"/>
                                 <field name="profile_id"/>
                                 <field name="passport"/>
                                     <field name="issue_date" />
@@ -150,6 +151,7 @@
                                     <field name="image2" widget="image" class="float-left oe_avatar"/>
                                     <field name="image3" widget="image" class="float-left oe_avatar"/>
                                     <field name="image4" widget="image" class="float-left oe_avatar"/>
+                                    <field name="active" invisible="1"/>
                                 </div>
                                 <!-- <field name="image1" string="Image" widget="many2many_binary"/> -->
                             </group>
@@ -164,7 +166,7 @@
             <field name="model">hms.passport</field>
             <field name="arch" type="xml">
                 <tree string="Guest Passport">
-                    <field name="profile_id"/>
+                    <field name="active"/>
                     <field name="passport"/>
                     <field name="issue_date"/>
                     <field name="expire_date"/>

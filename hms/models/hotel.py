@@ -113,7 +113,7 @@ class Property(models.Model):
                             'partner_id',
                             string='Contacts',
                             track_visibility=True,
-                            domain="[('is_sale', '=', True)]")
+                            domain="[('is_person', '=', True)]")
     bankinfo_ids = fields.One2many('res.bank','property_id', string="Bank Info")
     # bankinfo_ids = fields.Many2one('res.bank', "Bank Information")
     comments = fields.Text(string='Notes')
@@ -429,6 +429,45 @@ class Property(models.Model):
     
     def _compute_roomtype_count(self):
         self.roomtype_count = len(self.roomtype_ids)
+
+
+    @api.model
+    def create(self, values):
+        # _logger.info(values)
+        res = super(Property, self).create(values)
+        if res.gprofile_id_format:
+            if res.gprofile_id_format.format_line_id.filtered(lambda  x: x.value_type=="dynamic").dynamic_value == "property code":
+                padding = res.gprofile_id_format.format_line_id.filtered(lambda x: x.value_type=="digit")
+                self.env['ir.sequence'].create({
+                    'name':res.code+res.gprofile_id_format.code,
+                    'code':res.code+res.gprofile_id_format.code,
+                    'padding':padding.digit_value,
+                    'company_id':False,
+                    'use_date_range': True,
+                    })
+        if res.confirm_id_format:
+            if res.confirm_id_format.format_line_id.filtered(lambda  x: x.value_type=="dynamic").dynamic_value == "property code":
+                padding = res.confirm_id_format.format_line_id.filtered(lambda x: x.value_type=="digit")
+                self.env['ir.sequence'].create({
+                    'name':res.code+res.confirm_id_format.code,
+                    'code':res.code+res.confirm_id_format.code,
+                    'padding':padding.digit_value,
+                    'company_id':False,
+                    'use_date_range': True,
+                    })
+        return res
+
+    def unlink(self):
+        sequence_objs = self.env['ir.sequence']
+        for rec in self:
+            if rec.gprofile_id_format:
+                sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code+rec.gprofile_id_format.code)])
+            if rec.confirm_id_format:
+                sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code+rec.confirm_id_format.code)])
+            sequence_objs.unlink()
+        res = super(Property,self).unlink()
+        return res
+
 
 # class Contact(models.Model):
 #     _name = "contact.contact"

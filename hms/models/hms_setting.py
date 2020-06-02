@@ -9,6 +9,18 @@ from odoo.osv import expression
 import logging
 _logger = logging.getLogger(__name__)
 
+class Country(models.Model):
+    _inherit = "res.country"
+
+    code = fields.Char(
+    string='Country Code', size=3,
+    help='The ISO country code in three chars. \nYou can use this field for quick search.')
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.name, record.code)))
+        return result
 
 class Bank(models.Model):
     _inherit = 'res.bank'
@@ -103,19 +115,30 @@ class Passport(models.Model):
     _name = "hms.passport"
     _description = "PassPort"
 
-    profile_id = fields.Char(string="Profile")
+    profile_id = fields.Many2one('res.partner', string="Profile",required=True)
     passport = fields.Char(string="Passport", required=True)
     issue_date = fields.Date(string="Issue Date", required=True)
     expire_date = fields.Date(string="Expired Date")
     #image1 = fields.Many2many('ir.attachment', string="Image")
-    image1 = fields.Binary(string="Photo 2")
-    image2 = fields.Binary(string="Photo 2")
-    image3 = fields.Binary(string="Photo 3")
-    image4 = fields.Binary(string="Photo 4")
+    image1 = fields.Binary(string="Photo 1", attachemtn=True, store=True)
+    image2 = fields.Binary(string="Photo 2", attachemtn=True, store=True)
+    image3 = fields.Binary(string="Photo 3", attachemtn=True, store=True)
+    image4 = fields.Binary(string="Photo 4", attachemtn=True, store=True)
     note = fields.Text(string="Internal Note")
+    active = fields.Boolean(string="Active", default=True, track_visibility=True)
 
     _sql_constraints = [('passport_unique', 'UNIQUE(passport)',
                          'Your passport is exiting in the database.')]
+    # Activate the latest passport
+    @api.constrains('active')
+    def _change_active_status(self):
+        for record in self:
+            if record.active:
+                record_list = self.env['hms.passport'].search([('id', '!=',
+                                                                self.id)])
+                record.profile_id.image_1920=record.image1
+                for rec in record_list:
+                    rec.active = False
 
     @api.onchange('issue_date', 'expire_date')
     @api.constrains('issue_date', 'expire_date')
@@ -156,6 +179,12 @@ class HMSCompanyCategory(models.Model):
     #      compute='_compute_type',
     #     inverse='_write_type',
     # )
+    type = fields.Selection(
+        string='Type',
+        selection=[('agent', 'Travel Agent'),
+                ('other', 'Other')],
+        required = True,
+        )
     code = fields.Char("Code", track_visibility=True, size=3)
     ordinal_no = fields.Integer("Ordinal No", track_visibility=True)
     active = fields.Boolean(default=True, track_visibility=True)
@@ -165,6 +194,35 @@ class HMSCompanyCategory(models.Model):
             if not ct.active:
                 ct.active = self.active
         super(HMSCompanyCategory, self).toggle_active()
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.name, record.code)))
+        return result
+
+    # Create Function
+    @api.model
+    def create(self, values):
+        # _logger.info(values)
+        res = super(HMSCompanyCategory, self).create(values)
+        padding = self.env.user.company_id.cprofile_id_format.format_line_id.filtered(lambda x: x.value_type=="digit")
+        self.env['ir.sequence'].create({
+            'name':res.code,
+            'code':res.code,
+            'padding':padding.digit_value,
+            'company_id':False,
+            'use_date_range': True,
+            })
+        return res
+    
+    def unlink(self):
+        sequence_objs = self.env['ir.sequence']
+        for rec in self:
+            sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code)])
+        sequence_objs.unlink()
+        res = super(HMSCompanyCategory,self).unlink()
+        return res
 
 class HMSGuestCategory(models.Model):
     _name = "hms.guest.category"
@@ -193,6 +251,7 @@ class Company(models.Model):
     _description = 'Companies'
     _order = 'sequence, name'
 
+    code = fields.Char(string="Company Code",size=3, required=True)
     city_id = fields.Many2one("hms.city",
                               "City Name",
                               compute='_compute_address',
@@ -290,7 +349,6 @@ class Partner(models.Model):
     company_type = fields.Selection(
         string='Company Type',
         selection=[('guest', 'Guest'),
-                ('sales', 'Sales'),
                 ('person', 'Contact'),
                 ('group', 'Group'),
                 ('company', 'Company')],
@@ -304,10 +362,10 @@ class Partner(models.Model):
                                 string='Contacts',
                                 track_visibility=True,
                                 domain=[('is_company', '!=', True)])
-    company_channel_type = fields.Many2many('hms.company.category',
+    company_channel_type = fields.Many2one('hms.company.category',
                                             string="CRM Type",
                                             track_visibility=True)
-    guest_channel_type = fields.Many2many('hms.guest.category',
+    guest_channel_type = fields.Many2one('hms.guest.category',
                                             string="Guest Type",
                                             track_visibility=True) 
     township = fields.Many2one('hms.township',
@@ -315,12 +373,12 @@ class Partner(models.Model):
                                track_visibility=True)
     property_id = fields.Many2one("property.property", track_visibility=True) #default=get_property_id,
     property_ids = fields.Many2many("property.property", track_visibility=True)
+    is_from_hms = fields.Boolean(string="Is from HMS", default=False,
+        help="Check if creation is from HMS System")
     is_person = fields.Boolean(string='Is a Contact', default=True,
         help="Check if the company type is a Contact")
     is_guest = fields.Boolean(string='Is a Guest', default=False,
         help="Check if the company type is a Guest")
-    is_sale = fields.Boolean(string='Is a Sale', default=False,
-        help="Check if the company type is a Sales")
     is_group = fields.Boolean(string='Is a Group', default=False,
         help="Check if the company type is a Group")
     is_guest_exists = fields.Boolean(string="Is Guest Exists",
@@ -338,11 +396,9 @@ class Partner(models.Model):
         default='male',
         track_visibility=True,)
     nrc_card = fields.Char(string="NRC", track_visibility=True)
-    passport_id = fields.One2many('hms.passport','profile_id', string="Passport", track_visibility=True)
+    father = fields.Char(string="Father", track_visibility=True)
+    passport_id = fields.One2many('hms.passport','profile_id', string="Passport", track_visibility=True, context={'active_test': False})
     country_id = fields.Many2one('res.country', string="Country", track_visibility=True)
-    sales_id = fields.Many2one('res.partner',
-                            string="Sales Person",
-                            domain="[('is_sale', '=', True)]")
     ratecode_id = fields.Many2one('rate.code',"Rate Code", track_visibility=True)
     blacklist = fields.Boolean(default=False, track_visibility=True)
     message = fields.Text(string="Message", track_visibility=True)
@@ -357,12 +413,24 @@ class Partner(models.Model):
     fb_revenue = fields.Float(string="F&B Revenue")
     ms_revenue = fields.Float(string="MS Revenue")
     allotment_id = fields.Char(striing="Allotment")
-    passport_image = fields.Binary(related='passport_id.image1', store=True)
+    image_1920 = fields.Binary(attachment=True)
+    passport_image = fields.Binary(store=True, attachment=True, compute='_compute_passport_image')
     
     def _compute_is_guest_exists(self):
         self.is_guest_exists = True
 
-    @api.depends('is_company','is_sale','is_guest','is_group','is_person')
+    def _get_image(self):
+        if self.passport_image:
+            self.image_1920= self.passport_image
+
+    def _compute_passport_image(self):
+        passports = self.passport_id
+        # pimage = None
+        for rec in passports:
+            if (rec.active is True):
+                self.passport_image = rec.image1
+
+    @api.depends('is_company','is_guest','is_group','is_person')
     def _compute_company_type(self):
         for partner in self:
             if partner.is_company or self._context.get(
@@ -377,23 +445,19 @@ class Partner(models.Model):
                     'default_company_type') == 'group':
                 partner.company_type = 'group'
                 partner.is_group = True
-            elif partner.is_sale or self._context.get(
-                    'default_company_type') == 'sales':
-                partner.company_type = 'sales'
-                partner.is_sale = True
             elif partner.is_person or self._context.get(
                     'default_company_type') == 'person':
                 partner.company_type = 'person'
                 partner.is_person = True
             # else:
             #     partner.company_type = 'person'
+            #     partner.is_person = True
 
     def _write_company_type(self):
         for partner in self:
             partner.is_company = partner.company_type == 'company'
             partner.is_guest = partner.company_type == 'guest'
             partner.is_group = partner.company_type == 'group'
-            partner.is_sale = partner.company_type == 'sales'
             partner.is_person = partner.company_type == 'person'
     
     @api.onchange('company_type')
@@ -402,32 +466,22 @@ class Partner(models.Model):
             self.is_company = True
             self.is_person = False
             self.is_guest = False
-            self.is_sale = False
-            self.is_group = False
-        elif self.company_type == 'person':
-            self.is_company = False
-            self.is_person = True
-            self.is_guest = False
-            self.is_sale = False
             self.is_group = False
         elif self.company_type == 'guest':
             self.is_company = False
             self.is_person = False
             self.is_guest = True
-            self.is_sale = False
-            self.is_group = False
-        elif self.company_type == 'sales':
-            self.is_company = False
-            self.is_person = False
-            self.is_contact = False
-            self.is_sale = True
             self.is_group = False
         elif self.company_type == 'group':
             self.is_company = False
             self.is_person = False
-            self.is_contact = False
-            self.is_sale = False
+            self.is_guest = False
             self.is_group = True
+        elif self.company_type=='person':
+            self.is_company = False
+            self.is_person = True
+            self.is_guest = False
+            self.is_group = False
 
     @api.onchange('first_name', 'middle_name', 'last_name')
     def onchange_name(self):
@@ -443,103 +497,117 @@ class Partner(models.Model):
                 lastname = record.last_name
             record.name = firstname + middlename + lastname
 
+    # @api.onchange('group_code')
+    # def onchange_name(self):
+    #     group_code = ""
+    #     for record in self:
+    #         if record.group_code:
+    #             group_code = record.group_code
+    #         record.name=group_code
+
+    # Profile No Generated
+    def generate_profile_no(self,company_type,property_id,crm_type):
+        pf_no = ''
+
+        if company_type == 'guest':
+            if self.env.user.company_id.profile_id_format:
+                format_ids = self.env['pms.format.detail'].search(
+                [('format_id', '=', self.env.user.company_id.profile_id_format.id)],
+                order='position_order asc')
+            val = []
+            for ft in format_ids:
+                if ft.value_type == 'fix':
+                        val.append(ft.fix_value)
+                if ft.value_type == 'digit':
+                    sequent_ids = self.env['ir.sequence'].search([
+                        ('code', '=', self.env.user.company_id.profile_id_format.code)
+                    ])
+                    sequent_ids.write({'padding': ft.digit_value})
+                if ft.value_type == 'datetime':
+                    mon = yrs = ''
+                    if ft.datetime_value == 'MM':
+                        mon = datetime.today().month
+                        val.append(mon)
+                    if ft.datetime_value == 'MMM':
+                        mon = datetime.today().strftime('%b')
+                        val.append(mon)
+                    if ft.datetime_value == 'YY':
+                        yrs = datetime.today().strftime("%y")
+                        val.append(yrs)
+                    if ft.datetime_value == 'YYYY':
+                        yrs = datetime.today().strftime("%Y")
+                        val.append(yrs)
+            space = []
+            p_no_pre = ''
+            if len(val) > 0:
+                for l in range(len(val)):
+                    p_no_pre += str(val[l])
+            p_no = ''
+            p_no += self.env['ir.sequence'].\
+                    next_by_code('guest.format') or 'New'
+                    # next_by_code(self.env.user.company_id.profile_id_format.code) or 'New'
+            pf_no = p_no_pre + p_no
+
+        elif company_type == 'company':
+            if self.env.user.company_id.cprofile_id_format:
+                format_ids = self.env['pms.format.detail'].search(
+                [('format_id', '=', self.env.user.company_id.cprofile_id_format.id)],
+                order='position_order asc')
+            val = []
+            for ft in format_ids:
+                if ft.value_type == 'dynamic':
+                    if crm_type.code and ft.dynamic_value == 'company type code':
+                        val.append(crm_type.code)
+                if ft.value_type == 'fix':
+                        val.append(ft.fix_value)
+                if ft.value_type == 'digit':
+                    sequent_ids = self.env['ir.sequence'].search([
+                        ('code', '=',crm_type.code)
+                    ])
+                    sequent_ids.write({'padding': ft.digit_value})
+                if ft.value_type == 'datetime':
+                    mon = yrs = ''
+                    if ft.datetime_value == 'MM':
+                        mon = datetime.today().month
+                        val.append(mon)
+                    if ft.datetime_value == 'MMM':
+                        mon = datetime.today().strftime('%b')
+                        val.append(mon)
+                    if ft.datetime_value == 'YY':
+                        yrs = datetime.today().strftime("%y")
+                        val.append(yrs)
+                    if ft.datetime_value == 'YYYY':
+                        yrs = datetime.today().strftime("%Y")
+                        val.append(yrs)
+            space = []
+            p_no_pre = ''
+            if len(val) > 0:
+                for l in range(len(val)):
+                    p_no_pre += str(val[l])
+            p_no = ''
+            p_no += self.env['ir.sequence'].\
+                    next_by_code(crm_type.code) or 'New'
+            pf_no = p_no_pre + p_no
+
+        return pf_no
+
+    # Create Function
     @api.model
     def create(self, values):
-        
-        company_type= values['company_type'] # or values.get('company_type')
+
+        values['is_from_hms'] = True
+        company_type= values.get('company_type') 
         property_id = values.get('property_id')
-        _logger.info(property_id)
         property_id = self.env['property.property'].search(
             [('id', '=', property_id)])
+        crm_type = values.get('company_channel_type')
+        crm_type = self.env['hms.company.category'].search(
+            [('id', '=', crm_type)])
         
-        if property_id:
-            if company_type == 'company':
-                if property_id.cprofile_id_format:
-                    format_ids = self.env['pms.format.detail'].search(
-                    [('format_id', '=', property_id.cprofile_id_format.id)],
-                    order='position_order asc')
-                val = []
-                for ft in format_ids:
-                    if ft.value_type == 'dynamic':
-                        if property_id.code and ft.dynamic_value == 'property code':
-                            val.append(property_id.code)
-                    if ft.value_type == 'fix':
-                            val.append(ft.fix_value)
-                    if ft.value_type == 'digit':
-                        sequent_ids = self.env['ir.sequence'].search([
-                            ('code', '=', property_id.cprofile_id_format.code)
-                        ])
-                        sequent_ids.write({'padding': ft.digit_value})
-                    if ft.value_type == 'datetime':
-                        mon = yrs = ''
-                        if ft.datetime_value == 'MM':
-                            mon = datetime.today().month
-                            val.append(mon)
-                        if ft.datetime_value == 'MMM':
-                            mon = datetime.today().strftime('%b')
-                            val.append(mon)
-                        if ft.datetime_value == 'YY':
-                            yrs = datetime.today().strftime("%y")
-                            val.append(yrs)
-                        if ft.datetime_value == 'YYYY':
-                            yrs = datetime.today().strftime("%Y")
-                            val.append(yrs)
-                space = []
-                p_no_pre = ''
-                if len(val) > 0:
-                    for l in range(len(val)):
-                        p_no_pre += str(val[l])
-                p_no = ''
-                p_no += self.env['ir.sequence'].\
-                        next_by_code(property_id.cprofile_id_format.code) or 'New'
-                pf_no = p_no_pre + p_no
-
-                values.update({'profile_no':pf_no})
-
-            elif company_type == 'guest':
-                if property_id.profile_id_format:
-                    format_ids = self.env['pms.format.detail'].search(
-                    [('format_id', '=', property_id.profile_id_format.id)],
-                    order='position_order asc')
-                val = []
-                for ft in format_ids:
-                    if ft.value_type == 'dynamic':
-                        if property_id.code and ft.dynamic_value == 'property code':
-                            val.append(property_id.code)
-                    if ft.value_type == 'fix':
-                            val.append(ft.fix_value)
-                    if ft.value_type == 'digit':
-                        sequent_ids = self.env['ir.sequence'].search([
-                            ('code', '=', property_id.profile_id_format.code)
-                        ])
-                        sequent_ids.write({'padding': ft.digit_value})
-                    if ft.value_type == 'datetime':
-                        mon = yrs = ''
-                        if ft.datetime_value == 'MM':
-                            mon = datetime.today().month
-                            val.append(mon)
-                        if ft.datetime_value == 'MMM':
-                            mon = datetime.today().strftime('%b')
-                            val.append(mon)
-                        if ft.datetime_value == 'YY':
-                            yrs = datetime.today().strftime("%y")
-                            val.append(yrs)
-                        if ft.datetime_value == 'YYYY':
-                            yrs = datetime.today().strftime("%Y")
-                            val.append(yrs)
-                space = []
-                p_no_pre = ''
-                if len(val) > 0:
-                    for l in range(len(val)):
-                        p_no_pre += str(val[l])
-                p_no = ''
-                p_no += self.env['ir.sequence'].\
-                        next_by_code(property_id.profile_id_format.code) or 'New'
-                pf_no = p_no_pre + p_no
-
-                values.update({'profile_no':pf_no})
-
-            elif company_type == 'group':
+        pf_no = self.generate_profile_no(company_type,property_id,crm_type) 
+        
+        if company_type == 'group':
+            if property_id:
                 if property_id.gprofile_id_format:
                     format_ids = self.env['pms.format.detail'].search(
                     [('format_id', '=', property_id.gprofile_id_format.id)],
@@ -553,7 +621,7 @@ class Partner(models.Model):
                             val.append(ft.fix_value)
                     if ft.value_type == 'digit':
                         sequent_ids = self.env['ir.sequence'].search([
-                            ('code', '=', property_id.gprofile_id_format.code)
+                            ('code', '=',property_id.code+property_id.gprofile_id_format.code)
                         ])
                         sequent_ids.write({'padding': ft.digit_value})
                     if ft.value_type == 'datetime':
@@ -577,11 +645,63 @@ class Partner(models.Model):
                         p_no_pre += str(val[l])
                 p_no = ''
                 p_no += self.env['ir.sequence'].\
-                        next_by_code(property_id.gprofile_id_format.code) or 'New'
+                        next_by_code(property_id.code+property_id.gprofile_id_format.code) or 'New'
                 pf_no = p_no_pre + p_no
-
                 values.update({'profile_no':pf_no})
-        return super(Partner,self).create(values)
+
+            else:
+                raise ValidationError("Select Property or Create Property First!")
+
+
+        values.update({'profile_no':pf_no})
+
+        company_objs = self.env['res.company']
+        res = super(Partner,self).create(values)
+        _logger.info(res)
+        if crm_type.type == 'agent':
+            company_objs=self.env['res.company'].create({
+            'name': res.name,
+            'street': res.street,
+            'street2': res.street2,
+            'zip': res.zip,
+            'city': res.city,
+            'state_id': res.state_id,
+            'bank_ids' : res.bank_ids,
+            'email' : res.email,
+            'phone' : res.phone,
+            })
+
+            company_objs.partner_id.active=False
+            
+        user_objs = self.env['res.users']
+        if company_type == 'person':
+            
+            self.env['res.users'].create({
+            'login': res.name,
+            'name': res.name,
+            'email' : res.email,
+            # 'company_id' : res.company_id,
+            'partner_id' : res.id,
+            })
+            # user_objs.partner_id.active=False
+
+
+        return res
+
+
+    # write function
+    def write(self,values):
+        res = super(Partner,self).write(values)
+        _logger.info(res)
+        if 'company_type' in values.keys():
+            company_type = values.get('company_type')
+            property_id = self.property_id
+            pf_no = self.generate_profile_no(company_type,property_id)
+            if pf_no:
+                #values.update({'profile_no':pf_no})
+                self.profile_no = pf_no
+            _logger.info(company_type)
+        return res
 
 # class HMSCurrency(models.Model):
 #     _name = "hms.currency"

@@ -12,7 +12,7 @@ class PmsFormat(models.Model):
     _order = "name"
 
     name = fields.Char("Name", required=True)
-    code = fields.Char("Code", required=True)
+    code = fields.Char("Code")
     sample = fields.Char("Sample",
                          compute='get_sample_format',
                          store=True,
@@ -58,16 +58,22 @@ class PmsFormat(models.Model):
                 pt.active = self.active
         super(PmsFormat, self).toggle_active()
 
-    @api.model
-    def create(self, values):
-        # _logger.info(values)
-        format_id = self.search([('name', '=', values['name'])])
-        if format_id:
-            raise UserError(_("%s is already existed" % values['name']))
-        res = super(PmsFormat, self).create(values)
-        padding = res.format_line_id.filtered(lambda x: x.value_type=="digit")
-        self.env['ir.sequence'].create({'name':res.code,'code':res.code,'padding':padding.digit_value})
-        return res
+    # @api.model
+    # def create(self, values):
+    #     # _logger.info(values)
+    #     format_id = self.search([('name', '=', values['name'])])
+    #     if format_id:
+    #         raise UserError(_("%s is already existed" % values['name']))
+    #     res = super(PmsFormat, self).create(values)
+    #     padding = res.format_line_id.filtered(lambda x: x.value_type=="digit")
+    #     self.env['ir.sequence'].create({
+    #         'name':res.code,
+    #         'code':res.code,
+    #         'padding':padding.digit_value,
+    #         'company_id':False,
+    #         'use_date_range': True,
+    #         })
+    #     return res
 
     # @api.model
     # def create(self, values):
@@ -88,12 +94,21 @@ class PmsFormat(models.Model):
         # return super(PmsFormat, self).create(values)
 
     # def write(self, vals):
-    #     format_id = None
+    #     sample_id = None
     #     if 'name' in vals:
     #         sample_id = self.search([('name', '=', vals['name'])])
     #         if sample_id:
     #             raise UserError(_("%s is already existed" % vals['name']))
     #     return super(PmsFormat, self).write(vals)
+    
+
+    # def unlink(self):
+    #     sequence_objs = self.env['ir.sequence']
+    #     for rec in self:
+    #         sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code)])
+    #     sequence_objs.unlink()
+    #     res = super(PmsFormat,self).unlink()
+    #     return res
 
 class PmsFormatDetail(models.Model):
     _name = "pms.format.detail"
@@ -133,6 +148,7 @@ class PmsFormatDetail(models.Model):
     digit_value = fields.Integer("Digit Value", store=True)
     dynamic_value = fields.Selection([('unit code', 'unit code'),
                                       ('property code', 'property code'),
+                                      ('company type code','company type code'),
                                       ('pos code', 'pos code'),
                                       ('floor code', 'floor code'),
                                       ('floor ref code', 'floor ref code')],

@@ -95,7 +95,7 @@
             </group>
             <notebook colspan="5">
               <page string='Contact Information' autofocus="autofocus">
-                <field name="contact_ids" context="{'default_company_type' : 'sales'}" mode="kanban"/>
+                <field name="contact_ids" context="{'default_company_type' : 'preson','default_is_from_hms':True }" mode="kanban"/>
               </page>
               <page string='Buildings (or) Zone'>
                 <div><field name="building_ids"/></div>
@@ -192,7 +192,7 @@
       <field name="name">property.view.kanban</field>
       <field name="model">property.property</field>
       <field name="arch" type="xml">
-        <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" create="0">
+        <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban">
           <field name="id"/>
           <field name="logo"/>
           <field name="hotelgroup_id"/>

@@ -173,13 +173,12 @@ class Reservation(models.Model):
         if startdate and enddate and startdate > enddate:
             raise ValidationError("Departure Date cannot be set before Arrival Date.")
 
+    
     @api.model
     def create(self, values):
-        
         property_id = values.get('property_id')
         property_id = self.env['property.property'].search(
             [('id', '=', property_id)])
-        
         if property_id:
             if property_id.confirm_id_format:
                 format_ids = self.env['pms.format.detail'].search(
@@ -188,8 +187,8 @@ class Reservation(models.Model):
             val = []
             for ft in format_ids:
                 if ft.value_type == 'dynamic':
-                    if property_id.code and ft.dynamic_value == 'property code':
-                        val.append(property_id.code)
+                    if property_id.code and ft.dynamic_value == 'company code':
+                        val.append(self.env.user.company_id.code)
                 if ft.value_type == 'fix':
                         val.append(ft.fix_value)
                 if ft.value_type == 'digit':
@@ -217,7 +216,7 @@ class Reservation(models.Model):
                 for l in range(len(val)):
                     p_no_pre += str(val[l])
             p_no = ''
-            p_no += self.env['ir.sequence'].\
+            p_no += self.sudo().env['ir.sequence'].sudo().\
                     next_by_code(property_id.confirm_id_format.code) or 'New'
             pf_no = p_no_pre + p_no
 
