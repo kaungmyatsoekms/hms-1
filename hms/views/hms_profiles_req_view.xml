@@ -142,6 +142,8 @@
                                 <field name="passport"/>
                                     <field name="issue_date" />
                                     <field name="expire_date"/>
+                                    <field name="country_id"/>
+                                    <field name="nationality"/>
                                     <field name="note" string="Notes" placeholder="Internal Notes..."/>
                             </group>
                             <group>

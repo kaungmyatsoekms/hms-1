@@ -9,6 +9,7 @@ import datetime
 
 class HMSAllotment(models.Model):
     _name = "hms.allotment"
+    _inherit = ['mail.thread']
     _description = "Allotment"
     _order = "name"
 
@@ -28,6 +29,7 @@ class HMSAllotment(models.Model):
 
 class HMSAllotmentLine(models.Model):
     _name = 'hms.allotment.line'
+    _inherit = ['mail.thread']
     _description = "Allotment Line"
 
     allotment_id = fields.Many2one("hms.allotment",
@@ -63,7 +65,7 @@ class HMSAllotmentLine(models.Model):
                             readonly=True,
                             copy=False,
                             store=True,
-                            default='initial',
+                             default=lambda *a: 'initial',
                             track_visibility=True)
     
 

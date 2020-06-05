@@ -119,6 +119,8 @@ class Passport(models.Model):
     passport = fields.Char(string="Passport", required=True)
     issue_date = fields.Date(string="Issue Date", required=True)
     expire_date = fields.Date(string="Expired Date")
+    country_id = fields.Many2one('res.country',string="Country")
+    nationality = fields.Many2one('hms.nationality',string="Nationality")
     #image1 = fields.Many2many('ir.attachment', string="Image")
     image1 = fields.Binary(string="Photo 1", attachemtn=True, store=True)
     image2 = fields.Binary(string="Photo 2", attachemtn=True, store=True)
@@ -147,6 +149,13 @@ class Passport(models.Model):
         expire_date = self.expire_date
         if issue_date and expire_date and issue_date > expire_date:
             raise ValidationError("End Date cannot be set before Start Date.")
+
+    @api.onchange('country_id')
+    def _change_default_nationality(self):
+        for record in self:
+            if record.country_id:
+                _logger.info(record.country_id)
+                record.nationality = self.env['hms.nationality'].search([('code', '=', record.country_id.code)]).id
                        
 class Contract(models.Model):
     _name = "hms.contract"
@@ -267,16 +276,16 @@ class Company(models.Model):
     _sql_constraints = [('name_unique', 'unique(name)',
                          'Your name is exiting in the database.')]
 
-    # def _get_company_address_fields(self, partner):
-    #     return {
-    #         'street': partner.street,
-    #         'street2': partner.street2,
-    #         'township': partner.township,
-    #         'city_id': partner.city_id,
-    #         'zip': partner.zip,
-    #         'state_id': partner.state_id,
-    #         'country_id': partner.country_id,
-    #     }
+    def _get_company_address_fields(self, partner):
+        return {
+            'street': partner.street,
+            'street2': partner.street2,
+            'township': partner.township,
+            'city_id': partner.city_id,
+            'zip': partner.zip,
+            'state_id': partner.state_id,
+            'country_id': partner.country_id,
+        }
 
     def _inverse_township(self):
         for company in self:
@@ -354,7 +363,7 @@ class Partner(models.Model):
                 ('company', 'Company')],
         compute='_compute_company_type',
         inverse='_write_company_type',
-        track_visibility=True,)
+        track_visibility=True)
         # New Field
     dob = fields.Date('Date of Birth')
     child_ids = fields.One2many('res.partner',
@@ -483,11 +492,12 @@ class Partner(models.Model):
             self.is_guest = False
             self.is_group = False
 
-    @api.onchange('first_name', 'middle_name', 'last_name')
+    @api.onchange('first_name', 'middle_name', 'last_name','group_code')
     def onchange_name(self):
         firstname = ""
         middlename = ""
         lastname = ""
+        group_code = ""
         for record in self:
             if record.first_name:
                 firstname = record.first_name + ' '
@@ -495,7 +505,9 @@ class Partner(models.Model):
                 middlename = record.middle_name + ' '
             if record.last_name:
                 lastname = record.last_name
-            record.name = firstname + middlename + lastname
+            if record.group_code:
+                group_code = record.group_code
+            record.name = firstname + middlename + lastname + group_code
 
     # @api.onchange('group_code')
     # def onchange_name(self):
@@ -703,18 +715,18 @@ class Partner(models.Model):
             _logger.info(company_type)
         return res
 
-# class HMSCurrency(models.Model):
-#     _name = "hms.currency"
-#     _description = "Currency"
+class HMSCurrency(models.Model):
+    _name = "hms.currency"
+    _description = "Currency"
 
-#     name = fields.Char("Name", required=True, track_visibility=True)
-#     symbol = fields.Char("Symbol", required=True, track_visibility=True)
-#     status = fields.Boolean("Active", track_visibility=True)
+    name = fields.Char("Name", required=True, track_visibility=True)
+    symbol = fields.Char("Symbol", required=True, track_visibility=True)
+    status = fields.Boolean("Active", track_visibility=True)
 
-#     def action_status(self):
-#         for record in self:
-#             if record.status is True:
-#                 record.status = False
-#             else:
-#                 record.status = True
+    def action_status(self):
+        for record in self:
+            if record.status is True:
+                record.status = False
+            else:
+                record.status = True
 

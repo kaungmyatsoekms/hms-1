@@ -139,13 +139,13 @@
 
      <menuitem  id="sub_format_detail_menu" 
       name="Format Detail" 
-      parent="hms_menu_config"
+      parent="hms_menu_setting"
       action="action_format_detail_all"
-      sequence="40"/>
+      sequence="99"/>
      <menuitem  id="sub_rule_menu_root" 
       name="Format" 
-      parent="hms_menu_config"
+      parent="hms_menu_setting"
       action="action_format_all"
-      sequence="50"/>
+      sequence="98"/>
   </data>
 </odoo>

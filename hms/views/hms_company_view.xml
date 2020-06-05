@@ -40,10 +40,11 @@
                       <field name="location_code_len"/>
                       <field name="roomtype_code_len"/>
                       <br/>
-                      <field name="confirm_id_format" widget="selection"/>
                       <field name="profile_id_format" widget="selection"/>
                       <field name="cprofile_id_format" widget="selection"/>
                       <field name="gprofile_id_format" widget="selection"/>
+                      <field name="confirm_id_format" widget="selection"/>
+                      <!-- <field name="cancellation_id_format" widget="selection"/> -->
                   </group>
                   <group name="social_media"/>
               </group>

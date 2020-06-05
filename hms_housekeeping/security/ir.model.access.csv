@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hms_housekeeping,hms.housekeeping,model_hms_housekeeping,base.group_user,1,1,1,1
+access_hms_housekeeping_activities,hms.housekeeping.activities,model_hms_housekeeping_activities,base.group_user,1,1,1,1
+access_hms_housekeeping_activity_type,hms.housekeeping.activity.type,model_hms_housekeeping_activity_type,base.group_user,1,1,1,1
+access_hms_activity,hms.activity,model_hms_activity,base.group_user,1,1,1,1

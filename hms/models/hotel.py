@@ -66,7 +66,7 @@ class Property(models.Model):
                 ('currency_id', '=', self.currency_id.id)
             ])
         else:
-            country_id = self.env['res.country'].search([('code', '=', "MM")])
+            country_id = self.env['res.country'].search([('code', '=', "MMR")])
         return country_id
 
     is_property = fields.Boolean(string ='Is Property', compute='_compute_is_property')
@@ -131,7 +131,7 @@ class Property(models.Model):
     specialday_ids = fields.One2many('special.day', 'property_id', string="Special Days")
     weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
     ratecode_ids = fields.One2many('rate.code','property_id', string="Rate Code")
-    allotment_ids = fields.One2many('hms.allotment','property_id', string="Allotment")
+    allotment_ids = fields.One2many('hms.allotment.line','property_id', string="Allotment")
 
     property_code_len = fields.Integer(
         "Property Code Length",
@@ -160,6 +160,16 @@ class Property(models.Model):
                                   track_visibility=True,
                                   default=lambda self: self.env.user.company_id
                                   .confirm_id_format.id)
+    # cancellation_id_format = fields.Many2one("pms.format",
+    #                               "Cancellation ID Format",
+    #                               track_visibility=True,
+    #                               default=lambda self: self.env.user.company_id
+    #                               .cancellation_id_format.id)
+    # share_id_format = fields.Many2one("pms.format",
+    #                               "Share No Format",
+    #                               track_visibility=True,
+    #                               default=lambda self: self.env.user.company_id
+    #                               .share_id_format.id)
     cprofile_id_format = fields.Many2one("pms.format",
                                   "Company Profile ID Format",
                                   track_visibility=True,
@@ -256,6 +266,28 @@ class Property(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         context = {
             'default_type': 'out_specialday',
+        }
+        return action
+
+    def action_allotment(self):
+        allotments = self.mapped('allotment_ids')
+        action = self.env.ref('hms.action_allotment_detail_all').read()[0]
+        if len(allotments) >= 1:
+            action['domain'] = [('id', 'in', allotments.ids)]
+        elif len(allotments) == 0:
+            form_view = [(self.env.ref('hms.view_allotment_line_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = allotments.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_allotment',
         }
         return action
 
@@ -468,26 +500,6 @@ class Property(models.Model):
         res = super(Property,self).unlink()
         return res
 
-
-# class Contact(models.Model):
-#     _name = "contact.contact"
-#     _description = "Contact"
-
-#     name = fields.Char(string='Contact Person', required=True)
-#     email = fields.Char(string='Email')
-#     title = fields.Many2one('res.partner.title')
-#     phone = fields.Char(string='Phone')
-#     position = fields.Char(string='Job Position')
-#     image = fields.Binary(string='Image', attachment=True, store=True)
-
-#     @api.model
-#     def _get_default_image(self, colorize=False):
-#         image = image_colorize(
-#             open(
-#                 odoo.modules.get_module_resource('base', 'static/src/img',
-#                                                  'avatar_grey/png')).read())
-#         return image_resize_image_big(image.encode('base64'))
-
 class Building(models.Model):
     _name = "building.building"
     _description = "Building"
@@ -616,11 +628,12 @@ class RoomLocation(models.Model):
 class RoomType(models.Model):
     _name = "room.type"
     _description = "Room Type"
+    _rec_name = "code"
 
     code = fields.Char(string='Code', size=50, required=True)
     name = fields.Char(string='Room Type', required=True)
     ratecode_id = fields.Char(string='Rate Code')
-    totalroom = fields.Integer(string='Total Rooms')
+    totalroom = fields.Integer(string='Total Rooms',compute='compute_totalroom')
     image = fields.Binary(string='Image', attachment=True, store=True)
     roomtype_desc = fields.Text(string='Description')
 
@@ -649,6 +662,18 @@ class RoomType(models.Model):
                     raise UserError(
                         _("Room Type Code Length must not exceed %s characters." %
                         (record.env.user.company_id.roomtype_code_len)))
+
+    # Compute Total Room with Room Type
+    def compute_totalroom(self):
+        for rec in self:
+            property_id = self._context.get('property_id')
+            if property_id:
+                property_obj = self.env['property.property'].search([('id','=',property_id)])
+                room_objs_per_type = property_obj.propertyroom_ids.filtered(lambda x: x.roomtype_id.id==rec.id)
+                room_count = len(room_objs_per_type)
+            else:
+                room_count = 0
+            rec.totalroom = room_count
 
 class RoomView(models.Model):
     _name = "room.view"
@@ -747,6 +772,14 @@ class PropertyRoom(models.Model):
         ('room_no_unique', 'UNIQUE(property_id, room_no)',
          'Room number already exists! Room number must be unique!')
     ]
+
+    @api.model
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.room_no,
+                                                       record.roomtype_id.code)))
+        return result
 
     # Room location link with Building
     @api.onchange('building_id')
@@ -1135,6 +1168,7 @@ class TransactionRoot(models.Model):
 class RsvnType(models.Model):
     _name = "rsvn.type"
     _description = "Reservation Type"
+    _rec_name = "rsvn_name"
 
     rsvn_name = fields.Char(string="Reservation Type", size=30, required=True)
     rsvn_options = fields.Selection([
@@ -1150,6 +1184,12 @@ class RsvnStatus(models.Model):
 
     rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
     rsvn_status = fields.Char(string="Description", required=True)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.rsvn_code, record.rsvn_status)))
+        return result
 
 #Credit Limit
 class CreditLimit(models.Model):

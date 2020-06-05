@@ -2,10 +2,14 @@
   <data>
 
     <!-- Top menu item -->
-    <menuitem id="hotel_menu_root" name="HMS-System" sequence="5"/>
+    <menuitem id="hotel_menu_root" 
+      web_icon="HMS,static/description/icon.png" 
+      name="HMS-System" 
+      sequence="5"/>
 
     <!-- menu categories -->
-    <menuitem id="hotel_menu_hms" name="Property Configuration" parent="hotel_menu_root" sequence="1"/> 
+    <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> 
+    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
       
@@ -23,6 +27,7 @@
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
+            <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
         </header>
@@ -95,14 +100,20 @@
             </group>
             <notebook colspan="5">
               <page string='Contact Information' autofocus="autofocus">
-                <field name="contact_ids" context="{'default_company_type' : 'preson','default_is_from_hms':True }" mode="kanban"/>
+                <!-- <field name="contact_ids" context="{'default_company_type' : 'preson','default_is_from_hms':True }" mode="kanban"/> -->
+                <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/>
               </page>
               <page string='Buildings (or) Zone'>
                 <div><field name="building_ids"/></div>
               </page> 
               <page string='Room Type'>
                 <h2> Room Type</h2>
-                <field name="roomtype_ids"/> 
+                <field name="roomtype_ids" context="{'property_id':active_id}"> 
+                  <tree>
+                    <field name="name"/>
+                    <field name="totalroom"/>
+                  </tree>
+                </field>
               </page>
                <page string='Market Segment'>
                 <h2>Market Segment</h2>
@@ -118,9 +129,6 @@
                     <field name="propertyroom_ids" context="{'default_property_id' : id}"/>
                   </div>
                 </group> 
-              </page>
-              <page string="Allotment">
-                <field name="allotment_ids" context="{'default_property_id' : id}"/>
               </page>
               <page string='Hotel License'>
                 <field name="roomqty"/>
@@ -141,10 +149,11 @@
                     <field name="extend_count"/>
                   </group> -->
                   <group string="Format Definition">
-                    <field name="confirm_id_format" widget="selection"/>
                     <field name="profile_id_format" widget="selection"/>
                     <field name="cprofile_id_format" widget="selection"/>
                     <field name="gprofile_id_format" widget="selection"/>
+                    <field name="confirm_id_format" widget="selection"/>
+                    <!-- <field name="cancellation_id_format" widget="selection"/> -->
                   </group>
                   <!-- <group string="Define Rent Schedule Type">
                     <field name="rentschedule_type"/>
@@ -362,7 +371,7 @@
               </group>
                 <notebook>
                 <page string="Room Location">
-                  <field name="location_ids" widget="many2many">
+                  <field name="location_ids">
                   </field>
                 </page>
               </notebook>
@@ -379,7 +388,8 @@
       <field name="arch" type="xml">
         <tree string="Building">
           <field name="building_name"/>
-          <field name="building_type" optional="hide"/>
+          <field name="building_type"/>
+          <field name="location_ids"/>
           <field name="building_location" optional="hide"/>
         </tree>
       </field>

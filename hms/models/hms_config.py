@@ -210,6 +210,16 @@ class Company(models.Model):
     def _default_confirm_id_format(self):
         if not self.confirm_id_format:
             return self.env.ref('base.main_company').confirm_id_format
+            
+    # Cancellation ID Format
+    # def _default_cancellation_id_format(self):
+    #     if not self.cancellation_id_format:
+    #         return self.env.ref('base.main_company').cancellation_id_format
+    
+    # Share No Format
+    # def _default_share_id_format(self):
+    #     if not self.share_id_format:
+    #         return self.env.ref('base.main_company').share_id_format
 
 
     property_code_len = fields.Integer("Property Code Length",
@@ -240,7 +250,15 @@ class Company(models.Model):
                                     'Group Profile ID Format',
                                     default=_default_gprofile_id_format,
                                     track_visibility=True)
-
+    # cancellation_id_format = fields.Many2one('pms.format',
+    #                                 'Cancellation ID Format',
+    #                                 default=_default_cancellation_id_format,
+    #                                 track_visibility=True)
+    # share_id_format = fields.Many2one('pms.format',
+    #                                 'Share No Format',
+    #                                 default=_default_share_id_format,
+    #                                 track_visibility=True)
+        
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -277,6 +295,14 @@ class ResConfigSettings(models.TransientModel):
                                     'Group Profile ID Format',
                                     related="company_id.gprofile_id_format",
                                     track_visibility=True)
+    # cancellation_id_format = fields.Many2one('pms.format',
+    #                                 'Cancellation No Format',
+    #                                 related="company_id.cancellation_id_format",
+    #                                 track_visibility=True)
+    # share_id_format = fields.Many2one('pms.format',
+    #                                 'Share No Format',
+    #                                 related="company_id.share_id_format",
+    #                                 track_visibility=True)
 
     
     @api.onchange('property_code_len')
@@ -318,6 +344,16 @@ class ResConfigSettings(models.TransientModel):
     def onchange_gprofile_id_format(self):
         if self.gprofile_id_format:
             self.company_id.gprofile_id_format = self.gprofile_id_format
+
+    # @api.onchange('cancellation_id_format')
+    # def onchange_cancellation_id_format(self):
+    #     if self.cancellation_id_format:
+    #         self.company_id.cancellation_id_format = self.cancellation_id_format
+
+    # @api.onchange('share_id_format')
+    # def onchange_share_id_format(self):
+    #     if self.share_id_format:
+    #         self.company_id.share_id_format = self.share_id_format
 
     
 
