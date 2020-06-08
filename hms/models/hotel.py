@@ -93,8 +93,7 @@ class Property(models.Model):
                                   "Currency",
                                   default=default_get_curency,
                                   readonly=False,
-                                  track_visibility=True,
-                                  domain="[('country_id', '=?', country_id)]")
+                                  track_visibility=True)
     country_id = fields.Many2one('res.country', string='Country', readonly=False, requried=True, track_visibility=True, ondelete='restrict')
     phone = fields.Char(string='Phone')
     fax = fields.Char(string='Fax')
@@ -106,7 +105,6 @@ class Property(models.Model):
     rating = fields.Selection(AVAILABLE_STARS, string='Rating', index=True, default=AVAILABLE_STARS[0][0])
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
-    # contact_ids = fields.Many2many('contact.contact')
     contact_ids = fields.Many2many('res.partner',
                             'property_property_contact_rel',
                             'property_id',
@@ -115,7 +113,6 @@ class Property(models.Model):
                             track_visibility=True,
                             domain="[('is_person', '=', True)]")
     bankinfo_ids = fields.One2many('res.bank','property_id', string="Bank Info")
-    # bankinfo_ids = fields.Many2one('res.bank', "Bank Information")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
     building_ids = fields.Many2many('building.building')
@@ -183,7 +180,6 @@ class Property(models.Model):
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
-
 
     @api.onchange('currency_id')
     def onchange_currency_id(self):

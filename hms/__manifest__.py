@@ -18,7 +18,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','mail'],
+    'depends': ['base', 'contacts', 'uom', 'account', 'mail','point_of_sale','web'],
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web'],
     # always loaded
     'data': [
@@ -53,6 +53,7 @@
         'views/hms_allotment_view.xml',
         'views/hms_reservation_view.xml',
         'data/hms.reasontype.csv',
+        'wizard/hms_confirm_wizard_view.xml',
         # 'data/hms.reason.csv',
         #'views/views.xml',
         #'views/templates.xml',

@@ -1,10 +1,13 @@
+import base64
+import logging
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
-import base64
 from datetime import datetime, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
+_logger = logging.getLogger(__name__)
+
 
 class HMSReason(models.Model):
     _name = "hms.reason"
@@ -44,7 +47,6 @@ class Reservation(models.Model):
     _name = 'hms.reservation'
     _description = "Reservation"
     _order = 'confirm_no desc'
-    _rec_name ='confirm_no'
     _inherit = ['mail.thread']
 
     is_reservation = fields.Boolean(string="Is Reservation",
@@ -96,6 +98,15 @@ class Reservation(models.Model):
     confirm_no = fields.Char(string="Confirm Number", readonly=True)
     internal_notes = fields.Text(string="Internal Notes")
 
+    def name_get(self):
+        result = []
+        for record in self:
+            if record.guest_id:
+                result.append((record.id, "{}".format(record.guest_id.name)))
+            else:
+                result.append((record.id, "{}".format(record.group_id.name)))
+        return result
+
     def _compute_is_reservation(self):
         self.is_reservation = True
 
@@ -131,6 +142,18 @@ class Reservation(models.Model):
             val = self.env['rsvn.type'].search([('rsvn_name', '=', 'Confirmed')
                                                 ])
             self.reservation_type = val
+
+    # Change Room Nights
+    @api.onchange('reservation_line_ids')
+    def onchange_num_of_rooms(self):
+        temp = 0
+        for record in self:
+            if record.reservation_line_ids:
+                for r in record.reservation_line_ids:
+                    temp = temp + r.rooms
+                if record.no_ofrooms < temp:
+                    record.no_ofrooms = temp
+                    # record.reservation_line_ids.rooms = 1
 
     @api.onchange('reservation_type')
     def onchange_state(self):
@@ -169,35 +192,43 @@ class Reservation(models.Model):
     # def onchange_company_type(self):
     #     self.is_company = (self.type == 'group')
 
-    @api.onchange('arrival','departure')
-    @api.constrains('arrival','departure')
-    def get_two_date_comp(self):
-        """
-        When date_order is less then check-in date or
-        Checkout date should be greater than the check-in date.
-        """
-        startdate = self.arrival
-        enddate = self.departure
-        if startdate and enddate:
-            # if startdate < self.date_order:
-            if datetime.strptime(str(startdate), DEFAULT_SERVER_DATE_FORMAT).date() < datetime.now().date():
-                self.arrival = datetime.today()
-                raise ValidationError(_('Check-in date should be greater than or equal \
-                                         the current date.'))
-            if startdate > enddate:
-                raise ValidationError(_('Check-out date should be greater \
-                                         than Check-in date.'))
+    # @api.onchange('arrival','departure')
+    # @api.constrains('arrival','departure')
+    # def get_two_date_comp(self):
+    #     """
+    #     When date_order is less then check-in date or
+    #     Checkout date should be greater than the check-in date.
+    #     """
+    #     startdate = self.arrival
+    #     enddate = self.departure
+    #     if startdate and enddate:
+    #         # if startdate < self.date_order:
+    #         if datetime.strptime(str(startdate), DEFAULT_SERVER_DATE_FORMAT).date() < datetime.now().date():
+    #             self.arrival = datetime.today()
+    #             raise ValidationError(_('Check-in date should be greater than or equal \
+    #                                      the current date.'))
+    #         if startdate > enddate:
+    #             raise ValidationError(_('Check-out date should be greater \
+    #                                      than Check-in date.'))
     
     # Change Departure Date
-    @api.onchange('arrival', 'nights')
+    @api.onchange('arrival')
     def onchange_departure_date(self):
         arrivaldate = self.arrival
         no_of_night = self.nights
         if arrivaldate and no_of_night:
-            if no_of_night == 1:
-                self.departure = arrivaldate + timedelta(days=1)
-            elif no_of_night > 1:
-                self.departure = arrivaldate + timedelta(days=no_of_night)
+            self.departure = arrivaldate+ timedelta(days=no_of_night)
+            # if no_of_night == 1:
+            #     self.departure = arrivaldate + timedelta(days=1)
+            # elif no_of_night > 1:
+            #     self.departure = arrivaldate + timedelta(days=no_of_night)
+    
+    @api.onchange('nights')
+    def onchange_dep_date(self):
+        arrivaldate = self.arrival
+        no_of_night = self.nights
+        if arrivaldate and no_of_night:
+            self.departure = arrivaldate + timedelta(days=no_of_night)
 
     # Change Room Nights
     @api.onchange('departure')
@@ -297,10 +328,6 @@ class Reservation(models.Model):
             values.update({'confirm_no':pf_no})
         return super(Reservation,self).create(values)
 
-
-
-    # Reservation Line
-
 # Reservation Line
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
@@ -313,6 +340,10 @@ class ReservationLine(models.Model):
     def get_departure(self):
         if self._context.get('departure') != False:
             return self._context.get('departure')
+    
+    def get_rooms(self):
+        if self._context.get('rooms') != False:
+            return self._context.get('rooms')
             
     is_rsvn_details = fields.Boolean(string="Is Reservation Details",
                                      compute='_compute_is_rsvn_details')
@@ -338,7 +369,7 @@ class ReservationLine(models.Model):
     eta = fields.Float("ETA", readonly=False, related='reservation_id.eta')
     etd = fields.Float("ETD", readonly=False, related='reservation_id.etd')
 
-    room_no = fields.Many2one('property.room',string="Room Number")
+    room_no = fields.Many2one('property.room',string="Room No")
     roomtype_ids = fields.Many2many('room.type', related="property_id.roomtype_ids")
     room_type = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]")
     arrival = fields.Date("Arrival",
@@ -353,7 +384,7 @@ class ReservationLine(models.Model):
                     required=True,
                     store=True,
                     track_visibility=True)
-    rooms = fields.Integer("Rooms")
+    rooms = fields.Integer("Rooms",default=get_rooms)
     pax = fields.Integer("Pax")
     child = fields.Integer("Child")
     ratecode_id = fields.Many2one('rate.code', string="Rate Code")
@@ -422,6 +453,7 @@ class ReservationLine(models.Model):
     def checkin_status(self):
         self.write({'state': 'checkin'})
 
+
     @api.onchange('id', 'rooms')
     def onchange_rsvn_rooms(self):
         for record in self:
@@ -435,5 +467,15 @@ class ReservationLine(models.Model):
                 prev_rooms = last_id.rooms
                 record.rooms = record.reservation_id.no_ofrooms - prev_rooms
 
+    def action_split(self):
+        _logger.info('self = %s',self)
+        rooms=self.rooms-1
+        if rooms:
+            super(ReservationLine,self).update({'rooms':1})
+            for rec in range(rooms):
+                self.env['hms.reservation.line'].create({
+                    'rooms' : 1,
+
+                })
 
     

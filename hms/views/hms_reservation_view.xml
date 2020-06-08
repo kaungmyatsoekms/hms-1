@@ -1,5 +1,12 @@
 <odoo>
     <data>
+        <record id="reservation_action_window" model="ir.actions.act_window">
+            <field name="name">Reservation</field>
+            <field name="res_model">hms.reservation</field>
+            <field name="view_mode">calendar,tree,form,gantt</field>
+        </record>
+
+        <!-- Reservation View Form -->
         <record id="reservation_view_form" model="ir.ui.view">
             <field name="name">reservation.view.form</field>
             <field name="model">hms.reservation</field>
@@ -7,27 +14,25 @@
                 <form name="Reservation">
                     <header>
                         <field name="is_reservation" invisible="1"/>
-                        <field name="button_hide" invisible="1"/>
-                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('is_reservation', '=', False), ('state', '!=', 'booking'), ('button_hide', '=', True)]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Confirm" name="confirm_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin'), ('button_hide', '=', True)]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <button string="Cancel" name="cancel_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('is_reservation', '=', False), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
                     </header>
                     <sheet>
-                         <div class="oe_button_box" name="button_box">
+                         <!-- <div class="oe_button_box" name="button_box">
                             <button string="Reservation" class="oe_stat_button" icon="fa-calendar" name="%(hms.reservation_action_window)d" type="action"/>
                             <button string="Confirm" class="oe_stat_button" icon="fa-check-square" name="%(hms.reservation_action_window)d" type="action"/>
                             <button string="Cancel" class="oe_stat_button" icon="fa-times" name="%(hms.reservation_action_window)d" type="action"/>
                             <button string="Check In" class="oe_stat_button" icon="fa-map-marker" name="%(hms.reservation_action_window)d" type="action"/>
-                        </div>
+                        </div> -->
                         <field name="date_order" class="oe_avatar"/>
                         <label for="confirm_no" string="Reservation No"/>
-                         <field name="property_id" class="oe_avator"/>
+                        <field name="property_id" class="oe_avator"/>
                         <h1>
                             <field name="confirm_no" class="oe_inline"/>
                         </h1>
-                       
                          <field name="type" widget="radio"
                                     class="oe_edit_only"
                                     options="{'horizontal': true}"/>
@@ -81,14 +86,87 @@
                                 <field name="sales_id" placeholder="Sales Person"/>
                                 <field name="contact_id" placeholder="Contact Person"/>
                                 <field name="internal_notes" placeholder="Remarks"/>
-                            </group>                            
-                            <field name="reservation_line_ids" context="{'arrival': arrival,'departure':departure, 'default_reservation_id': id }"/>
+                            </group>
+                            <separator string="Reservation Details" colspan="4" />                      
+                            <field name="reservation_line_ids" context="{'arrival': arrival,'departure':departure,'rooms': no_ofrooms,
+                            'default_property_id':'property_id'}" colspan="4" nolabel="1">
+                            <form>
+                                <header>
+                                    <field name="state" widget="statusbar"/>
+                                </header>
+                                <sheet>
+                                    <group> <!-- attrs="{'readonly': [('state','not in', ['BOOKING'])]}" -->
+                                        <group>
+                                            <field name="property_id"/>
+                                            <field name="reservation_id" readonly="1"/>
+                                            <field name="room_no" attrs="{'invisible': [('rooms','!=', 1)]}"/>
+                                            <field name="roomtype_ids" invisible="1"/>
+                                            <field name="room_type"/>
+                                            <field name="pax"/>
+                                            <field name="rooms"/>
+                                            <field name="ratecode_id"/>
+                                        </group>
+                                        <group>
+                                            <field name="arrival"/>
+                                            <field name="departure"/>
+                                        </group>
+                                    </group>   
+                                </sheet>
+                            </form>
+                            <tree> <!-- attrs="{'readonly': [('parent.state','not in', ['confirm'])]}-->
+                                <field name="room_no" attrs="{'invisible': [('rooms','!=', 1)]}"/>
+                                <field name="room_type"/>
+                                <field name="pax"/>
+                                <field name="rooms"/>
+                                <field name="arrival"/>
+                                <field name="departure"/>
+                                <field name="ratecode_id"/>
+                            </tree>
+                            </field>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
 
+        <!-- Reservation Calendar View-->
+        <record id="reservation_view_calendar" model="ir.ui.view">
+            <field name="name">hms.reservation.calendar</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <calendar string="Reservation"
+                            date_start="arrival"
+                            date_stop="departure"
+                            event_open_popup="true"
+                            mode="month"
+                            color="confirm_no"
+                            quick_add="True">
+                    <field name="guest_id"/>
+                    <field name="group_id"/>
+                </calendar>
+            </field>
+        </record>
+
+        <!-- Reservation Gantted View-->
+        <record id="reservation_view_gantt" model="ir.ui.view">
+            <field name="name">hms.reservation.gantt</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <gantt string="Reservation"
+                            date_start="arrival"
+                            date_stop="departure"
+                            default_group_by ="guest_id">
+                    <!-- <field name="guest_id"/>
+                    <field name="group_id"/> -->
+                </gantt>
+            </field>
+        </record>
+
+        <!-- Reservation View List-->
         <record id="reservation_view_list" model="ir.ui.view">
             <field name="name">reservation.view.list</field>
             <field name="model">hms.reservation</field>
@@ -121,31 +199,7 @@
             </field>
         </record>
 
-        <record id="reservation_action_window" model="ir.actions.act_window">
-            <field name="name">Reservation</field>
-            <field name="res_model">hms.reservation</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="property_view_kanban"/>
-        </record>
-
-        <record id="reason_type_view_form" model="ir.ui.view">
-            <field name="name">hms.reasontype.view.form</field>
-            <field name="model">hms.reasontype</field>
-            <field name="arch" type="xml">
-                <form string="Reason Type">
-                    <sheet>
-                        <group>
-                            <field name="code"/>
-                            <field name="name"/>
-                            <field name="reason_ids" context="{'default_type_id' : id}"/>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
         <!--Reservation Line-->
-        <!-- Reservation Line Form View -->
         <!-- Reservation Line Form View -->
         <record id="reservation_line_view_form" model="ir.ui.view">
             <field name="name">reservation.line.view.form</field>
@@ -164,8 +218,6 @@
                         <div class="oe_title">
                             <h3><field name="reservation_id" placeholder="Reservation ID" style="width:80%%"/></h3>
                             <h4><field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/></h4>
-                            <!-- <label for="share_no" string="Share ID"/>
-                            <h4><field name="share_no" placeholder="Share ID" style="width:80%%"/></h4> -->
                         </div>
                         <group>
                             <group>
@@ -178,39 +230,43 @@
                                 </div> -->
                                 <label for="arrival" string="AR/DEP Date"/>
                                 <div class="address_format">
-                                    <field name="arrival" placeholder="AR Date" style="width: 50%"/>
+                                    <field name="arrival" placeholder="AR Date" style="width: 50%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
                                     <field name="departure" placeholder="DEP Date" style="width: 50%"/>
                                 </div>
                                 <field name="roomtype_ids" invisible="1"/>
                                 <field name="room_type" string="Room Type"/>
                                 <label for="rooms" string="Rooms"/>
                                 <div class="address_format">
-                                    <field name="rooms" placeholder="Rooms" style="width: 26%"/>
-                                    <label for="pax" string="Pax" style="width: 9%"/>
-                                    <field name="pax" placeholder="Pax" style="width: 26%"/>
-                                    <label for="child" string="Child" style="width: 9%"/>
-                                    <field name="child" placeholder="Child" style="width: 26%"/>
+                                    <field name="rooms" style="width: 23.5%"/>
+                                    <label for="pax" style="width:0.1%%" string=''/>
+                                    <label for="pax" string="Pax:" style="width: 10%"/>
+                                    <field name="pax" style="width: 23.5%"/>
+                                    <label for="child" style="width:0.1%%" string=''/>
+                                    <label for="child" string="Child:" style="width: 11%"/>
+                                    <field name="child" style="width: 23.5%"/>
                                 </div>
-                                <field name="room_no" attrs="{'invisible': ['|', ('is_rsvn_details', '=', False), ('rooms', '!=', 1)]}"/>
+                                <field name="room_no" attrs="{'invisible': ['|', ('is_rsvn_details', '=', False), ('rooms', '!=', 1)], 'readonly': [('state', '=', 'checkin')]}"/>
                                 <label for="ratecode_id" string="Rate Code"/>
                                 <div class="address_format">
-                                    <field name="ratecode_id" style="width: 35%"/>
-                                    <label for="room_rate" string="Room Rate" style="width: 28%"/>
-                                    <field name="room_rate" style="width: 35%"/>
+                                    <field name="ratecode_id" style="width: 34.5%"/>
+                                    <label for="room_rate" style="width:0.1%%" string=''/>
+                                    <label for="room_rate" string="Room Rate:" style="width: 27%"/>
+                                    <field name="room_rate" style="width: 34.5%"/>
                                 </div>
                                 <label for="package_id" string="Package" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 <div class="address_format">
-                                    <field name="package_id" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <label for="rate_nett" string="Rate Net" style="width: 28%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="rate_nett" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="package_id" style="width: 34.5%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="rate_nett" style="width:0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="rate_nett" string="Rate Net:" style="width: 27%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="rate_nett" style="width: 34.5%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 </div>
                                 <label for="updown_amt" string="Updown Amt" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 <div class="address_format">
-                                    <field name="updown_amt" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <label for="updown_pc" string="Updown PC" style="width: 28%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="updown_pc" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="updown_amt" style="width: 34.5%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="updown_pc" style="width:0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="updown_pc" string="Updown PC:" style="width: 27%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="updown_pc" style="width: 34.5%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 </div>
-                                
                                 <field name="allotment_id" placeholder="Allotment"/>
                             </group>
                             <group>
@@ -267,21 +323,33 @@
                                 </div>
                                 <label for="extrabed" string="Extra Bed" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 <div class="address_format">
-                                    <field name="extrabed" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extabed_amount" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrabed_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extrabed" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrabed_amount" style="width: 0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extabed_amount" string="Amount:" style="width: 20.5%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extabed_amount" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrabed_bf" style="width: 0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrabed_bf" string="Breakfast:" style="width: 20.5%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extrabed_bf" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 </div>
                                 <label for="extrapax" string="Extra Pax" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 <div class="address_format">
-                                    <field name="extrapax" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrapax_amount" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrapax_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extrapax" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrapax_amount" style="width:0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrapax_amount" string="Amount:" style="width: 20.5%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extrapax_amount" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrapax_bf" style="width:0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrapax_bf" string="Breakfast:" style="width: 20.5%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extrapax_bf" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 </div>
-                                <label for="child_bfpax" string="Child BF" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                <label for="child_bfpax" string="Child BF-Pax" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 <div class="address_format">
-                                    <field name="child_bfpax" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="child_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extra_addon" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="child_bfpax" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="child_bf" style="width:0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="child_bf" string="Breakfast:" style="width: 20.5%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="child_bf" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extra_addon" style="width:0.1%%" string='' attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extra_addon" string="AddOn:" style="width: 20.5%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="extra_addon" style="width: 17%%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 </div>
                                 <label for="pickup" string="PickUp/DropOff" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
                                 <div class="address_format">
@@ -315,6 +383,7 @@
             </field>
         </record>
 
+        <!-- Reservation Line View List-->
         <record id="reservation_line_view_list" model="ir.ui.view">
             <field name="name">reservation.line.view.list</field>
             <field name="model">hms.reservation.line</field>
@@ -347,183 +416,29 @@
             </field>
         </record>
 
+        <!-- Reservation Line Action-->
         <record id="reservation_line_action_window" model="ir.actions.act_window">
             <field name="name">Reservation Details</field>
             <field name="res_model">hms.reservation.line</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <!-- <record id="reservation_line_view_form" model="ir.ui.view">
-            <field name="name">reservation.line.view.form</field>
-            <field name="model">hms.reservation.line</field>
+        <!-- Reason Type View Form-->
+        <record id="reason_type_view_form" model="ir.ui.view">
+            <field name="name">hms.reasontype.view.form</field>
+            <field name="model">hms.reasontype</field>
             <field name="arch" type="xml">
-                <form string="Reservation Details">
-                    <header>
-                        <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
-                    </header>
+                <form string="Reason Type">
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                        <button string="AR No" widget="statinfo" class="oe_stat_button" icon="fa-info-circle" name="%(base.action_partner_form)d" type="action"/>
-                        </div>
-                        <separator colspan='1' string="Reservation Details"/>
-                        <div class="oe_title">
-                            <label for="reservation_id" string="Reservation ID"/>
-                            <h3><field name="reservation_id" placeholder="Reservation ID" style="width:80%%"/></h3>
-                            <label for="confirm_no" string="Confirm ID"/>
-                            <h4><field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/></h4>
-                            <label for="share_no" string="Share ID"/>
-                            <h4><field name="share_no" placeholder="Share ID" style="width:80%%"/></h4>
-                        </div>
                         <group>
-                            <group>
-                                <label for="market" string="Market/Source"/>
-                                <div class="address_format">
-                                    <field name="market_ids" invisible="1"/>
-                                    <field name="market" placeholder="Market" style="width: 50%"/>
-                                    <field name="source" placeholder="Source" style="width: 50%"/>
-                                </div>
-                                <label for="reservation_type" string="Reservation"/>
-                                <div class="address_format">
-                                    <field name="reservation_type" placeholder="Type" style="width: 50%"/>
-                                    <field name="reservation_status" placeholder="Status" style="width: 50%"/>
-                                </div>
-                                <label for="arrival_flight" string="Arrival"/>
-                                <div class="address_format"> 
-                                    <field name="arrival_flight" placeholder="Flight No." style="width: 50%"/>
-                                    <field name="arrival_flighttime" placeholder="Flight Time" style="width: 50%"/>
-                                </div>
-                                <label for="dep_flight" string="Departure"/>
-                                <div class="address_format">
-                                    <field name="dep_flight" placeholder="Flight No." style="width: 50%"/>
-                                    <field name="dep_flighttime" placeholder="Flight Time" style="width: 50%"/>
-                                </div>
-                                <label for="eta" string="Estimated Time"/>
-                                <div class="address_format">
-                                    <field name="eta" placeholder="ETA" style="width: 50%"/>
-                                    <field name="etd" placeholder="ETD" style="width: 50%"/>
-                                </div>
-                                <label for="fo_remark" string="Remark"/>
-                                <div class="address_format">
-                                    <field name="fo_remark" placeholder="FO Remark" style="width: 50%"/>
-                                    <field name="hk_remark" placeholder="HK Remark" style="width: 50%"/>
-                                </div>
-                                <label for="cashier_remark" string=""/>
-                                <div class="address_format">
-                                    <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%"/>
-                                    <field name="general_remark" placeholder="General Remark" style="width: 50%"/>
-                                </div>
-                            </group>
-                            <group>
-                                <field name="roomtype_ids" invisible="1"/>
-                                <field name="room_type"/>
-                                <label for="arrival" string="AR/DEP Date"/>
-                                <div class="address_format">
-                                    <field name="arrival" placeholder="AR Date" style="width: 50%"/>
-                                    <field name="departure" placeholder="DEP Date" style="width: 50%"/>
-                                </div>
-                                <label for="rooms" string="Rooms"/>
-                                <div class="address_format">
-                                    <field name="rooms" placeholder="Rooms" style="width: 33%"/>
-                                    <field name="pax" placeholder="Pax" style="width: 33%"/>
-                                    <field name="child" placeholder="Child" style="width: 33%"/>
-                                </div>
-                                <label for="ratecode_id" string="Rate Code"/>
-                                <div class="address_format">
-                                    <field name="ratecode_id" placeholder="Rate Code" style="width: 50%"/>
-                                    <field name="room_rate" placeholder="Room Rate" label="Room Rate" style="width: 50%"/>
-                                </div>
-                                <label for="updown_amt" string="Updown Amt"/>
-                                <div class="address_format">
-                                    <field name="updown_amt" style="width: 50%"/>
-                                    <field name="updown_pc" label="Updown PC" style="width: 50%"/>
-                                </div>
-                                <label for="package_id" string="Package/Rate Net"/>
-                                <div class="address_format">
-                                    <field name="package_id" placeholder="Package" style="width: 50%"/>
-                                    <field name="rate_nett" placeholder="Rate Net" style="width: 50%"/>
-                                </div>
-                                <field name="reason_id" placeholder="Reason"/>
-                                <field name="allotment_id" placeholder="Allotment"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <label for="reservation_user_id" string="Reservation"/>
-                                <div class="address_format">
-                                    <field name="reservation_user_id" placeholder="Rsvn User" style="width: 50%"/>
-                                    <field name="madeondate" placeholder="Date" style="width: 50%"/>
-                                </div>
-                                <label for="citime" string="CI/CO Time"/>
-                                <div class="address_format">
-                                    <field name="citime" placeholder="Check In" style="width: 50%"/>
-                                    <field name="cotime" placeholder="Check Out" style="width: 50%"/>
-                                </div>
-                                <label for="extrabed" string="Extra Bed"/>
-                                <div class="address_format">
-                                    <field name="extrabed" style="width: 33%"/>
-                                    <field name="extabed_amount" style="width: 33%"/>
-                                    <field name="extrabed_bf" style="width: 33%"/>
-                                </div>
-                                <label for="extrapax" string="Extra Pax"/>
-                                <div class="address_format">
-                                    <field name="extrapax" style="width: 33%"/>
-                                    <field name="extrapax_amount" style="width: 33%"/>
-                                    <field name="extrapax_bf" style="width: 33%"/>
-                                </div>
-                                <label for="child_bfpax" string="Child BF"/>
-                                <div class="address_format">
-                                    <field name="child_bfpax" style="width: 33%"/>
-                                    <field name="child_bf" style="width: 33%"/>
-                                    <field name="extra_addon" style="width: 33%"/>
-                                </div>
-                                <label for="pickup" string="PickUp/DropOff"/>
-                                <div class="address_format">
-                                    <field name="pickup" placeholder="Pick Up" style="width: 50%"/>
-                                    <field name="dropoff" placeholder="Drop Off" style="width: 50%"/>
-                                </div>
-                                <label for="arrival_trp" string="Arrival"/>
-                                <div class="address_format">
-                                    <field name="arrival_trp" placeholder="AR Transport" style="width: 50%"/>
-                                    <field name="arrival_from" placeholder="AR From" style="width: 50%"/>
-                                </div>
-                                <label for="departure_trp" string="Departure"/>
-                                <div class="address_format">
-                                    <field name="departure_trp" placeholder="DEP Transport" style="width: 50%"/>
-                                    <field name="departure_from" placeholder="DEP From" style="width: 50%"/>
-                                </div>
-                            </group>
-                            <group>
-                                <field name="visa_type"/>
-                                <label for="visa_issue" string="Visa Issue/Expired"/>
-                                <div class="address_format">
-                                    <field name="visa_issue" placeholder="Issue Date" style="width: 50%"/>
-                                    <field name="visa_expire" placeholder="Expired Date" style="width: 50%"/>
-                                </div>
-                                <field name="arrive_reason_id"/>
-                                <field name="specialrequest_id"/>
-                            </group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="reason_ids" context="{'default_type_id' : id}"/>
                         </group>
                     </sheet>
                 </form>
             </field>
         </record>
-        <record id="reservation_line_view_list" model="ir.ui.view">
-            <field name="name">reservation.line.view.list</field>
-            <field name="model">hms.reservation.line</field>
-            <field name="arch" type="xml">
-                <tree string="Reservation Details">
-                    <field name="room_type"/>
-                    <field name="rooms"/>
-                    <field name="pax"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="reservation_line_action_window" model="ir.actions.act_window">
-            <field name="name">Reservation Details</field>
-            <field name="res_model">hms.reservation.line</field>
-            <field name="view_mode">tree,form</field>
-        </record> -->
 
         <!-- Reason Type List View -->
         <record id="reason_type_view_list" model="ir.ui.view">
@@ -562,7 +477,7 @@
             </field>
         </record>
 
-                <!-- Reason List View -->
+        <!-- Reason List View -->
         <record id="reason_view_list" model="ir.ui.view">
             <field name="name">reason.view.list</field>
             <field name="model">hms.reason</field>
@@ -584,5 +499,6 @@
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1" action="reservation_action_window"/>
+         <menuitem id="reservation_Details" name="Reservation Details" parent="hms_menu_rsvn" sequence="1" action="reservation_line_action_window"/>
     </data>
 </odoo>

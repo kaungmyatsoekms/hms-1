@@ -261,7 +261,7 @@ class Company(models.Model):
     _order = 'sequence, name'
 
     code = fields.Char(string="Company Code",size=3, required=True)
-    city_id = fields.Many2one("hms.city",
+    city = fields.Many2one("hms.city",
                               "City Name",
                               compute='_compute_address',
                               inverse='_inverse_city',
@@ -281,7 +281,7 @@ class Company(models.Model):
             'street': partner.street,
             'street2': partner.street2,
             'township': partner.township,
-            'city_id': partner.city_id,
+            'city': partner.city_id,
             'zip': partner.zip,
             'state_id': partner.state_id,
             'country_id': partner.country_id,
@@ -427,10 +427,6 @@ class Partner(models.Model):
     
     def _compute_is_guest_exists(self):
         self.is_guest_exists = True
-
-    def _get_image(self):
-        if self.passport_image:
-            self.image_1920= self.passport_image
 
     def _compute_passport_image(self):
         passports = self.passport_id
@@ -700,20 +696,33 @@ class Partner(models.Model):
 
         return res
 
-
     # write function
     def write(self,values):
         res = super(Partner,self).write(values)
-        _logger.info(res)
-        if 'company_type' in values.keys():
-            company_type = values.get('company_type')
+        
+        if 'company_type' in values.keys() or 'company_channel_type' in values.keys():
+            crm_type = self.company_channel_type
+            # company_type = values.get('company_type')
+            company_type = self.company_type
             property_id = self.property_id
-            pf_no = self.generate_profile_no(company_type,property_id)
+            pf_no = self.generate_profile_no(company_type,property_id,crm_type)
             if pf_no:
                 #values.update({'profile_no':pf_no})
                 self.profile_no = pf_no
-            _logger.info(company_type)
         return res
+        
+    # def write(self,values):
+    #     res = super(Partner,self).write(values)
+    #     _logger.info(res)
+    #     if 'company_type' in values.keys():
+    #         company_type = values.get('company_type')
+    #         property_id = self.property_id
+    #         pf_no = self.generate_profile_no(company_type,property_id)
+    #         if pf_no:
+    #             #values.update({'profile_no':pf_no})
+    #             self.profile_no = pf_no
+    #         _logger.info(company_type)
+    #     return res
 
 class HMSCurrency(models.Model):
     _name = "hms.currency"
