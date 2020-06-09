@@ -339,7 +339,7 @@
             <field name="domain">[('id','=',active_id)]</field>
         </record>
 
-  <!-- action of property setup -->
+    <!-- action of property setup -->
     <record id="property_action_window" model="ir.actions.act_window">
       <field name="name">Hotel Property</field>
       <field name="res_model">property.property</field>
@@ -491,6 +491,9 @@
             <group>
               <field name="code" placeholder="Eg. DLX....."/>
               <field name="name" placeholder="Eg. Deluxe....."/>
+              <field name="fix_type"  widget="boolean_toggle"/>
+              <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}"/>
+              <field name="beds" />
               <field name="ratecode_id"/>
               <field name="totalroom" type="hidden"/>
               <field name="image" widget="image" class="float-left oe_avatar"/>
@@ -1161,6 +1164,7 @@
               <group>
                 <field name="rsvn_code" placeholder="Eg. CMG....."/>
                 <field name="rsvn_status" placeholder="Eg. Company Granteed....."/>
+                <field name="rsvntype_id"/>
               </group>
             </group>
           </sheet>
@@ -1175,6 +1179,7 @@
         <tree string="Reservation Type">
           <field name="rsvn_code"/>
           <field name="rsvn_status"/>
+          <field name="rsvntype_id"/>
         </tree>
       </field>
     </record>

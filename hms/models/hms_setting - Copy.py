@@ -384,8 +384,8 @@ class Partner(models.Model):
     property_ids = fields.Many2many("property.property", track_visibility=True)
     is_from_hms = fields.Boolean(string="Is from HMS", default=False,
         help="Check if creation is from HMS System")
-    # is_person = fields.Boolean(string='Is a Contact', default=False,
-    #     help="Check if the company type is a Contact")
+    is_person = fields.Boolean(string='Is a Contact', default=False,
+        help="Check if the company type is a Contact")
     is_guest = fields.Boolean(string='Is a Guest', default=False,
         help="Check if the company type is a Guest")
     is_group = fields.Boolean(string='Is a Group', default=False,
@@ -428,8 +428,14 @@ class Partner(models.Model):
     def _compute_is_guest_exists(self):
         self.is_guest_exists = True
 
-    # Company Type Radion Button Action
-    @api.depends('is_company','is_guest','is_group')
+    def _compute_passport_image(self):
+        passports = self.passport_id
+        # pimage = None
+        for rec in passports:
+            if (rec.active is True):
+                self.passport_image = rec.image1
+
+    @api.depends('is_company','is_guest','is_group','is_person')
     def _compute_company_type(self):
         for partner in self:
             if partner.is_company or self._context.get(
@@ -444,31 +450,41 @@ class Partner(models.Model):
                     'default_company_type') == 'group':
                 partner.company_type = 'group'
                 partner.is_group = True
-            else: 
+            elif partner.is_person or self._context.get(
+                    'default_company_type') == 'person':
                 partner.company_type = 'person'
+                partner.is_person = True
+            # else:
+            #     partner.company_type = 'person'
+            #     partner.is_person = True
 
     def _write_company_type(self):
         for partner in self:
             partner.is_company = partner.company_type == 'company'
             partner.is_guest = partner.company_type == 'guest'
             partner.is_group = partner.company_type == 'group'
-     
+            partner.is_person = partner.company_type == 'person'
+    
     @api.onchange('company_type')
     def onchange_company_type(self):
         if self.company_type == 'company':
             self.is_company = True
+            self.is_person = False
             self.is_guest = False
             self.is_group = False
         elif self.company_type == 'guest':
             self.is_company = False
+            self.is_person = False
             self.is_guest = True
             self.is_group = False
         elif self.company_type == 'group':
             self.is_company = False
+            self.is_person = False
             self.is_guest = False
             self.is_group = True
         elif self.company_type=='person':
             self.is_company = False
+            self.is_person = True
             self.is_guest = False
             self.is_group = False
 

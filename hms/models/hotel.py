@@ -111,7 +111,7 @@ class Property(models.Model):
                             'partner_id',
                             string='Contacts',
                             track_visibility=True,
-                            domain="[('is_person', '=', True)]")
+                            domain="[('company_type', '=', 'person')]")
     bankinfo_ids = fields.One2many('res.bank','property_id', string="Bank Info")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type')
@@ -628,6 +628,13 @@ class RoomType(models.Model):
 
     code = fields.Char(string='Code', size=50, required=True)
     name = fields.Char(string='Room Type', required=True)
+    fix_type = fields.Boolean(string="Fix Type",default=True)
+    bed_type = fields.Selection([
+    ('single', 'Single'),
+    ('double', 'Double'),
+    ('twin', 'Twin'),
+    ('queen', 'Queen'),], string="Bed Type")
+    beds = fields.Integer(string="Beds", size=2, required=True)
     ratecode_id = fields.Char(string='Rate Code')
     totalroom = fields.Integer(string='Total Rooms',compute='compute_totalroom')
     image = fields.Binary(string='Image', attachment=True, store=True)
@@ -670,6 +677,13 @@ class RoomType(models.Model):
             else:
                 room_count = 0
             rec.totalroom = room_count
+
+    @api.onchange('bed_type')
+    def onchange_beds(self):
+        if self.bed_type == 'single' or self.bed_type == 'double' or self.bed_type == 'queen':
+            self.beds = 1
+        else :
+            self.beds = 2
 
 class RoomView(models.Model):
     _name = "room.view"
@@ -754,7 +768,7 @@ class PropertyRoom(models.Model):
     roomlocation_id = fields.Many2one('room.location', string="Location", required=True)
     facility_ids = fields.Many2many('room.facility', string="Room Facility", required=True)
     ratecode_id = fields.Char(string="Ratecode")
-    room_bedqty = fields.Integer(string="Number of Beds", required=True, default=1, size=2)
+    room_bedqty = fields.Integer(string="Number of Beds", required=True, size=2, related="roomtype_id.beds")
     room_size = fields.Char(string="Room Size")
     room_extension = fields.Char(string="Room Extension")
     room_img = fields.Binary(string="Image", attachment=True, store=True)
@@ -1180,6 +1194,7 @@ class RsvnStatus(models.Model):
 
     rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
     rsvn_status = fields.Char(string="Description", required=True)
+    rsvntype_id = fields.Many2one('rsvn.type', string="Reservation Type", required=True)
 
     def name_get(self):
         result = []
