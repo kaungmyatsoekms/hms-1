@@ -45,7 +45,6 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
             'state': 'reservation',
         })
         # return reservations.send_mail()
-<<<<<<< HEAD
 
 
 class HMSRsvnUnconfirmLineWizard(models.TransientModel):
@@ -88,5 +87,3 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
             'state': 'reservation',
         })
         # return reservations.send_mail()
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869

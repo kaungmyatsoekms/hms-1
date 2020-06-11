@@ -53,10 +53,7 @@ class Reservation(models.Model):
                                     compute='_compute_is_reservation')
     is_arrival_today = fields.Boolean(string="Is Arrival Today",
                                     compute='_compute_is_arrival_today')
-<<<<<<< HEAD
     is_full_cancel = fields.Boolean(string='Is Fully Canceled', default=False)
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     state = fields.Selection([
             ('booking','Booking'),
             ('reservation','Reservation'),
@@ -87,13 +84,8 @@ class Reservation(models.Model):
     market_ids = fields.Many2many('market.segment', related="property_id.market_ids")
     market = fields.Many2one('market.segment', string="Market", domain="[('id', '=?', market_ids)]",required=True)
     source = fields.Many2one('market.source', string="Market Source", required=True)
-<<<<<<< HEAD
     sales_id = fields.Many2one('res.partner', string="Sales", domain="[('company_type', '=','person')]")
     contact_id = fields.Many2one('res.partner', domain="[('company_type', '=','person')]", string="Contact")
-=======
-    sales_id = fields.Many2one('res.partner', string="Sales", domain="['&',('is_person', '=', True),('company_type', '=','person')]", default='company_id.user_id')
-    contact_id = fields.Many2one('res.partner', domain="[('is_person', '=', True)]", string="Contact")
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     reservation_type = fields.Many2one('rsvn.type', string="Reservation Type", required=True, default=2)
     reservation_status = fields.Many2one('rsvn.status', string="Reservation Status")
     arrival_flight = fields.Char(string="Arrival Flight",size=10)
@@ -106,7 +98,6 @@ class Reservation(models.Model):
     confirm_no = fields.Char(string="Confirm Number", readonly=True)
     internal_notes = fields.Text(string="Internal Notes")
 
-<<<<<<< HEAD
     #Fields for statinfo
     rsvn_room_count = fields.Integer(string="Reservation", compute='_compute_rsvn_rooms')
     confirm_room_count = fields.Integer(string="Confirm", compute='_compute_confirm_rooms')
@@ -142,8 +133,6 @@ class Reservation(models.Model):
         self.checkin_room_count = tmp
 
     #Arrival Today
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     def _compute_is_arrival_today(self):
         arrival_date = self.arrival
         if datetime.strptime(
@@ -192,33 +181,26 @@ class Reservation(models.Model):
 
     def accept_booking_status(self):
         self.write({'state': 'reservation'})
-<<<<<<< HEAD
         for rec in self.reservation_line_ids:
             if rec.is_rsvn_details is True and rec.state == 'booking':
                 rec.write({'state': 'reservation'})
         for rec in self:
             val = self.env['rsvn.type'].search([('rsvn_name', '=',
                                                  'Unconfirmed')])
-=======
         for rec in self:
             val = self.env['rsvn.type'].search([('rsvn_name', '=',
                                                     'Unconfirmed')])
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
             self.reservation_type = val
 
     def confirm_status(self):
         self.write({'state': 'confirm'})
-<<<<<<< HEAD
         for rec in self.reservation_line_ids:
             if rec.is_rsvn_details is True:
                 rec.write({'state': 'confirm'})
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         for rec in self:
             val = self.env['rsvn.type'].search([('rsvn_name', '=', 'Confirmed')
                                                 ])
             self.reservation_type = val
-<<<<<<< HEAD
 
     # Cancel Status & Cancel Table
     def cancel_status(self):
@@ -262,7 +244,6 @@ class Reservation(models.Model):
             return res
     
     # Check In Status
-=======
     
     def cancel_status(self):
         self.write({'state': 'cancel'})
@@ -271,7 +252,6 @@ class Reservation(models.Model):
                                                  'Unconfirmed')])
             self.reservation_type = val
 
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     def checkin_status(self):
         self.write({'state': 'checkin'})
         for rec in self:
@@ -292,7 +272,6 @@ class Reservation(models.Model):
         else:
             self.write({'state': 'reservation'})
 
-<<<<<<< HEAD
     # Confirm State in All Reservation Details confirm
     @api.onchange('no_ofrooms', 'confirm_room_count')
     def onchange_confirm_state(self):
@@ -303,8 +282,6 @@ class Reservation(models.Model):
                                                      'Confirmed')])
                 self.reservation_type = val
 
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     #Change Room Nights
     # @api.onchange('reservation_line_ids')
     # def onchange_num_of_rooms(self):
@@ -469,7 +446,6 @@ class Reservation(models.Model):
                 vals = []
                 for record in range(room-1):
                     vals.append((0,0,{'rooms':1,
-<<<<<<< HEAD
                     'arrival':resv_line.arrival, 'departure':resv_line.departure,
                     'arrival_flight':resv_line.arrival_flight, 'dep_flight':resv_line.dep_flight,
                     'arrival_flighttime':resv_line.arrival_flighttime, 'dep_flighttime':resv_line.dep_flighttime,
@@ -489,11 +465,6 @@ class Reservation(models.Model):
                     'pickup':resv_line.pickup, 'dropoff':resv_line.dropoff, 'arrival_trp':resv_line.arrival_trp,
                     'arrival_from':resv_line.arrival_from, 'departure_trp':resv_line.departure_trp,'departure_from':resv_line.departure_from,
                     'visa_type':resv_line.visa_type,'visa_issue':resv_line.visa_issue,'visa_expire':resv_line.visa_expire,
-=======
-                    'arrival':resv_line.arrival,'departure':resv_line.departure,
-                    'arrival_flight':resv_line.arrival_flight,'dep_flight':resv_line.dep_flight,
-                    'arrival_flighttime':resv_line.arrival_flighttime,'dep_flighttime':resv_line.dep_flighttime,
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
                     }))
                 self.update({'reservation_line_ids':vals})
 
@@ -513,7 +484,6 @@ class ReservationLine(models.Model):
     def get_rooms(self):
         if self._context.get('rooms') != False:
             return self._context.get('rooms')
-<<<<<<< HEAD
         
     cancel_rsvn_id = fields.Many2one('hms.cancel.rsvn', string="Cancel ID")
     is_partial_cancel = fields.Boolean(string='Is Partially Canceled', default=False)
@@ -523,14 +493,6 @@ class ReservationLine(models.Model):
     is_rsvn_details = fields.Boolean(string="Is Reservation Details",
                                      compute='_compute_is_rsvn_details')
     is_arrival_today = fields.Boolean(string="Is Arrival Today", compute='_compute_is_arrival_today')
-=======
-    
-    company_id = fields.Many2one('res.partner', string="Company",domain="['&',('profile_no','!=',''),('is_company','=',True)]")
-    group_id = fields.Many2one('res.partner', string="Group", domain="[('is_group','=',True)]")
-    guest_id = fields.Many2one('res.partner', string="Guest", domain="[('is_guest','=',True)]")        
-    is_rsvn_details = fields.Boolean(string="Is Reservation Details",
-                                     compute='_compute_is_rsvn_details')
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     reservation_id = fields.Many2one('hms.reservation',string="Reservation")
     property_id = fields.Many2one('property.property',string="Property", readonly=True,related='reservation_id.property_id')
     confirm_no = fields.Char(string="Confirm No.", readonly=True,related='reservation_id.confirm_no')
@@ -592,11 +554,7 @@ class ReservationLine(models.Model):
     cotime = fields.Datetime("Check-Out Time")
 
     extrabed = fields.Char("Extra Bed")
-<<<<<<< HEAD
     extrabed_amount = fields.Integer("Number of Extra Bed")
-=======
-    extabed_amount = fields.Integer("Number of Extra Bed")
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Float("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
@@ -618,7 +576,6 @@ class ReservationLine(models.Model):
 
     def _compute_is_rsvn_details(self):
         self.is_rsvn_details = True
-<<<<<<< HEAD
     
     def _compute_is_arrival_today(self):
         arrival_date = self.arrival
@@ -633,8 +590,6 @@ class ReservationLine(models.Model):
         for record in self:
             record.state = 'booking'
         return True
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
     @api.onchange('visa_issue','visa_expire')
     @api.constrains('visa_issue','visa_expire')
@@ -651,7 +606,6 @@ class ReservationLine(models.Model):
         res['domain']={'room_no':[('id', 'in', self.property_id.propertyroom_ids.ids)]}
         return res
 
-<<<<<<< HEAD
     # Confirm Status
     def confirm_status(self):
         self.write({'state': 'confirm'})
@@ -802,13 +756,6 @@ class ReservationLine(models.Model):
             self.write({'state': 'confirm'})
         else:
             self.write({'state': 'reservation'})
-=======
-    def confirm_status(self):
-        self.write({'state': 'confirm'})
-
-    def cancel_status(self):
-        self.write({'state': 'cancel'})
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
     def checkin_status(self):
         self.write({'state': 'checkin'})
@@ -852,7 +799,6 @@ class ReservationLine(models.Model):
                     'rooms' : 1,
                 })
 
-<<<<<<< HEAD
 
 # Cancel Reservation
 class CancelReservation(models.Model):
@@ -986,6 +932,3 @@ class CancelReservation(models.Model):
                                       readonly=True,
                                       index=True,
                                       default=(lambda *a: time.strftime(dt)))   
-=======
-    
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869

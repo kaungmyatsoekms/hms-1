@@ -1,22 +1,14 @@
-<<<<<<< HEAD
 import base64
 import datetime
 import logging
 
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 #from odoo.tools import image_colorize, image_resize_image_big
 from odoo.tools import *
-<<<<<<< HEAD
 from datetime import datetime, timedelta
 _logger = logging.getLogger(__name__)
-=======
-import base64
-import datetime
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
 AVAILABLE_STARS = [
     ('0', 'Low'),
@@ -53,7 +45,6 @@ AVAILABLE_PAY = [
     ('OT','Others'),
     ]
 
-<<<<<<< HEAD
 AVAILABLE_PERCENTAGE = [
     ('10', '10 %'),
     ('20', '20 %'),
@@ -67,8 +58,6 @@ AVAILABLE_PERCENTAGE = [
     ('100', '100 %'),
 ]
 
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
 class Property(models.Model):
     _name = "property.property"
@@ -157,14 +146,11 @@ class Property(models.Model):
     weekend_id = fields.One2many('weekend.weekend', 'property_id', string="Weekends")
     ratecode_ids = fields.One2many('rate.code','property_id', string="Rate Code")
     allotment_ids = fields.One2many('hms.allotment.line','property_id', string="Allotment")
-<<<<<<< HEAD
     check_in_time = fields.Float(string="Check-In Time")
     check_out_time = fields.Float(string="Check-Out Time")
     availability = fields.Integer(default=365,string="Availability")
     high_occupancy = fields.Selection(AVAILABLE_PERCENTAGE,string="High Occupancy", default='70')
     low_occupancy = fields.Selection(AVAILABLE_PERCENTAGE,string="Low Occupancy", default='20')
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
     property_code_len = fields.Integer(
         "Property Code Length",
@@ -494,11 +480,7 @@ class Property(models.Model):
     def _compute_roomtype_count(self):
         self.roomtype_count = len(self.roomtype_ids)
 
-<<<<<<< HEAD
     # Create function
-=======
-
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     @api.model
     def create(self, values):
         # _logger.info(values)
@@ -523,7 +505,6 @@ class Property(models.Model):
                     'company_id':False,
                     'use_date_range': True,
                     })
-<<<<<<< HEAD
         if res.availability:
             avail_date = datetime.today()-timedelta(days=1)
             for rec in range(res.availability):
@@ -559,25 +540,16 @@ class Property(models.Model):
     def unlink(self):
         sequence_objs = self.env['ir.sequence']
         forecast_objs = self.env['availability.availability']
-=======
-        return res
-
-    def unlink(self):
-        sequence_objs = self.env['ir.sequence']
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         for rec in self:
             if rec.gprofile_id_format:
                 sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code+rec.gprofile_id_format.code)])
             if rec.confirm_id_format:
                 sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code+rec.confirm_id_format.code)])
             sequence_objs.unlink()
-<<<<<<< HEAD
             forecast_objs += self.env['availability.availability'].search([('property_id', '=', rec.id)])
             forecast_objs.unlink()
             roomavailable_objs += self.env['roomtype.available'].search([('property_id', '=', rec.id)])
             roomavailable_objs.unlink()
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         res = super(Property,self).unlink()
         return res
 
@@ -706,7 +678,6 @@ class RoomLocation(models.Model):
                         _("Location Code Length must not exceed %s characters." %
                         (record.env.user.company_id.location_code_len)))
 
-<<<<<<< HEAD
 class BedType(models.Model):
     _name = "bed.type"
     _description = "Bed Type"
@@ -714,8 +685,6 @@ class BedType(models.Model):
     name = fields.Char(string="Bed Type Name")
     no_of_bed = fields.Integer(string="No.of Beds")
 
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 class RoomType(models.Model):
     _name = "room.type"
     _description = "Room Type"
@@ -724,17 +693,8 @@ class RoomType(models.Model):
     code = fields.Char(string='Code', size=50, required=True)
     name = fields.Char(string='Room Type', required=True)
     fix_type = fields.Boolean(string="Fix Type",default=True)
-<<<<<<< HEAD
     bed_type = fields.Many2many('bed.type',string="Bed Type")
     # beds = fields.Integer(string="Beds", size=2, required=True)
-=======
-    bed_type = fields.Selection([
-    ('single', 'Single'),
-    ('double', 'Double'),
-    ('twin', 'Twin'),
-    ('queen', 'Queen'),], string="Bed Type")
-    beds = fields.Integer(string="Beds", size=2, required=True)
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     ratecode_id = fields.Char(string='Rate Code')
     totalroom = fields.Integer(string='Total Rooms',compute='compute_totalroom')
     image = fields.Binary(string='Image', attachment=True, store=True)
@@ -778,21 +738,12 @@ class RoomType(models.Model):
                 room_count = 0
             rec.totalroom = room_count
 
-<<<<<<< HEAD
     # @api.onchange('bed_type')
     # def onchange_beds(self):
     #     if self.bed_type == 'single' or self.bed_type == 'double' or self.bed_type == 'queen':
     #         self.beds = 1
     #     else :
     #         self.beds = 2
-=======
-    @api.onchange('bed_type')
-    def onchange_beds(self):
-        if self.bed_type == 'single' or self.bed_type == 'double' or self.bed_type == 'queen':
-            self.beds = 1
-        else :
-            self.beds = 2
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
 class RoomView(models.Model):
     _name = "room.view"
@@ -840,44 +791,11 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
     _group = 'roomlocation_id'
 
-<<<<<<< HEAD
     
     room_no = fields.Char(string="Room No", required=True)
     property_id = fields.Many2one('property.property', string="Property", readonly=True)
     roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
     bed_type = fields.Char('Bed Type')
-=======
-                #   for roomtype in rec.property_id.roomtype_ids:
-                #     roomtype_list.append(roomtype.id)
-                #     domain = {'roomtype_id': [('id', '=', roomtype_list)]}
-                #     return {'domain': domain} 
-
-
-    # @api.model
-    # def _default_roomtype_id(self):
-    #     roomtype_list =[]
-    #     domain = {}
-    #     property_id = self.env['property.property'].browse(self._context.get('default_property_id'))
-    #     if  property_id.roomtype_ids:
-    #         for roomtype in property_id.roomtype_ids:
-    #             roomtype_list.append(roomtype.id)
-    #         domain = {'roomtype_id':  [('id', 'in', roomtype_list)]} 
-    #         return {'domain': domain}
-
-    # def _default_property_id(self):
-    #     rec = self.env['property.property'].browse(self._context.get('active_id'))
-    #     return rec
-
-    # def _default_roomtype_id(self):
-    #     rec = self.env['property.property'].browse(self._context.get('default_property_id'))
-    #     if(rec.roomtype_ids):
-    #         return rec.roomtype_ids
-    #     return False
-    
-    room_no = fields.Char(string="Room No", required=True)
-    property_id = fields.Many2one('property.property', string="Property", required=True, readonly=True)
-    roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     roomtype_id = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
     roomview_ids = fields.Many2many('room.view', string="Room View Code")
     building_ids = fields.Many2many("building.building", related="property_id.building_ids")
@@ -885,11 +803,7 @@ class PropertyRoom(models.Model):
     roomlocation_id = fields.Many2one('room.location', string="Location", required=True)
     facility_ids = fields.Many2many('room.facility', string="Room Facility", required=True)
     ratecode_id = fields.Char(string="Ratecode")
-<<<<<<< HEAD
     room_bedqty = fields.Integer(string="Number of Beds", required=True, size=2, default=1)
-=======
-    room_bedqty = fields.Integer(string="Number of Beds", required=True, size=2, related="roomtype_id.beds")
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     room_size = fields.Char(string="Room Size")
     room_extension = fields.Char(string="Room Extension")
     room_img = fields.Binary(string="Image", attachment=True, store=True)

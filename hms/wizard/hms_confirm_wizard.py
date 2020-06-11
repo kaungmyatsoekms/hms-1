@@ -5,13 +5,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
-<<<<<<< HEAD
 class HMSRsvnConfirmWizard(models.TransientModel):
     _name = "hms.rsvn_confirm_wizard"
-=======
-class HMSRsvnConfrimWizard(models.TransientModel):
-    _name = "hms.rsvn_confrim_wizard"
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     _description = "Confirm Wizard"
 
     def get_reservation_id(self):
@@ -20,7 +15,6 @@ class HMSRsvnConfrimWizard(models.TransientModel):
         if reservation:
             return reservation
 
-<<<<<<< HEAD
     reservation_id = fields.Many2one("hms.reservation",
                                      default=get_reservation_id,
                                      store=True)
@@ -32,13 +26,6 @@ class HMSRsvnConfrimWizard(models.TransientModel):
                                        readonly=True,
                                        default=1)
     reservation_status = fields.Many2one('rsvn.status', "Reservation Status")
-=======
-    reservation_id = fields.Many2one("hms.reservation", default=get_reservation_id, store=True)
-    reservation_no = fields.Char("Reservation", related="reservation_id.confirm_no", store=True)
-    reservation_type = fields.Many2one('rsvn.type',"Reservation Type", readonly=True, default=1)
-    reservation_status = fields.Many2one('rsvn.status',"Reservation Status")
-
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
     def action_confirm_wiz(self):
         reservations = self.env['hms.reservation'].browse(
@@ -57,7 +44,6 @@ class HMSRsvnConfrimWizard(models.TransientModel):
         reservations.write({
             'state': 'confirm',
         })
-<<<<<<< HEAD
         # return reservations.send_mail()
 
 
@@ -100,6 +86,4 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
         reservation_lines.write({
             'state': 'confirm',
         })
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         # return reservations.send_mail()

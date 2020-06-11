@@ -470,11 +470,7 @@
         </tree>
       </field>
     </record>
-<<<<<<< HEAD
     
-=======
-
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     <!-- action of room location setup -->
     <record id="room_location_action_window" model="ir.actions.act_window">
       <field name="name">Room Location</field>
@@ -496,13 +492,8 @@
               <field name="code" placeholder="Eg. DLX....."/>
               <field name="name" placeholder="Eg. Deluxe....."/>
               <field name="fix_type"  widget="boolean_toggle"/>
-<<<<<<< HEAD
                <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}" widget="many2many_tags"/>
               <!-- <field name="beds" /> -->
-=======
-              <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}"/>
-              <field name="beds" />
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
               <field name="ratecode_id"/>
               <field name="totalroom" type="hidden"/>
               <field name="image" widget="image" class="float-left oe_avatar"/>

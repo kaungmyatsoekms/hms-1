@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<<<<<<< HEAD
     <!-- Confirm Status for Reservation -->
     <record id="view_confirm_wiz" model="ir.ui.view">
         <field name="name">Confirmed Status</field>
@@ -38,50 +37,11 @@
         <field name="name">Confirmed Status</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hms.rsvn_confirm_wizard</field>
-=======
-        <record id="view_confirm_wiz" model="ir.ui.view">
-            <field name="name">Confirm</field>
-            <field name="model">hms.rsvn_confrim_wizard</field>
-            <field name="arch" type="xml">
-                <form string="Cofirm State">
-                    <p style="font-weight:bold;">
-                        Choose Confirm Status
-                    </p>
-                    <group>
-                        <group>
-                            <field name="reservation_id" invisible="1"/>
-                             <field name="reservation_no" readonly="1"/>
-                        </group>
-                        <group>
-                            <label string="Type" for="reservation_type"/>
-                            <div>
-                                <field name="reservation_type" readonly="1"/>
-                            </div>
-                            <label string="Confirm Status" for="reservation_status"/>
-                            <div>
-                                <field name="reservation_status" />
-                            </div>
-                        </group>
-                    </group>
-                    <footer>
-                        <button name="action_confirm_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>
-                        <button string="Cancel" class="btn-secondary" special="cancel"/>
-                    </footer>
-                </form>
-            </field>
-        </record>
-
-    <record id="action_confirm_wiz" model="ir.actions.act_window">
-        <field name="name">Extend Date</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">hms.rsvn_confrim_wizard</field>
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         <field name="view_mode">form</field>
         <field name="context">{'active_id':active_id}</field>
         <field name="target">new</field>
     </record>
 
-<<<<<<< HEAD
     <!-- Confirm Status for Reservation Line -->
     <record id="view_confirm_line_wiz" model="ir.ui.view">
         <field name="name">Confirmed Status</field>
@@ -123,6 +83,4 @@
         <field name="context">{'active_id':active_id}</field>
         <field name="target">new</field>
     </record>
-=======
->>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 </odoo>
