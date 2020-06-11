@@ -5,7 +5,10 @@ access_pms_format_detail,pms.format.detail,model_pms_format_detail,base.group_us
 access_building_building,building.building,model_building_building,base.group_user,1,1,1,1
 access_building_type,building.type,model_building_type,base.group_user,1,1,1,1
 access_room_location,room.location,model_room_location,base.group_user,1,1,1,1
+<<<<<<< HEAD
 access_bed_type,bed.type,model_bed_type,base.group_user,1,1,1,1
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 access_room_type,room.type,model_room_type,base.group_user,1,1,1,1
 access_room_view,room.view,model_room_view,base.group_user,1,1,1,1
 access_room_facility,room.facility,model_room_facility,base.group_user,1,1,1,1
@@ -41,7 +44,11 @@ access_hms_special_request,hms.special.request,model_hms_special_request,base.gr
 access_hms_reservation,hms.reservation,model_hms_reservation,base.group_user,1,1,1,1
 access_hms_reservation_line,hms.reservation.line,model_hms_reservation_line,base.group_user,1,1,1,1
 access_hms_reason,hms.reason,model_hms_reason,base.group_user,1,1,1,1
+<<<<<<< HEAD
 access_hms_reasontype,hms.reasontype,model_hms_reasontype,base.group_user,1,1,1,1
 access_hms_cancel_rsvn,hms.cancel.rsvn,model_hms_cancel_rsvn,base.group_user,1,1,1,1
 access_availability_availability,availability.availability,model_availability_availability,base.group_user,1,1,1,1
 access_roomtype_available,roomtype.available,model_roomtype_available,base.group_user,1,1,1,1
+=======
+access_hms_reasontype,hms.reasontype,model_hms_reasontype,base.group_user,1,1,1,1
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869

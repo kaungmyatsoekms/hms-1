@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<<<<<<< HEAD
     <!-- Cancellation Reason for Reservation -->
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     <record id="view_reason_wiz" model="ir.ui.view">
         <field name="name">Cancellation Reason</field>
         <field name="model">hms.cancel_reason_wizard</field>
@@ -38,6 +41,7 @@
         <field name="target">new</field>
     </record>
 
+<<<<<<< HEAD
     <!-- Cancellation Reason for Reservation Line -->
     <record id="view_reason_line_wiz" model="ir.ui.view">
         <field name="name">Cancellation Reason</field>
@@ -75,4 +79,6 @@
         <field name="context">{'active_id':active_id}</field>
         <field name="target">new</field>
     </record>
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 </odoo>

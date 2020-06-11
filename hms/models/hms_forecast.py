@@ -1,13 +1,23 @@
+<<<<<<< HEAD
+=======
+import base64
+import datetime
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
+<<<<<<< HEAD
 import base64
 from datetime import datetime, timedelta
 import logging
 _logger = logging.getLogger(__name__)
 
 #Availability
+=======
+
+# Availability
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 class Availability(models.Model):
     _name = "availability.availability"
     _description = "Availability"
@@ -23,13 +33,18 @@ class Availability(models.Model):
     avail_allotment = fields.Integer('Allotment')
     avail_arrguest = fields.Integer('Arrival Guest')
     avail_depguest = fields.Integer('Departure Guest')
+<<<<<<< HEAD
     avail_occguest = fields.Integer('Occupied Guest')
+=======
+    avail_occguest = fields.Integer('Occupid Guest')
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     avail_grp = fields.Integer('Group Room')
     avail_fit = fields.Integer('Fit Room')
     avail_grpguest = fields.Integer('Group Guest')
     avail_fitguest = fields.Integer('Fit Guest')
     avail_unconfirm = fields.Integer('Unconfirm Reservation')
     avail_rmrev = fields.Integer('Forecast Room Revenue')
+<<<<<<< HEAD
     total_room = fields.Integer('Total Room',related="property_id.room_count")
     avail_totalroom = fields.Integer('Available Total Room')
     revpar = fields.Integer('REVPAR')
@@ -40,23 +55,36 @@ class Availability(models.Model):
         'package_code_unique', 'UNIQUE(property_id, avail_date)',
         'Date already exists with this Property! Date must be unique!'
     )]
+=======
+    total_room = fields.Integer('Total Room')
+    avail_totalroom = fields.Integer('Available Total Room')
+    revpar = fields.Integer('REVPAR')
+    adr = fields.Integer('ADR')
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
 
 # Room Type Available
 class RoomTypeAvailable(models.Model):
     _name = "roomtype.available"
     _description = "Room Type Available"
 
+<<<<<<< HEAD
     availability_id = fields.Many2one('availability.availability')
     property_id = fields.Many2one('property.property',string="Property")
     ravail_date = fields.Date('Date')
     roomtype_ids = fields.Many2many('room.type', related="property_id.roomtype_ids")
     ravail_rmty = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)#, domain="[('id', '=?', roomtype_ids)]", required=True
+=======
+    property_id = fields.Many2one('property.property',string="Property")
+    ravail_date = fields.Date('Date')
+    ravail_rmty = fields.Integer('Room Type')
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
     ravail_ooo = fields.Integer('Out Of Order')
     ravail_occupancy = fields.Integer('Occupancy')
     ravail_block = fields.Integer('Block')
     ravail_waitlist = fields.Integer('Wait List')
     ravail_allotment = fields.Integer('Allotment')
     ravail_unconfirm = fields.Integer('Unconfirm')
+<<<<<<< HEAD
     total_room = fields.Integer('Total Room', compute='compute_totalroom')
     ravail_totalroom = fields.Integer('Room Type Available Total Room')
 
@@ -73,3 +101,9 @@ class RoomTypeAvailable(models.Model):
             else:
                 room_count = 0
             rec.total_room = room_count
+=======
+    total_room = fields.Integer('Total Room')
+    ravail_totalroom = fields.Integer('Room Type Available Total Room')
+
+
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869

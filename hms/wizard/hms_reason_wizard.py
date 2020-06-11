@@ -31,20 +31,27 @@ class HMSCancelReasonWizard(models.TransientModel):
             d.write({
                 'reason_id': self.reason_id,
             })
+<<<<<<< HEAD
         reservations.write({
             'reason_id': self.reason_id,
         })
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         reservations.reservation_line_ids.write({
             'reason_id': self.reason_id,
         })
         reservations.cancel_status()
+<<<<<<< HEAD
         reservations.copy_cancel_record()
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         reservations.write({
             'state': 'cancel',
         })
         reservations.reservation_line_ids.write({
             'state': 'cancel',
         })
+<<<<<<< HEAD
         # return reservations.send_mail()
 
 
@@ -82,4 +89,6 @@ class HMSCancelReasonLineWizard(models.TransientModel):
         reservation_lines.write({
             'state': 'cancel',
         })
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         # return reservations.send_mail()

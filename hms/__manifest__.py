@@ -24,14 +24,22 @@
     'data': [
         'security/ir.model.access.csv',
         'views/hotel_views.xml',
+<<<<<<< HEAD
         'data/rsvn.type.csv',
         'data/rsvn.status.csv',
+=======
+        'data/rsvn.status.csv',
+        'data/rsvn.type.csv',
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         'data/market.group.csv',
         'data/market.segment.csv',
         'data/market.source.csv',
         'data/revenue.type.csv',
+<<<<<<< HEAD
         'data/bed.type.csv',
         'views/hms_forecast_view.xml',
+=======
+>>>>>>> 813ce8ba9d8720bff9380cda22d30976a425e869
         'views/hms_bank_view.xml',
         'views/hms_format_view.xml',
         'views/hms_rule_configuration_view.xml',
