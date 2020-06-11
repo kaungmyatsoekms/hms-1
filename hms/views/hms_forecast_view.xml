@@ -1,0 +1,115 @@
+<odoo>
+    <data>
+        <!-- Availability Form View -->
+        <record id="availability_view_form" model="ir.ui.view">
+            <field name="name">availability.view.form</field>
+            <field name="model">availability.availability</field>
+            <field name="arch" type="xml">
+                <form string="Availability">
+                    <sheet>
+                        <group>
+                            <field name="property_id"/>
+                            <field name="avail_date"/>
+                            <field name="avail_arrival"/>
+                            <field name="arrival_dep"/>
+                            <field name="avail_occupancy"/>
+                            <field name="avail_block"/>
+                            <field name="avail_ooo"/>
+                            <field name="avail_waitlist"/>
+                            <field name="avail_allotment"/>
+                            <field name="avail_arrguest"/>
+                            <field name="avail_depguest"/>
+                            <field name="avail_occguest"/>
+                            <field name="avail_grp"/>
+                            <field name="avail_fit"/>
+                            <field name="avail_grpguest"/>
+                            <field name="avail_fitguest"/>
+                            <field name="avail_unconfirm"/>
+                            <field name="avail_rmrev"/>
+                            <field name="total_room"/>
+                            <field name="avail_totalroom"/>
+                            <field name="revpar"/>
+                            <field name="adr"/>
+                            <field name="avail_roomtype_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Availability List View -->
+        <record id="availability_view_list" model="ir.ui.view">
+            <field name="name">availability.view.list</field>
+            <field name="model">availability.availability</field>
+            <field name="arch" type="xml">
+                <tree string="Availability">
+                    <field name="property_id"/>
+                    <field name="avail_date"/>
+                    <field name="avail_arrival"/>
+                    <field name="total_room"/>
+                    <field name="avail_totalroom"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of availability -->
+        <record id="availability_action_window" model="ir.actions.act_window">
+            <field name="name">Availability</field>
+            <field name="res_model">availability.availability</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Room Type Available Form View -->
+        <record id="roomtype_available_view_form" model="ir.ui.view">
+            <field name="name">roomtype.available.view.form</field>
+            <field name="model">roomtype.available</field>
+            <field name="arch" type="xml">
+                <form string="Room Type Available">
+                    <sheet>
+                        <group>
+                            <field name="availability_id"/>
+                            <field name="roomtype_ids" invisible="1"/>
+                            <field name="property_id"/>
+                            <field name="ravail_date"/>
+                            <field name="ravail_rmty"/>
+                            <field name="ravail_ooo"/>
+                            <field name="ravail_occupancy"/>
+                            <field name="ravail_block"/>
+                            <field name="ravail_waitlist"/>
+                            <field name="ravail_allotment"/>
+                            <field name="ravail_unconfirm"/>
+                            <field name="total_room"/>
+                            <field name="ravail_totalroom"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Availability List View -->
+        <record id="roomtype_available_view_list" model="ir.ui.view">
+            <field name="name">roomtype.available.view.list</field>
+            <field name="model">roomtype.available</field>
+            <field name="arch" type="xml">
+                <tree string="Room Type Available">
+                    <field name="property_id"/>
+                    <field name="ravail_rmty"/>
+                    <field name="ravail_date"/>
+                    <field name="total_room"/>
+                    <field name="ravail_totalroom"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of Room Type Available -->
+        <record id="roomtype_available_action_window" model="ir.actions.act_window">
+            <field name="name">Room Type Available</field>
+            <field name="res_model">roomtype.available</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="hms_menu_forecast" name="Forecast" parent="hotel_menu_root" sequence="5"/>
+        <menuitem id="availability_menu" name="Availability" parent="hms_menu_forecast" sequence="1" action="availability_action_window"/>
+        <menuitem id="roomtype_available_menu" name="Room Type Available" parent="hms_menu_forecast" sequence="2" action="roomtype_available_action_window"/>
+    </data>
+</odoo>
