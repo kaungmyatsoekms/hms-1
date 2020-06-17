@@ -32,18 +32,34 @@ class HMSRsvnConfirmWizard(models.TransientModel):
             self._context.get('active_id', []))
 
         for d in reservations.reservation_line_ids:
-            d.write({
-                'reservation_type': self.reservation_type,
-                'reservation_status': self.reservation_status
-            })
+            if d.state == 'reservation':
+                #Update Availability
+                rt_avails = self.env['roomtype.available'].search([('property_id','=',d.property_id.id),('ravail_date','>=', d.arrival),('ravail_date','<',d.departure),('ravail_rmty','=',d.room_type.id)])
+                avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','>=', d.arrival),('avail_date','<',d.departure)])
+                dep_avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','=',d.departure)])
+                for record in rt_avails:
+                    record.ravail_unconfirm -= d.rooms
+                    record.ravail_occupancy += d.rooms
+                for avail in avails:
+                    avail.avail_unconfirm -= d.rooms
+                    avail.avail_occupancy += d.rooms
+                    if avail.avail_date == d.arrival:
+                        avail.avail_arrival += d.rooms
+                for depavail in  dep_avails:
+                    if depavail == d.departure:
+                        depavail.avail_dep += d.rooms
+                d.write({
+                    'reservation_type': self.reservation_type,
+                    'reservation_status': self.reservation_status,
+                    'state': 'confirm',
+                })
+        # Update Reservation
         reservations.write({
             'reservation_type': self.reservation_type,
-            'reservation_status': self.reservation_status
-        })
-        reservations.confirm_status()
-        reservations.write({
+            'reservation_status': self.reservation_status,
             'state': 'confirm',
         })
+        # reservations.confirm_status()
         # return reservations.send_mail()
 
 
@@ -72,18 +88,53 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
     def action_confirm_line_wiz(self):
         reservation_lines = self.env['hms.reservation.line'].browse(
             self._context.get('active_id'))
-
         for d in reservation_lines:
-            d.write({
-                'reservation_type': self.reservation_type,
-                'reservation_status': self.reservation_status
+            #Update Availability
+            if  d.state == 'reservation':
+                rt_avails = self.env['roomtype.available'].search([('property_id','=',d.property_id.id),('ravail_date','>=', d.arrival),('ravail_date','<',d.departure),('ravail_rmty','=',d.room_type.id)])
+                avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','>=', d.arrival),('avail_date','<',d.departure)])
+                dep_avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','=',d.departure)])
+                for record in rt_avails:
+                    record.ravail_unconfirm -= d.rooms
+                    record.ravail_occupancy += d.rooms
+                for avail in avails:
+                    avail.avail_unconfirm -= d.rooms
+                    avail.avail_occupancy += d.rooms
+                    if avail.avail_date == d.arrival:
+                        avail.avail_arrival += d.rooms
+                for depavail in  dep_avails:
+                    if depavail == d.departure:
+                        depavail.avail_dep += d.rooms
+                d.write({
+                    'reservation_type': self.reservation_type,
+                    'reservation_status': self.reservation_status,
+                    'state': 'confirm',
+                })
+        # Check and update confirm state to main reservation
+        rec = 0
+        for d in reservation_lines.reservation_id.reservation_line_ids:
+            if d.state =='confirm':
+                rec = rec+1
+        if rec > 0 :
+            reservation_lines.reservation_id.write({
+                'state':
+                'confirm',
+                'reservation_type':
+                reservation_lines.reservation_type,
+                'reservation_status':
+                reservation_lines.reservation_status,
             })
-        reservation_lines.write({
-            'reservation_type': self.reservation_type,
-            'reservation_status': self.reservation_status
-        })
-        reservation_lines.confirm_status()
-        reservation_lines.write({
-            'state': 'confirm',
-        })
+
+        #     if d.state != reservation_lines.state:
+        #         rec = rec + 1
+
+        # if rec == 0:
+        #     reservation_lines.reservation_id.write({
+        #         'state':
+        #         'confirm',
+        #         'reservation_type':
+        #         reservation_lines.reservation_type,
+        #         'reservation_status':
+        #         reservation_lines.reservation_status,
+        #     })
         # return reservations.send_mail()

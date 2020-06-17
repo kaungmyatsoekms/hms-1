@@ -131,6 +131,7 @@ class Passport(models.Model):
 
     _sql_constraints = [('passport_unique', 'UNIQUE(passport)',
                          'Your passport is exiting in the database.')]
+   
     # Activate the latest passport
     @api.constrains('active')
     def _change_active_status(self):
@@ -384,8 +385,6 @@ class Partner(models.Model):
     property_ids = fields.Many2many("property.property", track_visibility=True)
     is_from_hms = fields.Boolean(string="Is from HMS", default=False,
         help="Check if creation is from HMS System")
-    # is_person = fields.Boolean(string='Is a Contact', default=False,
-    #     help="Check if the company type is a Contact")
     is_guest = fields.Boolean(string='Is a Guest', default=False,
         help="Check if the company type is a Guest")
     is_group = fields.Boolean(string='Is a Group', default=False,

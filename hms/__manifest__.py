@@ -1,24 +1,32 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "HMS",
-    'summary': """
+    'name':
+    "HMS",
+    'summary':
+    """
         Hotel Property Management System """,
-    'description': """
+    'description':
+    """
         Hotel Property Management System :
         -Reservations, Reception, cashier, NightAudit
     """,
-    'author': "HMS-Projects HMS, Developer Name",
-    'website': "http://www.yourcompany.com",
+    'author':
+    "HMS-Projects HMS, Developer Name",
+    'website':
+    "http://www.yourcompany.com",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/13.0/odoo/
     # addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Test',
-    'version': '0.1',
+    'category':
+    'Test',
+    'version':
+    '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'contacts', 'uom', 'account', 'mail','point_of_sale','web'],
+    'depends':
+    ['base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web'],
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web'],
     # always loaded
     'data': [
@@ -31,6 +39,8 @@
         'data/market.source.csv',
         'data/revenue.type.csv',
         'data/bed.type.csv',
+        'data/hms.calculation.method.csv',
+        'data/hms.charge_types.csv',
         'views/hms_forecast_view.xml',
         'views/hms_bank_view.xml',
         'views/hms_format_view.xml',
@@ -56,8 +66,11 @@
         'wizard/hms_confirm_wizard_view.xml',
         'wizard/hms_unconfirm_wizard_view.xml',
         'wizard/hms_reason_wizard_view.xml',
+        'wizard/hms_rersvn_wizard_view.xml',
         'views/hms_reservation_view.xml',
         'data/hms.reasontype.csv',
+        'views/hms_charge_type.xml',
+        'views/hms_package_charge_line.xml',
         # 'data/hms.reason.csv',
         #'views/views.xml',
         #'views/templates.xml',
@@ -66,6 +79,8 @@
     'demo': [
         'demo/demo.xml',
     ],
-    'installable': True,
-    'application': True,
+    'installable':
+    True,
+    'application':
+    True,
 }

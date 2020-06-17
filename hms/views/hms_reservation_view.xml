@@ -1,9 +1,37 @@
 <odoo>
     <data>
-        <record id="reservation_action_window" model="ir.actions.act_window">
-            <field name="name">Reservation</field>
-            <field name="res_model">hms.reservation</field>
-            <field name="view_mode">calendar,tree,form,gantt</field>
+
+        <!-- Reservation View List-->
+        <record id="reservation_view_list" model="ir.ui.view">
+            <field name="name">reservation.view.list</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <tree string="Reservation">
+                    <field name="property_id" optional="hide"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="group_id" optional="hide"/>
+                    <field name="guest_id" optional="hide"/>
+                    <field name="arrival" optional="show"/>
+                    <field name="departure" optional="show"/>
+                    <field name="nights" optional="show"/>
+                    <field name="rooms" optional="show"/>
+                    <field name="market" optional="hide"/>
+                    <field name="source" optional="hide"/>
+                    <field name="sales_id" optional="hide"/>
+                    <field name="contact_id" optional="hide"/>
+                    <field name="reservation_type" optional="hide"/>
+                    <field name="reservation_status" optional="hide"/>
+                    <field name="arrival_flight" optional="hide"/>
+                    <field name="arrival_flighttime" optional="hide"/>
+                    <field name="dep_flight" optional="hide"/>
+                    <field name="dep_flighttime" optional="hide"/>
+                    <field name="eta" optional="hide"/>
+                    <field name="etd" optional="hide"/>
+                    <field name="reservation_line_ids" optional="hide"/>
+                    <field name="confirm_no" optional="hide"/>
+                    <field name="internal_notes" optional="hide"/>
+                </tree>
+            </field>
         </record>
 
         <!-- Reservation View Form -->
@@ -19,23 +47,23 @@
                         <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
                         <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Re-Reservation" name="re_reservation" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
                         <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button class="oe_stat_button" icon="fa-calendar" name="%(hms.reservation_action_window)d" type="object">
+                            <button class="oe_stat_button" icon="fa-calendar" name=" " type="object">
                                 <field name="rsvn_room_count" widget='statinfo'/>
                             </button>
-                            <button class="oe_stat_button" icon="fa-check-square" name="%(hms.reservation_action_window)d" type="object">
+                            <button class="oe_stat_button" icon="fa-check-square" name=" " type="object">
                                 <field name="confirm_room_count" widget='statinfo'/>
                             </button>
-                            <button class="oe_stat_button" icon="fa-times" name="%(hms.reservation_action_window)d" type="object">
+                            <button class="oe_stat_button" icon="fa-times" name=" " type="object">
                                 <field name="cancel_room_count" widget='statinfo'/>
                             </button>
-                            <button class="oe_stat_button" icon="fa-map-marker" name="%(hms.reservation_action_window)d" type="object">
+                            <button class="oe_stat_button" icon="fa-map-marker" name=" " type="object">
                                 <field name="checkin_room_count" widget='statinfo'/>
                             </button>
                         </div>
@@ -44,12 +72,17 @@
                                 <field name="confirm_no" class="oe_inline"/>
                             </h1>
                         </div>
-                        <field name="user_id" readonly="1" class="oe_avatar"/>
-                        <br></br>
-                        <field name="date_order" class="oe_avatar"/>
-                        <field name="type" widget="radio"
-                                    class="oe_edit_only"
-                                    options="{'horizontal': true}"/>
+                        <div>
+                            <div>
+                            <field name="type" widget="radio"
+                                        class="oe_edit_only"
+                                        options="{'horizontal': true}"/>
+                            </div>
+                            <div>
+                                <field name="user_id" readonly="1" class="oe_avatar"/>
+                                <field name="date_order" class="oe_avatar"/>
+                            </div>
+                        </div>
                         <group>
                             <group>
                                 <field name="property_id"/>
@@ -58,18 +91,18 @@
                                 <field name="company_id" attrs="{'required': [('type','=', 'group')]}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
                                 <field name="sales_id" placeholder="Sales Person" required="1" context="{'default_company_type' :'person','default_is_from_hms': True }"/>
                                 <field name="contact_id" placeholder="Contact Person" required="1" context="{'default_company_type' : 'person','default_is_from_hms': True }"/>
-                                <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
                                     <field name="reservation_type" style="width:30%;" placeholder="Type"/>
                                     <label for="reservation_status" style="width:9%%" string=''/>
-                                    <label for="reservation_status" style="width:12%%" string="Status" domain="[('rsvntype_id', '=', reservation_type)]"/>
+                                    <label for="reservation_status" style="width:12%%" string="Status"/>
                                     <field name="reservation_status" style="width:46%%" placeholder="Status"/>
                                 </div>
                                 <field name="internal_notes" placeholder="Remarks"/>
                             </group>
                             <group>
-                                <field name="guest_id" attrs="{'invisible': [('type','!=', 'individual')]}" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
+                                <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
                                      <field name="arrival" style="width:30%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
@@ -91,21 +124,92 @@
                                 <label for="nights" string="Nights"/>
                                 <div class="o_address_format">
                                     <field name="nights" style="width:20%%"/>
-                                    <label for="no_ofrooms" string="Rooms" style="width:20%%"/>
-                                    <field name="no_ofrooms" style="width:30%%"/>
+                                    <label for="rooms" string="Rooms" style="width:20%%"/>
+                                    <field name="rooms" style="width:30%%"/>
                                 </div>
                                 <label for="market" string="Market/Source"/>
                                 <div class="o_address_format">
                                     <field name="market_ids" invisible="1"/>
-                                    <field name="market" style="width:50%%" placeholder="Market"/>
-                                    <field name="source" style="Width:50%%" placeholder="Source"/>
+                                    <field name="market" style="width:45%%" placeholder="Market"/>
+                                    <label for="source" string=" " style="width:8%%"/>
+                                    <field name="source" style="Width:45%%" placeholder="Source"/>
                                 </div>
+                                <field name="reason_id" string="Cancellation Reason" attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
                             </group>
-                            <separator string="Reservation Details" colspan="4" />                      
-                            <field name="reservation_line_ids" widget="one2many_list" context="{'arrival': arrival,'departure':departure,'rooms': no_ofrooms,
-                            'default_property_id':'property_id'}" colspan="4" nolabel="1"> 
-                            </field>
                         </group>
+                        <notebook>
+                            <page string="Reservation Details">
+                                <separator string="Reservation Details" colspan="4" />                      
+                                <field name="reservation_line_ids" context="{'state': state, 'arrival': arrival,'departure':departure, 
+                                                                'nights': nights, 'rooms': rooms,
+                                                                'default_property_id':property_id, 'default_market':market, 'default_source':source, 
+                                                                'default_reservation_type':reservation_type, 'default_reservation_status': reservation_status,
+                                                                'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
+                                                                'default_eta':eta, 'default_etd':etd, 
+                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}"
+                                                                colspan="4" 
+                                                                nolabel="1">  <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
+                                    <form string="Reservation Line">
+                                        <group colspan="4" col="4">
+                                            <field name="state"/>
+                                            <field name="property_id"/>
+                                            <field name="guest_id"/>
+                                            <field name="arrival"/>
+                                            <field name="departure"/>
+                                            <field name="nights" string="Nights"/>
+                                            <field name="roomtype_ids" invisible="1"/>
+                                            <field name="room_type"/>
+                                            <field name="rooms"/>
+                                            <field name="pax"/>
+                                            <field name="child"/>
+                                            <field name="ratecode_id" string="Rate Code"/>
+                                            <field name="room_rate" string="Room Rate"/>
+                                            <field name="market_ids" invisible="1"/>
+                                            <field name="market" invisible="1"/> 
+                                            <field name="source" string='Source' invisible='1'/>
+                                            <field name="reservation_type" invisible='1'/>
+                                            <field name='reservation_status' invisible='1'/>
+                                            <field name='arrival_flight' invisible='1'/>
+                                            <field name='arrival_flighttime' invisible='1'/>
+                                            <field name='dep_flight' invisible='1'/>
+                                            <field name='dep_flighttime' invisible='1'/>
+                                            <field name='eta' invisible='1'/>
+                                            <field name='etd' invisible='1'/>
+                                            <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                                        </group>
+                                    </form>
+                                    <tree string="Reservation Line" editable="bottom">
+                                        <field name="state"/>
+                                        <field name="property_id" invisible='1'/>
+                                        <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}"/>
+                                        <field name="guest_id" />
+                                        <field name="arrival"/>
+                                        <field name="departure" />
+                                        <field name="nights" string="Nights"/>
+                                        <field name="roomtype_ids" invisible="1"/>
+                                        <field name="room_type"/>
+                                        <field name="rooms" />
+                                        <field name="pax"/>
+                                        <field name="child" />
+                                        <field name="ratecode_id" string="Rate Code"/>
+                                        <field name="room_rate" string="Room Rate"/>
+                                        <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
+                                        <field name="market_ids" invisible="1"/>
+                                        <field name="market" invisible="1"/> 
+                                        <field name="source" string='Source' invisible='1'/>
+                                        <field name="reservation_type" invisible='1'/>
+                                        <field name='reservation_status' invisible='1'/>
+                                        <field name='arrival_flight' invisible='1'/>
+                                        <field name='arrival_flighttime' invisible='1'/>
+                                        <field name='dep_flight' invisible='1'/>
+                                        <field name='dep_flighttime' invisible='1'/>
+                                        <field name='eta' invisible='1'/>
+                                        <field name='etd' invisible='1'/>
+                                        <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
@@ -113,6 +217,14 @@
                     </div>
                 </form>
             </field>
+        </record>
+
+        <record id="reservation_action_window" model="ir.actions.act_window">
+            <field name="name">Reservation</field>
+            <field name="res_model">hms.reservation</field>
+            <field name="view_mode">calendar,tree,form,gantt</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('reservation_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('reservation_view_form')})]"/>
+            <field name="domain">[('state','!=','cancel')]</field>
         </record>
 
         <!-- Reservation Calendar View-->
@@ -147,197 +259,8 @@
             </field>
         </record>
 
-        <!-- Reservation View List-->
-        <record id="reservation_view_list" model="ir.ui.view">
-            <field name="name">reservation.view.list</field>
-            <field name="model">hms.reservation</field>
-            <field name="arch" type="xml">
-                <tree string="Reservation">
-                    <field name="property_id" optional="hide"/>
-                    <field name="company_id" optional="hide"/>
-                    <field name="group_id" optional="hide"/>
-                    <field name="guest_id" optional="hide"/>
-                    <field name="arrival" optional="show"/>
-                    <field name="departure" optional="show"/>
-                    <field name="nights" optional="show"/>
-                    <field name="no_ofrooms" optional="show"/>
-                    <field name="market" optional="hide"/>
-                    <field name="source" optional="hide"/>
-                    <field name="sales_id" optional="hide"/>
-                    <field name="contact_id" optional="hide"/>
-                    <field name="reservation_type" optional="hide"/>
-                    <field name="reservation_status" optional="hide"/>
-                    <field name="arrival_flight" optional="hide"/>
-                    <field name="arrival_flighttime" optional="hide"/>
-                    <field name="dep_flight" optional="hide"/>
-                    <field name="dep_flighttime" optional="hide"/>
-                    <field name="eta" optional="hide"/>
-                    <field name="etd" optional="hide"/>
-                    <field name="reservation_line_ids" optional="hide"/>
-                    <field name="confirm_no" optional="hide"/>
-                    <field name="internal_notes" optional="hide"/>
-                </tree>
-            </field>
-        </record>
-
         <!--Reservation Line-->
         <!-- Reservation Line Form View -->
-        <!-- <record id="reservation_line_view_form" model="ir.ui.view">
-            <field name="name">reservation.line.view.form</field>
-            <field name="model">hms.reservation.line</field>
-            <field name="arch" type="xml">
-                <form string="Reservation Details">
-                    <header>
-                        <field name="is_rsvn_details" invisible="1"/>
-                        <button string="Confirm" name="confirm_status" type="object" class="btn btn-primary"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Cancel" name="cancel_status" type="object" class="btn btn-primary"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary"><i class="fa fa-paint-brush"></i></button>
-                        <field name="state" widget="statusbar"/>
-                    </header>
-                    <sheet>
-                        <separator colspan='1' string="Reservation Details"/>
-                        <div class="oe_title">
-                            <h3><field name="reservation_id" placeholder="Reservation ID" style="width:80%%"/></h3>
-                            <h4><field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/></h4>
-                        </div>
-                        <group>
-                            <group name="">
-                                <field name="company_id" string="Company"/>
-                                <field name="group_id" string="Group"/>
-                                <field name="guest_id" string="Guest"/>
-                                <div class="address_format">
-                                    <field name="reservation_type" placeholder="Type" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="reservation_status" placeholder="Status" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-								<label for="arrival" string="Arrival"/>
-                                <div class="address_format">
-                                    <field name="arrival" placeholder="AR Date" style="width: 30%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
-									<label for="arrival_flight" style="width:9%;" string="Flight"/>
-                                    <field name="arrival_flight" style="width:20%;" placeholder="Flight"/>
-									<field name="arrival_flighttime" style="width:15%;" placeholder="Time" widget="float_time"/>
-                                    <label for="eta" style="width:8%;" string="ETA:"/>
-                                    <field name="eta" style="width:15%;" placeholder="ETA" widget="float_time"/>
-                                </div>
-                                <label for="departure" string="Departure"/>
-                                <div class="o_address_format">
-                                    <field name="departure" style="width:30%;"/>
-                                    <label for="dep_flight" style="width:9%;" string="Flight"/>
-                                    <field name="dep_flight" style="width:20%;" placeholder="Flight"/>
-                                    <field name="dep_flighttime" style="width:15%;" placeholder="Time" widget="float_time"/>
-                                    <label for="etd" style="width:8%;" string="ETD:"/>
-                                    <field name="etd" style="width:15%;" placeholder="ETD" widget="float_time"/>
-                                </div> 
-                                <field name="roomtype_ids" invisible="1"/>
-                                <field name="room_type" string="Room Type"/>
-                                <label for="rooms" string="Rooms"/>
-                                <div class="address_format">
-                                    <field name="rooms" placeholder="Rooms" style="width: 26%"/>
-                                    <label for="pax" string="Pax" style="width: 9%"/>
-                                    <field name="pax" placeholder="Pax" style="width: 26%"/>
-                                    <label for="child" string="Child" style="width: 9%"/>
-                                    <field name="child" placeholder="Child" style="width: 26%"/>
-                                </div>
-                                <field name="room_no" attrs="{'invisible': ['|', ('is_rsvn_details', '=', False), ('rooms', '!=', 1)], 'readonly': [('state', '=', 'checkin')]}"/>
-                                <label for="ratecode_id" string="Rate Code"/>
-                                <div class="address_format">
-                                    <field name="ratecode_id" style="width: 35%"/>
-                                    <label for="room_rate" string="Room Rate" style="width: 28%"/>
-                                    <field name="room_rate" style="width: 35%"/>
-                                </div>
-                                <field name="package_id" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <label for="updown_amt" string="Updown Amt" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="updown_amt" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <label for="updown_pc" string="Updown PC" style="width: 28%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="updown_pc" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <field name="rate_nett" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <field name="reason_id" placeholder="Discount Reason" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-								<field name="allotment_id" placeholder="Allotment"/>
-                                <label for="reservation_user_id" string="Reservation" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="reservation_user_id" placeholder="Rsvn User" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="madeondate" placeholder="Date" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <label for="citime" string="CI/CO Time" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="citime" placeholder="Check In" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="cotime" placeholder="Check Out" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-								<label for="market" string="Market/Source" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="market_ids" invisible="1"/>
-                                    <field name="market" placeholder="Market" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="source" placeholder="Source" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-								<label for="fo_remark" string="Remark" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="fo_remark" placeholder="FO Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="hk_remark" placeholder="HK Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <label for="cashier_remark" string="" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="general_remark" placeholder="General Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-								<field name="specialrequest_id" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-							</group>
-                        </group>
-						<hr></hr>
-						<group>
-							<group>
-							<label for="extrabed" string="Extra Bed" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="extrabed" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrabed_amount" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrabed_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <label for="extrapax" string="Extra Pax" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="extrapax" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrapax_amount" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extrapax_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <label for="child_bfpax" string="Child BF" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="child_bfpax" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="child_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="extra_addon" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                            </group>
-                            <group>
-                                <label for="pickup" string="PickUp/DropOff" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="pickup" placeholder="Pick Up" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="dropoff" placeholder="Drop Off" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <label for="arrival_trp" string="Arrival" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="arrival_trp" placeholder="AR Transport" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="arrival_from" placeholder="AR From" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <label for="departure_trp" string="Departure" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="departure_trp" placeholder="DEP Transport" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="departure_from" placeholder="DEP From" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <field name="visa_type" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <label for="visa_issue" string="Visa Issue/Expired" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <div class="address_format">
-                                    <field name="visa_issue" placeholder="Issue Date" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="visa_expire" placeholder="Expired Date" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                </div>
-                                <field name="arrive_reason_id" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record> -->
         <record id="reservation_line_view_form" model="ir.ui.view">
             <field name="name">reservation.line.view.form</field>
             <field name="model">hms.reservation.line</field>
@@ -345,32 +268,35 @@
                 <form string="Reservation Details">
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
-                        <field name="is_rsvn_details" invisible="1"/>
-                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Re-Reservation" name="re_reservation" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
                         <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}"><i class="fa fa-paint-brush"></i></button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
                             <field name="reservation_id" invisible="1"/>
+                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1><field name="confirm_no" placeholder="Confirm ID" style="width:80%;"/></h1>
                         </div>
-                        <field name="reservation_user_id" readonly="1" class="oe_avatar" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                        <div class="o_row">
+                        <field name="reservation_user_id" readonly="1" class="oe_avatar"/>
                         <br></br>
-                        <field name="madeondate" class="oe_avatar" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                        <field name="madeondate" class="oe_avatar"/>
+                        </div>
                         <group>
                             <group name="">
                                 <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
                                 <field name="group_id"  context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
                                 <field name="guest_id"  context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
-                                <label for="reservation_type" string="Reservation" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                <label for="reservation_type" string="Reservation"/>
                                 <div class="address_format">
-                                    <field name="reservation_type" placeholder="Type" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="reservation_status" placeholder="Status" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="reservation_type" placeholder="Type" style="width:50%;"/>
+                                    <field name="reservation_status" placeholder="Status" style="width:50%;"/>
                                 </div>
                                 <field name="nights" string="Nights" style="width:20%;"/>
                                 <label for="arrival" string="Arrival"/>
@@ -401,102 +327,117 @@
                                     <label for="child" string="Child" style="width: 9%"/>
                                     <field name="child" placeholder="Child" style="width: 26%"/>
                                 </div>
-                                <field name="room_no" attrs="{'invisible': ['|', ('is_rsvn_details', '=', False), ('rooms', '!=', 1)]}"/>
+                                <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}"/>
                                 <label for="ratecode_id" string="Rate Code"/>
                                 <div class="address_format">
-                                    <field name="ratecode_id" style="width: 35%"/>
+                                    <field name="ratecode_id" style="width:35%"/>
                                     <label for="room_rate" string="Room Rate" style="width: 28%"/>
-                                    <field name="room_rate" style="width: 35%"/>
+                                    <field name="room_rate" style="width:35%"/>
                                 </div>
-                                <field name="package_id" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                <label for="updown_amt" string="Updown Amt" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                <field name="package_id" style="width:35%"/>
+                                <label for="updown_amt" string="Updown Amt"/>
                                 <div class="address_format">
-                                    <field name="updown_amt" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <label for="updown_pc" string="Updown PC" style="width: 28%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="updown_pc" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="updown_amt" style="width: 35"/>
+                                    <label for="updown_pc" string="Updown PC" style="width:28%"/>
+                                    <field name="updown_pc" style="width: 35%"/>
                                 </div>
-                                <field name="rate_nett" style="width: 35%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                <field name="rate_nett" style="width: 35%"/>
                                 <field name="reason_id" placeholder="Discount Reason" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>                               
                             </group>
                             <group>
                                 <field name="allotment_id" placeholder="Allotment"/>
-                                <label for="citime" string="CI/CO Time" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                <label for="citime" string="CI/CO Time"/>
                                 <div class="address_format">
-                                    <field name="citime" placeholder="Check In" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="cotime" placeholder="Check Out" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="citime" placeholder="Check In" style="width: 50%"/>
+                                    <field name="cotime" placeholder="Check Out" style="width: 50%"/>
                                 </div>
-                                <label for="market" string="Market/Source" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                <label for="market" string="Market/Source"/>
                                 <div class="address_format">
                                     <field name="market_ids" invisible="1"/>
-                                    <field name="market" placeholder="Market" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <field name="source" placeholder="Source" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="market" placeholder="Market" style="width: 50%"/>
+                                    <field name="source" placeholder="Source" style="width: 50%"/>
                                 </div>
                             </group>
                         </group>
                         <hr></hr>
                         <notebook>
+                            <page string="Charges">
+                                <field name='room_transaction_line_ids'>
+                                    <tree editable="buttom">
+                                        <field name="package_charge_id"/>
+                                        <field name="charge_type_id"/>
+                                        <field name="calculation_method_id"/>
+                                        <field name="trans_date"/>
+                                        <field name="rate" />
+                                        <field name="total_amount"/>
+                                    </tree> 
+                                </field>
+                            </page>
                             <page string="Package Info">
                                 <group>
-                                    <label for="extrabed" string="Extra Bed" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrabed" string="Extra Bed"/>
                                     <div class="address_format">
-                                        <field name="extrabed" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="extrabed_amount" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="extrabed_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="extrabed" style="width: 33%"/>
+                                        <field name="extrabed_amount" style="width: 33%"/>
+                                        <field name="extrabed_bf" style="width: 33%"/>
                                     </div>
-                                    <label for="extrapax" string="Extra Pax" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="extrapax" string="Extra Pax"/>
                                     <div class="address_format">
-                                        <field name="extrapax" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="extrapax_amount" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="extrapax_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="extrapax" style="width: 33%"/>
+                                        <field name="extrapax_amount" style="width: 33%"/>
+                                        <field name="extrapax_bf" style="width: 33%"/>
                                     </div>
-                                    <label for="child_bfpax" string="Child BF" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="child_bfpax" string="Child BF"/>
                                     <div class="address_format">
-                                        <field name="child_bfpax" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="child_bf" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="extra_addon" style="width: 33%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="child_bfpax" style="width: 33%"/>
+                                        <field name="child_bf" style="width: 33%"/>
+                                        <field name="extra_addon" style="width: 33%"/>
                                     </div>
                                 </group>
                             </page>
                             <page string="Travelling Info">
                                 <group>
-                                    <label for="pickup" string="PickUp/DropOff" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="pickup" string="PickUp/DropOff"/>
                                     <div class="address_format">
-                                        <field name="pickup" placeholder="Pick Up" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="dropoff" placeholder="Drop Off" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="pickup" placeholder="Pick Up" style="width: 50%"/>
+                                        <field name="dropoff" placeholder="Drop Off" style="width: 50%"/>
                                     </div>
-                                    <label for="arrival_trp" string="Arrival" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="arrival_trp" string="Arrival"/>
                                     <div class="address_format">
-                                        <field name="arrival_trp" placeholder="AR Transport" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="arrival_from" placeholder="AR From" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="arrival_trp" placeholder="AR Transport" style="width: 50%"/>
+                                        <field name="arrival_from" placeholder="AR From" style="width: 50%" />
                                     </div>
-                                    <label for="departure_trp" string="Departure" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="departure_trp" string="Departure" />
                                     <div class="address_format">
-                                        <field name="departure_trp" placeholder="DEP Transport" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="departure_from" placeholder="DEP From" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="departure_trp" placeholder="DEP Transport" style="width: 50%" />
+                                        <field name="departure_from" placeholder="DEP From" style="width: 50%"/>
                                     </div>
-                                    <field name="visa_type" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                    <label for="visa_issue" string="Visa Issue/Expired" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="visa_type" />
+                                    <label for="visa_issue" string="Visa Issue/Expired"/>
                                     <div class="address_format">
-                                        <field name="visa_issue" placeholder="Issue Date" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="visa_expire" placeholder="Expired Date" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="visa_issue" placeholder="Issue Date" style="width: 50%"/>
+                                        <field name="visa_expire" placeholder="Expired Date" style="width: 50%"/>
                                     </div>
-                                    <field name="arrive_reason_id" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="arrive_reason_id"/>
                                 </group>
                             </page>
                             <page string="Internal Notes">
                                 <group>
-                                    <label for="fo_remark" string="Remark" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="fo_remark" string="Remark"/>
                                     <div class="address_format">
-                                        <field name="fo_remark" placeholder="FO Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="hk_remark" placeholder="HK Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="fo_remark" placeholder="FO Remark" style="width: 50%" />
+                                        <field name="hk_remark" placeholder="HK Remark" style="width: 50%" />
                                     </div>
-                                    <label for="cashier_remark" string="" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <label for="cashier_remark" string=""/>
                                     <div class="address_format">
-                                        <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
-                                        <field name="general_remark" placeholder="General Remark" style="width: 50%" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                        <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%"/>
+                                        <field name="general_remark" placeholder="General Remark" style="width: 50%" />
                                     </div>                               
-                                    <field name="specialrequest_id" attrs="{'invisible': [('is_rsvn_details', '=', False)]}"/>
+                                    <field name="specialrequest_id"/>
                                 </group>
+                            </page>
+                            <page string="Cancel Record">
+                                <field name="cancel_rsvn_ids" readonly="1"/>
                             </page>
                         </notebook>
                     </sheet>
@@ -510,6 +451,7 @@
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
                 <tree string="Reservation Details">
+                    <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                     <field name="reservation_id" optional="hide"/>
                     <field name="confirm_no" optional="hide"/>
                     <field name="arrival" optional="hide"/>
@@ -542,6 +484,8 @@
             <field name="name">Reservation Details</field>
             <field name="res_model">hms.reservation.line</field>
             <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('reservation_line_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('reservation_line_view_form')})]"/>
+            <field name="domain">[('state','!=','cancel')]</field>
         </record>
 
         <!-- Reason Type View Form-->
@@ -618,8 +562,461 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+        <!-- Group Cancel Form-->
+        <record id="group_cancel_view_form" model="ir.ui.view">
+            <field name="name">reservation.view.form</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <form name="Cancel Group Reservation" create="false" edit="false" delete="false" no_create_edit="True" import="false">
+                    <header>
+                        <field name="is_reservation" invisible="1"/>
+                        <field name="is_arrival_today" invisible="1"/>
+                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
+                        <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" icon="fa-calendar" name="%(hms.reservation_action_window)d" type="object">
+                                <field name="rsvn_room_count" widget='statinfo'/>
+                            </button>
+                            <button class="oe_stat_button" icon="fa-check-square" name="%(hms.reservation_action_window)d" type="object">
+                                <field name="confirm_room_count" widget='statinfo'/>
+                            </button>
+                            <button class="oe_stat_button" icon="fa-times" name="%(hms.reservation_action_window)d" type="object">
+                                <field name="cancel_room_count" widget='statinfo'/>
+                            </button>
+                            <button class="oe_stat_button" icon="fa-map-marker" name="%(hms.reservation_action_window)d" type="object">
+                                <field name="checkin_room_count" widget='statinfo'/>
+                            </button>
+                        </div>
+                        <div class="oe_title" >
+                            <h1>
+                                <field name="confirm_no" class="oe_inline"/>
+                            </h1>
+                        </div>
+                        <div>
+                            <div>
+                            <field name="type" widget="radio"
+                                        class="oe_edit_only"
+                                        options="{'horizontal': true}"/>
+                            </div>
+                            <div>
+                                <field name="user_id" readonly="1" class="oe_avatar"/>
+                                <field name="date_order" class="oe_avatar"/>
+                            </div>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="property_id"/>
+                                <field name="is_company" invisible="1"/>
+                                <field name="is_group" invisible="1"/>
+                                <field name="company_id" attrs="{'required': [('type','=', 'group')]}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
+                                <field name="sales_id" placeholder="Sales Person" required="1" context="{'default_company_type' :'person','default_is_from_hms': True }"/>
+                                <field name="contact_id" placeholder="Contact Person" required="1" context="{'default_company_type' : 'person','default_is_from_hms': True }"/>
+                                <label for="reservation_type" string="Rsvn Type"/>
+                                <div class="o_address_format">
+                                    <field name="reservation_type" style="width:30%;" placeholder="Type"/>
+                                    <label for="reservation_status" style="width:9%%" string=''/>
+                                    <label for="reservation_status" style="width:12%%" string="Status"/>
+                                    <field name="reservation_status" style="width:46%%" placeholder="Status"/>
+                                </div>
+                                <field name="internal_notes" placeholder="Remarks"/>
+                            </group>
+                            <group>
+                                <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
+                                <label for="arrival" string="Arrival"/>
+                                <div class="o_address_format">
+                                     <field name="arrival" style="width:30%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
+                                    <label for="arrival_flight" style="width:9%%" string="Flight"/>
+                                    <field name="arrival_flight" style="width:20%%" placeholder="Flight"/>
+                                    <field name="arrival_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
+                                    <label for="eta" style="width:8%%" string="ETA:"/>
+                                    <field name="eta" style="width:15%%" placeholder="ETA" widget="float_time"/>
+                                </div>
+                                <label for="departure" string="Departure"/>
+                                <div class="o_address_format">
+                                    <field name="departure" style="width:30%%"/>
+                                    <label for="dep_flight" style="width:9%%" string="Flight"/>
+                                    <field name="dep_flight" style="width:20%%" placeholder="Flight"/>
+                                    <field name="dep_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
+                                    <label for="etd" style="width:8%%" string="ETD:"/>
+                                    <field name="etd" style="width:15%%" placeholder="ETD" widget="float_time"/>
+                                </div>
+                                <label for="nights" string="Nights"/>
+                                <div class="o_address_format">
+                                    <field name="nights" style="width:20%%"/>
+                                    <label for="rooms" string="Rooms" style="width:20%%"/>
+                                    <field name="rooms" style="width:30%%"/>
+                                </div>
+                                <label for="market" string="Market/Source"/>
+                                <div class="o_address_format">
+                                    <field name="market_ids" invisible="1"/>
+                                    <field name="market" style="width:45%%" placeholder="Market"/>
+                                    <label for="source" string=" " style="width:8%%"/>
+                                    <field name="source" style="Width:45%%" placeholder="Source"/>
+                                </div>
+                                <field name="reason_id" string="Cancellation Reason" attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Reservation Details">
+                                <separator string="Reservation Details" colspan="4" />                      
+                                <field name="reservation_line_ids" context="{'state': state, 'arrival': arrival,'departure':departure, 
+                                                                'nights': nights, 'rooms': rooms,
+                                                                'default_property_id':property_id, 'default_market':market, 'default_source':source, 
+                                                                'default_reservation_type':reservation_type, 'default_reservation_status':reservation_status,
+                                                                'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
+                                                                'default_eta':eta, 'default_etd':etd, 
+                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}"
+                                                                colspan="4" 
+                                                                nolabel="1" >  <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
+                                    <form string="Reservation Line">
+                                        <group colspan="4" col="4">
+                                            <field name="state"/>
+                                            <field name="property_id"/>
+                                            <field name="guest_id"/>
+                                            <field name="arrival"/>
+                                            <field name="departure"/>
+                                            <field name="nights" string="Nights"/>
+                                            <field name="roomtype_ids" invisible="1"/>
+                                            <field name="room_type"/>
+                                            <field name="rooms"/>
+                                            <field name="pax"/>
+                                            <field name="child"/>
+                                            <field name="ratecode_id" string="Rate Code"/>
+                                            <field name="room_rate" string="Room Rate"/>
+                                            <field name="market_ids" invisible="1"/>
+                                            <field name="market" invisible="1"/> 
+                                            <field name="source" string='Source' invisible='1'/>
+                                            <field name="reservation_type" invisible='1'/>
+                                            <field name='reservation_status' invisible='1'/>
+                                            <field name='arrival_flight' invisible='1'/>
+                                            <field name='arrival_flighttime' invisible='1'/>
+                                            <field name='dep_flight' invisible='1'/>
+                                            <field name='dep_flighttime' invisible='1'/>
+                                            <field name='eta' invisible='1'/>
+                                            <field name='etd' invisible='1'/>
+                                            <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                                        </group>
+                                    </form>
+                                    <tree string="Reservation Line" editable="bottom">
+                                        <field name="state"/>
+                                        <field name="property_id" invisible='1'/>
+                                        <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}"/>
+                                        <field name="guest_id" />
+                                        <field name="arrival"/>
+                                        <field name="departure" />
+                                        <field name="nights" string="Nights"/>
+                                        <field name="roomtype_ids" invisible="1"/>
+                                        <field name="room_type"/>
+                                        <field name="rooms" />
+                                        <field name="pax"/>
+                                        <field name="child" />
+                                        <field name="ratecode_id" string="Rate Code"/>
+                                        <field name="room_rate" string="Room Rate"/>
+                                        <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
+                                        <field name="market_ids" invisible="1"/>
+                                        <field name="market" invisible="1"/> 
+                                        <field name="source" string='Source' invisible='1'/>
+                                        <field name="reservation_type" invisible='1'/>
+                                        <field name='reservation_status' invisible='1'/>
+                                        <field name='arrival_flight' invisible='1'/>
+                                        <field name='arrival_flighttime' invisible='1'/>
+                                        <field name='dep_flight' invisible='1'/>
+                                        <field name='dep_flighttime' invisible='1'/>
+                                        <field name='eta' invisible='1'/>
+                                        <field name='etd' invisible='1'/>
+                                        <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Group Cancel View List -->
+        <record id="group_cancel_view_list" model="ir.ui.view">
+            <field name="name">group.cancel.view.list</field>
+            <field name="model">hms.reservation</field>
+            <field name="arch" type="xml">
+                <tree string="Group Cancel List" create="false" edit="false">
+                    <field name="confirm_no"/>
+                    <field name="company_id"/>
+                    <field name="group_id"/>
+                    <field name="guest_id"/>
+                    <field name="arrival"/>
+                    <field name="departure"/>
+                    <field name="rooms"/>
+                    <field name="reason_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Group Cancel Record-->
+        <record id="cancel_full_action_window" model="ir.actions.act_window">
+            <field name="name">Cancellation Group</field>
+            <field name="res_model">hms.reservation</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('group_cancel_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('group_cancel_view_form')})]"/>
+            <field name="domain">['&amp;',('state','=','cancel'),('is_full_cancel','=',True)]</field>
+        </record>
+
+        <!-- Line Cancel View Form -->
+        <record id="line_cancel_view_form" model="ir.ui.view">
+            <field name="name">reservation.line.view.form</field>
+            <field name="model">hms.reservation.line</field>
+            <field name="arch" type="xml">
+                <form string="Cancel Line Reservation Details" create="false" edit="false" delete="false" no_create_edit="True" import="false">
+                    <header>
+                        <field name="is_arrival_today" invisible="1"/>
+                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}"><i class="fa fa-paint-brush"></i></button>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <separator colspan='1' string="Reservation Details"/>
+                        <div class="oe_title">
+                            <field name="reservation_id" invisible="1"/>
+                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                            <h1><field name="confirm_no" placeholder="Confirm ID" style="width:80%;"/></h1>
+                        </div>
+                        <div class="o_row">
+                        <field name="reservation_user_id" readonly="1" class="oe_avatar"/>
+                        <br></br>
+                        <field name="madeondate" class="oe_avatar"/>
+                        </div>
+                        <group>
+                            <group name="">
+                                <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
+                                <field name="group_id"  context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id"  context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
+                                <label for="reservation_type" string="Reservation"/>
+                                <div class="address_format">
+                                    <field name="reservation_type" placeholder="Type" style="width:50%;"/>
+                                    <field name="reservation_status" placeholder="Status" style="width:50%;"/>
+                                </div>
+                                <field name="nights" string="Nights" style="width:20%;"/>
+                                <label for="arrival" string="Arrival"/>
+                                <div class="o_address_format">
+                                     <field name="arrival" style="width:30%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
+                                    <label for="arrival_flight" style="width:9%;" string="Flight"/>
+                                    <field name="arrival_flight" style="width:20%;" placeholder="Flight"/>
+                                    <field name="arrival_flighttime" style="width:15%;" placeholder="Time" widget="float_time"/>
+                                    <label for="eta" style="width:8%;" string="ETA:"/>
+                                    <field name="eta" style="width:15%;" placeholder="ETA" widget="float_time"/>
+                                </div>
+                                <label for="departure" string="Departure"/>
+                                <div class="o_address_format">
+                                    <field name="departure" style="width:30%;"/>
+                                    <label for="dep_flight" style="width:9%;" string="Flight"/>
+                                    <field name="dep_flight" style="width:20%;" placeholder="Flight"/>
+                                    <field name="dep_flighttime" style="width:15%;" placeholder="Time" widget="float_time"/>
+                                    <label for="etd" style="width:8%;" string="ETD:"/>
+                                    <field name="etd" style="width:15%;" placeholder="ETD" widget="float_time"/>
+                                </div>                              
+                                <field name="roomtype_ids" invisible="1"/>
+                                <field name="room_type" string="Room Type"/>
+                                <label for="rooms" string="Rooms"/>
+                                <div class="address_format">
+                                    <field name="rooms" placeholder="Rooms" style="width: 26%"/>
+                                    <label for="pax" string="Pax" style="width: 9%"/>
+                                    <field name="pax" placeholder="Pax" style="width: 26%"/>
+                                    <label for="child" string="Child" style="width: 9%"/>
+                                    <field name="child" placeholder="Child" style="width: 26%"/>
+                                </div>
+                                <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}"/>
+                                <label for="ratecode_id" string="Rate Code"/>
+                                <div class="address_format">
+                                    <field name="ratecode_id" style="width:35%"/>
+                                    <label for="room_rate" string="Room Rate" style="width: 28%"/>
+                                    <field name="room_rate" style="width:35%"/>
+                                </div>
+                                <field name="package_id" style="width:35%"/>
+                                <label for="updown_amt" string="Updown Amt"/>
+                                <div class="address_format">
+                                    <field name="updown_amt" style="width: 35"/>
+                                    <label for="updown_pc" string="Updown PC" style="width:28%"/>
+                                    <field name="updown_pc" style="width: 35%"/>
+                                </div>
+                                <field name="rate_nett" style="width: 35%"/>
+                                <field name="reason_id" placeholder="Discount Reason" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>                               
+                            </group>
+                            <group>
+                                <field name="allotment_id" placeholder="Allotment"/>
+                                <label for="citime" string="CI/CO Time"/>
+                                <div class="address_format">
+                                    <field name="citime" placeholder="Check In" style="width: 50%"/>
+                                    <field name="cotime" placeholder="Check Out" style="width: 50%"/>
+                                </div>
+                                <label for="market" string="Market/Source"/>
+                                <div class="address_format">
+                                    <field name="market_ids" invisible="1"/>
+                                    <field name="market" placeholder="Market" style="width: 50%"/>
+                                    <field name="source" placeholder="Source" style="width: 50%"/>
+                                </div>
+                            </group>
+                        </group>
+                        <hr></hr>
+                        <notebook>
+                            <page string="Charges">
+                                <field name='room_transaction_line_ids'>
+                                    <tree editable="buttom">
+                                        <field name="package_charge_id"/>
+                                        <field name="charge_type_id"/>
+                                        <field name="calculation_method_id"/>
+                                        <field name="trans_date"/>
+                                        <field name="rate" />
+                                        <field name="total_amount"/>
+                                    </tree> 
+                                </field>
+                            </page>
+                            <page string="Package Info">
+                                <group>
+                                    <label for="extrabed" string="Extra Bed"/>
+                                    <div class="address_format">
+                                        <field name="extrabed" style="width: 33%"/>
+                                        <field name="extrabed_amount" style="width: 33%"/>
+                                        <field name="extrabed_bf" style="width: 33%"/>
+                                    </div>
+                                    <label for="extrapax" string="Extra Pax"/>
+                                    <div class="address_format">
+                                        <field name="extrapax" style="width: 33%"/>
+                                        <field name="extrapax_amount" style="width: 33%"/>
+                                        <field name="extrapax_bf" style="width: 33%"/>
+                                    </div>
+                                    <label for="child_bfpax" string="Child BF"/>
+                                    <div class="address_format">
+                                        <field name="child_bfpax" style="width: 33%"/>
+                                        <field name="child_bf" style="width: 33%"/>
+                                        <field name="extra_addon" style="width: 33%"/>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string="Travelling Info">
+                                <group>
+                                    <label for="pickup" string="PickUp/DropOff"/>
+                                    <div class="address_format">
+                                        <field name="pickup" placeholder="Pick Up" style="width: 50%"/>
+                                        <field name="dropoff" placeholder="Drop Off" style="width: 50%"/>
+                                    </div>
+                                    <label for="arrival_trp" string="Arrival"/>
+                                    <div class="address_format">
+                                        <field name="arrival_trp" placeholder="AR Transport" style="width: 50%"/>
+                                        <field name="arrival_from" placeholder="AR From" style="width: 50%" />
+                                    </div>
+                                    <label for="departure_trp" string="Departure" />
+                                    <div class="address_format">
+                                        <field name="departure_trp" placeholder="DEP Transport" style="width: 50%" />
+                                        <field name="departure_from" placeholder="DEP From" style="width: 50%"/>
+                                    </div>
+                                    <field name="visa_type" />
+                                    <label for="visa_issue" string="Visa Issue/Expired"/>
+                                    <div class="address_format">
+                                        <field name="visa_issue" placeholder="Issue Date" style="width: 50%"/>
+                                        <field name="visa_expire" placeholder="Expired Date" style="width: 50%"/>
+                                    </div>
+                                    <field name="arrive_reason_id"/>
+                                </group>
+                            </page>
+                            <page string="Internal Notes">
+                                <group>
+                                    <label for="fo_remark" string="Remark"/>
+                                    <div class="address_format">
+                                        <field name="fo_remark" placeholder="FO Remark" style="width: 50%" />
+                                        <field name="hk_remark" placeholder="HK Remark" style="width: 50%" />
+                                    </div>
+                                    <label for="cashier_remark" string=""/>
+                                    <div class="address_format">
+                                        <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%"/>
+                                        <field name="general_remark" placeholder="General Remark" style="width: 50%" />
+                                    </div>                               
+                                    <field name="specialrequest_id"/>
+                                </group>
+                            </page>
+                            <page string="Cancel Record">
+                                <field name="cancel_rsvn_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Cancel Line View List-->
+        <record id="line_cancel_view_list" model="ir.ui.view">
+            <field name="name">line.cancel.view.list</field>
+            <field name="model">hms.reservation.line</field>
+            <field name="arch" type="xml">
+                <tree string="Group Cancel List" create="false" edit="false">
+                    <field name="confirm_no"/>
+                    <field name="reservation_id"/>
+                    <field name="company_id"/>
+                    <field name="group_id"/>
+                    <field name="guest_id"/>
+                    <field name="arrival"/>
+                    <field name="departure"/>
+                    <field name="rooms"/>
+                    <field name="room_type"/>
+                    <field name="reason_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Cancel Line Action -->
+        <record id="cancel_line_action_window" model="ir.actions.act_window">
+            <field name="name">Cancellation List</field>
+            <field name="res_model">hms.reservation.line</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('line_cancel_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('line_cancel_view_form')})]"/>
+            <field name="domain">['&amp;', ('state','=','cancel'), ('active', '=', False)]</field>
+        </record>
+
+        <!-- Cancel Record View List-->
+        <record id="cancel_record_view_list" model="ir.ui.view">
+            <field name="name">cancel.record.view.list</field>
+            <field name="model">hms.cancel.rsvn</field>
+            <field name="arch" type="xml">
+                <tree string="Cancel Records" create="false" edit="false" delete="false">
+                    <field name="is_full_cancel"/>
+                    <field name="is_partial_cancel"/>
+                    <field name="group_id"/>
+                    <field name="guest_id"/>
+                    <field name="reason_id"/>
+                    <field name="cancel_user_id"/>
+                    <field name="cancel_datetime"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Cancel Record Action-->
+        <record id="cancel_record_action_window" model="ir.actions.act_window">
+            <field name="name">Cancel Records List</field>
+            <field name="res_model">hms.cancel.rsvn</field>
+            <field name="view_mode">tree</field>
+        </record>
+
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
-        <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1" action="reservation_action_window"/>
-         <menuitem id="reservation_Details" name="Reservation Details" parent="hms_menu_rsvn" sequence="1" action="reservation_line_action_window"/>
+        <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
+            <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
+            <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
+        <menuitem id="cancellation_menu" name="Cancellation" parent="hms_menu_rsvn" sequence="2"/>
+        <menuitem id="full_cancel" name="Cancellation Group" parent="cancellation_menu" sequence="1" action="cancel_full_action_window"/>
+        <menuitem id="cancellation_list" name="Cancellation List" parent="cancellation_menu" sequence="2" action="cancel_line_action_window"/>
     </data>
 </odoo>

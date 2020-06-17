@@ -12,6 +12,7 @@
     <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
+    
       
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
@@ -863,6 +864,11 @@
               <field name="package_code" placeholder="Eg. INBF....."/>
               <field name="package_name" placeholder="Eg. Including Breakfast....."/>
             </group>
+            <notebook>
+              <page string="Package Charges">
+                <field name="package_line_ids" context="{'default_property_id' :property_id, 'default_packge_id':id}"/>
+              </page>
+            </notebook>
           </sheet>
         </form>
       </field>

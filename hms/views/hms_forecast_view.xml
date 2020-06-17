@@ -11,7 +11,7 @@
                             <field name="property_id"/>
                             <field name="avail_date"/>
                             <field name="avail_arrival"/>
-                            <field name="arrival_dep"/>
+                            <field name="avail_dep"/>
                             <field name="avail_occupancy"/>
                             <field name="avail_block"/>
                             <field name="avail_ooo"/>
@@ -26,8 +26,8 @@
                             <field name="avail_fitguest"/>
                             <field name="avail_unconfirm"/>
                             <field name="avail_rmrev"/>
-                            <field name="total_room"/>
-                            <field name="avail_totalroom"/>
+                            <field name="total_room" force_save="1"/>
+                            <field name="avail_totalroom" force_save="1"/>
                             <field name="revpar"/>
                             <field name="adr"/>
                             <field name="avail_roomtype_ids"/>
@@ -45,10 +45,44 @@
                 <tree string="Availability">
                     <field name="property_id"/>
                     <field name="avail_date"/>
+                    <field name="avail_unconfirm"/>
                     <field name="avail_arrival"/>
-                    <field name="total_room"/>
+                    <field name="avail_dep"/>
+                    <field name="avail_occupancy"/>
                     <field name="avail_totalroom"/>
+                    <field name="total_room"/>
                 </tree>
+            </field>
+        </record>
+
+        <!-- Availability Pivot View -->
+        <record id="availability_view_pivot" model="ir.ui.view">
+            <field name="name">availability.view.pivot</field>
+            <field name="model">availability.availability</field>
+            <field name="arch" type="xml">
+                <pivot string="Availability">
+                    <field name="avail_date" type="row"/>
+                    <field name="avail_arrival" type="measure"/>
+                    <field name="avail_dep" type="measure"/>
+                    <field name="avail_occupancy" type="measure"/>
+                    <field name="avail_block" type="measure"/>
+                    <field name="avail_ooo" type="measure"/>
+                    <field name="avail_waitlist" type="measure"/>
+                    <field name="avail_allotment" type="measure"/>
+                    <field name="avail_arrguest" type="measure"/>
+                    <field name="avail_depguest" type="measure"/>
+                    <field name="avail_occguest" type="measure"/>
+                    <field name="avail_grp" type="measure"/>
+                    <field name="avail_fit" type="measure"/>
+                    <field name="avail_grpguest" type="measure"/>
+                    <field name="avail_fitguest" type="measure"/>
+                    <field name="avail_unconfirm" type="measure"/>
+                    <field name="avail_rmrev" type="measure"/>
+                    <field name="revpar" type="measure"/>
+                    <field name="adr" type="measure"/>
+                    <field name="total_room" type="measure"/>
+                    <field name="avail_totalroom" type="measure"/>
+                </pivot>
             </field>
         </record>
 
@@ -56,7 +90,7 @@
         <record id="availability_action_window" model="ir.actions.act_window">
             <field name="name">Availability</field>
             <field name="res_model">availability.availability</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,pivot,form</field>
         </record>
 
         <!-- Room Type Available Form View -->
@@ -86,7 +120,7 @@
             </field>
         </record>
 
-        <!-- Availability List View -->
+        <!-- Room Type Available List View -->
         <record id="roomtype_available_view_list" model="ir.ui.view">
             <field name="name">roomtype.available.view.list</field>
             <field name="model">roomtype.available</field>
@@ -95,9 +129,32 @@
                     <field name="property_id"/>
                     <field name="ravail_rmty"/>
                     <field name="ravail_date"/>
-                    <field name="total_room"/>
+                    <field name="ravail_unconfirm"/>
+                    <field name="ravail_occupancy"/>
                     <field name="ravail_totalroom"/>
+                    <field name="total_room"/>
+                    
                 </tree>
+            </field>
+        </record>
+
+        <!-- Room Type Available Pivot View -->
+        <record id="roomtype_available_view_pivot" model="ir.ui.view">
+            <field name="name">roomtype.available.view.pivot</field>
+            <field name="model">roomtype.available</field>
+            <field name="arch" type="xml">
+                <pivot string="Room Type Available">
+                    <field name="ravail_rmty" type="row"/>
+                    <field name="ravail_date" type="col"/>
+                    <field name="ravail_ooo" type="measure"/>
+                    <field name="ravail_occupancy" type="measure"/>
+                    <field name="ravail_block" type="measure"/>
+                    <field name="ravail_waitlist" type="measure"/>
+                    <field name="ravail_allotment" type="measure"/>
+                    <field name="ravail_unconfirm" type="measure"/>
+                    <field name="total_room" type="measure"/>
+                    <field name="ravail_totalroom" type="measure"/>
+                </pivot>
             </field>
         </record>
 
@@ -105,7 +162,7 @@
         <record id="roomtype_available_action_window" model="ir.actions.act_window">
             <field name="name">Room Type Available</field>
             <field name="res_model">roomtype.available</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,pivot,form</field>
         </record>
 
         <menuitem id="hms_menu_forecast" name="Forecast" parent="hotel_menu_root" sequence="5"/>

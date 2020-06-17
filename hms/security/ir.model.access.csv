@@ -45,3 +45,7 @@ access_hms_reasontype,hms.reasontype,model_hms_reasontype,base.group_user,1,1,1,
 access_hms_cancel_rsvn,hms.cancel.rsvn,model_hms_cancel_rsvn,base.group_user,1,1,1,1
 access_availability_availability,availability.availability,model_availability_availability,base.group_user,1,1,1,1
 access_roomtype_available,roomtype.available,model_roomtype_available,base.group_user,1,1,1,1
+access_hms_charge_types,hms.charge_types,model_hms_charge_types,base.group_user,1,1,1,1
+access_hms_calculation_method,hms.calculation.method,model_hms_calculation_method,base.group_user,1,1,1,1
+access_hms_package_charge_line,hms.package.charge.line,model_hms_package_charge_line,base.group_user,1,1,1,1
+access_hms_room_transaction_charge_line,hms.room.transaction.charge.line,model_hms_room_transaction_charge_line,base.group_user,1,1,1,1
