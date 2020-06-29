@@ -10,6 +10,7 @@
     <!-- menu categories -->
     <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> 
     <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
+    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="3"/>
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
     
@@ -24,6 +25,7 @@
         <form string="Property">
         <header>
           <field name='is_property' invisible='1'/>
+            <button string="New RateCode" name="action_newratecode" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
@@ -93,6 +95,9 @@
                 <field name="email" placeholder="example@company.com....."/>
                 <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
                 <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
+                <field name="high_occupancy" style="width:20%%"/>
+                <field name="low_occupancy" style="width:20%%"/>
+                <field name="availability" style="width:20%%"/>
               </group>
               <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
               <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
@@ -105,31 +110,67 @@
                 <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/>
               </page>
               <page string='Buildings (or) Zone'>
-                <div><field name="building_ids"/></div>
+                <div>
+                  <field name="building_ids">
+                    <tree string="Building" limit="10">
+                      <field name="sequence" widget="handle"/>
+                      <field name="building_name"/>
+                      <field name="building_type"/>
+                      <field name="location_ids" widget="many2many_tags"/>
+                      <field name="building_location" optional="hide"/>
+                    </tree>
+                  </field>
+                </div>
               </page> 
               <page string='Room Type'>
                 <h2> Room Type</h2>
                 <field name="roomtype_ids" context="{'property_id':active_id}"> 
-                  <tree>
+                  <tree string="Room Type List" limit='10'>
+                    <field name="sequence" widget="handle"/>
                     <field name="name"/>
+                    <field name="fix_type"/>
+                    <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
                     <field name="totalroom"/>
                   </tree>
                 </field>
               </page>
+              <page string='Room Number'>
+                <group>
+                  <div>
+                    <field name="propertyroom_ids" context="{'default_property_id' : id}">
+                      <tree limit="10">
+                        <field name="is_propertyroom" invisible="1"/>
+                        <field name="sequence" widget="handle"/>
+                        <field name="room_no" optional="show"/>
+                        <field name="building_id" optional="show"/>
+                        <field name="roomtype_id" optional="show"/>
+                        <field name="bedtype_id" optional="show"/>
+                        <field name="roomlocation_id" optional="show"/>
+                        <field name="room_bedqty" optional="show"/>
+                        <field name="room_extension" optional="show"/>
+                        <field name="roomview_ids" optional="hide"/>
+                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}">
+                          <i class="fa fa-paint-brush"></i></button>
+                      </tree>
+                    </field>
+                  </div>
+                </group> 
+              </page>
                <page string='Market Segment'>
                 <h2>Market Segment</h2>
-                <field name="market_ids"/>
+                <field name="market_ids">
+                  <tree string="Market Segment" limit='10'>
+                    <field name="sequence" widget="handle"/>
+                    <field name="market_code" />
+                    <field name="market_name" />
+                    <field name="group_id"/>  
+                    <field name="options"/>
+                  </tree>
+                </field>
               </page>
               <page string='Bank Information'>
                 <!-- <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" context="{'default_property_id' : id}" mode="kanban"/> -->
                 <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
-              </page>
-              <page string='Room Number'>
-                <group>
-                  <div>
-                    <field name="propertyroom_ids" context="{'default_property_id' : id}"/>
-                  </div>
-                </group> 
               </page>
               <page string='Hotel License'>
                 <field name="roomqty"/>
@@ -169,10 +210,12 @@
               </page>
             </notebook>
           </sheet>
+          <footer>
           <div class="oe_chatter">
               <field name="message_follower_ids" widget="mail_followers"/>
               <field name="message_ids" widget="mail_thread"/>
           </div>
+          </footer>
         </form>
       </field>
     </record>
@@ -278,6 +321,7 @@
         </kanban>
       </field>
     </record>
+
     <!-- <record id="property_view_kanban" model="ir.ui.view">
       <field name="name">property.view.kanban</field>
       <field name="model">property.property</field>
@@ -319,26 +363,27 @@
         </kanban>
       </field>
     </record> -->
+
     <!-- Kanban View of Property -->
     <record model="ir.ui.view" id="view_pms_properites_filter">
-      <field name="name">Properties Filter</field>
-      <field name="model">property.property</field>
-      <field name="arch" type="xml">
-        <search>
-          <field name="code" string="Property Code"/>
-          <field name="name" string="Property Name"/>
-          <field name="website" string="Website"/>
-        </search>
-      </field>
-  </record>
+        <field name="name">Properties Filter</field>
+        <field name="model">property.property</field>
+        <field name="arch" type="xml">
+          <search>
+            <field name="code" string="Property Code"/>
+            <field name="name" string="Property Name"/>
+            <field name="website" string="Website"/>
+          </search>
+        </field>
+    </record>
 
-  <record id="property_action_tree" model="ir.actions.act_window">
-            <field name="name">Hotel Properties</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">property.property</field>
-            <field name="view_mode">tree,form</field>
-            <field name="domain">[('id','=',active_id)]</field>
-        </record>
+    <record id="property_action_tree" model="ir.actions.act_window">
+        <field name="name">Hotel Properties</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">property.property</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('id','=',active_id)]</field>
+    </record>
 
     <!-- action of property setup -->
     <record id="property_action_window" model="ir.actions.act_window">
@@ -363,20 +408,25 @@
                 <field name="building_name" placeholder="Eg. Story Building (or) Villa" />
                 <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}'/>
                 <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities"/>
-              </group>
-              <group>
                 <field name="building_location"/>
                 <field name="building_desc"/>
-                <field name="building_img" widget="image" class="float-left oe_avatar"/>
+              </group>
+              <group>
+                <field name="building_img" widget="image" class="oe_avatar"/>
                 <!-- <field name="location_number" invisible ='1'/> -->
               </group>
-                <notebook>
-                <page string="Room Location">
+            </group>
+            <notebook>
+                <page string="Room Location" colspan='4'>
                   <field name="location_ids">
+                    <tree string="Room Location" limit="10">
+                      <field name="sequence" widget="handle"/>
+                      <field name="location_code"/>
+                      <field name="location_name"/>
+                  </tree>
                   </field>
                 </page>
-              </notebook>
-            </group>
+            </notebook>
           </sheet>
         </form>
       </field>
@@ -388,9 +438,10 @@
       <field name="model">building.building</field>
       <field name="arch" type="xml">
         <tree string="Building">
+          <field name="sequence" widget="handle"/>
           <field name="building_name"/>
           <field name="building_type"/>
-          <field name="location_ids"/>
+          <field name="location_ids" widget="many2many_tags"/>
           <field name="building_location" optional="hide"/>
         </tree>
       </field>
@@ -466,6 +517,7 @@
       <field name="model">room.location</field>
       <field name="arch" type="xml">
         <tree string="Room Location">
+          <field name="sequence" widget="handle"/>
           <field name="location_code"/>
           <field name="location_name"/>
         </tree>
@@ -490,26 +542,48 @@
             <h2>Room Type Setup</h2>
             <br></br>
             <group>
-              <field name="code" placeholder="Eg. DLX....."/>
-              <field name="name" placeholder="Eg. Deluxe....."/>
-              <field name="fix_type"  widget="boolean_toggle"/>
-               <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}" widget="many2many_tags"/>
-              <!-- <field name="beds" /> -->
-              <field name="ratecode_id"/>
-              <field name="totalroom" type="hidden"/>
-              <field name="image" widget="image" class="float-left oe_avatar"/>
-              <field name="roomtype_desc"/>
+              <group>
+                <field name="code" placeholder="Eg. DLX....."/>
+                <field name="name" placeholder="Eg. Deluxe....."/>
+                <field name="fix_type"  widget="boolean_toggle"/>
+                <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}" widget="many2many_tags"/>
+                <field name="ratecode_id"/>
+                <field name="totalroom" invisible='1'/>
+                <field name="roomtype_desc"/>
+              </group>
+              <group>
+                <field name="image" widget="image" class="oe_avatar"/>
+              </group>
             </group>
           </sheet>
         </form>
       </field> 
     </record>
+
+    <!-- Room Type List View-->
+    <record id="room_type_view_list" model="ir.ui.view">
+      <field name="name">room.type.view.list</field>
+      <field name="model">room.type</field>
+      <field name="arch" type="xml">
+        <tree string="Room Type List">
+          <field name="sequence" widget="handle"/>
+          <field name="code"/>
+          <field name="name" />
+          <field name="fix_type"/>
+          <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
+          <field name="roomtype_desc"/>
+          <field name="ratecode_id"/>
+        </tree>
+      </field> 
+    </record>
+
     <!-- Kanban View of Room Type -->
-    <record id="room_type_view_kanban" model="ir.ui.view">
+    <!-- <record id="room_type_view_kanban" model="ir.ui.view">
       <field name="name">room.type.view.kanban</field>
       <field name="model">room.type</field>
       <field name="arch" type="xml">
         <kanban>
+          <field name="color" />
           <field name="id"/>
           <field name="code"/>
           <field name="name"/>
@@ -517,23 +591,47 @@
           <field name="roomtype_desc"/>
           <templates>
             <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div>
-                  <div class="o_kanban_image">
-                    <img alt="" t-att-src="kanban_image('room.type', 'image')"/>
-                  </div>
-                  <div class="oe_kanban_details">
-                    <field name="code"/>
-                    <div><field name="name"/></div>
-                    <div><field name="roomtype_desc"/></div>
-                  </div>
+              <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                <div class="o_dropdown_kanban dropdown">
+                   <a role="button" class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                    <span title="fa_icon" class="fa fa-bars fa-lg" />
+                  </a>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <t t-if="widget.editable">
+                        <li>
+                            <a type="edit">Edit</a>
+                        </li>
+                    </t>
+                    <t t-if="widget.deletable">
+                        <li>
+                            <a type="delete">Delete</a>
+                        </li>
+                    </t>
+                    <li>
+                        <ul class="oe_kanban_colorpicker" data-field="color" />
+                    </li>
+                  </ul>
                 </div>
+                <div class="oe_kanban_details" style='margin-top: -5px;'>
+                  <div class="oe_kanban_content">
+                    <div class="oe_kanban_project_list">
+                      <div class="o_kanban_image">
+                        <img alt="" t-att-src="kanban_image('room.type', 'image')"/>
+                      </div>
+                      <div class="oe_kanban_details">
+                        <field name="code"/>
+                        <div><field name="name"/></div>
+                        <div><field name="roomtype_desc"/></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>   
               </div>
             </t>
           </templates>
         </kanban>
       </field>
-    </record>
+    </record> -->
     <!-- action of room type setup -->
     <record id="room_type_action_window" model="ir.actions.act_window">
       <field name="name">Room Type</field>
@@ -592,6 +690,7 @@
       <field name="model">room.facility</field>
       <field name="arch" type="xml">
         <tree string="Room Facility">
+          <field name="sequence" widget="handle"/>
           <field name="facilitytype_id"/>
           <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags"/>
           <field name="facility_desc" placeholder="Eg. Aircon....."/>
@@ -604,6 +703,36 @@
       <field name="name">Room Facility</field>
       <field name="res_model">room.facility</field>
       <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Room Facility Type Form View -->
+    <record id="room_facility_type_view_form" model="ir.ui.view">
+      <field name="name">room.facility.type.view.form</field>
+      <field name="model">room.facility.type</field>
+      <field name="arch" type="xml">
+        <form string="Room Facility">
+          <sheet>
+            <h2>Facility Type</h2>
+            <br></br>
+            <group>
+              <field name="facility_type" placeholder="Eg. ENT..... "/>
+              <field name="facilitytype_desc" placeholder="Eg. Entertainments...."/> 
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Room Facility List View -->
+    <record id="room_facility_type_view_tree" model="ir.ui.view">
+      <field name="name">room.facility.type.view.tree</field>
+      <field name="model">room.facility.type</field>
+      <field name="arch" type="xml">
+        <tree string="Facility Type">
+          <field name="facility_type"/>
+          <field name="facilitytype_desc"/> 
+        </tree>
+      </field>
     </record>
 
     <!-- ========== Hotel Room Setup ========== -->
@@ -619,14 +748,20 @@
             <field name="room_img" widget="image" class="oe_avatar"/>
             <group>
               <group>
+                <field name="is_propertyroom" invisible='1'/>
                 <field name="property_id"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
                 <field name="roomtype_ids" invisible="1"/>
                 <field name="roomtype_id"/>
+                <field name="bedtype_ids" invisible="1"/>
+                <field name="is_roomtype_fix" invisible="1"/>
+                <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                 <field name="building_ids" invisible="1"/>
                 <field name="building_id" />
                 <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                 <field name="room_bedqty"/>
+                <field name="no_of_pax"/>
+                <field name="zip_type" widget="boolean_toggle"/>
               </group>
               <group>
                 <field name="room_extension" placeholder="Eg. 101... "/>
@@ -663,20 +798,33 @@
                 </notebook>
               </group>
             </group>
+            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}" context="{'default_property_id' : id}">
+            <i class="fa fa-paint-brush"></i></button>
           </sheet>
+          <!-- <footer> -->
+            <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
+            <!-- <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
+            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}"
+        context="{'default_property_id' : id}">
+        <i class="fa fa-paint-brush"></i></button>
+          </footer> -->
         </form>
       </field>
     </record>
+
     <!-- Hotel Room List View -->
     <record id="property_room_view_list" model="ir.ui.view">
       <field name="name">property.room.view.list</field>
       <field name="model">property.room</field>
       <field name="arch" type="xml">
-        <tree string="Room Setup">
+        <tree string="Room Setup" limit='10'>
+          <field name="sequence" widget="handle"/>
+          <field name="is_propertyroom" invisible='1'/>
           <field name="property_id" optional="hide"/>
           <field name="room_no" optional="show"/>
           <field name="building_id" optional="show"/>
           <field name="roomtype_id" optional="show"/>
+          <field name="bedtype_id" optional="show"/>
           <field name="roomlocation_id" optional="show"/>
           <field name="room_bedqty" optional="show"/>
           <field name="room_extension" optional="show"/>
@@ -689,10 +837,12 @@
         </tree>
       </field>
     </record>
+
     <!-- action of room setup -->
     <record id="property_room_action_window" model="ir.actions.act_window">
       <field name="name">Room Setup</field>
       <field name="res_model">property.room</field>
+      <field name="limit">10</field>
       <field name="view_mode">tree,form</field>
     </record>
 
@@ -722,6 +872,7 @@
       <field name="model">market.segment</field>
       <field name="arch" type="xml">
         <tree string="Market Segment">
+          <field name="sequence" widget="handle"/>
           <field name="market_code" />
           <field name="market_name" />
           <field name="group_id"/>  
@@ -761,6 +912,7 @@
       <field name="model">market.source</field>
       <field name="arch" type="xml">
         <tree string="Market Source">
+          <field name="sequence" widget="handle"/>
           <field name="source_code" />
           <field name="source_desc" />
         </tree>

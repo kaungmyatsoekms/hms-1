@@ -210,17 +210,6 @@ class Company(models.Model):
     def _default_confirm_id_format(self):
         if not self.confirm_id_format:
             return self.env.ref('base.main_company').confirm_id_format
-            
-    # Cancellation ID Format
-    # def _default_cancellation_id_format(self):
-    #     if not self.cancellation_id_format:
-    #         return self.env.ref('base.main_company').cancellation_id_format
-    
-    # Share No Format
-    # def _default_share_id_format(self):
-    #     if not self.share_id_format:
-    #         return self.env.ref('base.main_company').share_id_format
-
 
     property_code_len = fields.Integer("Property Code Length",
                                     default=8,
@@ -250,15 +239,55 @@ class Company(models.Model):
                                     'Group Profile ID Format',
                                     default=_default_gprofile_id_format,
                                     track_visibility=True)
-    # cancellation_id_format = fields.Many2one('pms.format',
-    #                                 'Cancellation ID Format',
-    #                                 default=_default_cancellation_id_format,
-    #                                 track_visibility=True)
-    # share_id_format = fields.Many2one('pms.format',
-    #                                 'Share No Format',
-    #                                 default=_default_share_id_format,
-    #                                 track_visibility=True)
-        
+
+class ColorAttribute(models.Model):
+    _name = "color.attribute"
+    _description = "Color Attribute"
+    _order = 'sequence, id'
+
+    name = fields.Char('Attribute', required=True)
+    value_ids = fields.One2many('color.attribute.value',
+                                'attribute_id',
+                                'Values',
+                                copy=True)
+    sequence = fields.Integer('Sequence',
+                              help="Determine the display order",
+                              index=True)
+    create_variant = fields.Selection(
+        [('always', 'Instantly'), ('dynamic', 'Dynamically'),
+         ('no_variant', 'Never')],
+        default='always',
+        string="Variants Creation Mode",
+        help=
+        """- Instantly: All possible variants are created as soon as the attribute and its values are added to a product.
+        - Dynamically: Each variant is created only when its corresponding attributes and values are added to a sales order.
+        - Never: Variants are never created for the attribute.
+        Note: the variants creation mode cannot be changed once the attribute is used on at least one product.""",
+        required=True)
+
+
+class ColorAttributeValue(models.Model):
+    _name = "color.attribute.value"
+    _order = 'attribute_id, sequence, id'
+    _description = 'Color Attribute Value'
+
+    name = fields.Char(string='Value', required=True)
+    sequence = fields.Integer(string='Sequence',
+                              help="Determine the display order",
+                              index=True)
+    html_color = fields.Char(string="Color")
+    attribute_id = fields.Many2one('color.attribute',
+                                   string="Attribute",
+                                   ondelete='cascade',
+                                   required=True,
+                                   index=True)
+
+    _sql_constraints = [(
+        'value_company_uniq', 'unique (name, attribute_id)',
+        "You cannot create two values with the same name for the same attribute."
+    )]
+
+
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -295,14 +324,6 @@ class ResConfigSettings(models.TransientModel):
                                     'Group Profile ID Format',
                                     related="company_id.gprofile_id_format",
                                     track_visibility=True)
-    # cancellation_id_format = fields.Many2one('pms.format',
-    #                                 'Cancellation No Format',
-    #                                 related="company_id.cancellation_id_format",
-    #                                 track_visibility=True)
-    # share_id_format = fields.Many2one('pms.format',
-    #                                 'Share No Format',
-    #                                 related="company_id.share_id_format",
-    #                                 track_visibility=True)
 
     
     @api.onchange('property_code_len')
@@ -344,16 +365,6 @@ class ResConfigSettings(models.TransientModel):
     def onchange_gprofile_id_format(self):
         if self.gprofile_id_format:
             self.company_id.gprofile_id_format = self.gprofile_id_format
-
-    # @api.onchange('cancellation_id_format')
-    # def onchange_cancellation_id_format(self):
-    #     if self.cancellation_id_format:
-    #         self.company_id.cancellation_id_format = self.cancellation_id_format
-
-    # @api.onchange('share_id_format')
-    # def onchange_share_id_format(self):
-    #     if self.share_id_format:
-    #         self.company_id.share_id_format = self.share_id_format
 
     
 

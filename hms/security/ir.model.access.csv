@@ -7,6 +7,7 @@ access_building_type,building.type,model_building_type,base.group_user,1,1,1,1
 access_room_location,room.location,model_room_location,base.group_user,1,1,1,1
 access_bed_type,bed.type,model_bed_type,base.group_user,1,1,1,1
 access_room_type,room.type,model_room_type,base.group_user,1,1,1,1
+access_property_roomtype,property.roomtype,model_property_roomtype,base.group_user,1,1,1,1
 access_room_view,room.view,model_room_view,base.group_user,1,1,1,1
 access_room_facility,room.facility,model_room_facility,base.group_user,1,1,1,1
 access_room_amenity,room.amenity,model_room_amenity,base.group_user,1,1,1,1
@@ -39,13 +40,19 @@ access_hms_allotment_line,hms.allotment.line,model_hms_allotment_line,base.group
 access_hms_department,hms.department,model_hms_department,base.group_user,1,1,1,1
 access_hms_special_request,hms.special.request,model_hms_special_request,base.group_user,1,1,1,1
 access_hms_reservation,hms.reservation,model_hms_reservation,base.group_user,1,1,1,1
+access_room_reservation_summary,room.reservation.summary,model_room_reservation_summary,base.group_user,1,1,1,1
 access_hms_reservation_line,hms.reservation.line,model_hms_reservation_line,base.group_user,1,1,1,1
 access_hms_reason,hms.reason,model_hms_reason,base.group_user,1,1,1,1
 access_hms_reasontype,hms.reasontype,model_hms_reasontype,base.group_user,1,1,1,1
 access_hms_cancel_rsvn,hms.cancel.rsvn,model_hms_cancel_rsvn,base.group_user,1,1,1,1
 access_availability_availability,availability.availability,model_availability_availability,base.group_user,1,1,1,1
 access_roomtype_available,roomtype.available,model_roomtype_available,base.group_user,1,1,1,1
+access_over_booking,over.booking,model_over_booking,base.group_user,1,1,1,1
 access_hms_charge_types,hms.charge_types,model_hms_charge_types,base.group_user,1,1,1,1
 access_hms_calculation_method,hms.calculation.method,model_hms_calculation_method,base.group_user,1,1,1,1
 access_hms_package_charge_line,hms.package.charge.line,model_hms_package_charge_line,base.group_user,1,1,1,1
 access_hms_room_transaction_charge_line,hms.room.transaction.charge.line,model_hms_room_transaction_charge_line,base.group_user,1,1,1,1
+access_ratecode_header,ratecode.header,model_ratecode_header,base.group_user,1,1,1,1
+access_ratecode_details,ratecode.details,model_ratecode_details,base.group_user,1,1,1,1
+access_color_attribute,color.attribute,model_color_attribute,base.group_user,1,1,1,1
+access_color_attribute_value,color.attribute.value,model_color_attribute_value,base.group_user,1,1,1,1

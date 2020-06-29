@@ -26,11 +26,13 @@
 
     # any module necessary for this one to work correctly
     'depends':
-    ['base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web'],
-    #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web'],
+    ['base','graphql_base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web','website'],
+    "external_dependencies": {"python": ["graphene"]},
+    #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'wizard/hms_roomno_copy_wizard.xml',
         'views/hotel_views.xml',
         'data/rsvn.type.csv',
         'data/rsvn.status.csv',
@@ -41,6 +43,9 @@
         'data/bed.type.csv',
         'data/hms.calculation.method.csv',
         'data/hms.charge_types.csv',
+        'data/room.amenity.csv',
+        'data/room.facility.type.csv',
+        'data/room.type.csv',
         'views/hms_forecast_view.xml',
         'views/hms_bank_view.xml',
         'views/hms_format_view.xml',
@@ -69,12 +74,23 @@
         'wizard/hms_rersvn_wizard_view.xml',
         'views/hms_reservation_view.xml',
         'data/hms.reasontype.csv',
+        'data/hms.reason.csv',
         'views/hms_charge_type.xml',
         'views/hms_package_charge_line.xml',
-        # 'data/hms.reason.csv',
+        'views/hms_managment_report.xml',
+        'views/hms_ratecode_view.xml',
+        'report/property_template.xml',
+        'wizard/reservation_report_wizard_view.xml',
+        'report/reservation_report.xml',
+        'report/reservation_template.xml',
+        'report/expected_arrival_template.xml',
+        'data/hms_scheduled_actions_data.xml',
+        'views/color_attribute_view.xml',
+        # 'views/report_hms_reservation_view.xml',
         #'views/views.xml',
-        #'views/templates.xml',
+        # 'views/templates.xml',
     ],
+    'css': ['static/src/css/room_kanban.css'],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',

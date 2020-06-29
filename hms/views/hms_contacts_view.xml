@@ -34,7 +34,7 @@
 				</xpath>
 				<xpath expr="//field[@name='parent_id']" position="before">
                     <field name="property_id" attrs="{'invisible':[('is_group','!=', True)]}"/>
-					<field name="title" placeholder="Title" options='{"no_open": True}' attrs="{'invisible': ['|', ('is_guest','!=', True)]}"/>
+					<field name="title" placeholder="Title" options='{"no_open": True}' attrs="{'invisible': ['|', ('is_company', '=', True),('is_group', '=', True)]}"/>
                 </xpath>
                 <xpath expr="//form/sheet/group[1]" position="replace">
 					<group>
@@ -70,8 +70,7 @@
 						</group>
 						<group>
                             <field name="passport_id" context="{'default_profile_id': active_id}" attrs="{'invisible': ['|', ('is_guest', '!=', True), ('is_guest_exists', '=', False)]}"/>
-                            <field name="function" placeholder="e.g. Sales Director"
-                                    attrs="{'invisible': [('company_type','=', 'preson')]}"/>
+                            <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('company_type','!=', 'person')]}"/>
 							<field name="type" attrs="{'invisible': [('parent_id','=', False)]}" groups="base.group_no_one"/>
 							<label for="street" string="Address"/>
 							<div class="o_address_format">
@@ -278,9 +277,6 @@
                 </form>
             </field>
         </record>
-
-
-        <!-- res.partner kanban view -->
 
         <!-- action for contact form view -->
         <record id="action_contact_form" model="ir.actions.act_window">

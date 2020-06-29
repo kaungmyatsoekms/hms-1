@@ -8,6 +8,12 @@ class HMSTransactionChargeLine(models.Model):
     _inherit = ['mail.thread']
 
 
+    reservation_line_id = fields.Many2one("hms.reservation.line", "Charges")
+    reservation_id = fields.Many2one("hms.reservation",
+                               "Reservation",
+                               compute="get_reservation_id")
+    property_id = fields.Many2one('property.property', string="Property")
+    package_id = fields.Many2one('package.package',string='Package', related='reservation_line_id.package_id')
     package_charge_id = fields.Many2one("hms.package.charge.line",
                                            "Package Name",
                                            required=True,
@@ -26,11 +32,8 @@ class HMSTransactionChargeLine(models.Model):
     rate = fields.Float("Rate", store=True)
     total_amount = fields.Float("Total") #, compute="compute_total_amount"
     active = fields.Boolean(default=True)
-    reservation_line_id = fields.Many2one("hms.reservation.line", "Charges")
-    reservation_id = fields.Many2one("hms.reservation",
-                               "Reservation",
-                               compute="get_reservation_id")
-    room_no = fields.Many2one('property.room', "Room No", compute="get_reservation_id")
+    room_no = fields.Many2one('property.room', "Room No", related='reservation_line_id.room_no')
+    transfer_room = fields.Many2one('property.room','Room No', related='reservation_line_id.room_no')
     trans_date = fields.Date("Date")
 
     @api.depends('reservation_line_id')

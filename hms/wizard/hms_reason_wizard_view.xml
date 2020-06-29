@@ -17,7 +17,7 @@
                     <group>
                         <label string="Cancellation Reason" for="reason_id"/>
                         <div>
-                            <field name="reason_id"/>
+                            <field name="reason_id" context="{'default_type_id':1}"/>
                         </div>
                     </group>
                 </group>
@@ -55,7 +55,7 @@
                     <group>
                         <label string="Cancellation Reason" for="reason_id"/>
                         <div>
-                            <field name="reason_id"/>
+                            <field name="reason_id" context="{'default_type_id':1}"/>
                         </div>
                     </group>
                 </group>

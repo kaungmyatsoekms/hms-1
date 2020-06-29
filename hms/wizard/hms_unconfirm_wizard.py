@@ -34,25 +34,19 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
         for d in reservations.reservation_line_ids:
             if d.state == 'confirm':
                 #Update Availability
-                rt_avails = self.env['roomtype.available'].search([('property_id','=',d.property_id.id),('ravail_date','>=', d.arrival),('ravail_date','<',d.departure),('ravail_rmty','=',d.room_type.id)])
-                avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','>=', d.arrival),('avail_date','<',d.departure)])
-                dep_avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','=',d.departure)])
-                for record in rt_avails:
-                    record.ravail_unconfirm += d.rooms
-                    record.ravail_occupancy -= d.rooms
-                for avail in avails:
-                    avail.avail_unconfirm += d.rooms
-                    avail.avail_occupancy -= d.rooms
-                    if avail.avail_date == d.arrival:
-                        avail.avail_arrival -= d.rooms
-                for depavail in  dep_avails:
-                    if depavail == d.departure:
-                        depavail.avail_dep -= d.rooms
-                # Update Reservation line to reservation
+                state = d.state
+                property_id = d.property_id.id
+                arrival = d.arrival
+                departure = d.departure
+                room_type = d.room_type.id
+                rooms = d.rooms
+                reduce = True
+                status ='reservation'
+                d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
-                    'state': 'reservation',
+                    'state': status,
                 })
         reservations.write({
             'reservation_type': self.reservation_type,
@@ -90,24 +84,19 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
         for d in reservation_lines:
             #Update Availability
             if d.state == 'confirm':
-                rt_avails = self.env['roomtype.available'].search([('property_id','=',d.property_id.id),('ravail_date','>=', d.arrival),('ravail_date','<',d.departure),('ravail_rmty','=',d.room_type.id)])
-                avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','>=', d.arrival),('avail_date','<',d.departure)])
-                dep_avails = self.env['availability.availability'].search([('property_id','=',d.property_id.id),('avail_date','=',d.departure)])
-                for record in rt_avails:
-                    record.ravail_unconfirm += d.rooms
-                    record.ravail_occupancy -= d.rooms
-                for avail in avails:
-                    avail.avail_unconfirm += d.rooms
-                    avail.avail_occupancy -= d.rooms
-                    if avail.avail_date == d.arrival:
-                        avail.avail_arrival -= d.rooms
-                for depavail in  dep_avails:
-                    if depavail == d.departure:
-                        depavail.avail_dep -= d.rooms
+                state = d.state
+                property_id = d.property_id.id
+                arrival = d.arrival
+                departure = d.departure
+                room_type = d.room_type.id
+                rooms = d.rooms
+                reduce = True
+                status ='reservation'
+                d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
-                    'state': 'reservation',
+                    'state': status,
                 })
         rec = 0
         confirm = 0
@@ -115,8 +104,8 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
 
             if d.state != reservation_lines.state:
                 rec = rec + 1
-            if d.state =='confirm':
-                confirm = confirm +1
+            if d.state == 'confirm':
+                confirm = confirm + 1
         if rec == 0:
             reservation_lines.reservation_id.write({
                 'state':
@@ -126,7 +115,7 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                 'reservation_status':
                 reservation_lines.reservation_status,
             })
-        else :
+        else:
             if confirm == 0:
                 reservation_lines.reservation_id.write({
                     'state':

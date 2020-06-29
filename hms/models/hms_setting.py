@@ -273,6 +273,9 @@ class Company(models.Model):
                                inverse='_inverse_township',
                                track_visibility=True,
                                ondelete='cascade')
+    company_channel_type = fields.Many2one('hms.company.category',
+                                            string="CRM Type",
+                                            track_visibility=True,)
 
     _sql_constraints = [('name_unique', 'unique(name)',
                          'Your name is exiting in the database.')]
@@ -292,56 +295,42 @@ class Company(models.Model):
         for company in self:
             company.partner_id.township = company.township
 
-    # @api.model
-    # def create(self, vals):
-    #     # if vals.get('name'):
-    #     #     companyname = vals.get('name')
-    #     #     company_id = self.search([('name', '=', companyname)])
-    #     #     if company_id:
-    #     #         raise UserError(_("%s is already existed." % companyname))
-    #     if not vals.get('name') or vals.get('partner_id'):
-    #         self.clear_caches()
-    #         return super(Company, self).create(vals)
-    #     partner = self.env['res.partner'].create({
-    #         'name': vals['name'],
-    #         'is_company': True,
-    #         'image': vals.get('logo'),
-    #         'customer': False,
-    #         'email': vals.get('email'),
-    #         'phone': vals.get('phone'),
-    #         'website': vals.get('website'),
-    #         'vat': vals.get('vat'),
-    #     })
-    #     vals['partner_id'] = partner.id
-    #     self.clear_caches()
-    #     company = super(Company, self).create(vals)
-    #     # The write is made on the user to set it automatically in the multi company group.
-    #     self.env.user.write({'company_ids': [(4, company.id)]})
-    #     partner.write({'company_id': company.id})
+    @api.model
+    def create(self, vals):
+        crm_type = vals.get('company_channel_type')
+        # crm_type = self.env['hms.company.category'].search([('id','=',crm_type)])
+        if not vals.get('favicon'):
+            vals['favicon'] = self._get_default_favicon()
+        if not vals.get('name') or vals.get('partner_id'):
+            self.clear_caches()
+            return super(Company, self).create(vals)
+        partner = self.env['res.partner'].create({
+            'name': vals['name'],
+            'is_company': True,
+            'image_1920': vals.get('logo'),
+            'email': vals.get('email'),
+            'phone': vals.get('phone'),
+            'website': vals.get('website'),
+            'vat': vals.get('vat'),
+            'company_channel_type': crm_type,
+            'company_type' : 'company',
+        })
+        # compute stored fields, for example address dependent fields
+        partner.flush()
+        vals['partner_id'] = partner.id
+        self.clear_caches()
+        company = super(Company, self).create(vals)
+        # The write is made on the user to set it automatically in the multi company group.
+        self.env.user.write({'company_ids': [(4, company.id)]})
 
-    #     # Make sure that the selected currency is enabled
-    #     if vals.get('currency_id'):
-    #         currency = self.env['res.currency'].browse(vals['currency_id'])
-    #         if not currency.active:
-    #             currency.write({'active': True})
-    #     return company
+        # Make sure that the selected currency is enabled
+        if vals.get('currency_id'):
+            currency = self.env['res.currency'].browse(vals['currency_id'])
+            if not currency.active:
+                currency.write({'active': True})
+        return company
 
-    # @api.multi
-    # def write(self, values):
-    #     self.clear_caches()
-    #     if values.get('name'):
-    #         companyname = values.get('name')
-    #         company_id = self.search([('name', '=', companyname)])
-    #         if company_id:
-    #             raise UserError(_("%s is already existed." % companyname))
-    #     # Make sure that the selected currency is enabled
-    #     if values.get('currency_id'):
-    #         currency = self.env['res.currency'].browse(values['currency_id'])
-    #         if not currency.active:
-    #             currency.write({'active': True})
-
-    #     return super(Company, self).write(values)
-
+# Create Partner
 class Partner(models.Model):
     _inherit = "res.partner"
 
@@ -595,7 +584,9 @@ class Partner(models.Model):
         crm_type = self.env['hms.company.category'].search(
             [('id', '=', crm_type)])
         
-        pf_no = self.generate_profile_no(company_type,property_id,crm_type) 
+        if company_type == 'company' or company_type == 'guest':
+            pf_no = self.generate_profile_no(company_type,property_id,crm_type)
+            values.update({'profile_no':pf_no}) 
         
         if company_type == 'group':
             if property_id:
@@ -644,7 +635,7 @@ class Partner(models.Model):
                 raise ValidationError("Select Property or Create Property First!")
 
 
-        values.update({'profile_no':pf_no})
+        # values.update({'profile_no':pf_no})
 
         company_objs = self.env['res.company']
         res = super(Partner,self).create(values)
@@ -694,19 +685,7 @@ class Partner(models.Model):
                 self.profile_no = pf_no
         return res
         
-    # def write(self,values):
-    #     res = super(Partner,self).write(values)
-    #     _logger.info(res)
-    #     if 'company_type' in values.keys():
-    #         company_type = values.get('company_type')
-    #         property_id = self.property_id
-    #         pf_no = self.generate_profile_no(company_type,property_id)
-    #         if pf_no:
-    #             #values.update({'profile_no':pf_no})
-    #             self.profile_no = pf_no
-    #         _logger.info(company_type)
-    #     return res
-
+# Crete Currency
 class HMSCurrency(models.Model):
     _name = "hms.currency"
     _description = "Currency"

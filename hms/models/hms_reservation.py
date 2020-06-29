@@ -4,7 +4,7 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
 _logger = logging.getLogger(__name__)
 
@@ -31,12 +31,14 @@ class HMSReasonType(models.Model):
                                  string="Reason",
                                  required=True)
 
+
 #Department
 class Department(models.Model):
     _name = "hms.department"
     _description = "Department"
 
     name = fields.Char(string="Department Name", required=True)
+
 
 #Special Request
 class SpecialRequest(models.Model):
@@ -49,6 +51,7 @@ class SpecialRequest(models.Model):
     date = fields.Date("Date")
     name = fields.Char("Name")
 
+
 # Reservation
 class Reservation(models.Model):
     _name = 'hms.reservation'
@@ -57,6 +60,7 @@ class Reservation(models.Model):
     _inherit = ['mail.thread']
 
     active = fields.Boolean('Active', default=True, track_visibility=True)
+    is_dummy = fields.Boolean(string="Dummy Room?",default = False)
     is_reservation = fields.Boolean(string="Is Reservation",
                                     compute='_compute_is_reservation')
     is_arrival_today = fields.Boolean(string="Is Arrival Today",
@@ -69,9 +73,9 @@ class Reservation(models.Model):
         ('cancel', 'Cancel'),
         ('checkin', 'Checkin'),
     ],
-                            'Status',
-                            readonly=True,
-                            default='booking')
+                             'Status',
+                             readonly=True,
+                             default='booking')
     property_id = fields.Many2one(
         'property.property',
         string="Property",
@@ -102,6 +106,7 @@ class Reservation(models.Model):
     guest_id = fields.Many2one('res.partner',
                                string="Guest",
                                domain="[('is_guest','=',True)]")
+    roomtype_id = fields.Many2one('room.type',default=1)
     arrival = fields.Date(string="Arrival Date",
                           default=datetime.today(),
                           required=True)
@@ -122,18 +127,21 @@ class Reservation(models.Model):
                              string="Market Source",
                              required=True)
     sales_id = fields.Many2one('res.users', string="Sales")
-    contact_id = fields.Many2one('res.partner',
-                                 domain="[('company_type', '=','person'),('is_guest','!=',True),('is_group','!=',True),('is_company','!=',True)]",
-                                 string="Contact")
+    contact_id = fields.Many2one(
+        'res.partner',
+        domain=
+        "[('company_type', '=','person'),('is_guest','!=',True),('is_group','!=',True),('is_company','!=',True)]",
+        string="Contact")
     reservation_type = fields.Many2one('rsvn.type',
                                        string="Reservation Type",
                                        required=True,
                                        readonly=True,
-                                       default=2)
+                                       default=2, store=True)
     reservation_status = fields.Many2one(
         'rsvn.status',
         string="Reservation Status",
-        domain="[('rsvntype_id', '=', reservation_type)]", required=True)
+        domain="[('rsvntype_id', '=', reservation_type)]",
+        required=True, store=True)
     arrival_flight = fields.Char(string="Arrival Flight", size=10)
     arrival_flighttime = fields.Float(string="AR-Flight Time")
     dep_flight = fields.Char(string="Departure Flight")
@@ -143,9 +151,15 @@ class Reservation(models.Model):
     reservation_line_ids = fields.One2many(
         'hms.reservation.line',
         'reservation_id',
-        string="Reservation Line", track_visibility=True, context={'active_test': False}, readonly=False, states={'cancel': [('readonly', True)]})
+        string="Reservation Line",
+        track_visibility=True,
+        context={'active_test': False},
+        readonly=False,
+        states={'cancel': [('readonly', True)]})
     confirm_no = fields.Char(string="Confirm Number", readonly=True)
-    reason_id = fields.Many2one('hms.reason', string="Reason")
+    reason_id = fields.Many2one('hms.reason',
+                                string="Reason",
+                                domain="[('type_id.code', '=', 'CXL')]")
     internal_notes = fields.Text(string="Internal Notes")
 
     #Fields for statinfo
@@ -247,14 +261,15 @@ class Reservation(models.Model):
     def accept_booking_status(self):
         self.write({'state': 'reservation'})
         for rec in self.reservation_line_ids:
-            rt_avails = self.env['roomtype.available'].search([('property_id','=',rec.property_id.id),('ravail_date','>=', rec.arrival),('ravail_date','<',rec.departure),('ravail_rmty','=',rec.room_type.id)])
-            avails = self.env['availability.availability'].search([('property_id','=',rec.property_id.id),('avail_date','>=', rec.arrival),('avail_date','<',rec.departure)])
-            if  rec.state == 'booking':
-                rec.write({'state': 'reservation'})
-            for record in rt_avails:
-                record.ravail_unconfirm =  record.ravail_unconfirm + rec.rooms
-            for avail in avails:
-                avail.avail_unconfirm = avail.avail_unconfirm + rec.rooms
+            reduce = True
+            property_id = rec.property_id.id
+            arrival = rec.arrival
+            departure = rec.departure
+            room_type = rec.room_type.id
+            rooms = rec.rooms
+            state = rec.state
+            status = 'reservation'
+            rec._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
 
     def checkin_status(self):
         self.write({'state': 'checkin'})
@@ -363,7 +378,37 @@ class Reservation(models.Model):
                 pf_no = p_no_pre + p_no
 
             values.update({'confirm_no': pf_no})
-        return super(Reservation, self).create(values)
+            res = super(Reservation, self).create(values)
+
+            if  res.is_dummy is True :
+                vals = []
+                vals.append((0,0,{
+                    'state' : 'booking',
+                    'reservation_id' : res.id,
+                    'confirm_no' : res.confirm_no,
+                    'property_id':res.property_id.id,
+                    'company_id' : res.company_id.id,
+                    'group_id' : res.group_id,
+                    'guest_id' : res.guest_id,
+                    'room_type' : res.roomtype_id.id,
+                    'arrival' : res.arrival,
+                    'departure' : res.departure,
+                    'nights' : res.nights,
+                    'rooms' : 1,
+                    'market' : res.market.id,
+                    'source' : res.source.id,
+                    'reservation_type' : res.reservation_type.id,
+                    'reservation_status' : res.reservation_status.id,
+                    'arrival_flight' : res.arrival_flight,
+                    'arrival_flighttime' : res.arrival_flighttime,
+                    'dep_flight' : res.dep_flight,
+                    'dep_flighttime' : res.dep_flighttime,
+                    'eta' : res.eta,
+                    'etd' : res.etd,
+                }))
+                res.update({'reservation_line_ids': vals})
+
+        return res
 
     # All Split Rsvn Action
     def action_split(self):
@@ -475,27 +520,24 @@ class Reservation(models.Model):
                     }))
                 self.update({'reservation_line_ids': vals})
 
+
 # Reservation Line
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
     _description = "Reservation Line"
 
     def get_rooms(self):
-        rooms = 1
         if self._context.get('rooms') != False:
-            line_rooms_total = 0
-            rev_id_rooms = self._context.get('rooms')
-            reservations = self.env['hms.reservation'].browse(
-                self._context.get('default_reservation_id', []))
-            for record in reservations.reservation_line_ids:
-                line_rooms_total = line_rooms_total + record.rooms
-            # Check Reservation_id Total Rooms
-            if rev_id_rooms > line_rooms_total:
-                rooms = rev_id_rooms - line_rooms_total
-            else:
-                rooms = 1
-        return rooms
+            return self._context.get('rooms')
 
+    def get_rsvn_type(self):
+        if self._context.get('reservation_type') != False:
+            return self._context.get('reservation_type')
+
+    def get_rsvn_status(self):
+        if self._context.get('reservation_status') != False:
+            return self._context.get('reservation_status')
+            
     def get_arrival(self):
         if self._context.get('arrival') != False:
             return self._context.get('arrival')
@@ -507,11 +549,16 @@ class ReservationLine(models.Model):
     def get_nights(self):
         if self._context.get('nights') != False:
             return self._context.get('nights')
-    
+
     def get_state(self):
         if self._context.get('state') != False:
             return self._context.get('state')
 
+    is_no_show = fields.Boolean(string = "No Show",default = False, readonly=True)
+    is_roomtype_fix = fields.Boolean(string = "Fixed Type?", readonly=False, related="room_type.fix_type")
+    sequence = fields.Integer(default=1)
+    color = fields.Integer(string='Color Index', compute="set_kanban_color")
+    ispartial = fields.Boolean('Partial',default=True)
     active = fields.Boolean('Active', default=True, track_visibility=True)
     cancel_rsvn_ids = fields.One2many('hms.cancel.rsvn',
                                       'reservation_line_id',
@@ -544,8 +591,10 @@ class ReservationLine(models.Model):
         ('confirm', 'Confirm'),
         ('cancel', 'Cancel'),
         ('checkin', 'Checkin'),
-    ], default=get_state,store=True)
-        # default=lambda *a: 'booking')
+    ],
+                             default=get_state,
+                             store=True)
+    # default=lambda *a: 'booking')
     market_ids = fields.Many2many('market.segment',
                                   related="property_id.market_ids")
     market = fields.Many2one('market.segment',
@@ -553,9 +602,12 @@ class ReservationLine(models.Model):
                              domain="[('id', '=?', market_ids)]")
     source = fields.Many2one('market.source', string="Source")
     reservation_type = fields.Many2one('rsvn.type',
-                                       "Reservation Type",
-                                       readonly=True)
-    reservation_status = fields.Many2one('rsvn.status', "Reservation Status", required=True)
+                                       "Reservation Type", default=get_rsvn_type,
+                                       readonly=True, store=True)
+    reservation_status = fields.Many2one('rsvn.status',
+                                         "Reservation Status",
+                                         domain="[('rsvntype_id', '=', reservation_type)]", 
+                                         default=get_rsvn_status, store=True)
     arrival_flight = fields.Char("Arrival Flight")
     arrival_flighttime = fields.Float("AR_Flight Time")
     dep_flight = fields.Char("Departure Flight")
@@ -572,6 +624,8 @@ class ReservationLine(models.Model):
                                 delegate=True,
                                 ondelete='cascade',
                                 index=True)
+    bedtype_ids = fields.Many2many('bed.type', related="room_type.bed_type")
+    bedtype_id = fields.Many2one('bed.type', domain="[('id', '=?', bedtype_ids)]" )
     arrival = fields.Date("Arrival",
                           default=get_arrival,
                           readonly=False,
@@ -585,15 +639,22 @@ class ReservationLine(models.Model):
                             store=True,
                             track_visibility=True)
     nights = fields.Integer(string="Nights", default=get_nights)
-    rooms = fields.Integer("Rooms", default=get_rooms)
-    avail_room_ids = fields.Many2many('property.room',string="Room Nos",compute='get_avail_room_ids')
+    rooms = fields.Integer("Rooms")
+    avail_room_ids = fields.Many2many('property.room',
+                                      string="Room Nos",
+                                      compute='get_avail_room_ids')
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
     ratecode_id = fields.Many2one('rate.code', string="Rate Code")
     room_rate = fields.Float("Room Rate")
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
-    reason_id = fields.Many2one('hms.reason', string="Reason")
+    reason_id = fields.Many2one('hms.reason',
+                                string="Reason",
+                                domain="[('type_id', '=', 1)]")
+    discount_reason_id = fields.Many2one('hms.reason',
+                                         string="Discount Reason",
+                                         domain="[('type_id', '=', 2)]")
     package_id = fields.Many2one('package.package', string="Package")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
@@ -612,13 +673,13 @@ class ReservationLine(models.Model):
     citime = fields.Datetime("Check-In Time")
     cotime = fields.Datetime("Check-Out Time")
 
-    extrabed = fields.Char("Extra Bed")
+    extrabed = fields.Integer("Extra Bed")
     extrabed_amount = fields.Integer("Number of Extra Bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
-    extrapax = fields.Float("Extra Pax")
+    extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
     extrapax_bf = fields.Float("Extra Pax Breakfast")
-    child_bfpax = fields.Float("Child BF-Pax")
+    child_bfpax = fields.Integer("Child BF-Pax")
     child_bf = fields.Float("Child Breakfast")
     extra_addon = fields.Float("Extra Addon")
 
@@ -636,6 +697,17 @@ class ReservationLine(models.Model):
     room_transaction_line_ids = fields.One2many(
         'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
 
+    def set_kanban_color(self):
+        for record in self:
+            color = 0
+            if record.state == 'booking':
+                color = 3
+            elif record.state == 'reservation':
+                color = 4
+            elif record.state == 'confirm':
+                color = 10
+            record.color = color
+
     def _compute_is_arrival_today(self):
         arrival_date = self.arrival
         if datetime.strptime(
@@ -649,6 +721,16 @@ class ReservationLine(models.Model):
         for record in self:
             record.state = 'booking'
         return True
+
+    def set_room_status_checkin(self):
+        """
+        This method is used to change the state
+        to occupied of the hotel room.
+        ---------------------------------------
+        @param self: object pointer
+        """
+        return self.write({ 'color': 2})
+
 
     @api.constrains('arrival')
     def check_arrival_date(self):
@@ -708,14 +790,6 @@ class ReservationLine(models.Model):
             if startdate and enddate and startdate > enddate:
                 raise ValidationError(
                     "Expired Date cannot be set before Issue Date.")
-
-    # @api.onchange('property_id')
-    # def property_onchange(self):
-    #     res = {}
-    #     res['domain'] = {
-    #         'room_no': [('id', 'in', self.property_id.propertyroom_ids.ids)]
-    #     }
-    #     return res
 
     # Cancel Status & Cancel Table
     def copy_cancel_record(self):
@@ -865,6 +939,7 @@ class ReservationLine(models.Model):
             'target': 'current',
         }
 
+    # Re-Reservation 
     def re_reservation(self):
         if self.reservation_type.rsvn_name == 'Confirmed':
             self.write({'state': 'confirm'})
@@ -890,69 +965,598 @@ class ReservationLine(models.Model):
         self.etd = self.reservation_id.etd
         # self.state = self.reservation_id.state
 
-    @api.depends('property_id','arrival','departure','room_type')
+    @api.depends('room_no', 'property_id', 'arrival', 'departure', 'room_type','bedtype_id')
     def get_avail_room_ids(self):
         for rec in self:
             room_type = rec.room_type._origin.id
-            total_room_per_roomtype = self.env['property.room'].search([('property_id', '=', rec.property_id.id),('roomtype_id','=',room_type)]).ids
-            occ_room_per_roomtype = self.env['hms.reservation.line'].search([('property_id', '=', rec.property_id.id),('room_type','=',room_type),
-                                            ('arrival','<', rec.departure),('departure','>',rec.arrival)]).room_no.ids
+            room_type_obj = self.env['room.type'].search([
+                ('id', '=', room_type)
+            ])
 
-            avail_rooms = list(set(total_room_per_roomtype) - set(occ_room_per_roomtype))
-            current_rooms = self.reservation_id.reservation_line_ids.filtered(lambda r: r.room_type.id==rec.room_type.id and r.arrival<rec.departure and r.departure>rec.arrival).room_no.ids
+            bedtype_id = rec.bedtype_id._origin.id
 
-            avail_rooms = list(set(avail_rooms)-set(current_rooms))
+            avail_rooms=[]
+            if room_type_obj.fix_type == True:
+
+                total_room_per_roomtype = self.env['property.room'].search([
+                    ('property_id', '=', rec.property_id.id),
+                    ('roomtype_id', '=', room_type)
+                ]).ids
+
+                occ_room_per_roomtype = self.env['hms.reservation.line'].search([
+                    ('property_id', '=', rec.property_id.id),
+                    ('room_type', '=', room_type),
+                    ('arrival', '<', rec.departure),
+                    ('departure', '>', rec.arrival)
+                ]).room_no.ids
+
+                avail_rooms = list(
+                    set(total_room_per_roomtype) - set(occ_room_per_roomtype))
+
+                current_rooms = self.reservation_id.reservation_line_ids.filtered(
+                    lambda r: r.room_type.id == rec.room_type.id and r.arrival <
+                    rec.departure and r.departure > rec.arrival).room_no.ids
+
+                avail_rooms = list(set(avail_rooms) - set(current_rooms))
+                # rec.avail_room_ids = avail_rooms
+
+            elif room_type_obj.fix_type == False:
+
+                if bedtype_id:
+
+                    total_room_per_roomtype = self.env['property.room'].search([
+                        ('property_id', '=', rec.property_id.id),
+                        ('roomtype_id', '=', room_type),
+                        ('bedtype_id', '=', bedtype_id),
+                    ]).ids
+
+                    occ_room_per_roomtype = self.env['hms.reservation.line'].search([
+                        ('property_id', '=', rec.property_id.id),
+                        ('room_type', '=', room_type),
+                        ('bedtype_id', '=', bedtype_id),
+                        ('arrival', '<', rec.departure),
+                        ('departure', '>', rec.arrival)
+                    ]).room_no.ids
+
+                    avail_rooms = list(set(total_room_per_roomtype) - set(occ_room_per_roomtype))
+
+                    current_rooms = self.reservation_id.reservation_line_ids.filtered(
+                        lambda x: x.room_type.id == rec.room_type.id and x.arrival <
+                        rec.departure and x.departure > rec.arrival and x.bedtype_id.id == rec.bedtype_id.id).room_no.ids
+
+                    avail_rooms = list(set(avail_rooms) - set(current_rooms))
+
+                    if len(avail_rooms) == 0:
+
+                        total_room_per_roomtype = self.env['property.room'].search([
+                            ('property_id', '=', rec.property_id.id),
+                            ('roomtype_id', '=', room_type),
+                            ('zip_type', '=', True),
+                        ]).ids
+
+                        occ_room_per_roomtype = self.env['hms.reservation.line'].search([
+                            ('property_id', '=', rec.property_id.id),
+                            ('room_type', '=', room_type),
+                            ('arrival', '<', rec.departure),
+                            ('departure', '>', rec.arrival),
+                        ]).room_no.ids
+
+                        avail_rooms = list(set(total_room_per_roomtype) - set(occ_room_per_roomtype))
+
+                        current_rooms = self.reservation_id.reservation_line_ids.filtered(
+                            lambda x: x.room_type.id == rec.room_type.id and x.arrival <
+                            rec.departure and x.departure > rec.arrival and x.bedtype_id == rec.bedtype_id.id).room_no.ids
+
+                        avail_rooms = list(set(avail_rooms) - set(current_rooms))
+
             rec.avail_room_ids = avail_rooms
-
-    @api.constrains('rooms')
+                    
+    @api.constrains('id','rooms')
     def _change_update_rooms(self):
         for rec in self:
             line_rooms_total = 0
             for record in rec.reservation_id.reservation_line_ids:
-                line_rooms_total = line_rooms_total + record.rooms
-            # Check Reservation_id Total Rooms
-            # if self.reservation_id.rooms > line_rooms_total:
-            #     self.rooms = self.reservation_id.rooms - line_rooms_total
-            # else:
-            #     self.rooms = 1
+                if record.room_type.code != "HFO":
+                    line_rooms_total = line_rooms_total + record.rooms
             if self.reservation_id.rooms != line_rooms_total:
                 self.reservation_id.rooms = line_rooms_total
 
+    @api.onchange('arrival', 'departure', 'room_type', 'rooms')
+    def onchange_roomtype(self):
+        for rec in self:
+            if not rec.room_type:
+                if not rec.rooms:
+                    # Save Record for Reservation Line
+                    occ_room_per_room = self.env[
+                        'hms.reservation.line'].search([
+                            ('property_id', '=', rec.property_id.id),
+                            ('reservation_id', '=',
+                             rec.reservation_id._origin.id),
+                            ('arrival', '<', rec.departure),
+                            ('departure', '>', rec.arrival)
+                        ])
+                    occ_room_count = sum(occ_room_per_room.mapped('rooms'))
+                    for occ_room in occ_room_per_room:
+                        if occ_room.id == rec.id:
+                            occ_room_count -= rec.rooms
+
+                    # Current Virtual Rooms Before Save to database
+                    current_rooms = rec.reservation_id.reservation_line_ids.filtered(
+                        lambda r: r._origin.id not in occ_room_per_room.ids and
+                        r.arrival < rec.departure and r.departure > rec.arrival
+                    )
+
+                    current_rooms_tmp = self.env['hms.reservation.line']
+                    current_rooms = current_rooms - occ_room_per_room
+                    len_current_count = len(current_rooms)
+                    count = 1
+                    for curr_room in current_rooms:
+                        if curr_room._origin.id not in occ_room_per_room.ids and count < len_current_count:
+                            current_rooms_tmp += curr_room
+                        count += 1
+
+                    current_rooms = current_rooms_tmp
+                    curr_room_count = sum(current_rooms.mapped('rooms'))
+                    t_rooms = occ_room_count + curr_room_count
+                    total_rooms = rec.get_rooms()
+                    if total_rooms > t_rooms:
+                        rec.rooms = total_rooms - t_rooms
+                    else:
+                        rec.rooms = 1
+                return
+
+            room_type = rec.room_type._origin.id
+            rt_avails = self.env['roomtype.available'].search([
+                ('property_id', '=', rec.property_id.id),
+                ('ravail_date', '>=', rec.arrival),
+                ('ravail_date', '<', rec.departure),
+                ('ravail_rmty', '=', room_type)
+            ])
+            avail_count = 0
+            available_room = 0
+            vals = []
+            for rtavail in rt_avails:
+                avail_room_count = rtavail.ravail_totalroom
+                occ_room_count = rtavail.ravail_booking + rtavail.ravail_unconfirm
+                # Save Record for Reservation Line
+                occ_room_per_roomtype = self.env[
+                    'hms.reservation.line'].search([
+                        ('property_id', '=', rec.property_id.id),
+                        ('room_type', '=', room_type),
+                        ('arrival', '<', rec.departure),
+                        ('departure', '>', rec.arrival)
+                    ])
+                # occ_room_count = sum(occ_room_per_roomtype.mapped('rooms'))
+                # for occ_room in occ_room_per_roomtype:
+                #     if occ_room.id == rec.id:
+                #         occ_room_count -= rec.rooms
+
+                # Current Virtual Rooms Before Save to database
+                current_rooms = rec.reservation_id.reservation_line_ids.filtered(
+                    lambda r: r._origin.id not in occ_room_per_roomtype.ids and
+                    r.room_type.id == rec.room_type.id and r.arrival < rec.
+                    departure and r.departure > rec.arrival)
+
+                current_rooms_tmp = self.env['hms.reservation.line']
+                current_rooms = current_rooms - occ_room_per_roomtype
+                for curr_room in current_rooms:
+                    if curr_room._origin.id not in occ_room_per_roomtype.ids:
+                        current_rooms_tmp += curr_room
+                current_rooms = current_rooms_tmp
+                curr_room_count = sum(current_rooms.mapped('rooms'))
+                if current_rooms and type(rec.id) != int:
+                    curr_room_count -= sum(rec.mapped('rooms')) * 2
+
+                avail_room_count = avail_room_count - (occ_room_count +
+                                                       curr_room_count)
+
+                if avail_room_count >= rec.rooms:
+                    avail_count += 1
+                    vals.append({
+                        'occupied_date': rtavail.ravail_date,
+                        'room_type': rec.room_type.name,
+                        'total_room': rec.rooms,
+                        'status': 'Available',
+                        'overbook_rooms': 0,
+                    })
+                else:
+                    over_booking = rec.rooms - avail_room_count
+                    avail_count -= 1
+                    vals.append({
+                        'occupied_date': rtavail.ravail_date,
+                        'room_type': rec.room_type.name,
+                        'total_room': rec.rooms,
+                        'status': 'Overbooking',
+                        'overbook_rooms': over_booking,
+                    })
+            if avail_count < 0:
+                message = "Booking Date" + "\t" + "Room Type" + "\t" + "Booking Room" + "\t" + "Status" + "\t" + "\t" + "Overbook" + "\n"
+                if vals:
+                    for val in vals:
+                        date = val["occupied_date"].strftime('%d/%m/%Y')
+                        message += ' ' + date + "\t" + val[
+                            "room_type"] + "\t" + "\t" + str(
+                                val["total_room"]
+                            ) + "\t" + "\t" + val["status"] + "\t"
+
+                        if val["overbook_rooms"]:
+                            message += "\t" + str(val["overbook_rooms"]) + "\n"
+                        else:
+                            message += "\n"
+
+                return {
+                    'warning': {
+                        'title': _('Warning'),
+                        'message': _(' %s ' % (message))
+                    }
+                }
+
+        return
+
     # Split Reservation
     def action_split(self):
-        _logger.info('self = %s',self)
-        rooms=self.rooms-1
+        _logger.info('self = %s', self)
+        rooms = self.rooms - 1
         if rooms:
             # super(ReservationLine,self).update({'rooms':1})
-            self.update({'rooms':1})
+            self.update({'rooms': 1})
             vals = []
             for rec in range(rooms):
-                vals.append((0,0,{'rooms':1,
-                    'arrival':self.arrival, 'departure':self.departure,
-                    'arrival_flight':self.arrival_flight, 'dep_flight':self.dep_flight,
-                    'arrival_flighttime':self.arrival_flighttime, 'dep_flighttime':self.dep_flighttime,
-                    'market':self.market.id, 'source':self.source.id,
-                    'reservation_type':self.reservation_type.id, 'reservation_status':self.reservation_status.id,
-                    'eta':self.eta, 'etd':self.etd, 'room_type':self.room_type.id,
-                    'pax':self.pax, 'child':self.child, 'ratecode_id':self.ratecode_id.id,
-                    'room_rate':self.room_rate, 'updown_amt':self.updown_amt,
-                    'updown_pc':self.updown_pc, 'reason_id':self.reason_id.id,
-                    'package_id':self.package_id.id, 'rate_nett':self.rate_nett,
-                    'fo_remark':self.fo_remark, 'hk_remark':self.hk_remark,
-                    'cashier_remark':self.cashier_remark, 'general_remark':self.general_remark,
-                    'madeondate':self.madeondate, 'citime':self.citime, 'cotime':self.cotime,
-                    'extrabed':self.extrabed,'extrabed_amount':self.extrabed_amount,'extrabed_bf':self.extrabed_bf,
-                    'extrapax':self.extrapax, 'extrapax_amount':self.extrapax_amount,'extrapax_bf':self.extrapax_bf,
-                    'child_bfpax':self.child_bfpax, 'child_bf':self.child_bf,'extra_addon':self.extra_addon,
-                    'pickup':self.pickup, 'dropoff':self.dropoff, 'arrival_trp':self.arrival_trp,
-                    'arrival_from':self.arrival_from, 'departure_trp':self.departure_trp,'departure_from':self.departure_from,
-                    'visa_type':self.visa_type,'visa_issue':self.visa_issue,'visa_expire':self.visa_expire,
-                    }))
-            self.reservation_id.update({'reservation_line_ids':vals})
+                vals.append((0, 0, {
+                    'rooms': 1,
+                    'arrival': self.arrival,
+                    'departure': self.departure,
+                    'arrival_flight': self.arrival_flight,
+                    'dep_flight': self.dep_flight,
+                    'arrival_flighttime': self.arrival_flighttime,
+                    'dep_flighttime': self.dep_flighttime,
+                    'market': self.market.id,
+                    'source': self.source.id,
+                    'reservation_type': self.reservation_type.id,
+                    'reservation_status': self.reservation_status.id,
+                    'eta': self.eta,
+                    'etd': self.etd,
+                    'room_type': self.room_type.id,
+                    'pax': self.pax,
+                    'child': self.child,
+                    'ratecode_id': self.ratecode_id.id,
+                    'room_rate': self.room_rate,
+                    'updown_amt': self.updown_amt,
+                    'updown_pc': self.updown_pc,
+                    'reason_id': self.reason_id.id,
+                    'package_id': self.package_id.id,
+                    'rate_nett': self.rate_nett,
+                    'fo_remark': self.fo_remark,
+                    'hk_remark': self.hk_remark,
+                    'cashier_remark': self.cashier_remark,
+                    'general_remark': self.general_remark,
+                    'madeondate': self.madeondate,
+                    'citime': self.citime,
+                    'cotime': self.cotime,
+                    'extrabed': self.extrabed,
+                    'extrabed_amount': self.extrabed_amount,
+                    'extrabed_bf': self.extrabed_bf,
+                    'extrapax': self.extrapax,
+                    'extrapax_amount': self.extrapax_amount,
+                    'extrapax_bf': self.extrapax_bf,
+                    'child_bfpax': self.child_bfpax,
+                    'child_bf': self.child_bf,
+                    'extra_addon': self.extra_addon,
+                    'pickup': self.pickup,
+                    'dropoff': self.dropoff,
+                    'arrival_trp': self.arrival_trp,
+                    'arrival_from': self.arrival_from,
+                    'departure_trp': self.departure_trp,
+                    'departure_from': self.departure_from,
+                    'visa_type': self.visa_type,
+                    'visa_issue': self.visa_issue,
+                    'visa_expire': self.visa_expire,
+                }))
+            self.reservation_id.update({'reservation_line_ids': vals})
         return {
             'type': 'ir.actions.client',
             'tag': 'reload',
-            }
+        }
+
+    @api.model
+    def create(self, values):
+        # _logger.info(values)
+        res = super(ReservationLine, self).create(values)
+
+        state = res.state
+        rooms = res.rooms
+        room_type = res.room_type.id
+        property_id = res.property_id.id
+        arrival = res.arrival
+        departure = res.departure
+        reduce = False
+        status = ''
+        self._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
+        
+        return res
+
+    # Write Function
+    def write(self, values):
+
+        rooms_changes = self._origin.read(['rooms'])
+        index = len(rooms_changes) - 1
+        rooms_dict = rooms_changes[index]
+        rooms = int(rooms_dict['rooms'])
+        old_room_type = self.room_type
+        arrival = self.arrival
+        departure = self.departure
+        night_changes = self._origin.read(['nights'])
+        ind = len(night_changes) - 1
+        nights_dict = night_changes[ind]
+        nights = int(nights_dict['nights'])
+
+        # Restrict dragging state to booking state
+        if 'state' in values.keys():
+            previous_state = self.state
+            new_state = values.get('state')
+            if new_state == 'booking' and (previous_state in [
+                    'reservation', 'confirm'
+            ]):
+                raise ValidationError(
+                    _("You can't go back from '%s' state to 'booking' state!" %
+                      (previous_state)))
+
+        if 'rooms' in values.keys() or 'arrival' in values.keys(
+        ) or 'departure' in values.keys() or 'room_type' in values.keys(
+        ) or 'nights' in values.keys():
+            property_id = self.property_id
+            state = self.state
+            newroom_type = values.get('room_type')
+            newroom_type = self.env['room.type'].search([('id', '=',
+                                                          newroom_type)])
+            new_arrival = values.get('arrival')
+            if new_arrival:
+                new_arrival = datetime.strptime(str(new_arrival),
+                                                '%Y-%m-%d').date()
+            new_departure = values.get('departure')
+            if new_departure:
+                new_departure = datetime.strptime(str(new_departure),
+                                                  '%Y-%m-%d').date()
+            new_nights = values.get('nights')
+            new_rooms = values.get('rooms')
+            # Reduce on Availability and room Type avaialable
+            oldrt_avails = self.env['roomtype.available'].search([
+                ('property_id', '=', property_id.id),
+                ('ravail_date', '>=', arrival),
+                ('ravail_date', '<', departure),
+                ('ravail_rmty', '=', old_room_type.id)
+            ])
+            oldavails = self.env['availability.availability'].search([
+                ('property_id', '=', property_id.id),
+                ('avail_date', '>=', arrival), ('avail_date', '<', departure)
+            ])
+            olddep_avails = self.env['availability.availability'].search([
+                ('property_id', '=', property_id.id),
+                ('avail_date', '=', departure)
+            ])
+            if self.state == 'confirm':
+                for record in oldrt_avails:
+                    record.ravail_occupancy -= rooms
+                for avail in oldavails:
+                    avail.avail_occupancy -= rooms
+                    if avail.avail_date == arrival:
+                        avail.avail_arrival -= rooms
+                for depavail in olddep_avails:
+                    if depavail.avail_date == departure:
+                        depavail.avail_dep -= rooms
+            elif self.state == 'reservation':
+                for record in oldrt_avails:
+                    record.ravail_unconfirm -= rooms
+                for avail in oldavails:
+                    avail.avail_unconfirm -= rooms
+            elif self.state == 'booking':
+                for record in oldrt_avails:
+                    record.ravail_booking -= rooms
+                for avail in oldavails:
+                    avail.avail_booking -= rooms
+
+            # Check & Retreive for New Availability
+            rt_avails = self.env['roomtype.available']
+            avails = self.env['availability.availability']
+            dep_avails = self.env['availability.availability']
+            # Check & Retreive for New Availability
+            if new_arrival or new_departure or new_nights:
+                if newroom_type:
+                    rt_avails = self.env['roomtype.available'].search([
+                        ('property_id', '=', property_id.id),
+                        ('ravail_date', '>=', new_arrival),
+                        ('ravail_date', '<', new_departure),
+                        ('ravail_rmty', '=', newroom_type.id)
+                    ])
+                else:
+                    rt_avails = self.env['roomtype.available'].search([
+                        ('property_id', '=', property_id.id),
+                        ('ravail_date', '>=', new_arrival),
+                        ('ravail_date', '<', new_departure),
+                        ('ravail_rmty', '=', old_room_type.id)
+                    ])
+                avails = self.env['availability.availability'].search([
+                    ('property_id', '=', property_id.id),
+                    ('avail_date', '>=', new_arrival),
+                    ('avail_date', '<', new_departure)
+                ])
+                dep_avails = self.env['availability.availability'].search([
+                    ('property_id', '=', property_id.id),
+                    ('avail_date', '=', new_departure)
+                ])
+                if new_rooms:
+                    if self.state == 'confirm':
+                        for record in rt_avails:
+                            record.ravail_occupancy += new_rooms
+                        for avail in avails:
+                            avail.avail_occupancy += new_rooms
+                            if avail.avail_date == new_arrival:
+                                avail.avail_arrival += new_rooms
+                        for depavail in dep_avails:
+                            if depavail.avail_date == new_departure:
+                                depavail.avail_dep += new_rooms
+                    elif self.state == 'reservation':
+                        for record in rt_avails:
+                            record.ravail_unconfirm += new_rooms
+                        for avail in avails:
+                            avail.avail_unconfirm += new_rooms
+                    elif self.state == 'booking':
+                        for record in rt_avails:
+                            record.ravail_booking += new_rooms
+                        for avail in avails:
+                            avail.avail_booking += new_rooms
+                else:  # Old Rooms Update for changes arrival/departure & nights
+                    if self.state == 'confirm':
+                        for record in rt_avails:
+                            record.ravail_occupancy += rooms
+                        for avail in avails:
+                            avail.avail_occupancy += rooms
+                            if avail.avail_date == new_arrival:
+                                avail.avail_arrival += rooms
+                        for depavail in dep_avails:
+                            if depavail.avail_date == new_departure:
+                                depavail.avail_dep += rooms
+                    elif self.state == 'reservation':
+                        for record in rt_avails:
+                            record.ravail_unconfirm += rooms
+                        for avail in avails:
+                            avail.avail_unconfirm += rooms
+            else:  # Old Arrival/Departure/Nights Update for Availability
+                if newroom_type:
+                    rt_avails = self.env['roomtype.available'].search([
+                        ('property_id', '=', property_id.id),
+                        ('ravail_date', '>=', arrival),
+                        ('ravail_date', '<', departure),
+                        ('ravail_rmty', '=', newroom_type.id)
+                    ])
+                else:
+                    rt_avails = self.env['roomtype.available'].search([
+                        ('property_id', '=', property_id.id),
+                        ('ravail_date', '>=', arrival),
+                        ('ravail_date', '<', departure),
+                        ('ravail_rmty', '=', old_room_type.id)
+                    ])
+                avails = self.env['availability.availability'].search([
+                    ('property_id', '=', property_id.id),
+                    ('avail_date', '>=', arrival),
+                    ('avail_date', '<', departure)
+                ])
+                dep_avails = self.env['availability.availability'].search([
+                    ('property_id', '=', property_id.id),
+                    ('avail_date', '=', departure)
+                ])
+                # Update rooms for availability
+                if new_rooms:
+                    if self.state == 'confirm':
+                        values.update({'color': 2, 'state': 'confirm'})
+                        for record in rt_avails:
+                            record.ravail_occupancy += new_rooms
+                        for avail in avails:
+                            avail.avail_occupancy += new_rooms
+                            if avail.avail_date == arrival:
+                                avail.avail_arrival += new_rooms
+                        for depavail in dep_avails:
+                            if depavail.avail_date == departure:
+                                depavail.avail_dep += new_rooms
+                    elif self.state == 'reservation':
+                        values.update({'color': 3, 'state': 'reservation'})
+                        for record in rt_avails:
+                            record.ravail_unconfirm += new_rooms
+                        for avail in avails:
+                            avail.avail_unconfirm += new_rooms
+                else:  # Old Rooms Update for changes arrival/departure & nights
+                    if self.state == 'confirm':
+                        values.update({'color': 2, 'state': 'confirm'})
+                        for record in rt_avails:
+                            record.ravail_occupancy += rooms
+                        for avail in avails:
+                            avail.avail_occupancy += rooms
+                            if avail.avail_date == arrival:
+                                avail.avail_arrival += rooms
+                        for depavail in dep_avails:
+                            if depavail.avail_date == departure:
+                                depavail.avail_dep += rooms
+                    elif self.state == 'reservation':
+                        values.update({'color': 3, 'state': 'reservation'})
+                        for record in rt_avails:
+                            record.ravail_unconfirm += rooms
+                        for avail in avails:
+                            avail.avail_unconfirm += rooms
+
+        res = super(ReservationLine, self).write(values)
+        return res
+
+    # State Update Forecast
+    def _state_update_forecast(self,state,property_id,arrival,departure,room_type,rooms,reduce,status):
+
+        if room_type != 'HFO':
+            rt_avails = self.env['roomtype.available'].search([
+                ('property_id', '=', property_id),
+                ('ravail_date', '>=', arrival), ('ravail_date', '<', departure),
+                ('ravail_rmty', '=', room_type)
+            ])
+            avails = self.env['availability.availability'].search([
+                ('property_id', '=', property_id),
+                ('avail_date', '>=', arrival), ('avail_date', '<', departure)
+            ])
+            dep_avails = self.env['availability.availability'].search([
+                ('property_id', '=', property_id),
+                ('avail_date', '=', departure)
+            ])
+
+            if reduce is True:
+                if state == 'confirm':
+                    for record in rt_avails:
+                        record.ravail_occupancy -= rooms
+                    for avail in avails:
+                        avail.avail_occupancy -= rooms
+                        if avail.avail_date == arrival:
+                            avail.avail_arrival -= rooms
+                    for depavail in dep_avails:
+                        if depavail.avail_date == departure:
+                            depavail.avail_dep -= rooms
+                    state = status
+                elif state == 'reservation':
+                    for record in rt_avails:
+                        record.ravail_unconfirm -= rooms
+                    for avail in avails:
+                        avail.avail_unconfirm -= rooms
+                    state = status
+                elif state == 'booking':
+                    for record in rt_avails:
+                        record.ravail_booking = record.ravail_booking - rooms
+                    for avail in avails:
+                        avail.avail_booking = avail.avail_booking - rooms
+                    state = status
+                    self.write({'state': status})
+
+            if state == 'confirm':
+                for record in rt_avails:
+                    record.ravail_occupancy += rooms
+                for avail in avails:
+                    avail.avail_occupancy += rooms
+                    if avail.avail_date == arrival:
+                        avail.avail_arrival += rooms
+                for depavail in dep_avails:
+                    if depavail.avail_date == departure:
+                        depavail.avail_dep += rooms
+            elif state == 'reservation':
+                for record in rt_avails:
+                    record.ravail_unconfirm += rooms
+                for avail in avails:
+                    avail.avail_unconfirm += rooms
+            elif state == 'booking':
+                for record in rt_avails:
+                    record.ravail_booking = record.ravail_booking + rooms
+                for avail in avails:
+                    avail.avail_booking = avail.avail_booking + rooms
+
+
+    @api.model
+    def _no_show_reservation(self):
+        no_show_rsvn_lines = self.env['hms.reservation.line'].search([('arrival', '<', datetime.today()),('state', '=','confirm')])
+        for no_show_rsvn_line in no_show_rsvn_lines:
+            no_show_rsvn_line.update({'is_no_show': True})
 
 # Cancel Reservation
 class CancelReservation(models.Model):
@@ -1085,3 +1689,80 @@ class CancelReservation(models.Model):
                                       readonly=True,
                                       index=True,
                                       default=(lambda *a: time.strftime(dt)))
+
+# Room Reservation Summary
+class RoomReservationSummary(models.Model):
+    _name = 'room.reservation.summary'
+    _description = 'Room reservation summary'
+
+    name = fields.Char('Reservation Summary', default='Reservations Summary',
+                       invisible=True)
+    date_from = fields.Date('Date From')
+    date_to = fields.Date('Date To')
+    summary_header = fields.Text('Summary Header')
+    room_summary = fields.Text('Room Summary')
+
+    @api.model
+    def default_get(self, fields):
+        """
+        To get default values for the object.
+        @param self: The object pointer.
+        @param fields: List of fields for which we want default values
+        @return: A dictionary which of fields with values.
+        """
+        if self._context is None:
+            self._context = {}
+        res = super(RoomReservationSummary, self).default_get(fields)
+        # Added default datetime as today and date to as today + 30.
+        from_dt =  datetime.today()
+        dt_from = from_dt.strftime(dt)
+        to_dt = from_dt + relativedelta(days=30)
+        dt_to = to_dt.strftime(dt)
+        res.update({'date_from': dt_from, 'date_to': dt_to})
+
+        if not self.date_from and self.date_to:
+            date_today = datetime.datetime.today()
+            first_day = datetime.datetime(date_today.year,
+                                          date_today.month, 1, 0, 0, 0)
+            first_temp_day = first_day + relativedelta(months=1)
+            last_temp_day = first_temp_day - relativedelta(days=1)
+            last_day = datetime.datetime(last_temp_day.year,
+                                         last_temp_day.month,
+                                         last_temp_day.day, 23, 59, 59)
+            date_froms = first_day.strftime(dt)
+            date_ends = last_day.strftime(dt)
+            res.update({'date_from': date_froms, 'date_to': date_ends})
+        return res
+
+    def room_reservation(self):
+        '''
+        @param self: object pointer
+        '''
+        mod_obj = self.env['ir.model.data']
+        if self._context is None:
+            self._context = {}
+        model_data_ids = mod_obj.search([('model', '=', 'ir.ui.view'),
+                                         ('name', '=',
+                                          'reservation_view_form')])
+        resource_id = model_data_ids.read(fields=['res_id'])[0]['res_id']
+        return {'name': _('Reconcile Write-Off'),
+                'context': self._context,
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'hotel.reservation',
+                'views': [(resource_id, 'form')],
+                'type': 'ir.actions.act_window',
+                'target': 'new',
+                }
+    
+
+class OverBooking(models.Model):
+    _name = "over.booking"
+    _description = "Over Booking"
+
+    reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
+    rt_avail_id = fields.Many2one('roomtype.available',
+                                  string="Room Type Available")
+    property_id = fields.Many2one("property.property", 'Property')
+    overbook_date = fields.Date(string="Date")
+    overbook_rooms = fields.Integer(string="Rooms")

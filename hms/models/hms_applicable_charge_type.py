@@ -55,6 +55,7 @@ class HMSPackageChargeLine(models.Model):
                                             required=True,
                                             store=True)
     is_apply_service = fields.Boolean ('Apply Service',track_visibility=True, related='transaction_id.trans_svc')                                        
+    service = fields.Float("Tax", track_visibility=True)
     is_apply_tax = fields.Boolean('Apply Tax', track_visibility=True, related='transaction_id.trans_tax')
     tax = fields.Float("Tax", track_visibility=True)
     billing_type = fields.Selection([('daily', 'Daily'),
