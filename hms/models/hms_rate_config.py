@@ -126,42 +126,23 @@ class RateCodeDetails(models.Model):
             if startdate and enddate and startdate > enddate:
                 raise ValidationError("End Date cannot be set before Start Date.")
 
-    # @api.onchange('start_date', 'end_date')
-    # @api.constrains('start_date', 'end_date')
-    # def check_date_range(self):
-    #     start_date = self.start_date
-    #     end_date = self.end_date
-    #     s_id = self.id
-    #     ss_id = self._origin.id
+    @api.onchange('start_date')
+    @api.constrains('start_date')
+    def check_date_range(self):
+        start_date = self.start_date
+        end_date = self.end_date
+        s_id = self.id
+        ss_id = self._origin.id
         
-    #     for rec in self.ratehead_id.ratecode_details:
-    #         r_id = rec.id
-    #         rr_id = rec._origin.id
-    #         rec_sd = rec.start_date
-    #         rec_ed = rec.end_date
-    #         if rec.start_date and rec.end_date and rec.id != self.id:
-    #             if self.start_date < rec.end_date and self.end_date > rec.start_date:
-    #                 raise ValidationError(
-    #             _("There is already a season code which overlaps your date range"))
-
-    # @api.onchange('rate_code', 'end_date')
-    # def get_end_date(self):
-    #     header = self.ratehead_id
-    #     headera = self.ratehead_id.id
-    #     headerb = self.ratehead_id._origin
-    #     headerc = self.ratehead_id._origin.id
-    #     headerd = self._origin.ratehead_id
-    #     headere = self._origin.ratehead_id.id
-
-    #     ratecode_details_objs = self.env['ratecode.details'].search([('ratehead_id', '=', self.ratehead_id._origin.id)])
-    #     tmp_end_date = date(1000, 1, 11)
-    #     prv_ratecode_details = self.env['ratecode.details']
-    #     for rec in ratecode_details_objs:
-    #         if rec.end_date > tmp_end_date:
-    #             tmp_end_date = rec.end_date
-    #             prv_ratecode_details = rec
-    #         if prv_ratecode_details:
-    #             self.start_date = prv_ratecode_details.end_date + timedelta(days=1)
+        for rec in self.ratehead_id.ratecode_details:
+            r_id = rec.id
+            rr_id = rec._origin.id
+            rec_sd = rec.start_date
+            rec_ed = rec.end_date
+            if rec.start_date and rec.end_date and rec.id != self.id:
+                if self.start_date < rec.end_date and self.end_date > rec.start_date:
+                    raise ValidationError(
+                _("There is already a season code which overlaps your date range"))
 
     @api.onchange('start_date')
     def get_start_date(self):

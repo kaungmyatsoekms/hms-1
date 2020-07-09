@@ -34,6 +34,7 @@
     
     # always loaded
     'data': [
+        'security/hms_security.xml',
         'security/ir.model.access.csv',
         'wizard/hms_roomno_copy_wizard.xml',
         'views/hotel_views.xml',
