@@ -674,11 +674,8 @@
         </kanban>
       </field>
     </record>
-<<<<<<< HEAD
     
-=======
 
->>>>>>> origin/dev_ssy
     <!-- action of room type setup -->
     <record id="room_type_action_window" model="ir.actions.act_window">
       <field name="name">Room Type</field>

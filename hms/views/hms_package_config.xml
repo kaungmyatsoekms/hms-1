@@ -61,11 +61,7 @@
                     <field name="property_id"/>
                     <field name="package_code"/>
                     <field name="shortcut"/>
-<<<<<<< HEAD
-                    <field name="package_name"/>  
-=======
                     <field name="package_name"/>
->>>>>>> origin/dev_ssy
                     <field name="forecast_next_day"/>
                     <field name="post_next_day"/>
                     <field name="catering"/>
