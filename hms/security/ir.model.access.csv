@@ -1,7 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_property_property,property.property,model_property_property,base.group_user,1,1,1,1
+
 access_property_user,property.property,model_property_property,hms.group_property_user,1,1,0,0
-access_property_manager,property.property,model_property_property,hms.group_property_manager,1,1,1,1
+access_property_manager,property.property,model_property_property,hms.group_property_manager,0,0,1,1
 
 access_pms_format,pms.format,model_pms_format,base.group_user,1,1,1,1
 access_pms_format_detail,pms.format.detail,model_pms_format_detail,base.group_user,1,1,1,1

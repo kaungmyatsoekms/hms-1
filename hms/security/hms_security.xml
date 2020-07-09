@@ -4,7 +4,7 @@
 
         <record id="module_category_property" model="ir.module.category">
             <field name="name">Property</field>
-            <field name="name">Group Description</field>
+            <field name="description">Group Description</field>
             <field name="sequence">1</field>
         </record>
 
@@ -47,6 +47,27 @@
             <field name="name">Property Manager</field>
             <field name="domain_force">[(1,'=',1)]</field>
             <field name="groups" eval="[(4, ref('hms.group_property_manager'))]"/>
+        </record>
+
+        <record id="property_user_rule" model="ir.rule">
+            <field name="model_id" ref="model_property_property"/>
+            <field name="name">Property User</field>
+            <field name="domain_force">[('id', 'in', [c.id for c in user.property_id])]</field>
+            <field name="groups" eval="[(4, ref('hms.group_property_user'))]"/>
+        </record>
+
+        <record id="reservation_manager_rule" model="ir.rule">
+            <field name="model_id" ref="model_hms_reservation"/>
+            <field name="name">Reservation Manager</field>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('hms.group_reservation_manager'))]"/>
+        </record>
+
+        <record id="reservation_user_rule" model="ir.rule">
+            <field name="model_id" ref="model_hms_reservation"/>
+            <field name="name">Reservation User</field>
+            <field name="domain_force">[('property_id', 'in', [c.id for c in user.property_id])]</field>
+            <field name="groups" eval="[(4, ref('hms.group_reservation_user'))]"/>
         </record>
 
         <!-- <record id="reservation_user_rule" model="ir.rule">
