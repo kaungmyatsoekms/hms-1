@@ -9,8 +9,8 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "D:\\Odoo Server\\Odoo 13.0\\python\\python.exe",
-            "program": "D:\\Odoo Server\\Odoo 13.0\\server\\odoo-bin",
+            "pythonPath": "C:\\Program Files (x86)\\Odoo 13.0\\python\\python.exe",
+            "program": "C:\\Program Files (x86)\\Odoo 13.0\\server\\odoo-bin",
             //your odoo configuration file path 
             "args": [
                 "-c${workspaceRoot}\\odoo.conf"

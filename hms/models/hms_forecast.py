@@ -14,6 +14,7 @@ class Availability(models.Model):
     _description = "Availability"
     
     active = fields.Boolean ('Active', default=True)
+    color = fields.Integer(string='Color Index')
     property_id = fields.Many2one('property.property', String="Property")
     avail_date = fields.Date(string="Date")
     avail_booking = fields.Integer('Booking', default=0)
@@ -124,10 +125,10 @@ class RoomTypeAvailable(models.Model):
     _description = "Room Type Available"
 
     active = fields.Boolean ('Active', default=True)
+    color = fields.Integer(string='Color Index')
     availability_id = fields.Many2one('availability.availability')
     property_id = fields.Many2one('property.property',
-                                  string="Property",
-                                  required=True)
+                                  string="Property")
     ravail_date = fields.Date('Date', required=True)
     roomtype_ids = fields.Many2many('room.type',
                                     related="property_id.roomtype_ids")
@@ -145,7 +146,7 @@ class RoomTypeAvailable(models.Model):
     ravail_unconfirm = fields.Integer(
         'Unconfirm', default=0)  #,compute ='_compute_unconfirm_room')
     total_room = fields.Integer('Total Room', store=True)
-    ravail_totalroom = fields.Integer('Room Type Available Total Room',
+    ravail_totalroom = fields.Integer('Available',
                                       compute='_compute_avail_room',
                                       store=True)
     overbook_ids = fields.One2many('over.booking', 'rt_avail_id',
@@ -159,8 +160,7 @@ class RoomTypeAvailable(models.Model):
         return result
 
     # Compute Total Available Room (Use)
-    @api.depends('total_room', 'ravail_occupancy', 'ravail_block',
-                 'ravail_ooo')
+    @api.depends('total_room', 'ravail_occupancy', 'ravail_block', 'ravail_ooo')
     def _compute_avail_room(self):
         for record in self:
             unavail_room = record.ravail_occupancy + record.ravail_block + record.ravail_ooo
