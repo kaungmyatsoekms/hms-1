@@ -70,6 +70,16 @@ class RateCodeHeader(models.Model):
 
 # Rate Code Detail
 class RateCodeDetails(models.Model):
+
+    # def default_get_start_date(self):
+
+    #     if self.ratehead_id.ratecode_details:
+    #         max_start_date = max(self.ratehead_id.ratecode_details.mapped('end_date'))
+    #         if max_start_date:
+    #             return max_start_date
+    #     else:
+    #         return datetime.today()
+
     _name = "ratecode.details"
     _description = "Rate Code Details"
 
@@ -110,10 +120,45 @@ class RateCodeDetails(models.Model):
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
     def get_two_date_comp(self):
-        startdate = self.start_date
-        enddate = self.end_date
-        if startdate and enddate and startdate > enddate:
-            raise ValidationError("End Date cannot be set before Start Date.")
+        for record in self:
+            startdate = record.start_date
+            enddate = record.end_date
+            if startdate and enddate and startdate > enddate:
+                raise ValidationError("End Date cannot be set before Start Date.")
+
+    @api.onchange('start_date')
+    @api.constrains('start_date')
+    def check_date_range(self):
+        start_date = self.start_date
+        end_date = self.end_date
+        s_id = self.id
+        ss_id = self._origin.id
+        
+        for rec in self.ratehead_id.ratecode_details:
+            r_id = rec.id
+            rr_id = rec._origin.id
+            rec_sd = rec.start_date
+            rec_ed = rec.end_date
+            if rec.start_date and rec.end_date and rec.id != self.id:
+                if self.start_date < rec.end_date and self.end_date > rec.start_date:
+                    raise ValidationError(
+                _("There is already a season code which overlaps your date range"))
+
+    @api.onchange('start_date')
+    def get_start_date(self):
+        
+        tmp_end_date = date(1000, 1, 11)
+        prv_ratecode_details = self.env['ratecode.details']
+        for rec in self.ratehead_id.ratecode_details:
+
+            end_date = rec.end_date
+            if end_date:
+                if rec.id != self.id:
+                    if end_date > tmp_end_date:
+                        tmp_end_date = end_date
+                        prv_ratecode_details = rec
+        if prv_ratecode_details:
+            self.start_date = prv_ratecode_details.end_date + timedelta(days=1)
 
 # Rate Code Categories
 class RateCategories(models.Model):
@@ -203,7 +248,10 @@ class RateCodeHead(models.Model):
                 same_rate_code_objs = rate_category_obj.rate_header_ids.filtered(lambda x: x.rate_code == rate_code and x.ratecode_name == ratecode_name)
 
                 if same_rate_code_objs:
-                    same_rate_code_objs.update({'property_ids':[(4,property_id.id)]})
+                    if end_date > same_rate_code_objs.end_date:
+                        same_rate_code_objs.update({'end_date': end_date,'property_ids':[(4,property_id.id)]})
+                    else :
+                        same_rate_code_objs.update({'property_ids':[(4,property_id.id)]})
                 
                 else:
                     vals = []

@@ -35,7 +35,7 @@
                     </div>
                     <notebook>
                         <page string="Rate Code Details">
-                            <field name="ratecode_details" context="{'default_property_id':property_id}" mode="kanban" />  
+                            <field name="ratecode_details" context="{'default_ratehead_id' : id,'default_property_id' : property_id}" mode="tree" />  
                         </page>
                     </notebook>
                 </sheet>

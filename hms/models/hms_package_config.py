@@ -35,6 +35,9 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
+    include_in_rate = fields.Boolean(default=False)
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
     active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
     property_id = fields.Many2one('property.property',

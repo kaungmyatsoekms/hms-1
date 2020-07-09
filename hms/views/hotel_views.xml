@@ -60,10 +60,17 @@
             <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
+<<<<<<< HEAD
               <h3><field name="name" placeholder="Hotel Name" style="width:50%%"/></h3>
               <!-- s -->
               <h4><field name="code" style="width:50%%"/></h4>
               <h4><field name="hotelgroup_id" style="width:51%%"/></h4>
+=======
+              <h3><field name="name" placeholder="Hotel Name" style="width:80%%"/></h3>
+              <!-- s -->
+              <h4><field name="code" style="width:80%%"/></h4>
+              <h4><field name="hotelgroup_id" style="width:80%%"/></h4>
+>>>>>>> c5e0fe93524b16234c70b14ac2ba6faa4a1740a3
             </div>
             <newline/>
             <group>
@@ -95,6 +102,7 @@
                 <field name="email" placeholder="example@company.com....."/>
                 <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
                 <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
+<<<<<<< HEAD
                 <label for="availability" string="Availability"/>
                 <div class="o_address_format">
                   <field name="availability"  style="width:33%%"/>
@@ -105,6 +113,18 @@
                 <div class="o_address_format">
                   <field name="roomqty" style="width:30%%"/>
                   <label for="dummy_rooms" string=" " style="width:0.01em"/>
+=======
+                <label for="high_occupancy" string="High Occupancy"/>
+                <div class="o_address_class">
+                  <field name="high_occupancy" placeholder="High" style="width:20%%"/>
+                  <field name="low_occupancy" placeholder="Low" style="width:20%%"/>
+                  <field name="availability" placeholder="Avil" style="width:20.5%%"/>
+                </div>
+                <label for="roomqty" string="Total Rooms"/>
+                <div class="o_address_class">
+                  <field name="roomqty" style="width:30%%"/>
+                  <label for="dummy_rooms" string="Dummy Rooms"/>
+>>>>>>> c5e0fe93524b16234c70b14ac2ba6faa4a1740a3
                   <field name="dummy_rooms" style="width:30%%" force_save="1"/>
                 </div>
               </group>

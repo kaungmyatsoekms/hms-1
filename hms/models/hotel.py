@@ -189,9 +189,12 @@ class Property(models.Model):
     packageheader_ids = fields.One2many('package.header',
                                   'property_id',
                                   string="Package")
+<<<<<<< HEAD
     packagegroup_ids = fields.One2many('package.group',
                                        'property_id',
                                        string="Package Group")
+=======
+>>>>>>> c5e0fe93524b16234c70b14ac2ba6faa4a1740a3
     subgroup_ids = fields.One2many('sub.group',
                                    'property_id',
                                    string="Sub Group")
@@ -536,6 +539,7 @@ class Property(models.Model):
         }
         return action
 
+<<<<<<< HEAD
     def action_package_group(self):
         package_groups = self.mapped('packagegroup_ids')
         action = self.env.ref('hms.package_group_action_window').read()[0]
@@ -559,6 +563,8 @@ class Property(models.Model):
         }
         return action
 
+=======
+>>>>>>> c5e0fe93524b16234c70b14ac2ba6faa4a1740a3
     def action_building_count(self):
         buildings = self.mapped('building_ids')
         action = self.env.ref('hms.building_action_window').read()[0]
