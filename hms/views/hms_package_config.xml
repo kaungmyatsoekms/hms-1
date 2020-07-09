@@ -6,47 +6,47 @@
             <field name="model">package.header</field>
             <field name="arch" type="xml">
                 <form string="Package Header">
-                    <sheet>
-                        <field name="active" invisible="1"/>
-                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                        <field name="property_id" placeholder="Property"/>
-                        <separator string="Package" colspan="4"/>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <field name="property_id" placeholder="Property"/>
+                    <separator string="Package" colspan="4"/>
+                    <group>
                         <group>
-                            <group>
-                                <field name="package_code" default_focus="1" placeholder="Package Code"/>
-                                <field name="shortcut" placeholder="ShortName"/>
-                                <field name="package_name" placeholder="Description"/>
-                                <label for="start_date" string="Package Period"/>
-                                <div>
-                                    <field name="start_date" style="width:50%%"/>
-                                    <field name="end_date" style="width:50%%"/>
-                                </div>
-                                <field name="transaction_id"/>
-                                <field name="include_service"/>
-                                <field name="include_tax"/>
-                                <field name="package_profit"/>
-                                <field name="package_loss"/>
-                                <field name="allowance"/>
-                                <field name="valid_eod"/>
-                                <field name="sell_separate"/>
-                            </group>
-                            <group string="Access Rate">
-                                <field name="rate_attribute" widget="radio"/>
-                                <field name="Calculation_method"/>
-                                <field name="Fix_price"/>
-                                <field name="posting_rythms"/>
-                                <field name="forecast_next_day"/>
-                                <field name="post_next_day"/>
-                                <field name="catering"/>
-                            </group>
+                            <field name="package_code" default_focus="1" placeholder="Package Code"/>
+                            <field name="shortcut" placeholder="ShortName"/>
+                            <field name="package_name" placeholder="Description"/>
+                            <label for="start_date" string="Package Period"/>
+                            <div>
+                                <field name="start_date" style="width:50%%"/>
+                                <field name="end_date" style="width:50%%"/>
+                            </div>
+                            <field name="transaction_id"/>
+                            <field name="include_service"/>
+                            <field name="include_tax"/>
+                            <field name="package_profit"/>
+                            <field name="package_loss"/>
+                            <field name="allowance"/>
+                            <field name="valid_eod"/>
+                            <field name="sell_separate"/>
                         </group>
+                        <group string="Access Rate">
+                            <field name="rate_attribute" widget="radio"/>
+                            <field name="Calculation_method"/>
+                            <field name="Fix_price"/>
+                            <field name="posting_rythms"/>
+                            <field name="forecast_next_day"/>
+                            <field name="post_next_day"/>
+                            <field name="catering"/>
+                        </group>
+                    </group>
+                    <group>
+
                         <group>
 
-                            <group>
-
-                            </group>
                         </group>
-                    </sheet>
+                    </group> 
+                </sheet>
                 </form>
             </field>
         </record>
@@ -61,7 +61,7 @@
                     <field name="property_id"/>
                     <field name="package_code"/>
                     <field name="shortcut"/>
-                    <field name="package_name"/>
+                    <field name="package_name"/>  
                     <field name="forecast_next_day"/>
                     <field name="post_next_day"/>
                     <field name="catering"/>
@@ -173,11 +173,7 @@
         <record id="package_header_action_window" model="ir.actions.act_window">
             <field name="name">Package</field>
             <field name="res_model">package.header</field>
-<<<<<<< HEAD
             <field name="view_mode">tree,form</field>
-=======
-            <field name="view_mode">tree,kanban,form</field>
->>>>>>> origin/dev_ssy
         </record>
 
         <!-- Package Group Form View -->
@@ -197,10 +193,6 @@
                                 <field name="shortcut"/>
                                 <field name="pkg_group_name"/>
                                 <field name="package_id" widget="many2many_tags"/>
-<<<<<<< HEAD
-=======
-                                <field name="addon_pkg_id" widget="many2many_tags"/>
->>>>>>> origin/dev_ssy
                             </group>
                             <group>
                                 <field name="transaction_id"/>
@@ -212,10 +204,7 @@
                 </form>
             </field>
         </record>
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/dev_ssy
         <!-- Package Group List View -->
         <record id="package_group_view_list" model="ir.ui.view">
             <field name="name">Package Group List</field>
@@ -232,10 +221,7 @@
                 </tree>
             </field>
         </record>
-<<<<<<< HEAD
         
-=======
->>>>>>> origin/dev_ssy
         <!-- action of Package Group -->
         <record id="package_group_action_window" model="ir.actions.act_window">
             <field name="name">Package Group</field>
