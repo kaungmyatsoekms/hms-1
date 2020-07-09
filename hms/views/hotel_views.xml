@@ -63,7 +63,7 @@
               <h3><field name="name" placeholder="Hotel Name" style="width:50%%"/></h3>
               <!-- s -->
               <h4><field name="code" style="width:50%%"/></h4>
-              <h4><field name="hotelgroup_id" style="width:51%%"/></h4>
+              <h4><field name="hotelgroup_id" style="width:53%%"/></h4>
             </div>
             <newline/>
             <group>
@@ -103,9 +103,9 @@
                 </div>
                 <label for="roomqty" string="Total / Dummy Rooms"/>
                 <div class="o_address_format">
-                  <field name="roomqty" style="width:30%%"/>
+                  <field name="roomqty" style="width:10%%"/>
                   <label for="dummy_rooms" string=" " style="width:0.01em"/>
-                  <field name="dummy_rooms" style="width:30%%" force_save="1"/>
+                  <field name="dummy_rooms" style="width:10%%" force_save="1"/>
                 </div>
               </group>
               <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>

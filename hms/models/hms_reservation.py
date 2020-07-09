@@ -465,7 +465,30 @@ class Reservation(models.Model):
                     'etd' : self.etd,
                 }))
                 self.update({'reservation_line_ids': vals,'dummy_readonly': True})
+<<<<<<< HEAD
+=======
 
+        return res
+
+    # Unlink Function
+    def unlink(self):
+>>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
+
+        reservation_line_objs = self.env['hms.reservation.line']
+        for record in self:
+            # state = record.state
+            # rooms = record.rooms
+            # room_type = record.roomtype_id.id
+            # property_id = record.property_id.id
+            # arrival = record.arrival
+            # departure = record.departure
+            # reduce = True
+            # status = 'HFO'
+            # record.reservation_line_ids._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
+            reservation_line_objs += self.env['hms.reservation.line'].search([('reservation_id', '=', record.id)])
+            reservation_line_objs.unlink()
+        
+        res = super(Reservation, self).unlink()
         return res
 
     # Unlink Function
@@ -757,7 +780,7 @@ class ReservationLine(models.Model):
     cotime = fields.Datetime("Check-Out Time")
 
     extrabed = fields.Integer("Extra Bed")
-    extrabed_amount = fields.Integer("Number of Extra Bed")
+    extrabed_amount = fields.Float("Number of Extra Bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
@@ -1616,6 +1639,10 @@ class ReservationLine(models.Model):
         res = super(ReservationLine, self).unlink()
         return res
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
     # State Update Forecast
     def _state_update_forecast(self,state,property_id,arrival,departure,room_type,rooms,reduce,status):
 
@@ -1834,12 +1861,19 @@ class RoomReservationSummary(models.Model):
     _name = 'room.reservation.summary'
     _description = 'Room reservation summary'
 
+<<<<<<< HEAD
     property_id = fields.Many2one(
         'property.property',
         string="Property",
         default=lambda self: self.env.user.property_id.id)
     name = fields.Char('Reservation Summary',
                        default='Reservations Summary',
+=======
+    property_id = fields.Many2one('property.property',string="Property")
+    avail_room_ids = fields.Many2many('property.room',
+                                      string="Room Nos")#compute='get_avail_room_ids'
+    name = fields.Char('Reservation Summary', default='Reservations Summary',
+>>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
                        invisible=True)
     date_from = fields.Date('Date From')
     date_to = fields.Date('Date To')

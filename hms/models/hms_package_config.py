@@ -23,13 +23,6 @@ CALCUATION_METHODS = [
     ('PA','Per Adult'),
 ]
 
-RATE_ATTRIBUTE = [
-    ('INR','Include in Rate'),
-    ('ARS','Add Rate Separate Line'),
-    ('ARC','Add Rate Combined Line'),
-]
-
-
 class Package(models.Model):
     _name = "package.header"
     _rec_name = 'package_name'
@@ -56,10 +49,10 @@ class Package(models.Model):
                                      string='Transaction',
                                      domain="[('property_id', '=?', property_id)]")
     package_profit = fields.Many2one('transaction.transaction',
-                                     string='Profit',
+                                     string='Transaction',
                                      domain="[('property_id', '=?', property_id)]")
-    package_loss = fields.Many2one('transaction.transaction',
-                                     string='Loss',
+    package_lost = fields.Many2one('transaction.transaction',
+                                     string='Transaction',
                                      domain="[('property_id', '=?', property_id)]")
     product_item = fields.Char('Product Item')
     include_service = fields.Boolean ('Include Service',track_visibility=True, related='transaction_id.trans_svc')                                        
@@ -77,8 +70,11 @@ class Package(models.Model):
                               index=True,
                               default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
+<<<<<<< HEAD:hms/models/hms_package_config.py
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,string="Attribute",index=True,default=RATE_ATTRIBUTE[0][0])
     package_group_id = fields.Many2one('package.group', string="Package Group")
+=======
+>>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733:hms/hms/models/hms_package_config.py
   
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',

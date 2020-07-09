@@ -31,8 +31,7 @@
                         <field name="transcation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" style="width:20%%"/> -->
                         <label for="ratecode_type" string=" " style="width:1.5%%"/>
                         <label for="ratecode_type" string="Type" style="width:6%%"/>
-                        <field name="ratecode_type" style="width:20%%"/>
-                    </div>
+                    </div> -->
                     <notebook>
                         <page string="Rate Code Details">
                             <field name="ratecode_details" context="{'default_ratehead_id' : id,'default_property_id' : property_id}" mode="tree" />  
@@ -72,22 +71,18 @@
             <field name="arch" type="xml">
                 <form string="Rate Code Details">
                     <sheet>
-                        <div class="o_address_format">
-                            <label for="season_code" string="Season Code" style="width:10%%"/> 
-                            <field name="season_code" style="width:20%%"/>
-                            <field name="roomtype_ids" invisible='1'/>
-                            <label for="roomtype_id" string=" " style="width:1.5%%"/>
-                            <label for="roomtype_id" string="RoomType" style="width:10%%"/> 
-                            <field name="roomtype_id" style="width:20%%" widget="many2many_tags"/>
-                            <field name="property_id" class="oe_avatar"/>
-                        </div>
-                        <div class="o_address_format">
-                            <label for="start_date" string="Start Date" style="width:10%%"/>                                                                   
-                            <field name="start_date" style="width:20%%"/>
-                            <label for="end_date" string=" " style="width:1.5%%"/>
-                            <label for="end_date" string="End Date" style="width:10%%"/>
-                            <field name="end_date" style="width:20%%"/>
-                        </div>
+                        <field name="property_id"/>
+                        <group>
+                            <group>
+                                <field name="season_code" style="width:50%%"/>
+                                <field name="roomtype_ids" invisible='1'/>
+                                <field name="roomtype_id" style="width:50%%"/>
+                            </group>
+                            <group>                                                                 
+                                <field name="start_date" style="width:50%%"/>
+                                <field name="end_date" style="width:50%%"/>
+                            </group>
+                        </group>
                         <separator string="Rate Code Details" colspan="4" /> 
                         <group colspan="3" col="3">
                             <group string="Normal">
