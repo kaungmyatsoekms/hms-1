@@ -25,15 +25,23 @@
     '0.1',
 
     # any module necessary for this one to work correctly
-    'depends':
-    ['base','graphql_base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web','website'],
-    "external_dependencies": {"python": ["graphene"]},
+    'depends': [
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'point_of_sale', 'web', 'website'
+    ],
+    "external_dependencies": {
+        "python": ["graphene"]
+    },
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
+    'css': ['static/src/css/room_kanban.css'],
+    'qweb': ['static/src/xml/hotel_room_summary.xml'],
+
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'wizard/hms_roomno_copy_wizard.xml',
         'views/hotel_views.xml',
+        'views/property_onboarding_templates.xml',
         'data/rsvn.type.csv',
         'data/rsvn.status.csv',
         'data/market.group.csv',
@@ -41,6 +49,9 @@
         'data/market.source.csv',
         'data/revenue.type.csv',
         'data/bed.type.csv',
+        'data/room.location.csv',
+        'data/building.type.csv',
+        'data/building.building.csv',
         'data/hms.calculation.method.csv',
         'data/hms.charge_types.csv',
         'data/room.amenity.csv',
@@ -60,6 +71,7 @@
         'data/hms.city.csv',
         'views/hms_township_view.xml',
         'data/hms.township.csv',
+        'data/res_partner_title_data.xml',
         'views/hms_company_type.xml',
         'data/hms.company.category.csv',
         'data/hms.guest.category.csv',
@@ -73,6 +85,7 @@
         'wizard/hms_reason_wizard_view.xml',
         'wizard/hms_rersvn_wizard_view.xml',
         'views/hms_reservation_view.xml',
+        'views/room_summ_view.xml',
         'data/hms.reasontype.csv',
         'data/hms.reason.csv',
         'views/hms_charge_type.xml',
@@ -80,17 +93,18 @@
         'views/hms_managment_report.xml',
         'views/hms_ratecode_view.xml',
         'report/property_template.xml',
-        'wizard/reservation_report_wizard_view.xml',
         'report/reservation_report.xml',
+        'wizard/reservation_report_wizard_view.xml',
         'report/reservation_template.xml',
         'report/expected_arrival_template.xml',
         'data/hms_scheduled_actions_data.xml',
         'views/color_attribute_view.xml',
-        # 'views/report_hms_reservation_view.xml',
+        'views/hms_rate_config.xml',
+        'views/hms_package_config.xml',
         #'views/views.xml',
-        # 'views/templates.xml',
+        #'views/templates.xml',
     ],
-    'css': ['static/src/css/room_kanban.css'],
+    # 'css': ['static/src/css/room_kanban.css'],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
