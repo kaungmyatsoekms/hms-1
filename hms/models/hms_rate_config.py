@@ -227,7 +227,6 @@ class RateCodeHead(models.Model):
                                    store=True,
                                    track_visibility=True)
 
-<<<<<<< HEAD:hms/models/hms_rate_config.py
     
     def _update_property_ratecodeheader(self,rate_category_id,property_id,start_date,end_date,rate_code,ratecode_name,create):
         if create is True:
@@ -271,8 +270,6 @@ class RateCodeHead(models.Model):
                     rate_category_obj.update({'rate_header_ids': vals})
 
 
-=======
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733:hms/hms/models/hms_rate_config.py
     @api.model
     def create(self,values):
         res = super(RateCodeHead,self).create(values)

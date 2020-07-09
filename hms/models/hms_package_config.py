@@ -24,6 +24,12 @@ CALCUATION_METHODS = [
     ('PC','Per Child'),
 ]
 
+RATE_ATTRIBUTE = [
+    ('INR','Include in Rate'),
+    ('ARS','Add Rate Separate Line'),
+    ('ARC','Add Rate Combined Line'),
+]
+
 
 class Package(models.Model):
     _name = "package.header"
