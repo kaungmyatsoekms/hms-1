@@ -1115,7 +1115,7 @@
           <field name="rev_type" string ="Revenue"/>
           <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
           <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
-          <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}"/>
+          <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}" widget='many2many_tags'/>
         </tree>
       </field>
     </record>
@@ -1154,8 +1154,8 @@
             <group>
               <field name="property_id"/>
               <field name="revtype_id"/>
-              <field name="sub_group"/>
-              <field name="sub_desc"/>
+              <field name="sub_group" placeholder="0 ~ 9"/>
+              <field name="sub_desc" placeholder="Sub Group Revenue"/>
             </group>
           </sheet>
         </form>
@@ -1226,6 +1226,7 @@
                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                 <field name="trans_internal" widget="boolean_toggle"/>
                 <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                <field name="allowed_pkg" widget="boolean_toggle"/>
                 <field name="trans_type" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
               </group>
             </group>
@@ -1248,6 +1249,7 @@
           <field name="trans_tax" string="TAX"/>
           <field name="trans_internal" string="Internal" optional="hide"/>
           <field name="trans_minus" optional="hide"/>
+          <field name="allowed_pkg" optional="hide"/>
           <field name="trans_type" optional="hide"/>
         </tree>
       </field>

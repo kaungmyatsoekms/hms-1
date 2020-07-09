@@ -1619,7 +1619,7 @@ class SubGroup(models.Model):
 
     property_id = fields.Many2one('property.property',
                                   string="Property",
-                                  required=True)
+                                  required=True,  default=lambda self: self.env.user.property_id.id)
     revtype_id = fields.Many2one('revenue.type',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
@@ -1693,6 +1693,7 @@ class Transaction(models.Model):
     root_id = fields.Many2one('transaction.root',
                               compute='_compute_transaction_root',
                               store=True)
+    allowed_pkg = fields.Boolean(string="Allow Package?")
     ratecode_ids = fields.One2many('rate.code',
                                    'transcation_id',
                                    string="Rate Code")
