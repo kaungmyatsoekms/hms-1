@@ -42,7 +42,11 @@ class RateCodeHeader(models.Model):
     rate_category_id = fields.Many2one('rate.categories',
                                        string="Rate Categories",
                                        required=True)
-    
+    pkg_group_ids = fields.One2many('package.group',
+                                    related="property_id.packagegroup_ids")
+    pkg_group_id = fields.Many2one('package.group',
+                                   string="Package",
+                                   required=True)
 
     def _compute_is_ratecode(self):
         self.is_ratecode = True
@@ -111,17 +115,19 @@ class RateCodeDetails(models.Model):
     normal_price3 = fields.Float(string="+3 Adult")
     normal_price4 = fields.Float(string="+4 Adult")
     normal_extra = fields.Float(string="Extra")
-    weekend_price1 = fields.Float(string="Weekend 1 Adult")
+    weekend_price1 = fields.Float(string="1 Adult")
     weekend_price2 = fields.Float(string="+2 Adult")
     weekend_price3 = fields.Float(string="+3 Adult")
     weekend_price4 = fields.Float(string="+4 Adult")
     weekend_extra = fields.Float(string="Extra")
-    special_price1 = fields.Float(string="Special 1 Adult")
+    special_price1 = fields.Float(string="1 Adult")
     special_price2 = fields.Float(string="+2 Adult")
     special_price3 = fields.Float(string="+3 Adult")
     special_price4 = fields.Float(string="+4 Adult")
     special_extra = fields.Float(string="Extra")
     extra_bed = fields.Float(string="Extra Bed")
+    adult_bf = fields.Float(string="Adult Breakfast")
+    child_bf = fields.Float(string="Child Breakfast")
     package_id = fields.Char(string="Package")
     discount_percent = fields.Float(string="Discount Percentage", default=10.0)
     discount_amount = fields.Float(string="Discount Amount", default=50.0)

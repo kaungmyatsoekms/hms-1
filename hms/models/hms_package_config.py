@@ -21,6 +21,7 @@ CALCUATION_METHODS = [
     ('FIX', 'Fix Rate'),
     ('PP', 'Per Person'),
     ('PA', 'Per Adult'),
+    ('PC', 'Per Child'),
 ]
 
 RATE_ATTRIBUTE = [
@@ -64,15 +65,18 @@ class Package(models.Model):
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',
-        domain="[('property_id', '=?', property_id)]")
+        domain=
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_profit = fields.Many2one(
         'transaction.transaction',
         string='Profit',
-        domain="[('property_id', '=?', property_id)]")
+        domain=
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_loss = fields.Many2one(
         'transaction.transaction',
         string='Loss',
-        domain="[('property_id', '=?', property_id)]")
+        domain=
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     product_item = fields.Char('Product Item')
     include_service = fields.Boolean('Include Service',
                                      track_visibility=True,
@@ -129,11 +133,17 @@ class PackageGroup(models.Model):
     pkg_group_name = fields.Char(string="Group Name", required=True)
     package_id = fields.One2many('package.header',
                                  'package_group_id',
-                                 string="Packages")
+                                 string="Packages",
+                                 domain="[('rate_attribute', '=?', 'INR')]")
+    addon_pkg_id = fields.One2many('package.header',
+                                   'package_group_id',
+                                   string="Add-On",
+                                   domain="[('rate_attribute', '=?', 'ARS')]")
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',
-        domain="[('property_id', '=?', property_id)]")
+        domain=
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     include_service = fields.Boolean('Include Service',
                                      track_visibility=True,
                                      related='transaction_id.trans_svc')

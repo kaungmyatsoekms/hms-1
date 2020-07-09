@@ -446,16 +446,21 @@
             </field>
         </record>
 
+        <!-- Action for Room Reservation Summary -->
+        <record id="action_hotel_reservation_summary" model="ir.actions.act_window">
+            <field name="name">Reservation Summary</field>
+            <field name="res_model">room.reservation.summary</field>
+            <field name="view_mode">form</field>
+        </record>
+
         <!-- Form view of quick room reservation -->
         <record id="quick_room_reservation_form_view" model="ir.ui.view">
             <field name="name">quick.room.reservation.form</field>
             <field name="model">quick.room.reservation</field>
             <field name="arch" type="xml">
                 <form string="Quick Reservation">
-                    <header>
-                        <separator string="Quick Reservation" colspan="4" />
-                    </header>
                     <sheet>
+                        <separator string="Quick Reservation" colspan="4" />
                         <group colspan="4" col="4">
                             <field name="property_id" />
                             <field name="check_in" />
@@ -473,10 +478,10 @@
             </field>
         </record>
 
-        <!-- Action for Room Reservation Summary -->
-        <record id="action_hotel_reservation_summary" model="ir.actions.act_window">
-            <field name="name">Reservation Summary</field>
-            <field name="res_model">room.reservation.summary</field>
+        <!-- Action for Quick Room Reservation -->
+        <record id="action_quick_room_reservation" model="ir.actions.act_window">
+            <field name="name">Quick Reservation</field>
+            <field name="res_model">quick.room.reservation</field>
             <field name="view_mode">form</field>
         </record>
 
@@ -1401,6 +1406,7 @@
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
 
+        <menuitem id="quick_reservation_menu" name="Quick Reservation" parent="hms_menu_rsvn" sequence="3" action="action_quick_room_reservation"/>
         <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />
         <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
         <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>

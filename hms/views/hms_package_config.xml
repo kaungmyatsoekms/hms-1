@@ -193,6 +193,7 @@
                                 <field name="shortcut"/>
                                 <field name="pkg_group_name"/>
                                 <field name="package_id" widget="many2many_tags"/>
+                                <field name="addon_pkg_id" widget="many2many_tags"/>
                             </group>
                             <group>
                                 <field name="transaction_id"/>

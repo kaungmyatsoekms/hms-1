@@ -768,11 +768,6 @@ class ReservationLine(models.Model):
     child = fields.Integer("Child")
     ratecode_ids = fields.One2many('ratecode.header',
                                    related="property_id.ratecodeheader_ids")
-    # ratecode_id = fields.Many2one(
-    #     'ratecode.header',
-    #     domain=
-    #     "[('id', '=?', ratecode_ids), ('ratecode_details.start_date', '<=', arrival), ('ratecode_details.end_date', '>=', departure), ('ratecode_details.roomtype_id', '=?', room_type)]",
-    #     string="Rate Code")
     ratecode_id = fields.Many2one(
         'ratecode.details',
         domain=
@@ -787,7 +782,10 @@ class ReservationLine(models.Model):
     discount_reason_id = fields.Many2one('hms.reason',
                                          string="Discount Reason",
                                          domain="[('type_id', '=', 2)]")
-    package_id = fields.Many2one('package.package', string="Package")
+    package_id = fields.Many2one(
+        'package.group',
+        related="ratecode_id.ratehead_id.pkg_group_id",
+        string="Package")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
@@ -811,9 +809,10 @@ class ReservationLine(models.Model):
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast")
+    extrapax_bf = fields.Float("Extra Pax Breakfast",
+                               related="ratecode_id.adult_bf")
     child_bfpax = fields.Integer("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast")
+    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")
 
     pickup = fields.Datetime("Pick Up Time")
@@ -1992,8 +1991,8 @@ class RoomReservationSummary(models.Model):
                 timezone = pytz.timezone(self._context.get('tz', False))
             else:
                 timezone = pytz.timezone('UTC')
-                dt_from = self.date_from.strftime(dt)
-                dt_to = self.date_to.strftime(dt)
+            dt_from = self.date_from.strftime(dt)
+            dt_to = self.date_to.strftime(dt)
             d_frm_obj = datetime.strptime(dt_from, dt)\
                 .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
             d_to_obj = datetime.strptime(dt_to, dt)\
@@ -2098,8 +2097,8 @@ class QuickRoomReservation(models.TransientModel):
     _name = 'quick.room.reservation'
     _description = 'Quick Room Reservation'
 
-    check_in = fields.Datetime('Check In', required=True)
-    check_out = fields.Datetime('Check Out', required=True)
+    check_in = fields.Date('Check In', required=True)
+    check_out = fields.Date('Check Out', required=True)
     rooms = fields.Integer('Rooms', required=True)
     # roomtype_id = fields.Many2one('room.type', 'Room Type', required=True)
     # room_id = fields.Many2one('property.room', 'Room', required=True)

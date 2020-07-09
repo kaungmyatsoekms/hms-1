@@ -1263,6 +1263,7 @@
                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                 <field name="trans_internal" widget="boolean_toggle"/>
                 <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                <field name="allowed_pkg" widget="boolean_toggle"/>
                 <field name="trans_type" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
               </group>
             </group>

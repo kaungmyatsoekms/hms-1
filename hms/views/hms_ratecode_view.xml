@@ -10,27 +10,29 @@
                         <separator string="Rate Code" colspan="4" />
                         <field name="rate_category_id"/>
                         <div class="o_address_format">
-                            <label for='rate_code' string="Rate Code" style="width:5.5%%"/>
+                            <label for='rate_code' string="Rate Code" style="width:7%%"/>
                             <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:20%%"/>
                             <label for="ratecode_name" string=" " style="width:1.5%%"/>
-                            <label for="ratecode_name" string="Description" style="width:6%%"/>
+                            <label for="ratecode_name" string="Description" style="width:7%%"/>
                             <field name="ratecode_name" placeholder="Description" style="width:20%%"/>
                             <field name="property_id" class="oe_avatar"/>
                         </div>
                         <div class="o_address_format">
                             <field name="is_ratecode" invisible='1'/>
-                            <label for="start_date" string="Start Date" style="width:5.5%%"/>
+                            <label for="start_date" string="Start Date" style="width:7%%"/>
                             <field name="start_date" style="width:20%%"/>
                             <label for="end_date" string=" " style="width:1.5%%"/>
-                            <label for="end_date" string="End Date" style="width:5.9%%"/>
+                            <label for="end_date" string="End Date" style="width:7%%"/>
                             <field name="end_date" style="width:20%%"/>
                         </div>
                         <div class="o_address_format">
                             <!-- <field name="transaction_ids" invisible='1'/>
                         <label for="transaction_id" string="Trans#" style="width:5.5%%"/>
                         <field name="transcation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" style="width:20%%"/> -->
+                            <label for="pkg_group_id" string="Package" style="width:7%%"/>
+                            <field name="pkg_group_id" style="width:20%%"/>
                             <label for="ratecode_type" string=" " style="width:1.5%%"/>
-                            <label for="ratecode_type" string="Type" style="width:6%%"/>
+                            <label for="ratecode_type" string="Type" style="width:7%%"/>
                             <field name="ratecode_type" style="width:20%%"/>
                         </div>
                         <notebook>
@@ -112,8 +114,16 @@
                                 <field name="special_extra"/>
                             </group>
                         </group>
-                        <group colspan="2" col="2">
-                            <field name="extra_bed"/>
+                        <group colspan="3" col="3">
+                            <group>
+                                <field name="extra_bed"/>
+                            </group>
+                            <group>
+                                <field name="adult_bf"/>
+                            </group>
+                            <group>
+                                <field name="child_bf"/>
+                            </group>
                         </group>
                     </sheet>
                 </form>

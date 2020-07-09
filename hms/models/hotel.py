@@ -1729,6 +1729,7 @@ class Transaction(models.Model):
         ('V', 'Tax'),
     ],
                                   string="Transaction Type")
+    allowed_pkg = fields.Boolean(string="Allow Package?")
     root_id = fields.Many2one('transaction.root',
                               compute='_compute_transaction_root',
                               store=True)
