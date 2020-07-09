@@ -30,6 +30,9 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
     def action_unconfirm_wiz(self):
         reservations = self.env['hms.reservation'].browse(
             self._context.get('active_id', []))
+        
+        # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=',reservations.id),('room_type.code', '=', 'HFO')])
+        # no_hfo_reservation = list(set(reservations.reservation_line_ids)- set(hfo_reservation))
 
         for d in reservations.reservation_line_ids:
             if d.state == 'confirm':
@@ -53,6 +56,9 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
             'reservation_status': self.reservation_status,
             'state': 'reservation',
         })
+        hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservations.id),('room_type', '=ilike', 'H%')])
+        if hfo_reservation:
+            hfo_reservation.write({'state': 'reservation'})
         # return reservations.send_mail()
 
 
@@ -105,7 +111,8 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
             if d.state != reservation_lines.state:
                 rec = rec + 1
             if d.state == 'confirm':
-                confirm = confirm + 1
+                if d.room_type.code[0] != 'H':
+                    confirm = confirm + 1
         if rec == 0:
             reservation_lines.reservation_id.write({
                 'state':
@@ -115,6 +122,9 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                 'reservation_status':
                 reservation_lines.reservation_status,
             })
+            hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+            if hfo_reservation:
+                hfo_reservation.write({'state': 'reservation'})
         else:
             if confirm == 0:
                 reservation_lines.reservation_id.write({
@@ -125,4 +135,7 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                     'reservation_status':
                     reservation_lines.reservation_status,
                 })
+                hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+                if hfo_reservation:
+                    hfo_reservation.write({'state': 'reservation'})
         # return reservations.send_mail()

@@ -5,7 +5,7 @@
             <field name="name">availability.view.form</field>
             <field name="model">availability.availability</field>
             <field name="arch" type="xml">
-                <form string="Availability">
+                <form string="Availability" create="false"  delete="false" no_create_edit="True" import="false">
                     <sheet>
                         <separator colspan="1" string="Availability"/>
                         <div class="oe_title">
@@ -74,6 +74,7 @@
             <field name="arch" type="xml">
                 <tree string="Availability">
                     <field name="property_id"/>
+                    <field name="color" invisible='1'/>
                     <field name="avail_date"/>
                     <field name="total_room" optional="hide"/>
                     <field name="avail_booking" optional="hide"/>
@@ -86,7 +87,7 @@
                     <field name="avail_waitlist" optional="hide"/>
                     <field name="avail_allotment"/>
                     <field name='avail_tl_room'/>
-                    <field name="avail_roomtype_ids" widget="many2many_tags"/>
+                    <field name="avail_roomtype_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
                 </tree>
             </field>
         </record>
@@ -150,8 +151,9 @@
             <field name="name">Availability</field>
             <field name="res_model">availability.availability</field>
             <field name="view_mode">tree,pivot,form</field>
-            <field name="search_view_id" ref="view_availability_search"/>
-                <field name="view_id" ref="availability_view_list"/>
+            <field name="context">{'group_by':['property_id','avail_date:year']}</field>
+            <field name="view_id" ref="availability_view_list"/>
+            <field name="search_view_id" ref="view_availability_search"/>     
         </record>
 
         <!-- Room Type Available Form View -->
@@ -159,7 +161,7 @@
             <field name="name">roomtype.available.view.form</field>
             <field name="model">roomtype.available</field>
             <field name="arch" type="xml">
-                <form string="Room Type Available">
+                <form string="Room Type Available" create="false"  delete="false" no_create_edit="True" import="false">
                     <sheet>
                         <separator colspan="1" string="Room Type Available"/>
                         <div class="oe_title">
@@ -199,6 +201,7 @@
                 <tree string="Room Type Available">
                     <field name="property_id"/>
                     <field name="ravail_rmty"/>
+                    <field name="color" invisible='1'/>
                     <field name="ravail_date"/>
                     <field name='ravail_booking'/>
                     <field name="ravail_unconfirm"/>
@@ -231,11 +234,36 @@
             </field>
         </record>
 
+        <!-- Search view of Room Type Availability -->
+        <record id="view_room_type_available_search" model="ir.ui.view">
+           <field name="name">roomtype.available.view.search</field>
+            <field name="model">roomtype.available</field>
+            <field name="arch" type="xml">
+                <search string="Room Type Availability">
+                    <filter name='current_roomtype Availability' string="Current Room Type Availability"
+                        domain="[('ravail_date','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('ravail_date','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]"
+                        help="Current Room Types Availability" />
+                    <field name="property_id" />
+                    <field name="ravail_date"/>
+                    <newline />
+                    <group expand="0" string="Group By">
+                        <filter name="property_id" string="Property" icon="terp-personal"
+                            domain="[]" context="{'group_by':'property_id'}" />
+                        <filter name='order_by_month' string="Order by Month" domain="[]"
+                            context="{'group_by':'ravail_date'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <!-- action of Room Type Available -->
         <record id="roomtype_available_action_window" model="ir.actions.act_window">
             <field name="name">Room Type Available</field>
             <field name="res_model">roomtype.available</field>
             <field name="view_mode">tree,pivot,form</field>
+            <field name="context">{'group_by':['property_id','ravail_rmty','ravail_date:year']}</field>
+            <field name="view_id" ref="roomtype_available_view_list"/>
+            <field name="search_view_id" ref="view_room_type_available_search"/>
         </record>
 
         <menuitem id="hms_menu_forecast" name="Forecast" parent="hotel_menu_root" sequence="5"/>

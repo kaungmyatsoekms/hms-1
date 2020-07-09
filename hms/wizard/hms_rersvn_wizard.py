@@ -61,6 +61,9 @@ class HMSRersvnWizard(models.TransientModel):
             'state': state,
             'is_full_cancel': False,
         })
+        hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservations.id),('room_type', '=ilike', 'H%')])
+        if hfo_reservation:
+            hfo_reservation.write({'state': state})
         # reservations.confirm_status()
         # return reservations.send_mail()
 
@@ -108,38 +111,6 @@ class HMSRersvnLineWizard(models.TransientModel):
                 reduce = False
                 status =' '
                 d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
-                #Update Availability
-                # rt_avails = self.env['roomtype.available'].search([
-                #     ('property_id', '=', d.property_id.id),
-                #     ('ravail_date', '>=', d.arrival),
-                #     ('ravail_date', '<', d.departure),
-                #     ('ravail_rmty', '=', d.room_type.id)
-                # ])
-                # avails = self.env['availability.availability'].search([
-                #     ('property_id', '=', d.property_id.id),
-                #     ('avail_date', '>=', d.arrival),
-                #     ('avail_date', '<', d.departure)
-                # ])
-                # dep_avails = self.env['availability.availability'].search([
-                #     ('property_id', '=', d.property_id.id),
-                #     ('avail_date', '=', d.departure)
-                # ])
-                # if state == 'confirm':
-                #     for record in rt_avails:
-                #         record.ravail_occupancy += d.rooms
-                #     for avail in avails:
-                #         avail.avail_occupancy += d.rooms
-                #         if avail.avail_date == d.arrival:
-                #             avail.avail_arrival += d.rooms
-                #     for depavail in dep_avails:
-                #         if depavail.avail_date == d.departure:
-                #             depavail.avail_dep += d.rooms
-                # elif state == 'reservation':
-                #     for record in rt_avails:
-                #         record.ravail_unconfirm += d.rooms
-                #     for avail in avails:
-                #         avail.avail_unconfirm += d.rooms
-                # Update Reservation line
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
@@ -158,12 +129,16 @@ class HMSRersvnLineWizard(models.TransientModel):
                 'is_full_cancel':
                 False,
             })
+            hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+            if hfo_reservation:
+                hfo_reservation.write({'state': state})
         else:
             confirm = 0
             for d in reservation_lines.reservation_id.reservation_line_ids:
 
                 if d.state == 'confirm':
-                    confirm = confirm + 1
+                    if d.room_type.code[0] != 'H':
+                        confirm = confirm + 1
 
             if confirm == 0:
                 reservation_lines.reservation_id.write({
@@ -174,6 +149,9 @@ class HMSRersvnLineWizard(models.TransientModel):
                     'reservation_status':
                     reservation_lines.reservation_status,
                 })
+                hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+                if hfo_reservation:
+                    hfo_reservation.write({'state': 'reservation'})
             else:
                 reservation_lines.reservation_id.write({
                     'state':
@@ -183,6 +161,9 @@ class HMSRersvnLineWizard(models.TransientModel):
                     'reservation_status':
                     reservation_lines.reservation_status,
                 })
+                hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')])
+                if hfo_reservation:
+                    hfo_reservation.write({'state': 'confirm'})
 
             # All Reservation line State are same, update reservation state
         rec = 0
@@ -199,4 +180,7 @@ class HMSRersvnLineWizard(models.TransientModel):
                 'reservation_status':
                 reservation_lines.reservation_status,
             })
+            hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')])
+            if hfo_reservation:
+                hfo_reservation.write({'state': state})
         # return reservations.send_mail()
