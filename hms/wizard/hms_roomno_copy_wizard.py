@@ -16,17 +16,19 @@ class RoomNoCopyWizard(models.TransientModel):
         if propertyroom_id:
             return propertyroom_id
 
+    is_roomtype_fix = fields.Boolean(related="roomtype_id.fix_type")
     propertyroom_id = fields.Many2one("property.room",
                                      default=get_propertyroom_id,
                                      store=True)
-    property_id = fields.Many2one("property.property",related="propertyroom_id.property_id")#, store=True
-    room_no = fields.Char(string="Room No")
+    property_id = fields.Many2one("property.property",related="propertyroom_id.property_id")
+    room_no = fields.Char(string="Room No", required=True)
     roomtype_ids = fields.Many2many("room.type",
                                     related="propertyroom_id.roomtype_ids")
     roomtype_id = fields.Many2one('room.type',
                                   string="Room Type",
                                   related="propertyroom_id.roomtype_id")
-    bedtype_id = fields.Many2one('bed.type', string='Bed Type', related="propertyroom_id.bedtype_id")
+    bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
+    bedtype_id = fields.Many2one('bed.type', string='Bed Type', domain="[('id', '=?', bedtype_ids)]")
     roomview_ids = fields.Many2many('room.view', string="Room View Code",related="propertyroom_id.roomview_ids")
     building_ids = fields.Many2many("building.building",
                                     related="propertyroom_id.building_ids")
