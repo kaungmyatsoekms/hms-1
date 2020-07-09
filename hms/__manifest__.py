@@ -24,12 +24,16 @@
     'version':
     '0.1',
     # any module necessary for this one to work correctly
-    'depends':
-    ['base','graphql_base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web','website'],
-    "external_dependencies": {"python": ["graphene"]},
+    'depends': [
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'point_of_sale', 'web', 'website'
+    ],
+    "external_dependencies": {
+        "python": ["graphene"]
+    },
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     'css': ['static/src/css/room_kanban.css'],
-    'qweb': ['static/src/xml/hotel_room_summary.xml'], 
+    'qweb': ['static/src/xml/hotel_room_summary.xml'],
     # always loaded
     'data': [
         'security/ir.model.access.csv',
@@ -96,7 +100,7 @@
         'views/hms_rate_config.xml',
         'views/hms_package_config.xml'
         #'views/views.xml',
-        # 'views/templates.xml',
+        #'views/templates.xml',
     ],
     # 'css': ['static/src/css/room_kanban.css'],
     # only loaded in demonstration mode
