@@ -9,6 +9,7 @@ from odoo.osv import expression
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class Country(models.Model):
     _inherit = "res.country"
 
@@ -179,7 +180,7 @@ class Contract(models.Model):
 
 class HMSCompanyCategory(models.Model):
     _name = "hms.company.category"
-    _description = "Company Categorys"
+    _description = "Company Category"
     _order = 'ordinal_no,code,name'
 
     name = fields.Char("Description", required=True, track_visibility=True)

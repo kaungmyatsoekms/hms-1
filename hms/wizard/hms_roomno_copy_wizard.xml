@@ -9,9 +9,12 @@
               Add Your Room Number
           </p>
           <group>
+            <field name="is_roomtype_fix" invisible="1"/>
             <field name="propertyroom_id" invisible="1"/>
             <field name="property_id"/>
             <field name="room_no"/>
+            <field name="bedtype_ids" invisible="1"/>
+            <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix','=', True)], 'required': [('is_roomtype_fix', '!=', True)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
           </group>
           <footer>
             <button name="action_roomno_copy_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>

@@ -30,7 +30,10 @@ class HMSRsvnConfirmWizard(models.TransientModel):
     def action_confirm_wiz(self):
         reservations = self.env['hms.reservation'].browse(
             self._context.get('active_id', []))
-
+        
+        # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=',reservations.id),('room_type.code', '=', 'HFO')])
+        # no_hfo_reservation = list(set(reservations.reservation_line_ids)- set(hfo_reservation))
+        
         for d in reservations.reservation_line_ids:
             if d.state == 'reservation':
                 #Update Availability
@@ -48,12 +51,17 @@ class HMSRsvnConfirmWizard(models.TransientModel):
                     'reservation_status': self.reservation_status,
                     'state': status,
                 })
+            
+                
         # Update Reservation
         reservations.write({
             'reservation_type': self.reservation_type,
             'reservation_status': self.reservation_status,
             'state': 'confirm',
         })
+        hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservations.id),('room_type', '=ilike', 'H%')])
+        if hfo_reservation:
+            hfo_reservation.write({'state': 'confirm'})
         # reservations.confirm_status()
         # return reservations.send_mail()
 
@@ -104,7 +112,9 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
         rec = 0
         for d in reservation_lines.reservation_id.reservation_line_ids:
             if d.state == 'confirm':
-                rec = rec + 1
+                if d.room_type.code[0] != 'H':
+                    rec = rec + 1
+
         if rec > 0:
             reservation_lines.reservation_id.write({
                 'state':
@@ -114,4 +124,7 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                 'reservation_status':
                 reservation_lines.reservation_status,
             })
+            hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+            if hfo_reservation:
+                hfo_reservation.write({'state': 'confirm'})
 

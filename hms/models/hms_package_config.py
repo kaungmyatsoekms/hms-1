@@ -35,6 +35,9 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
+    include_in_rate = fields.Boolean(default=False)
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
     active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
     property_id = fields.Many2one('property.property',
@@ -80,5 +83,44 @@ class Package(models.Model):
         'package_code_unique', 'UNIQUE(property_id, package_code)',
         'Package code already exists with this name! Package code must be unique!'
     )]
+
+    
+    @api.depends('include_in_rate','rate_separate_line','rate_combined_line')
+    def _compute_attribute_type(self):
+        for package in self:
+            if package.include_in_rate or self._context.get(
+                    'default_rate_attribute') == 'INR':
+                package.rate_attribute = 'INR'
+                package.include_in_rate = True
+            elif package.rate_separate_line or self._context.get(
+                    'default_rate_attribute') == 'ARS':
+                package.rate_attribute = 'ARS'
+                package.rate_separate_line = True
+            elif package.rate_combined_line or self._context.get(
+                    'default_rate_attribute') == 'ARC':
+                package.rate_attribute = 'ARC'
+                package.rate_combined_line = True
+
+    def _write_attribute_type(self):
+        for package in self:
+            package.include_in_rate = package.rate_attribute == 'INR'
+            package.rate_separate_line = package.rate_attribute == 'ARS'
+            package.rate_combined_line = package.rate_attribute == 'ARC'
+     
+    @api.onchange('rate_attribute')
+    def onchange_attribute_type(self):
+        if self.rate_attribute == 'INR':
+            self.include_in_rate = True
+            self.rate_separate_line = False
+            self.rate_combined_line = False
+        elif self.rate_attribute == 'ARS':
+            self.include_in_rate = False
+            self.rate_separate_line = True
+            self.rate_combined_line = False
+        elif self.rate_attribute == 'ARC':
+            self.include_in_rate = False
+            self.rate_separate_line = False
+            self.rate_combined_line = True
+
 
 

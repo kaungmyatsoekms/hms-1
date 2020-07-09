@@ -14,7 +14,6 @@
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
     
-      
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -24,7 +23,8 @@
       <field name="arch" type="xml">
         <form string="Property">
         <header>
-          <field name='is_property' invisible='1'/>
+            <field name='is_property' invisible='1'/>
+            <button string="New Package" name="action_newpackage" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="New RateCode" name="action_newratecode" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}"  class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
@@ -35,6 +35,8 @@
             <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}"><i class="fa fa-paint-brush"></i></button>
         </header>
           <sheet>
+            <field name="active" invisible="1"/>
+            <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
             <div class="oe_button_box" name="button_box">
               <button name="action_building_count"
                   type="object"
@@ -58,11 +60,9 @@
             <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
-              <label for="name" string="Hotel Name"/>
-              <h1><field name="name" placeholder="Hotel Name" style="width:80%%"/></h1>
-              <label for ="code" string="Hotel ID code"/>
+              <h3><field name="name" placeholder="Hotel Name" style="width:80%%"/></h3>
+              <!-- s -->
               <h4><field name="code" style="width:80%%"/></h4>
-              <label for="hotelgroup_id" string="Hotel Group" />
               <h4><field name="hotelgroup_id" style="width:80%%"/></h4>
             </div>
             <newline/>
@@ -95,9 +95,18 @@
                 <field name="email" placeholder="example@company.com....."/>
                 <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
                 <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
-                <field name="high_occupancy" style="width:20%%"/>
-                <field name="low_occupancy" style="width:20%%"/>
-                <field name="availability" style="width:20%%"/>
+                <label for="high_occupancy" string="High Occupancy"/>
+                <div class="o_address_class">
+                  <field name="high_occupancy" placeholder="High" style="width:20%%"/>
+                  <field name="low_occupancy" placeholder="Low" style="width:20%%"/>
+                  <field name="availability" placeholder="Avil" style="width:20.5%%"/>
+                </div>
+                <label for="roomqty" string="Total Rooms"/>
+                <div class="o_address_class">
+                  <field name="roomqty" style="width:30%%"/>
+                  <label for="dummy_rooms" string="Dummy Rooms"/>
+                  <field name="dummy_rooms" style="width:30%%" force_save="1"/>
+                </div>
               </group>
               <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
               <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
@@ -412,7 +421,7 @@
                 <field name="building_desc"/>
               </group>
               <group>
-                <field name="building_img" widget="image" class="oe_avatar"/>
+                <field name="building_img" widget="image" colspan="6"/>
                 <!-- <field name="location_number" invisible ='1'/> -->
               </group>
             </group>
@@ -539,12 +548,15 @@
       <field name="arch" type="xml">
         <form string="Room Type">
           <sheet>
+            <field name="active" invisible="1"/>
+            <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
             <h2>Room Type Setup</h2>
             <br></br>
             <group>
               <group>
                 <field name="code" placeholder="Eg. DLX....."/>
                 <field name="name" placeholder="Eg. Deluxe....."/>
+                <field name="color" required="True"/>
                 <field name="fix_type"  widget="boolean_toggle"/>
                 <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}" widget="many2many_tags"/>
                 <field name="ratecode_id"/>
@@ -552,7 +564,7 @@
                 <field name="roomtype_desc"/>
               </group>
               <group>
-                <field name="image" widget="image" class="oe_avatar"/>
+                <field name="image" widget="image"/>
               </group>
             </group>
           </sheet>
@@ -578,7 +590,7 @@
     </record>
 
     <!-- Kanban View of Room Type -->
-    <!-- <record id="room_type_view_kanban" model="ir.ui.view">
+    <record id="room_type_view_kanban" model="ir.ui.view">
       <field name="name">room.type.view.kanban</field>
       <field name="model">room.type</field>
       <field name="arch" type="xml">
@@ -607,9 +619,9 @@
                             <a type="delete">Delete</a>
                         </li>
                     </t>
-                    <li>
+                    <!-- <li>
                         <ul class="oe_kanban_colorpicker" data-field="color" />
-                    </li>
+                    </li> -->
                   </ul>
                 </div>
                 <div class="oe_kanban_details" style='margin-top: -5px;'>
@@ -631,7 +643,8 @@
           </templates>
         </kanban>
       </field>
-    </record> -->
+    </record>
+    
     <!-- action of room type setup -->
     <record id="room_type_action_window" model="ir.actions.act_window">
       <field name="name">Room Type</field>
@@ -982,7 +995,7 @@
             <group>
               <field name="property_id"/>
               <field name="monday" widget="boolean_toggle"/>
-              <field name="tuesday" widget="boolean_toggle" />
+              <field name="tuesday" widget="boolean_toggle"/>
               <field name="wednesday" widget="boolean_toggle" />
               <field name="thursday" widget="boolean_toggle" />
               <field name="friday" widget="boolean_toggle" />
@@ -1195,7 +1208,6 @@
         <form string="Transaction">
           <sheet>
             <h2>Transaction</h2>
-            <br></br>
             <group>
               <group>
                 <field name="property_id"/>
@@ -1240,7 +1252,6 @@
         </tree>
       </field>
     </record>
-
 
     <record id="transaction_view_search" model="ir.ui.view">
       <field name="name">transaction.transaction.search</field>
