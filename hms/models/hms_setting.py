@@ -507,7 +507,7 @@ class Partner(models.Model):
             else:
                 partner.gender = 'male'
 
-    # Company Type Radion Button Action
+    # Company Type Radio Button Action
     @api.depends('is_company', 'is_guest', 'is_group')
     def _compute_company_type(self):
         for partner in self:

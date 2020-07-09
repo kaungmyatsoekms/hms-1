@@ -106,13 +106,51 @@ class Package(models.Model):
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
-                                      default=RATE_ATTRIBUTE[0][0])
+                                      default=RATE_ATTRIBUTE[0][0],
+                                      compute='_compute_rate_attribute',
+                                      inverse='_write_rate_attribute')
+    is_include_rate = fields.Boolean(string="Is include in rate?",
+                                     default=False)
+    is_addon_rate = fields.Boolean(string="Is additional in rate?",
+                                   default=False)
     package_group_id = fields.Many2one('package.group', string="Package Group")
+    pkg_group_id = fields.Many2one('package.group', string="Package Group")
 
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',
         'Package code already exists with this name! Package code must be unique!'
     )]
+
+    @api.depends('is_include_rate', 'is_addon_rate')
+    def _compute_rate_attribute(self):
+        for record in self:
+            if record.is_include_rate or self._context.get(
+                    'default_rate_attribute') == 'INR':
+                record.rate_attribute = 'INR'
+                record.is_include_rate = True
+            elif record.is_addon_rate or self._context.get(
+                    'default_rate_attribute') == 'ARS':
+                record.rate_attribute = 'ARS'
+                record.is_addon_rate = True
+            else:
+                record.rate_attribute = 'ARC'
+
+    def _write_rate_attribute(self):
+        for record in self:
+            record.is_include_rate = record.rate_attribute == 'INR'
+            record.is_addon_rate = record.rate_attribute == 'ARS'
+
+    @api.onchange('rate_attribute')
+    def onchange_rate_attribute(self):
+        if self.rate_attribute == 'INR':
+            self.is_include_rate = True
+            self.is_addon_rate = False
+        elif self.rate_attribute == 'ARS':
+            self.is_include_rate = False
+            self.is_addon_rate = True
+        elif self.rate_attribute == 'ARC':
+            self.is_include_rate = False
+            self.is_addon_rate = False
 
 
 class PackageGroup(models.Model):
@@ -134,11 +172,11 @@ class PackageGroup(models.Model):
     package_id = fields.One2many('package.header',
                                  'package_group_id',
                                  string="Packages",
-                                 domain="[('rate_attribute', '=?', 'INR')]")
+                                 domain="[('is_include_rate','=?',True)]")
     addon_pkg_id = fields.One2many('package.header',
-                                   'package_group_id',
+                                   'pkg_group_id',
                                    string="Add-On",
-                                   domain="[('rate_attribute', '=?', 'ARS')]")
+                                   domain="[('is_addon_rate','=?',True)]")
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',

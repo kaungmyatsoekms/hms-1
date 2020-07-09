@@ -38,12 +38,12 @@
                                 <field name="forecast_next_day"/>
                                 <field name="post_next_day"/>
                                 <field name="catering"/>
+                                <field name="is_include_rate"/>
+                                <field name="is_addon_rate"/>
                             </group>
                         </group>
                         <group>
-
                             <group>
-
                             </group>
                         </group>
                     </sheet>
@@ -192,8 +192,8 @@
                                 <field name="pkg_group_code"/>
                                 <field name="shortcut"/>
                                 <field name="pkg_group_name"/>
-                                <field name="package_id" widget="many2many_tags"/>
-                                <field name="addon_pkg_id" widget="many2many_tags"/>
+                                <field name="package_id" context="{'default_rate_attribute': 'INR'}" string="Packages" widget="many2many_tags"/>
+                                <field name="addon_pkg_id" context="{'default_rate_attribute': 'ARS'}" string="Add-On" widget="many2many_tags"/>
                             </group>
                             <group>
                                 <field name="transaction_id"/>
