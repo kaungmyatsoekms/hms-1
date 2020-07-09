@@ -21,7 +21,9 @@ CALCUATION_METHODS = [
     ('FIX','Fix Rate'),
     ('PP','Per Person'),
     ('PA','Per Adult'),
+    ('PC','Per Child'),
 ]
+
 
 class Package(models.Model):
     _name = "package.header"
@@ -70,11 +72,8 @@ class Package(models.Model):
                               index=True,
                               default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
-<<<<<<< HEAD:hms/models/hms_package_config.py
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,string="Attribute",index=True,default=RATE_ATTRIBUTE[0][0])
     package_group_id = fields.Many2one('package.group', string="Package Group")
-=======
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733:hms/hms/models/hms_package_config.py
   
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',

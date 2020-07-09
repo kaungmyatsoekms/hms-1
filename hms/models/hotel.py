@@ -189,12 +189,9 @@ class Property(models.Model):
     packageheader_ids = fields.One2many('package.header',
                                   'property_id',
                                   string="Package")
-<<<<<<< HEAD
     packagegroup_ids = fields.One2many('package.group',
                                        'property_id',
                                        string="Package Group")
-=======
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
     subgroup_ids = fields.One2many('sub.group',
                                    'property_id',
                                    string="Sub Group")
@@ -539,7 +536,6 @@ class Property(models.Model):
         }
         return action
 
-<<<<<<< HEAD
     def action_package_group(self):
         package_groups = self.mapped('packagegroup_ids')
         action = self.env.ref('hms.package_group_action_window').read()[0]
@@ -563,8 +559,6 @@ class Property(models.Model):
         }
         return action
 
-=======
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
     def action_building_count(self):
         buildings = self.mapped('building_ids')
         action = self.env.ref('hms.building_action_window').read()[0]
@@ -686,11 +680,7 @@ class Property(models.Model):
         if len(total_rooms) > self.roomqty:
             raise ValidationError(
         _("Number of rooms must not exceed Total Rooms."))
-<<<<<<< HEAD
     
-=======
-
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
     @api.constrains('roomqty')
     def check_total_room(self):
         if self.roomqty <= 0 :
@@ -1179,11 +1169,7 @@ class RoomType(models.Model):
     active = fields.Boolean(string="Active", default=True, track_visibility=True)
     code = fields.Char(string='Code', size=50, required=True)
     name = fields.Char(string='Room Type', required=True)
-<<<<<<< HEAD
     color = fields.Integer('Color Index', default=0, size=1)
-=======
-    color = fields.Integer('Color Index', default=0, store=True)
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
     fix_type = fields.Boolean(string="Fix Type", default=True)
     bed_type = fields.Many2many('bed.type', string="Bed Type")
     ratecode_id = fields.Char(string='Rate Code')
@@ -1191,10 +1177,7 @@ class RoomType(models.Model):
                                compute='compute_totalroom')
     image = fields.Binary(string='Image', attachment=True, store=True)
     roomtype_desc = fields.Text(string='Description')
-<<<<<<< HEAD
     rate_id = fields.Many2one('ratecode.details','Rate Details')
-=======
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
 
     _sql_constraints = [(
         'code_unique', 'UNIQUE(code)',

@@ -465,14 +465,11 @@ class Reservation(models.Model):
                     'etd' : self.etd,
                 }))
                 self.update({'reservation_line_ids': vals,'dummy_readonly': True})
-<<<<<<< HEAD
-=======
 
         return res
 
     # Unlink Function
     def unlink(self):
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
 
         reservation_line_objs = self.env['hms.reservation.line']
         for record in self:
@@ -1639,10 +1636,6 @@ class ReservationLine(models.Model):
         res = super(ReservationLine, self).unlink()
         return res
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
     # State Update Forecast
     def _state_update_forecast(self,state,property_id,arrival,departure,room_type,rooms,reduce,status):
 
@@ -1861,19 +1854,12 @@ class RoomReservationSummary(models.Model):
     _name = 'room.reservation.summary'
     _description = 'Room reservation summary'
 
-<<<<<<< HEAD
     property_id = fields.Many2one(
         'property.property',
         string="Property",
         default=lambda self: self.env.user.property_id.id)
     name = fields.Char('Reservation Summary',
                        default='Reservations Summary',
-=======
-    property_id = fields.Many2one('property.property',string="Property")
-    avail_room_ids = fields.Many2many('property.room',
-                                      string="Room Nos")#compute='get_avail_room_ids'
-    name = fields.Char('Reservation Summary', default='Reservations Summary',
->>>>>>> f917f891ec8f1e418a8ef2e16b6188d978b25733
                        invisible=True)
     date_from = fields.Date('Date From')
     date_to = fields.Date('Date To')
