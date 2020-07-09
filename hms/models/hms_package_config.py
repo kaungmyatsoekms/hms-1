@@ -75,10 +75,82 @@ class Package(models.Model):
                               default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,string="Attribute",index=True,default=RATE_ATTRIBUTE[0][0])
+    package_group_id = fields.Many2one('package.group', string="Package Group")
   
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',
         'Package code already exists with this name! Package code must be unique!'
     )]
 
+    @api.depends('include_in_rate','rate_separate_line','rate_combined_line')
+    def _compute_attribute_type(self):
+        for package in self:
+            if package.include_in_rate or self._context.get(
+                    'default_rate_attribute') == 'INR':
+                package.rate_attribute = 'INR'
+                package.include_in_rate = True
+            elif package.rate_separate_line or self._context.get(
+                    'default_rate_attribute') == 'ARS':
+                package.rate_attribute = 'ARS'
+                package.rate_separate_line = True
+            elif package.rate_combined_line or self._context.get(
+                    'default_rate_attribute') == 'ARC':
+                package.rate_attribute = 'ARC'
+                package.rate_combined_line = True
 
+
+    def _write_attribute_type(self):
+        for package in self:
+            package.include_in_rate = package.rate_attribute == 'INR'
+            package.rate_separate_line = package.rate_attribute == 'ARS'
+            package.rate_combined_line = package.rate_attribute == 'ARC'
+     
+    @api.onchange('rate_attribute')
+    def onchange_attribute_type(self):
+        if self.rate_attribute == 'INR':
+            self.include_in_rate = True
+            self.rate_separate_line = False
+            self.rate_combined_line = False
+        elif self.rate_attribute == 'ARS':
+            self.include_in_rate = False
+            self.rate_separate_line = True
+            self.rate_combined_line = False
+        elif self.rate_attribute == 'ARC':
+            self.include_in_rate = False
+            self.rate_separate_line = False
+            self.rate_combined_line = True
+
+class PackageGroup(models.Model):
+    _name = "package.group"
+    _rec_name = 'pkg_group_name'
+    _description = "Package Group"
+
+    active = fields.Boolean(string="Active",
+                            default=True,
+                            track_visibility=True)
+    sequence = fields.Integer(default=1)
+    property_id = fields.Many2one('property.property',
+                                  string="Property",
+                                  readonly=True,
+                                  required=True)
+    pkg_group_code = fields.Char(string="Group Code", size=4, required=True)
+    shortcut = fields.Char(string="ShortCut")
+    pkg_group_name = fields.Char(string="Group Name", required=True)
+    package_id = fields.One2many('package.header',
+                                 'package_group_id',
+                                 string="Packages")
+    transaction_id = fields.Many2one(
+        'transaction.transaction',
+        string='Transaction',
+        domain="[('property_id', '=?', property_id)]")
+    include_service = fields.Boolean('Include Service',
+                                     track_visibility=True,
+                                     related='transaction_id.trans_svc')
+    include_tax = fields.Boolean('Include Tax',
+                                 track_visibility=True,
+                                 related='transaction_id.trans_tax')
+
+    _sql_constraints = [(
+        'pkg_group_code_unique', 'UNIQUE(property_id, pkg_group_code)',
+        'Package group code already exists with this name! Package group code must be unique!'
+    )]

@@ -58,7 +58,6 @@ AVAILABLE_PERCENTAGE = [
     ('100', '100 %'),
 ]
 
-
 class Property(models.Model):
     _name = "property.property"
     _inherit = ['mail.thread']
@@ -190,6 +189,9 @@ class Property(models.Model):
     packageheader_ids = fields.One2many('package.header',
                                   'property_id',
                                   string="Package")
+    packagegroup_ids = fields.One2many('package.group',
+                                       'property_id',
+                                       string="Package Group")
     subgroup_ids = fields.One2many('sub.group',
                                    'property_id',
                                    string="Sub Group")
@@ -531,6 +533,29 @@ class Property(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         context = {
             'default_type': 'out_package',
+        }
+        return action
+
+    def action_package_group(self):
+        package_groups = self.mapped('packagegroup_ids')
+        action = self.env.ref('hms.package_group_action_window').read()[0]
+        if len(package_groups) >= 1:
+            action['domain'] = [('id', 'in', package_groups.ids)]
+        elif len(package_groups) == 0:
+            form_view = [(self.env.ref('hms.package_group_view_form').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = package_groups.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_package_group',
         }
         return action
 
@@ -963,7 +988,6 @@ class Property(models.Model):
                         }))
                         new_avail_obj.update({'avail_roomtype_ids': vals})
 
-
 class Property_roomtype(models.Model):
     _name = "property.roomtype"
     _description = "Property_Roomtype"
@@ -1327,6 +1351,8 @@ class PropertyRoom(models.Model):
     bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
     bedtype_id = fields.Many2one('bed.type', domain="[('id', '=?', bedtype_ids)]" )
     no_of_pax = fields.Integer(string="Allow Pax", default=2)
+    room_reservation_line_ids = fields.One2many('hms.reservation.line',
+                                                'room_no')
 
     _sql_constraints = [
         ('room_no_unique', 'UNIQUE(property_id, room_no)',
