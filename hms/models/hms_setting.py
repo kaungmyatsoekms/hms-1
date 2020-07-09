@@ -346,16 +346,6 @@ class PartnerTitle(models.Model):
 class Partner(models.Model):
     _inherit = "res.partner"
 
-
-    # def get_property_id(self):
-    #     if not self.property_id:
-    #         property_id = None
-    #         if self.env.user.property_id:
-    #             # raise UserError(_("Please set property in user setting."))
-            
-    #             property_id = self.env.user.property_id[0]
-    #         return property_id or 1
-
     city_id = fields.Many2one("hms.city", "City Name", track_visibility=True)
     company_type = fields.Selection(
         string='Company Type',

@@ -111,7 +111,6 @@ class Package(models.Model):
     @api.onchange('rate_attribute')
     def onchange_attribute_type(self):
         if self.rate_attribute == 'INR':
-            self.include_in_rate = True
             self.rate_separate_line = False
             self.rate_combined_line = False
         elif self.rate_attribute == 'ARS':
