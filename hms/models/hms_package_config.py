@@ -5,7 +5,7 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
-from datetime import datetime, date, timedelta
+from datetime import datetime,date, timedelta
 
 POSTING_RYTHMS = [
     ('1', 'Post Every Night'),
@@ -18,16 +18,15 @@ POSTING_RYTHMS = [
 ]
 
 CALCUATION_METHODS = [
-    ('FIX', 'Fix Rate'),
-    ('PP', 'Per Person'),
-    ('PA', 'Per Adult'),
-    ('PC', 'Per Child'),
+    ('FIX','Fix Rate'),
+    ('PP','Per Person'),
+    ('PA','Per Adult'),
 ]
 
 RATE_ATTRIBUTE = [
-    ('INR', 'Include in Rate'),
-    ('ARS', 'Add Rate Separate Line'),
-    ('ARC', 'Add Rate Combined Line'),
+    ('INR','Include in Rate'),
+    ('ARS','Add Rate Separate Line'),
+    ('ARC','Add Rate Combined Line'),
 ]
 
 
@@ -36,9 +35,10 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
-    active = fields.Boolean(string="Active",
-                            default=True,
-                            track_visibility=True)
+    include_in_rate = fields.Boolean(default=False)
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
+    active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
     property_id = fields.Many2one('property.property',
                                   string="Property",
@@ -47,73 +47,81 @@ class Package(models.Model):
     package_code = fields.Char(string="Package Code", size=4, required=True)
     shortcut = fields.Char(string="ShortCut")
     package_name = fields.Char(string="Package Name", required=True)
-    start_date = fields.Date(string="Start Date",
-                             required=True,
-                             help="Start of Package")
-    end_date = fields.Date(string="End Date",
-                           required=True,
-                           help="End of Package")
-    forecast_next_day = fields.Boolean(string="Forecast Next Day",
-                                       default=False,
-                                       track_visibility=True)
-    post_next_day = fields.Boolean(string="Post Next Day",
-                                   default=False,
-                                   track_visibility=True)
-    catering = fields.Boolean(string="Catering",
-                              default=False,
-                              track_visibility=True)
-    transaction_id = fields.Many2one(
-        'transaction.transaction',
-        string='Transaction',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    package_profit = fields.Many2one(
-        'transaction.transaction',
-        string='Profit',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    package_loss = fields.Many2one(
-        'transaction.transaction',
-        string='Loss',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+    start_date = fields.Date(string="Start Date", required=True,help="Start of Package")
+    end_date = fields.Date(string="End Date", required=True, help="End of Package")
+    forecast_next_day = fields.Boolean(string="Forecast Next Day", default=False, track_visibility=True)
+    post_next_day = fields.Boolean(string="Post Next Day", default=False, track_visibility=True)
+    catering = fields.Boolean(string="Catering", default=False, track_visibility=True)
+    transaction_id = fields.Many2one('transaction.transaction',
+                                     string='Transaction',
+                                     domain="[('property_id', '=?', property_id)]")
+    package_profit = fields.Many2one('transaction.transaction',
+                                     string='Profit',
+                                     domain="[('property_id', '=?', property_id)]")
+    package_loss = fields.Many2one('transaction.transaction',
+                                     string='Loss',
+                                     domain="[('property_id', '=?', property_id)]")
     product_item = fields.Char('Product Item')
-    include_service = fields.Boolean('Include Service',
-                                     track_visibility=True,
-                                     related='transaction_id.trans_svc')
-    include_tax = fields.Boolean('Include Tax',
-                                 track_visibility=True,
-                                 related='transaction_id.trans_tax')
-    allowance = fields.Boolean(string="Catering",
-                               default=False,
-                               track_visibility=True)
-    valid_eod = fields.Boolean(string="Valid C/O EOD",
-                               default=False,
-                               track_visibility=True)
+    include_service = fields.Boolean ('Include Service',track_visibility=True, related='transaction_id.trans_svc')                                        
+    include_tax = fields.Boolean('Include Tax', track_visibility=True, related='transaction_id.trans_tax')
+    allowance = fields.Boolean(string="Catering", default=False, track_visibility=True)
+    valid_eod = fields.Boolean(string="Valid C/O EOD", default=False, track_visibility=True)
     currency_id = fields.Char(string="Currency")
-    sell_separate = fields.Boolean(string="Sell Separate",
-                                   default=False,
-                                   track_visibility=True)
+    sell_separate = fields.Boolean(string="Sell Separate", default=False, track_visibility=True)
     posting_rythms = fields.Selection(POSTING_RYTHMS,
-                                      string='Rating',
-                                      index=True,
-                                      default=POSTING_RYTHMS[0][0])
+                              string='Rating',
+                              index=True,
+                              default=POSTING_RYTHMS[0][0])
     Calculation_method = fields.Selection(CALCUATION_METHODS,
-                                          string='Rating',
-                                          index=True,
-                                          default=CALCUATION_METHODS[0][0])
+                              string='Rating',
+                              index=True,
+                              default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
-    rate_attribute = fields.Selection(RATE_ATTRIBUTE,
-                                      string="Attribute",
-                                      index=True,
-                                      default=RATE_ATTRIBUTE[0][0])
+    rate_attribute = fields.Selection(RATE_ATTRIBUTE,string="Attribute",index=True,default=RATE_ATTRIBUTE[0][0])
     package_group_id = fields.Many2one('package.group', string="Package Group")
-
+  
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',
         'Package code already exists with this name! Package code must be unique!'
     )]
 
+    @api.depends('include_in_rate','rate_separate_line','rate_combined_line')
+    def _compute_attribute_type(self):
+        for package in self:
+            if package.include_in_rate or self._context.get(
+                    'default_rate_attribute') == 'INR':
+                package.rate_attribute = 'INR'
+                package.include_in_rate = True
+            elif package.rate_separate_line or self._context.get(
+                    'default_rate_attribute') == 'ARS':
+                package.rate_attribute = 'ARS'
+                package.rate_separate_line = True
+            elif package.rate_combined_line or self._context.get(
+                    'default_rate_attribute') == 'ARC':
+                package.rate_attribute = 'ARC'
+                package.rate_combined_line = True
+
+
+    def _write_attribute_type(self):
+        for package in self:
+            package.include_in_rate = package.rate_attribute == 'INR'
+            package.rate_separate_line = package.rate_attribute == 'ARS'
+            package.rate_combined_line = package.rate_attribute == 'ARC'
+     
+    @api.onchange('rate_attribute')
+    def onchange_attribute_type(self):
+        if self.rate_attribute == 'INR':
+            self.include_in_rate = True
+            self.rate_separate_line = False
+            self.rate_combined_line = False
+        elif self.rate_attribute == 'ARS':
+            self.include_in_rate = False
+            self.rate_separate_line = True
+            self.rate_combined_line = False
+        elif self.rate_attribute == 'ARC':
+            self.include_in_rate = False
+            self.rate_separate_line = False
+            self.rate_combined_line = True
 
 class PackageGroup(models.Model):
     _name = "package.group"
@@ -133,17 +141,11 @@ class PackageGroup(models.Model):
     pkg_group_name = fields.Char(string="Group Name", required=True)
     package_id = fields.One2many('package.header',
                                  'package_group_id',
-                                 string="Packages",
-                                 domain="[('rate_attribute', '=?', 'INR')]")
-    addon_pkg_id = fields.One2many('package.header',
-                                   'package_group_id',
-                                   string="Add-On",
-                                   domain="[('rate_attribute', '=?', 'ARS')]")
+                                 string="Packages")
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+        domain="[('property_id', '=?', property_id)]")
     include_service = fields.Boolean('Include Service',
                                      track_visibility=True,
                                      related='transaction_id.trans_svc')
