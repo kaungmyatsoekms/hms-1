@@ -153,6 +153,51 @@
             </field>
         </record>
 
+        <!-- Rate Code Details Kanban View -->
+        <record id="ratecode_detail_view_kanban" model="ir.ui.view">
+            <field name="name">ratecode.details.kanban</field>
+            <field name="model">ratecode.details</field>
+            <field name="arch" type="xml">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                    <field name="sequence"/>
+                    <field name="property_id"/>
+                    <field name="season_code"/>
+                    <field name="roomtype_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div>
+                                    <div class="oe_kanban_details">
+                                        <div>
+                                            <b>Property: </b>
+                                            <field name="property_id"/>
+                                            <b>     Code: </b>
+                                            <field name="season_code"/>
+                                        </div>
+                                        <t t-foreach="record.roomtype_id.raw_value" t-as="o">
+                                            <div>
+                                                <b>Rmty: </b>
+                                                <t t-esc="o.code"/>
+                                            </div>
+                                        </t>
+                                        <div>
+                                            <b>From: </b>
+                                            <field name="start_date"/>
+                                            <b>     To: </b>
+                                            <field name="end_date"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
         <!-- action of Rate Code Details -->
         <record id="ratecode_detail_action_window" model="ir.actions.act_window">
             <field name="name">Rate Code Details</field>

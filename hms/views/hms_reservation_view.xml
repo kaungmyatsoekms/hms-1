@@ -36,7 +36,7 @@
             </field>
         </record>
 
-        <!-- Reservation View Form -->
+       <!-- Reservation View Form -->
         <record id="reservation_view_form" model="ir.ui.view">
             <field name="name">reservation.view.form</field>
             <field name="model">hms.reservation</field>

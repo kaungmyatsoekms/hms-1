@@ -23,7 +23,6 @@
     'Test',
     'version':
     '0.1',
-
     # any module necessary for this one to work correctly
     'depends':
     ['base','graphql_base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web','website'],
@@ -31,10 +30,9 @@
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     'css': ['static/src/css/room_kanban.css'],
     'qweb': ['static/src/xml/hotel_room_summary.xml'], 
-    
     # always loaded
     'data': [
-        # 'security/hms_security.xml',
+        'security/hms_security.xml',
         'security/ir.model.access.csv',
         'wizard/hms_roomno_copy_wizard.xml',
         'views/hotel_views.xml',
@@ -68,6 +66,7 @@
         'data/hms.city.csv',
         'views/hms_township_view.xml',
         'data/hms.township.csv',
+        'data/res_partner_title_data.xml',
         'views/hms_company_type.xml',
         'data/hms.company.category.csv',
         'data/hms.guest.category.csv',
@@ -81,6 +80,7 @@
         'wizard/hms_reason_wizard_view.xml',
         'wizard/hms_rersvn_wizard_view.xml',
         'views/hms_reservation_view.xml',
+        'views/room_summ_view.xml',
         'data/hms.reasontype.csv',
         'data/hms.reason.csv',
         'views/hms_charge_type.xml',

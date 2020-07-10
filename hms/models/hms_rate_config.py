@@ -126,24 +126,23 @@ class RateCodeDetails(models.Model):
             if startdate and enddate and startdate > enddate:
                 raise ValidationError("End Date cannot be set before Start Date.")
 
-    # @api.onchange('start_date','end_date')
-    # @api.constrains('start_date','end_date')
-    # def check_date_range(self):
+    @api.onchange('start_date')
+    @api.constrains('start_date')
+    def check_date_range(self):
+        start_date = self.start_date
+        end_date = self.end_date
+        s_id = self.id
+        ss_id = self._origin.id
         
-    #     for rec in self.ratehead_id.ratecode_details:
-    #         s_id = self.id
-    #         ss_id = self._origin.id
-    #         r_id = rec.id
-    #         rr_id = rec._origin.id
-    #         start_date = self.start_date
-    #         end_date = self.end_date
-    #         rec_start_date = rec.start_date
-    #         rec_end_date = rec.end_date
-    #         if rec_start_date and rec_end_date and rec.id != self.id:
-    #             if start_date and end_date:
-    #                 if start_date < rec_end_date and end_date > rec_start_date:
-    #                     raise ValidationError(
-    #                 _("There is already a season code which overlaps your date range"))
+        for rec in self.ratehead_id.ratecode_details:
+            r_id = rec.id
+            rr_id = rec._origin.id
+            rec_sd = rec.start_date
+            rec_ed = rec.end_date
+            if rec.start_date and rec.end_date and rec.id != self.id:
+                if self.start_date < rec.end_date and self.end_date > rec.start_date:
+                    raise ValidationError(
+                _("There is already a season code which overlaps your date range"))
 
     @api.onchange('start_date')
     def get_start_date(self):
