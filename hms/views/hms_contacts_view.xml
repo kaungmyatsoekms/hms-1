@@ -34,7 +34,7 @@
 				</xpath>
 				<xpath expr="//field[@name='parent_id']" position="before">
                     <field name="property_id" attrs="{'invisible':[('is_group','!=', True)]}"/>
-					<field name="title" placeholder="Salutation" options='{"no_open": True}' attrs="{'invisible': ['|', ('is_company', '=', True),('is_group', '=', True)]}"/>
+					<field name="title" placeholder="Title" options='{"no_open": True}' attrs="{'invisible': ['|', ('is_company', '=', True),('is_group', '=', True)]}"/>
                 </xpath>
                 <xpath expr="//form/sheet/group[1]" position="replace">
 					<group>

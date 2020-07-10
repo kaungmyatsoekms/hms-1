@@ -6,7 +6,7 @@ from odoo.modules import get_module_resource
 from odoo.tools import *
 from datetime import datetime, date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
-import pytz
+_logger = logging.getLogger(__name__)
 
 
 class HMSReason(models.Model):
@@ -487,26 +487,6 @@ class Reservation(models.Model):
         
         res = super(Reservation, self).unlink()
         return res
-
-    # Unlink Function
-    def unlink(self):
-
-        reservation_line_objs = self.env['hms.reservation.line']
-        for record in self:
-            # state = record.state
-            # rooms = record.rooms
-            # room_type = record.roomtype_id.id
-            # property_id = record.property_id.id
-            # arrival = record.arrival
-            # departure = record.departure
-            # reduce = True
-            # status = 'HFO'
-            # record.reservation_line_ids._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
-            reservation_line_objs += self.env['hms.reservation.line'].search([('reservation_id', '=', record.id)])
-            reservation_line_objs.unlink()
-        
-        res = super(Reservation, self).unlink()
-        return res
     # All Split Rsvn Action
     def action_split(self):
         # arrival = self.arrival
@@ -777,7 +757,7 @@ class ReservationLine(models.Model):
     cotime = fields.Datetime("Check-Out Time")
 
     extrabed = fields.Integer("Extra Bed")
-    extrabed_amount = fields.Float("Number of Extra Bed")
+    extrabed_amount = fields.Integer("Number of Extra Bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
@@ -1858,6 +1838,8 @@ class RoomReservationSummary(models.Model):
         'property.property',
         string="Property",
         default=lambda self: self.env.user.property_id.id)
+    # avail_room_ids = fields.Many2many(
+    #     'property.room', string="Room Nos")  #compute='get_avail_room_ids'
     name = fields.Char('Reservation Summary',
                        default='Reservations Summary',
                        invisible=True)
@@ -1934,6 +1916,8 @@ class RoomReservationSummary(models.Model):
         reservation_line_obj = self.env['hms.reservation.line'].search([
             ('property_id', '=', self.property_id.id)
         ])
+        # folio_room_line_obj = self.env['folio.room.line']
+        # user_obj = self.env['res.users']
         date_range_list = []
         main_header = []
         summary_header_list = ['Rooms']
@@ -1946,71 +1930,141 @@ class RoomReservationSummary(models.Model):
                 timezone = pytz.timezone(self._context.get('tz', False))
             else:
                 timezone = pytz.timezone('UTC')
-            dt_from = self.date_from.strftime(dt)
-            dt_to = self.date_to.strftime(dt)
-            d_frm_obj = datetime.strptime(dt_from, dt)\
-                .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
-            d_to_obj = datetime.strptime(dt_to, dt)\
-                .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
-            temp_date = d_frm_obj
-            while (temp_date <= d_to_obj):
-                val = ''
-                val = (str(temp_date.strftime("%a")) + ' ' +
-                       str(temp_date.strftime("%b")) + ' ' +
-                       str(temp_date.strftime("%d")))
-                summary_header_list.append(val)
-                date_range_list.append(temp_date.strftime(dt))
-                temp_date = temp_date + timedelta(days=1)
-            all_detail.append(summary_header_list)
-            room_ids = room_obj
-            all_room_detail = []
-            for room in room_ids:
-                room_detail = {}
-                room_list_stats = []
-                room_detail.update({'name': room.room_no or ''})
-                if not room.room_reservation_line_ids:
-                    for chk_date in date_range_list:
-                        room_list_stats.append({
-                            'state': 'Free',
-                            'date': chk_date,
-                            'room_id': room.id
-                        })
-                else:
-                    for chk_date in date_range_list:
-                        ch_dt = chk_date[:10] + ' 23:59:59'
-                        ttime = datetime.strptime(ch_dt, dt)
-                        c = ttime.replace(tzinfo=timezone).\
-                            astimezone(pytz.timezone('UTC'))
-                        chk_date = c.strftime(dt)
-                        reserline_ids = room.room_reservation_line_ids.ids
-                        reservline_ids = reservation_line_obj.search([
-                            ('id', 'in', reserline_ids),
-                            ('arrival', '<=', chk_date),
-                            ('departure', '>', chk_date),
-                            ('state', '=', 'confirm')
-                        ])
-                        if reservline_ids:
-                            room_list_stats.append({
-                                'state': 'Reserved',
-                                'date': chk_date,
-                                'room_id': room.id,
-                                'is_draft': 'No',
-                                'data_model': '',
-                                'data_id': 0
-                            })
+                dt_from = self.date_from.strftime(dt)
+                dt_to = self.date_to.strftime(dt)
+                d_frm_obj = datetime.strptime(dt_from, dt)\
+                    .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
+                d_to_obj = datetime.strptime(dt_to, dt)\
+                    .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
+                temp_date = d_frm_obj
+                while (temp_date <= d_to_obj):
+                    val = ''
+                    val = (str(temp_date.strftime("%a")) + ' ' +
+                        str(temp_date.strftime("%b")) + ' ' +
+                        str(temp_date.strftime("%d")))
+                    summary_header_list.append(val)
+                    date_range_list.append(temp_date.strftime(dt))
+                    temp_date = temp_date + timedelta(days=1)
+                all_detail.append(summary_header_list)
+                room_ids = room_obj
+                all_room_detail = []
+                for room in room_ids:
+                    room_detail = {}
+                    room_list_stats = []
+                    room_detail.update({'name': room.room_no or ''})
+                    for reservation_line in reservation_line_obj:
+                        if room != reservation_line.room_no:
+                            for chk_date in date_range_list:
+                                room_list_stats.append({
+                                    'state': 'Free',
+                                    'date': chk_date,
+                                    'room_id': room.id
+                                })
                         else:
-                            room_list_stats.append({
-                                'state': 'Free',
-                                'date': chk_date,
-                                'room_id': room.id
-                            })
+                            for chk_date in date_range_list:
+                                ch_dt = chk_date[:10] + ' 23:59:59'
+                                ttime = datetime.strptime(ch_dt, dt)
+                                c = ttime.replace(tzinfo=timezone).\
+                                    astimezone(pytz.timezone('UTC'))
+                                chk_date = c.strftime(dt)
+                                # reserline_ids = room.room_reservation_line_ids.ids
+                                reservline_ids = (reservation_line_obj.search([
+                                    ('arrival', '<=', chk_date),
+                                    ('departure', '>=', chk_date),
+                                    ('state', '=', 'confirm')
+                                ]))
+                                if not reservline_ids:
+                                    sdt = dt
+                                    chk_date = datetime.strptime(chk_date, sdt)
+                                    chk_date = datetime.\
+                                        strftime(chk_date - timedelta(days=1), sdt)
+                                    reservline_ids = (reservation_line_obj.search([
+                                        ('arrival', '<=', chk_date),
+                                        ('departure', '>=', chk_date),
+                                        ('state', '=', 'reservation')
+                                    ]))
+                                    if reservline_ids:
+                                        for res_room in reservline_ids:
+                                            rrci = res_room.arrival
+                                            rrco = res_room.departure
+                                            cid = datetime.strptime(
+                                                str(rrci), '%Y-%m-%d')
+                                            cod = datetime.strptime(
+                                                str(rrco), '%Y-%m-%d')
+                                            dur = cod - cid
+                                            if room_list_stats:
+                                                count = 0
+                                                for rlist in room_list_stats:
+                                                    cidst = datetime.strftime(
+                                                        cid, dt)
+                                                    codst = datetime.strftime(
+                                                        cod, dt)
+                                                    rm_id = res_room.room_id.id
+                                                    ci = rlist.get('date') >= cidst
+                                                    co = rlist.get('date') <= codst
+                                                    rm = rlist.get(
+                                                        'room_id') == rm_id
+                                                    st = rlist.get(
+                                                        'state') == 'Reserved'
+                                                    if ci and co and rm and st:
+                                                        count += 1
+                                                if count - dur.days == 0:
+                                                    c_id1 = user_obj.browse(
+                                                        self._uid)
+                                                    c_id = c_id1.company_id
+                                                    con_add = 0
+                                                    amin = 0.0
+                                                    if c_id:
+                                                        con_add = c_id.additional_hours
 
-                room_detail.update({'value': room_list_stats})
-                all_room_detail.append(room_detail)
+                                                    if con_add > 0:
+                                                        amin = abs(con_add * 60)
+                                                    hr_dur = abs(
+                                                        (dur.seconds / 60))
+
+                                                    if amin > 0:
+                                                        if hr_dur >= amin:
+                                                            reservline_ids = True
+                                                        else:
+                                                            reservline_ids = False
+                                                    else:
+                                                        if hr_dur > 0:
+                                                            reservline_ids = True
+                                                        else:
+                                                            reservline_ids = False
+                                                else:
+                                                    reservline_ids = False
+                                        room_list_stats.append({
+                                            'state': 'Reserved',
+                                            'date': chk_date,
+                                            'room_id': room.id,
+                                            'is_draft': 'No',
+                                            'data_model': '',
+                                            'data_id': 0
+                                        })
+                                    else:
+                                        room_list_stats.append({
+                                            'state': 'Free',
+                                            'date': chk_date,
+                                            'room_id': room.id
+                                        })
+
+                            # fol_room_line_ids = room.room_line_ids.ids
+                            # chk_state = ['draft', 'cancel']
+                            # folio_resrv_ids = (folio_room_line_obj.search([
+                            #     ('id', 'in', fol_room_line_ids),
+                            #     ('check_in', '<=', chk_date),
+                            #     ('check_out', '>=', chk_date),
+                            #     ('status', 'not in', chk_state)
+                            # ]))
+
+                    room_detail.update({'value': room_list_stats})
+                    all_room_detail.append(room_detail)
             main_header.append({'header': summary_header_list})
             self.summary_header = str(main_header)
             self.room_summary = str(all_room_detail)
         return res
+
 
 class QuickRoomReservation(models.TransientModel):
     _name = 'quick.room.reservation'
@@ -2076,6 +2130,7 @@ class QuickRoomReservation(models.TransientModel):
                 'rooms': res.rooms,
             }))
         return rec
+    
 
 class OverBooking(models.Model):
     _name = "over.booking"

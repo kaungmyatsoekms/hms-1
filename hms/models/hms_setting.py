@@ -331,20 +331,19 @@ class Company(models.Model):
                 currency.write({'active': True})
         return company
 
-# Create Partner Title
-class PartnerTitle(models.Model):
-    _inherit = 'res.partner.title'
-    _order = 'name'
-    _description = 'Partner Title'
-
-    gender = fields.Selection(string='Gender',
-                              selection=[('male', 'Male'),
-                                         ('female', 'Female'),
-                                         ('other', 'Other')],
-                              track_visibility=True)
 # Create Partner
 class Partner(models.Model):
     _inherit = "res.partner"
+
+
+    # def get_property_id(self):
+    #     if not self.property_id:
+    #         property_id = None
+    #         if self.env.user.property_id:
+    #             # raise UserError(_("Please set property in user setting."))
+            
+    #             property_id = self.env.user.property_id[0]
+    #         return property_id or 1
 
     city_id = fields.Many2one("hms.city", "City Name", track_visibility=True)
     company_type = fields.Selection(
@@ -479,14 +478,6 @@ class Partner(models.Model):
                 group_code = record.group_code
             record.name = firstname + middlename + lastname + group_code
 
-    @api.onchange('title', 'gender')
-    def onchange_title_gender(self):
-        for partner in self:
-            if partner.title.gender:
-                partner.gender = partner.title.gender
-            else:
-                partner.gender = 'male'
-                
     # @api.onchange('group_code')
     # def onchange_name(self):
     #     group_code = ""

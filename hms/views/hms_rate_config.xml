@@ -10,45 +10,6 @@
                     <field name="active" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <separator string="Rate Categories" colspan="4" />
-                    <group>
-                        <group>
-                            <field name="code" default_focus="1" placeholder="Code" style="width:50%%"/>
-                            <field name="categories" placeholder="Description" style="width:50%%"/>  
-                        </group>
-                        <group>                                                            
-                            <field name="start_date" style="width:50%%"/>
-                            <field name="end_date" style="width:50%%"/>
-                        </group>
-                    </group>
-                    <notebook>
-                        <page string="Rate Code">
-                            <field name="rate_header_ids">
-                                <tree string="Rate Code" editable="bottom">
-                                    <field name="rate_category_id" invisible="1"/>
-                                    <field name="rate_code"/>
-                                    <field name="ratecode_name"/>
-                                    <field name="start_date"/>
-                                    <field name="end_date"/>
-                                    <field name="property_ids" widget="many2many_tags"/>
-                                </tree>
-                            </field>
-                        </page>
-                    </notebook> 
-                </sheet>
-                </form>
-            </field>
-        </record>
-
-        <!-- Rate Categories Form View -->
-        <!-- <record id="rate_categories_view_form" model="ir.ui.view">
-            <field name="name">rate.categories.form</field>
-            <field name="model">rate.categories</field>
-            <field name="arch" type="xml">
-                <form string="Rate Categories">
-                <sheet>
-                    <field name="active" invisible="1"/>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                    <separator string="Rate Categories" colspan="4" />
                     <div class="o_address_format" >
                         <label for='code' string="Code" style="width:6%%"/>
                         <field name="code" default_focus="1" placeholder="Code" style="width:20%%"/>
@@ -74,11 +35,11 @@
                                 <field name="property_ids" widget="many2many_tags"/>
                             </tree>
                         </field>
-                    </group> 
+                    </group>
                 </sheet>
                 </form>
             </field>
-        </record> -->
+        </record>
 
         <!-- Rate Categories List View -->
         <record id="rate_categories_view_list" model="ir.ui.view">

@@ -20,30 +20,31 @@
                             <div>
                                 <field name="start_date" style="width:50%%"/>
                                 <field name="end_date" style="width:50%%"/>
-                                <field name="Fix_price"/>
                             </div>
-                        </group>
-                        <group>
                             <field name="transaction_id"/>
-                            <field name="package_profit"/>
-                            <field name="package_lost"/>
                             <field name="include_service"/>
                             <field name="include_tax"/>
+                            <field name="package_profit"/>
+                            <field name="package_loss"/>
                             <field name="allowance"/>
                             <field name="valid_eod"/>
                             <field name="sell_separate"/>
                         </group>
-
-                    </group>
-                    <group>
-                        <group string="Access Rights">
-                            <field name="posting_rythms"/>
+                        <group string="Access Rate">
+                            <field name="rate_attribute" widget="radio"/>
                             <field name="Calculation_method"/>
+                            <field name="Fix_price"/>
+                            <field name="posting_rythms"/>
                             <field name="forecast_next_day"/>
                             <field name="post_next_day"/>
                             <field name="catering"/>
                         </group>
-                        
+                    </group>
+                    <group>
+
+                        <group>
+
+                        </group>
                     </group> 
                 </sheet>
                 </form>

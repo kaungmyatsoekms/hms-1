@@ -249,8 +249,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 'is_full_cancel': True,
             })
             hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
-            if hfo_reservation:
-                hfo_reservation.write({'state': 'cancel'})
+            hfo_reservation.write({'state': 'cancel'})
         else:
             if confirm == 0:
                 reservation_lines.reservation_id.write({
