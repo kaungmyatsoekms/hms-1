@@ -1156,7 +1156,7 @@ class ReservationLine(models.Model):
                 if rec.departure > tmp_departure_date:
                     tmp_departure_date = rec.departure
         self.reservation_id.write({'arrival': tmp_arrival_date})
-        self.reservation_id.write({'departure': tmp_departure_date})
+        self.reservation_id.write({'departure': tmp_departure_date}) 
         
         # hfo_reservation = self.reservation_id.reservation_line_ids.filtered(lambda x: x.room_type.code[0] == 'H')
         # if hfo_reservation:
