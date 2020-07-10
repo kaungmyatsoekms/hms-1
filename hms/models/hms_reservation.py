@@ -1157,16 +1157,10 @@ class ReservationLine(models.Model):
                     tmp_departure_date = rec.departure
         self.reservation_id.write({'arrival': tmp_arrival_date})
         self.reservation_id.write({'departure': tmp_departure_date})
-        # hfo_reservation = self.reservation_id.reservation_line_ids.filtered(
-        #                 lambda r: r.room_type[0] == 'H' )
-        # hfo_reservation.arrival = tmp_arrival_date
-        # hfo_reservation.departure = tmp_departure_date
-        # if hfo_reservation :
-        #     hfo_reservation.update({'arrival': tmp_arrival_date,'departure': tmp_departure_date})
-
-    # @api.onchange('reservation_id')
-    # def onchange_hfo_arrival(self):
-
+        
+        # hfo_reservation = self.reservation_id.reservation_line_ids.filtered(lambda x: x.room_type.code[0] == 'H')
+        # if hfo_reservation:
+        #     hfo_reservation.write({'arrival': tmp_arrival_date,'departure': tmp_departure_date})
 
 
     @api.onchange('arrival', 'departure', 'room_type', 'rooms')

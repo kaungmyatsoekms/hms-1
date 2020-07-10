@@ -1,8 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-
-access_property_user,property.property,model_property_property,hms.group_property_user,1,1,0,0
-access_property_manager,property.property,model_property_property,hms.group_property_manager,0,0,1,1
-
+access_property_property,property.property,model_property_property,base.group_user,1,1,1,1
 access_pms_format,pms.format,model_pms_format,base.group_user,1,1,1,1
 access_pms_format_detail,pms.format.detail,model_pms_format_detail,base.group_user,1,1,1,1
 access_building_building,building.building,model_building_building,base.group_user,1,1,1,1
@@ -42,10 +39,7 @@ access_hms_allotment,hms.allotment,model_hms_allotment,base.group_user,1,1,1,1
 access_hms_allotment_line,hms.allotment.line,model_hms_allotment_line,base.group_user,1,1,1,1
 access_hms_department,hms.department,model_hms_department,base.group_user,1,1,1,1
 access_hms_special_request,hms.special.request,model_hms_special_request,base.group_user,1,1,1,1
-
-access_hms_reservation_user,hms.reservation,model_hms_reservation,hms.group_reservation_user,1,0,0,0
-access_hms_reservation_manager,hms.reservation,model_hms_reservation,hms.group_reservation_manager,1,1,1,1
-
+access_hms_reservation,hms.reservation,model_hms_reservation,base.group_user,1,1,1,1
 access_room_reservation_summary,room.reservation.summary,model_room_reservation_summary,base.group_user,1,1,1,1
 access_hms_reservation_line,hms.reservation.line,model_hms_reservation_line,base.group_user,1,1,1,1
 access_hms_reason,hms.reason,model_hms_reason,base.group_user,1,1,1,1
