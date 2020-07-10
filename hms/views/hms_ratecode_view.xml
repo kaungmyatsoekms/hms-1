@@ -6,39 +6,41 @@
             <field name="model">ratecode.header</field>
             <field name="arch" type="xml">
                 <form string="Rate Code">
-                <sheet>
-                    <separator string="Rate Code" colspan="4" />
-                    <field name="rate_category_id"/>
-                    <div class="o_address_format" >
-                        <label for='rate_code' string="Rate Code" style="width:5.5%%"/>
-                        <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:20%%"/>
-                        <label for="ratecode_name" string=" " style="width:1.5%%"/>
-                        <label for="ratecode_name" string="Description" style="width:6%%"/>
-                        <field name="ratecode_name" placeholder="Description" style="width:20%%"/>
-                        <field name="property_id" class="oe_avatar"/>   
-                    </div>
-                    <div class="o_address_format">
-                        <field name="is_ratecode" invisible='1'/>
-                        <label for="start_date" string="Start Date" style="width:5.5%%"/>                                                                   
-                        <field name="start_date" style="width:20%%"/>
-                        <label for="end_date" string=" " style="width:1.5%%"/>
-                        <label for="end_date" string="End Date" style="width:5.9%%"/>
-                        <field name="end_date" style="width:20%%"/>
-                    </div>
-                    <div class="o_address_format">
-                        <!-- <field name="transaction_ids" invisible='1'/>
+                    <sheet>
+                        <separator string="Rate Code" colspan="4" />
+                        <field name="rate_category_id"/>
+                        <div class="o_address_format">
+                            <label for='rate_code' string="Rate Code" style="width:7%%"/>
+                            <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:20%%"/>
+                            <label for="ratecode_name" string=" " style="width:1.5%%"/>
+                            <label for="ratecode_name" string="Description" style="width:7%%"/>
+                            <field name="ratecode_name" placeholder="Description" style="width:20%%"/>
+                            <field name="property_id" class="oe_avatar"/>
+                        </div>
+                        <div class="o_address_format">
+                            <field name="is_ratecode" invisible='1'/>
+                            <label for="start_date" string="Start Date" style="width:7%%"/>
+                            <field name="start_date" style="width:20%%"/>
+                            <label for="end_date" string=" " style="width:1.5%%"/>
+                            <label for="end_date" string="End Date" style="width:7%%"/>
+                            <field name="end_date" style="width:20%%"/>
+                        </div>
+                        <div class="o_address_format">
+                            <!-- <field name="transaction_ids" invisible='1'/>
                         <label for="transaction_id" string="Trans#" style="width:5.5%%"/>
                         <field name="transcation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" style="width:20%%"/> -->
-                        <label for="ratecode_type" string=" " style="width:1.5%%"/>
-                        <label for="ratecode_type" string="Type" style="width:6%%"/>
-                        <field name="ratecode_type" style="width:20%%"/>
-                    </div>
-                    <notebook>
-                        <page string="Rate Code Details">
-                            <field name="ratecode_details" context="{'default_ratehead_id' : id,'default_property_id' : property_id}" mode="tree" />  
-                        </page>
-                    </notebook>
-                </sheet>
+                            <label for="pkg_group_id" string="Package" style="width:7%%"/>
+                            <field name="pkg_group_id" style="width:20%%"/>
+                            <label for="ratecode_type" string=" " style="width:1.5%%"/>
+                            <label for="ratecode_type" string="Type" style="width:7%%"/>
+                            <field name="ratecode_type" style="width:20%%"/>
+                        </div>
+                        <notebook>
+                            <page string="Rate Code Details">
+                                <field name="ratecode_details" context="{'default_property_id':property_id}" mode="kanban" />
+                            </page>
+                        </notebook>
+                    </sheet>
                 </form>
             </field>
         </record>
@@ -73,22 +75,22 @@
                 <form string="Rate Code Details">
                     <sheet>
                         <div class="o_address_format">
-                            <label for="season_code" string="Season Code" style="width:10%%"/> 
+                            <label for="season_code" string="Season Code" style="width:10%%"/>
                             <field name="season_code" style="width:20%%"/>
                             <field name="roomtype_ids" invisible='1'/>
                             <label for="roomtype_id" string=" " style="width:1.5%%"/>
-                            <label for="roomtype_id" string="RoomType" style="width:10%%"/> 
+                            <label for="roomtype_id" string="RoomType" style="width:10%%"/>
                             <field name="roomtype_id" style="width:20%%" widget="many2many_tags"/>
                             <field name="property_id" class="oe_avatar"/>
                         </div>
                         <div class="o_address_format">
-                            <label for="start_date" string="Start Date" style="width:10%%"/>                                                                   
+                            <label for="start_date" string="Start Date" style="width:10%%"/>
                             <field name="start_date" style="width:20%%"/>
                             <label for="end_date" string=" " style="width:1.5%%"/>
                             <label for="end_date" string="End Date" style="width:10%%"/>
                             <field name="end_date" style="width:20%%"/>
                         </div>
-                        <separator string="Rate Code Details" colspan="4" /> 
+                        <separator string="Rate Code Details" colspan="4" />
                         <group colspan="3" col="3">
                             <group string="Normal">
                                 <field name="normal_price1"/>
@@ -112,9 +114,17 @@
                                 <field name="special_extra"/>
                             </group>
                         </group>
-                        <group colspan="2" col="2">
+                        <group colspan="3" col="3">
+                            <group>
                                 <field name="extra_bed"/>
-                        </group> 
+                            </group>
+                            <group>
+                                <field name="adult_bf"/>
+                            </group>
+                            <group>
+                                <field name="child_bf"/>
+                            </group>
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -130,7 +140,7 @@
                     <field name="property_id"/>
                     <field name="season_code"/>
                     <field name="roomtype_ids" invisible='1'/>
-                    <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"  widget="many2many_tags"/>
+                    <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" widget="many2many_tags"/>
                     <field name="start_date"/>
                     <field name="end_date" />
                     <field name="normal_price1"/>
@@ -202,7 +212,7 @@
         <record id="ratecode_detail_action_window" model="ir.actions.act_window">
             <field name="name">Rate Code Details</field>
             <field name="res_model">ratecode.details</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,kanban,form</field>
         </record>
     </data>
 </odoo>

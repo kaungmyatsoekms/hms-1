@@ -83,5 +83,57 @@
             <field name="res_model">package.header</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+        <!-- Package Group Form View -->
+        <record id="package_group_view_form" model="ir.ui.view">
+            <field name="name">Package Group Form</field>
+            <field name="model">package.group</field>
+            <field name="arch" type="xml">
+                <form string="Package Group">
+                    <sheet>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="property_id" placeholder="Property"/>
+                        <separator string="Package Group" colspan="4"/>
+                        <group>
+                            <group>
+                                <field name="pkg_group_code"/>
+                                <field name="shortcut"/>
+                                <field name="pkg_group_name"/>
+                                <field name="package_id" context="{'default_rate_attribute': 'INR'}" string="Packages" widget="many2many_tags"/>
+                                <field name="addon_pkg_id" context="{'default_rate_attribute': 'ARS'}" string="Add-On" widget="many2many_tags"/>
+                            </group>
+                            <group>
+                                <field name="transaction_id"/>
+                                <field name="include_service"/>
+                                <field name="include_tax"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Package Group List View -->
+        <record id="package_group_view_list" model="ir.ui.view">
+            <field name="name">Package Group List</field>
+            <field name="model">package.group</field>
+            <field name="arch" type="xml">
+                <tree string="Package Groups">
+                    <field name="sequence" widget="handle"/>
+                    <field name="property_id"/>
+                    <field name="pkg_group_code"/>
+                    <field name="pkg_group_name"/>
+                    <field name="transaction_id"/>
+                    <field name="include_service"/>
+                    <field name="include_tax"/>
+                </tree>
+            </field>
+        </record>
+        <!-- action of Package Group -->
+        <record id="package_group_action_window" model="ir.actions.act_window">
+            <field name="name">Package Group</field>
+            <field name="res_model">package.group</field>
+            <field name="view_mode">tree,form</field>
+        </record>
     </data>
 </odoo>

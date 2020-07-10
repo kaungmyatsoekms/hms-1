@@ -27,20 +27,37 @@ class RateCodeHeader(models.Model):
                                   readonly=True)
     rate_code = fields.Char(string="Rate Code", size=10, required=True)
     ratecode_name = fields.Char(string="Description", required=True)
-    start_date = fields.Date(string="Start Date", required=True, default=datetime.today())
+    start_date = fields.Date(string="Start Date",
+                             required=True,
+                             default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
     ratecode_type = fields.Selection(AVAILABLE_RATETYPE,
                                      string="Type",
                                      default='D',
                                      required=True)
-    ratecode_details = fields.One2many('ratecode.details','ratehead_id',
-                                  string="Rate Code Details")
+    ratecode_details = fields.One2many('ratecode.details',
+                                       'ratehead_id',
+                                       string="Rate Code Details")
     rate_category_id = fields.Many2one('rate.categories',
-                                     string="Rate Categories",
-                                     required=True)
+                                       string="Rate Categories",
+                                       required=True)
+    pkg_group_ids = fields.One2many('package.group',
+                                    related="property_id.packagegroup_ids")
+    pkg_group_id = fields.Many2one('package.group',
+                                   string="Package",
+                                   required=True)
 
     def _compute_is_ratecode(self):
         self.is_ratecode = True
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({} {})".format(record.rate_code,
+                                                record.start_date,
+                                                record.end_date)))
+        return result
 
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
@@ -51,8 +68,8 @@ class RateCodeHeader(models.Model):
             raise ValidationError("End Date cannot be set before Start Date.")
 
     @api.model
-    def create(self,values):
-        res = super(RateCodeHeader,self).create(values)
+    def create(self, values):
+        res = super(RateCodeHeader, self).create(values)
 
         if res.header_create is True:
             rate_category_id = res.rate_category_id
@@ -63,10 +80,11 @@ class RateCodeHeader(models.Model):
             ratecode_name = res.ratecode_name
             create = False
 
-            res.rate_category_id.rate_header_ids._update_property_ratecodeheader(rate_category_id,property_id,start_date,end_date,rate_code,ratecode_name,create)
+            res.rate_category_id.rate_header_ids._update_property_ratecodeheader(
+                rate_category_id, property_id, start_date, end_date, rate_code,
+                ratecode_name, create)
 
         return res
-
 
 # Rate Code Detail
 class RateCodeDetails(models.Model):
@@ -113,9 +131,21 @@ class RateCodeDetails(models.Model):
     special_price4 = fields.Float(string="+4 Adult")
     special_extra = fields.Float(string="Extra")
     extra_bed = fields.Float(string="Extra Bed")
+    adult_bf = fields.Float(string="Adult Breakfast")
+    child_bf = fields.Float(string="Child Breakfast")
     package_id = fields.Char(string="Package")
     discount_percent = fields.Float(string="Discount Percentage", default=10.0)
     discount_amount = fields.Float(string="Discount Amount", default=50.0)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id,
+                    "{} | ({} {}) |- {}".format(record.ratehead_id.rate_code,
+                                        record.start_date, record.end_date,
+                                        record.normal_price1)))
+        return result
 
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
@@ -206,7 +236,6 @@ class RateCategories(models.Model):
     #                     _('Start date should be greater than or equal to the current date.'
     #                       ))
     #                 rec.start_date = datetime.now().date()
-
 
 # Rate Code Header for Rate Categories
 class RateCodeHead(models.Model):

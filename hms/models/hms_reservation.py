@@ -728,8 +728,9 @@ class ReservationLine(models.Model):
                                       compute='get_avail_room_ids')
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
-    ratecode_id = fields.Many2one('rate.code', string="Rate Code")
-    room_rate = fields.Float("Room Rate")
+    ratecode_ids = fields.One2many('ratecode.header', related="property_id.ratecodeheader_ids")
+    ratecode_id = fields.Many2one('ratecode.details', domain="[('ratehead_id', '=?', ratecode_ids), ('start_date', '<=', arrival), ('end_date', '>=', departure), ('roomtype_id', '=?', room_type)]")
+    room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
     reason_id = fields.Many2one('hms.reason',
@@ -738,7 +739,9 @@ class ReservationLine(models.Model):
     discount_reason_id = fields.Many2one('hms.reason',
                                          string="Discount Reason",
                                          domain="[('type_id', '=', 2)]")
-    package_id = fields.Many2one('package.package', string="Package")
+    package_id = fields.Many2one('package.group',
+        related="ratecode_id.ratehead_id.pkg_group_id",
+        string="Package")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
@@ -748,7 +751,6 @@ class ReservationLine(models.Model):
     specialrequest_id = fields.One2many('hms.special.request',
                                         'reservationline_id',
                                         string="Special Request")
-
     reservation_user_id = fields.Many2one('res.users',
                                           string="User",
                                           related='reservation_id.user_id')
@@ -757,13 +759,13 @@ class ReservationLine(models.Model):
     cotime = fields.Datetime("Check-Out Time")
 
     extrabed = fields.Integer("Extra Bed")
-    extrabed_amount = fields.Integer("Number of Extra Bed")
+    extrabed_amount = fields.Float("Number of Extra Bed", related="ratecode_id.extra_bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast")
+    extrapax_bf = fields.Float("Extra Pax Breakfast", related="ratecode_id.adult_bf")
     child_bfpax = fields.Integer("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast")
+    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")
 
     pickup = fields.Datetime("Pick Up Time")
@@ -779,6 +781,25 @@ class ReservationLine(models.Model):
 
     room_transaction_line_ids = fields.One2many(
         'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
+
+    # Compute Room Rate based on Pax
+    @api.depends('ratecode_id')
+    def _compute_room_rate(self):
+        for rec in self:
+            pax = rec.pax
+            rate = rec.ratecode_id
+            if pax == 1:
+                rec.room_rate = rate.normal_price1
+            elif pax == 2:
+                rec.room_rate = rate.normal_price1 + rate.normal_price2
+            elif pax == 3:
+                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3
+            elif pax == 4:
+                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4
+            else:
+                x = pax - 4
+                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4 + (
+                    rate.normal_extra * x)
 
     def set_kanban_color(self):
         for record in self:
@@ -813,7 +834,6 @@ class ReservationLine(models.Model):
         @param self: object pointer
         """
         return self.write({ 'color': 2})
-
 
     @api.constrains('arrival')
     def check_arrival_date(self):
@@ -1166,9 +1186,6 @@ class ReservationLine(models.Model):
 
     # @api.onchange('reservation_id')
     # def onchange_hfo_arrival(self):
-
-
-
     @api.onchange('arrival', 'departure', 'room_type', 'rooms')
     def onchange_roomtype(self):
         for rec in self:
@@ -1695,8 +1712,6 @@ class ReservationLine(models.Model):
         for no_show_rsvn_line in no_show_rsvn_lines:
             no_show_rsvn_line.update({'is_no_show': True})
 
-
-
 # Cancel Reservation
 class CancelReservation(models.Model):
     _name = 'hms.cancel.rsvn'
@@ -1782,8 +1797,9 @@ class CancelReservation(models.Model):
                                 domain="[('id', '=?', roomtype_ids)]")
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
-    ratecode_id = fields.Many2one('rate.code', string="Rate Code")
-    room_rate = fields.Float("Room Rate")
+    ratecode_ids = fields.One2many('ratecode.header', related="property_id.ratecodeheader_ids")
+    ratecode_id = fields.Many2one('ratecode.details', domain="[('ratehead_id', '=?', ratecode_ids), ('start_date', '<=', arrival), ('end_date', '>=', departure), ('roomtype_id', '=?', room_type)]")
+    room_rate = fields.Float("Room Rate", related="ratecode_id.normal_price1")
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
     package_id = fields.Many2one('package.package', string="Package")
@@ -1799,14 +1815,14 @@ class CancelReservation(models.Model):
     citime = fields.Datetime("Check-In Time")
     cotime = fields.Datetime("Check-Out Time")
 
-    extrabed = fields.Char("Extra Bed")
-    extrabed_amount = fields.Integer("Number of Extra Bed")
+    extrabed = fields.Integer("Extra Bed")
+    extrabed_amount = fields.Float("Number of Extra Bed", related="ratecode_id.extra_bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
-    extrapax = fields.Float("Extra Pax")
+    extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast")
-    child_bfpax = fields.Float("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast")
+    extrapax_bf = fields.Float("Extra Pax Breakfast", related="ratecode_id.adult_bf")
+    child_bfpax = fields.Integer("Child BF-Pax")
+    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")
 
     pickup = fields.Datetime("Pick Up Time")
