@@ -179,7 +179,7 @@
                                             <field name="rooms"/>
                                             <field name="pax"/>
                                             <field name="child"/>
-                                            <field name="ratecode_ids" invisible="1"/>
+                                            <field name="ratehead_id"/>
                                             <field name="ratecode_id" string="Rate Code"/>
                                             <field name="room_rate" string="Room Rate"/>
                                             <field name="market_ids" invisible="1"/>
@@ -214,7 +214,7 @@
                                         <field name="rooms"/>
                                         <field name="pax"/>
                                         <field name="child"/>
-                                        <field name="ratecode_ids" invisible="1"/>
+                                        <field name="ratehead_id"/>
                                         <field name="ratecode_id" string="Rate Code"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
@@ -461,11 +461,14 @@
                 <form string="Quick Reservation">
                     <sheet>
                         <separator string="Quick Reservation" colspan="4" />
+                        <field name="market_ids" invisible="1"/>
                         <group colspan="4" col="4">
                             <field name="property_id" />
+                            <field name="rooms" />
                             <field name="check_in" />
                             <field name="check_out" />
-                            <field name="rooms" />
+                            <field name="market"/>
+                            <field name="source"/>
                         </group>
                     </sheet>
                     <footer>
@@ -476,13 +479,6 @@
                     </footer>
                 </form>
             </field>
-        </record>
-
-        <!-- Action for Quick Room Reservation -->
-        <record id="action_quick_room_reservation" model="ir.actions.act_window">
-            <field name="name">Quick Reservation</field>
-            <field name="res_model">quick.room.reservation</field>
-            <field name="view_mode">form</field>
         </record>
 
         <!--Reservation Line-->
@@ -518,6 +514,7 @@
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
+                            <field name="property_id"/>
                             <field name="reservation_id" invisible="1"/>
                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1>
@@ -599,7 +596,7 @@
                             <group>
                                 <label for="ratecode_id" string="Rate Code"/>
                                 <div class="address_format">
-                                    <field name="ratecode_ids" invisible="1"/>
+                                    <field name="ratehead_id"/>
                                     <field name="ratecode_id" style="width:33%%"/>
                                     <label for="room_rate" string=" " style="width:5%%"/>
                                     <label for="room_rate" string="Room Rate" style="width:25%%"/>
@@ -720,7 +717,7 @@
                     <field name="rooms"/>
                     <field name="pax" optional="hide"/>
                     <field name="room_no" optional="hide"/>
-                    <field name="ratecode_ids" invisible="1"/>
+                    <field name="ratehead_id"/>
                     <field name="ratecode_id" optional="hide"/>
                     <field name="room_rate"/>
                     <field name="package_id" optional="hide"/>
@@ -1064,7 +1061,7 @@
                                             <field name="rooms"/>
                                             <field name="pax"/>
                                             <field name="child"/>
-                                            <field name="ratecode_ids" invisible="1"/>
+                                            <field name="ratehead_id"/>
                                             <field name="ratecode_id" string="Rate Code"/>
                                             <field name="room_rate" string="Room Rate"/>
                                             <field name="market_ids" invisible="1"/>
@@ -1094,7 +1091,7 @@
                                         <field name="rooms" />
                                         <field name="pax"/>
                                         <field name="child" />
-                                        <field name="ratecode_ids" invisible="1"/>
+                                        <field name="ratehead_id"/>
                                         <field name="ratecode_id" string="Rate Code"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
@@ -1180,6 +1177,7 @@
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
+                            <field name="property_id"/>
                             <field name="reservation_id" invisible="1"/>
                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1>
@@ -1233,7 +1231,7 @@
                                 <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}"/>
                                 <label for="ratecode_id" string="Rate Code"/>
                                 <div class="address_format">
-                                    <field name="ratecode_ids" invisible="1"/>
+                                    <field name="ratehead_id"/>
                                     <field name="ratecode_id" style="width:35%%"/>
                                     <label for="room_rate" string="Room Rate" style="width: 28%%"/>
                                     <field name="room_rate" style="width:35%%"/>
@@ -1406,7 +1404,6 @@
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
 
-        <menuitem id="quick_reservation_menu" name="Quick Reservation" parent="hms_menu_rsvn" sequence="3" action="action_quick_room_reservation"/>
         <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />
         <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
         <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>

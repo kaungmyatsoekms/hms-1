@@ -43,7 +43,7 @@ odoo.define('hms.hotel_room_summary', function (require) {
                     res_model: "quick.room.reservation",
                     views: [[false, 'form']],
                     target: 'new',
-                    context: { "property_id": $(this).attr("data"), 'date': $(this).attr("date"), 'default_rooms': 1 },
+                    context: { 'date': $(this).attr("date"), 'default_rooms': 1 },
                 });
             });
         },

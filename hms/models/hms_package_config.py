@@ -40,6 +40,8 @@ class Package(models.Model):
                             default=True,
                             track_visibility=True)
     sequence = fields.Integer(default=1)
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   readonly=True,
@@ -107,12 +109,12 @@ class Package(models.Model):
                                       string="Attribute",
                                       index=True,
                                       default=RATE_ATTRIBUTE[0][0],
-                                      compute='_compute_rate_attribute',
-                                      inverse='_write_rate_attribute')
-    is_include_rate = fields.Boolean(string="Is include in rate?",
-                                     default=False)
-    is_addon_rate = fields.Boolean(string="Is additional in rate?",
-                                   default=False)
+                                      compute='_compute_attribute_type',
+                                      inverse='_write_attribute_type')
+    # is_include_rate = fields.Boolean(string="Is include in rate?",
+    #                                  default=False)
+    # is_addon_rate = fields.Boolean(string="Is additional in rate?",
+    #                                default=False)
     package_group_id = fields.Many2one('package.group', string="Package Group")
     pkg_group_id = fields.Many2one('package.group', string="Package Group")
 
@@ -121,36 +123,36 @@ class Package(models.Model):
         'Package code already exists with this name! Package code must be unique!'
     )]
 
-    @api.depends('is_include_rate', 'is_addon_rate')
-    def _compute_rate_attribute(self):
-        for record in self:
-            if record.is_include_rate or self._context.get(
-                    'default_rate_attribute') == 'INR':
-                record.rate_attribute = 'INR'
-                record.is_include_rate = True
-            elif record.is_addon_rate or self._context.get(
+    @api.depends('rate_separate_line', 'rate_combined_line')
+    def _compute_attribute_type(self):
+        for package in self:
+            if package.rate_separate_line or self._context.get(
                     'default_rate_attribute') == 'ARS':
-                record.rate_attribute = 'ARS'
-                record.is_addon_rate = True
+                package.rate_attribute = 'ARS'
+                package.rate_separate_line = True
+            elif package.rate_combined_line or self._context.get(
+                    'default_rate_attribute') == 'ARC':
+                package.rate_attribute = 'ARC'
+                package.rate_combined_line = True
             else:
-                record.rate_attribute = 'ARC'
+                package.rate_attribute = 'INR'
 
-    def _write_rate_attribute(self):
-        for record in self:
-            record.is_include_rate = record.rate_attribute == 'INR'
-            record.is_addon_rate = record.rate_attribute == 'ARS'
+    def _write_attribute_type(self):
+        for package in self:
+            package.rate_separate_line = package.rate_attribute == 'ARS'
+            package.rate_combined_line = package.rate_attribute == 'ARC'
 
     @api.onchange('rate_attribute')
-    def onchange_rate_attribute(self):
-        if self.rate_attribute == 'INR':
-            self.is_include_rate = True
-            self.is_addon_rate = False
-        elif self.rate_attribute == 'ARS':
-            self.is_include_rate = False
-            self.is_addon_rate = True
+    def onchange_attribute_type(self):
+        if self.rate_attribute == 'ARS':
+            self.rate_separate_line = True
+            self.rate_combined_line = False
         elif self.rate_attribute == 'ARC':
-            self.is_include_rate = False
-            self.is_addon_rate = False
+            self.rate_separate_line = False
+            self.rate_combined_line = True
+        elif self.rate_attribute == 'INR':
+            self.rate_separate_line = False
+            self.rate_combined_line = False
 
 
 class PackageGroup(models.Model):
@@ -172,11 +174,11 @@ class PackageGroup(models.Model):
     package_id = fields.One2many('package.header',
                                  'package_group_id',
                                  string="Packages",
-                                 domain="[('is_include_rate','=?',True)]")
+                                 domain="[('rate_attribute','=?','INR')]")
     addon_pkg_id = fields.One2many('package.header',
                                    'pkg_group_id',
                                    string="Add-On",
-                                   domain="[('is_addon_rate','=?',True)]")
+                                   domain="[('rate_attribute','!=','INR')]")
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',
