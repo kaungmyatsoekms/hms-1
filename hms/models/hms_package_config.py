@@ -39,6 +39,8 @@ class Package(models.Model):
     rate_combined_line = fields.Boolean(default=False)
     active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   readonly=True,
@@ -76,7 +78,12 @@ class Package(models.Model):
                               index=True,
                               default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
-    rate_attribute = fields.Selection(RATE_ATTRIBUTE,string="Attribute",index=True,default=RATE_ATTRIBUTE[0][0])
+    rate_attribute = fields.Selection(RATE_ATTRIBUTE,
+                                      string="Attribute",
+                                      index=True,
+                                      default=RATE_ATTRIBUTE[0][0],
+                                      compute='_compute_attribute_type',
+                                      inverse='_write_attribute_type')
     package_group_id = fields.Many2one('package.group', string="Package Group")
     pkg_group_id = fields.Many2one('package.group', string="Package Group")
   

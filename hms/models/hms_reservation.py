@@ -7,6 +7,7 @@ from odoo.tools import *
 from datetime import datetime, date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
 import pytz
+import calendar
 
 
 class HMSReason(models.Model):
@@ -135,7 +136,6 @@ class Reservation(models.Model):
         string="Contact")
     reservation_type = fields.Many2one('rsvn.type',
                                        string="Reservation Type",
-                                       required=True,
                                        readonly=True,
                                        default=2, store=True)
     reservation_status = fields.Many2one(
@@ -664,7 +664,8 @@ class ReservationLine(models.Model):
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   readonly=True,
-                                  related='reservation_id.property_id')
+                                  related='reservation_id.property_id',
+                                  store=True)
     confirm_no = fields.Char(string="Confirm No.",
                              readonly=True,
                              related='reservation_id.confirm_no')
@@ -728,8 +729,16 @@ class ReservationLine(models.Model):
                                       compute='get_avail_room_ids')
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
-    ratecode_ids = fields.One2many('ratecode.header', related="property_id.ratecodeheader_ids")
-    ratecode_id = fields.Many2one('ratecode.details', domain="[('ratehead_id', '=?', ratecode_ids), ('start_date', '<=', arrival), ('end_date', '>=', departure), ('roomtype_id', '=?', room_type)]")
+    ratehead_id = fields.Many2one(
+        'ratecode.header',
+        domain=
+        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
+    )
+    ratecode_id = fields.Many2one(
+        'ratecode.details',
+        domain=
+        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
+    )
     room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
@@ -778,7 +787,7 @@ class ReservationLine(models.Model):
     visa_issue = fields.Date("Visa Issue Date")
     visa_expire = fields.Date("Visa Expired Date")
     arrive_reason_id = fields.Char("Arrive Reason")
-
+    weekend_id = fields.Many2one('weekend.weekend', "Weekend")
     room_transaction_line_ids = fields.One2many(
         'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
 
@@ -786,6 +795,8 @@ class ReservationLine(models.Model):
     @api.depends('ratecode_id')
     def _compute_room_rate(self):
         for rec in self:
+            arrival = datetime.strptime(str(rec.arrival), '%Y-%m-%d').weekday()
+            temp = (calendar.day_name[arrival])
             pax = rec.pax
             rate = rec.ratecode_id
             if pax == 1:
@@ -2012,12 +2023,19 @@ class QuickRoomReservation(models.TransientModel):
     _name = 'quick.room.reservation'
     _description = 'Quick Room Reservation'
 
-    check_in = fields.Datetime('Check In', required=True)
-    check_out = fields.Datetime('Check Out', required=True)
+    property_id = fields.Many2one('property.property', 'Hotel', required=True)
+    check_in = fields.Date('Check In', required=True)
+    check_out = fields.Date('Check Out', required=True)
     rooms = fields.Integer('Rooms', required=True)
+    market_ids = fields.Many2many('market.segment',
+                                  related="property_id.market_ids")
+    market = fields.Many2one('market.segment',
+                             string="Market",
+                             domain="[('id', '=?', market_ids)]",
+                             required=True)
+    source = fields.Many2one('market.source', string="Source", required=True)
     # roomtype_id = fields.Many2one('room.type', 'Room Type', required=True)
     # room_id = fields.Many2one('property.room', 'Room', required=True)
-    property_id = fields.Many2one('property.property', 'Hotel', required=True)
     # adults = fields.Integer('Adults', size=64)
 
     @api.onchange('check_out', 'check_in')
@@ -2058,19 +2076,21 @@ class QuickRoomReservation(models.TransientModel):
 
     def room_reserve(self):
         """
-        This method create a new record for hotel.reservation
+        This method create a new record for hms.reservation
         -----------------------------------------------------
         @param self: The object pointer
         @return: new record set for hotel reservation.
         """
         hotel_res_obj = self.env['hms.reservation']
         for res in self:
-            rec = (hotel_res_obj.create({
+            rec = hotel_res_obj.create({
                 'arrival': res.check_in,
                 'departure': res.check_out,
                 'property_id': res.property_id.id,
                 'rooms': res.rooms,
-            }))
+                'market': res.market.id,
+                'source': res.source.id,
+            })
         return rec
 
 class OverBooking(models.Model):

@@ -43,9 +43,13 @@ class RateCodeHeader(models.Model):
                                        required=True)
     pkg_group_ids = fields.One2many('package.group',
                                     related="property_id.packagegroup_ids")
-    pkg_group_id = fields.Many2one('package.group',
-                                   string="Package",
-                                   required=True)
+    pkg_group_id = fields.Many2one('package.group', string="Package")
+
+    _sql_constraints = [(
+        'rateheader_code_unique',
+        'UNIQUE(property_id, rate_category_id, rate_code)',
+        'Rate header code already exists with this name! Rate header code must be unique!'
+    )]
 
     _sql_constraints = [(
         'rate_code_unique', 'UNIQUE(property_id,rate_category_id,rate_code,ratecode_name)',
@@ -67,10 +71,12 @@ class RateCodeHeader(models.Model):
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
     def get_two_date_comp(self):
-        startdate = self.start_date
-        enddate = self.end_date
-        if startdate and enddate and startdate > enddate:
-            raise ValidationError("End Date cannot be set before Start Date.")
+        for rec in self:
+            startdate = rec.start_date
+            enddate = rec.end_date
+            if startdate and enddate and startdate > enddate:
+                raise ValidationError(
+                    "End Date cannot be set before Start Date.")
 
     @api.model
     def create(self, values):
@@ -114,11 +120,20 @@ class RateCodeDetails(models.Model):
     season_code = fields.Char(string="Season", size=10, required=True)
     roomtype_ids = fields.Many2many("room.type",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.One2many('room.type','rate_id',
-                                  string="Room Type",
-                                  domain="[('id', '=?', roomtype_ids)]",
-                                  required=True)
-    start_date = fields.Date(string="Start Date", required=True, default=datetime.today())
+    roomtype_id = fields.Many2many('room.type',
+                                   string="Room Type",
+                                   store=True,
+                                   domain="[('id', '=?', roomtype_ids)]",
+                                   required=True)
+    # roomtype_id = fields.One2many('room.type',
+    #                               'rate_id',
+    #                               string="Room Type",
+    #                               store=True,
+    #                               domain="[('id', '=?', roomtype_ids)]",
+    #                               required=True)
+    start_date = fields.Date(string="Start Date",
+                             required=True,
+                             default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
     normal_price1 = fields.Float(string="1 Adult")
     normal_price2 = fields.Float(string="+2 Adult")
@@ -142,14 +157,28 @@ class RateCodeDetails(models.Model):
     discount_percent = fields.Float(string="Discount Percentage", default=10.0)
     discount_amount = fields.Float(string="Discount Amount", default=50.0)
 
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         result.append(
+    #             (record.id,
+    #              "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".
+    #              format(record.ratehead_id.rate_code, record.start_date,
+    #                     record.end_date, record.normal_price1,
+    #                     record.normal_price2, record.normal_price3,
+    #                     record.normal_price4, record.normal_extra)))
+    #     return result
+
     def name_get(self):
         result = []
         for record in self:
             result.append(
                 (record.id,
-                    "{} | ({} {}) | 1Pax-{}|".format(record.ratehead_id.rate_code,
-                                        record.start_date, record.end_date,
-                                        record.normal_price1)))
+                 "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".
+                 format(record.season_code, record.start_date, record.end_date,
+                        record.normal_price1, record.normal_price2,
+                        record.normal_price3, record.normal_price4,
+                        record.normal_extra)))
         return result
 
     @api.onchange('start_date', 'end_date')
