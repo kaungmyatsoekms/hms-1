@@ -47,6 +47,11 @@ class RateCodeHeader(models.Model):
                                    string="Package",
                                    required=True)
 
+    _sql_constraints = [(
+        'rate_code_unique', 'UNIQUE(property_id,rate_category_id,rate_code,ratecode_name)',
+        'Rate Code already exists! Rate Code Name and Description must be unique!'
+    )]
+
     def _compute_is_ratecode(self):
         self.is_ratecode = True
 
@@ -142,7 +147,7 @@ class RateCodeDetails(models.Model):
         for record in self:
             result.append(
                 (record.id,
-                    "{} | ({} {}) |- {}".format(record.ratehead_id.rate_code,
+                    "{} | ({} {}) | 1Pax-{}|".format(record.ratehead_id.rate_code,
                                         record.start_date, record.end_date,
                                         record.normal_price1)))
         return result
@@ -156,23 +161,23 @@ class RateCodeDetails(models.Model):
             if startdate and enddate and startdate > enddate:
                 raise ValidationError("End Date cannot be set before Start Date.")
 
-    @api.onchange('start_date')
-    @api.constrains('start_date')
+    @api.onchange('start_date', 'end_date','roomtype_id')
+    @api.constrains('start_date', 'end_date', 'roomtype_id')
     def check_date_range(self):
-        start_date = self.start_date
-        end_date = self.end_date
-        s_id = self.id
-        ss_id = self._origin.id
         
-        for rec in self.ratehead_id.ratecode_details:
-            r_id = rec.id
-            rr_id = rec._origin.id
-            rec_sd = rec.start_date
-            rec_ed = rec.end_date
-            if rec.start_date and rec.end_date and rec.id != self.id:
-                if self.start_date < rec.end_date and self.end_date > rec.start_date:
-                    raise ValidationError(
-                _("There is already a season code which overlaps your date range"))
+        for current in self:
+            count = 0
+            for rec in current.ratehead_id.ratecode_details:
+                if rec.start_date and rec.end_date and current.start_date and current.end_date:
+                    if current.start_date <= rec.end_date and current.end_date >= rec.start_date:
+                        for s_roomtype in current.roomtype_id:
+                            if s_roomtype._origin.id in rec.roomtype_id.ids:
+                                count += 1
+                                break
+            if count > 1:
+                raise ValidationError(
+            _("One of your room type have overlapping date range"))
+
 
     @api.onchange('start_date')
     def get_start_date(self):
@@ -180,15 +185,33 @@ class RateCodeDetails(models.Model):
         tmp_end_date = date(1000, 1, 11)
         prv_ratecode_details = self.env['ratecode.details']
         for rec in self.ratehead_id.ratecode_details:
-
-            end_date = rec.end_date
-            if end_date:
-                if rec.id != self.id:
+            if not self.start_date:
+                end_date = rec.end_date
+                if end_date:
                     if end_date > tmp_end_date:
                         tmp_end_date = end_date
                         prv_ratecode_details = rec
         if prv_ratecode_details:
             self.start_date = prv_ratecode_details.end_date + timedelta(days=1)
+        elif not prv_ratecode_details and not self.start_date:
+            self.start_date = datetime.today()
+
+    @api.onchange('start_date', 'end_date')
+    @api.constrains('start_date', 'end_date')
+    def check_header_date_range(self):
+
+        for current in self:
+            header_start_date = current.ratehead_id.start_date
+            header_end_date = current.ratehead_id.end_date
+
+            cur_start_date = current.start_date
+            cur_end_date = current.end_date
+
+            if header_end_date and header_start_date and cur_start_date and cur_end_date:
+                # if not (cur_start_date < header_end_date and cur_end_date > header_start_date):
+                #     raise ValidationError(_("Season Code date range must be within Rate Code date range"))
+                if cur_start_date < header_start_date or cur_end_date > header_end_date:
+                    raise ValidationError(_("Season Code date range must be within Rate Code date range"))
 
 # Rate Code Categories
 class RateCategories(models.Model):

@@ -14,6 +14,7 @@
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
     
+      
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -63,10 +64,10 @@
             <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
-              <h3><field name="name" placeholder="Hotel Name" style="width:50%%"/></h3>
+              <h3><field name="name" placeholder="Hotel Name" style="width:73%%"/></h3>
               <!-- s -->
-              <h4><field name="code" style="width:50%%"/></h4>
-              <h4><field name="hotelgroup_id" style="width:51%%"/></h4>
+              <h4><field name="code" style="width:73%%"/></h4>
+              <h4><field name="hotelgroup_id" style="width:76%%"/></h4>
             </div>
             <newline/>
             <group>
@@ -106,9 +107,9 @@
                 </div>
                 <label for="roomqty" string="Total / Dummy Rooms"/>
                 <div class="o_address_format">
-                  <field name="roomqty" style="width:30%%"/>
-                  <label for="dummy_rooms" string=" " style="width:0.01em"/>
-                  <field name="dummy_rooms" style="width:30%%" force_save="1"/>
+                  <field name="roomqty" style="width:16.5%%"/>
+                  <!-- <label for="dummy_rooms" string=" " style="width:0.01em"/> -->
+                  <field name="dummy_rooms" style="width:16.5%%" force_save="1"/>
                 </div>
               </group>
               <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
@@ -1257,6 +1258,7 @@
         </tree>
       </field>
     </record>
+
 
     <record id="transaction_view_search" model="ir.ui.view">
       <field name="name">transaction.transaction.search</field>
