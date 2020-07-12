@@ -93,6 +93,7 @@
               </group>
              <group>
              <newline/>
+                <field name="timezone"/>
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
@@ -241,6 +242,7 @@
         <tree string="Property">
           <field name="name"/>
           <field name="code"/>
+          <field name="timezone"/>
           <field name="city_id" optional="show"/>
           <field name="state_id" optional="hide"/>
           <field name="country_id" optional="show"/>
@@ -270,6 +272,7 @@
           <field name="email"/>
           <field name="website"/>
           <field name="rating"/>
+          <field name="timezone"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
@@ -319,6 +322,7 @@
                 <div class="oe_kanban_details">
                   <div><field name="name"/></div>
                   <div><field name="hotelgroup_id"/></div>
+                  <div><field name="timezone"/></div>
                   <div>
                     <field t-if="record.city_id.raw_value" name="city_id"/>
                     <field t-if="record.country_id.raw_value" name="country_id"/>

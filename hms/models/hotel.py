@@ -1,6 +1,6 @@
 import base64
 import logging
-
+import pytz
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
@@ -9,6 +9,16 @@ from odoo.tools import *
 from datetime import datetime,date, timedelta
 _logger = logging.getLogger(__name__)
 import math
+
+_tzs = [
+    (tz, tz)
+    for tz in sorted(pytz.all_timezones,
+                     key=lambda tz: tz if not tz.startswith('Etc/') else '_')
+]
+
+
+def _tz_get(self):
+    return _tzs
 
 AVAILABLE_STARS = [
     ('0', 'Low'),
@@ -141,6 +151,16 @@ class Property(models.Model):
                               default=AVAILABLE_STARS[0][0])
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
+    timezone = fields.Selection(
+        _tz_get,
+        string='Timezone',
+        default=lambda self: self._context.get('tz'),
+        track_visibility=True,
+        help=
+        "The partner's timezone, used to output proper date and time values "
+        "inside printed reports. It is important to set a value for this field. "
+        "You should use the same timezone that is otherwise used to pick and "
+        "render date and time values: your computer's timezone.")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(

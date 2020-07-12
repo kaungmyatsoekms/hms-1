@@ -1389,6 +1389,17 @@ class ReservationLine(models.Model):
                     'visa_expire': self.visa_expire,
                 }))
             self.reservation_id.update({'reservation_line_ids': vals})
+        # return {
+        #     'name':_('Copy'),
+        #     'view_type':'form',
+        #     'view_mode':'form',
+        #     'view_id':self.env.ref('hms.property_room_view_form').id,
+        #     'res_model':'property.room',
+        #     'context':"{'type':'out_propertyroom'}",
+        #     'type': 'ir.actions.client',
+        #     'tag': 'reload',
+        #     'target':'new',
+        # }
         return {
             'type': 'ir.actions.client',
             'tag': 'reload',
@@ -1808,9 +1819,15 @@ class CancelReservation(models.Model):
                                 domain="[('id', '=?', roomtype_ids)]")
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
-    ratecode_ids = fields.One2many('ratecode.header', related="property_id.ratecodeheader_ids")
-    ratecode_id = fields.Many2one('ratecode.details', domain="[('ratehead_id', '=?', ratecode_ids), ('start_date', '<=', arrival), ('end_date', '>=', departure), ('roomtype_id', '=?', room_type)]")
-    room_rate = fields.Float("Room Rate", related="ratecode_id.normal_price1")
+    ratehead_id = fields.Many2one(
+        'ratecode.header',
+        domain=
+        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]")
+    ratecode_id = fields.Many2one(
+        'ratecode.details',
+        domain=
+        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]")
+    room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
     package_id = fields.Many2one('package.package', string="Package")

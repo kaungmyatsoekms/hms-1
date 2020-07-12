@@ -1198,7 +1198,6 @@
                                     <field name="dep_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
                                     <field name="etd" style="width:15%%" placeholder="ETD" widget="float_time"/>
                                 </div>
-<<<<<<< HEAD
                                 <label for="nights" string="Nights"/>
                                 <div class="address_Format">
                                     <field name="nights" string="Nights" style="width:20%%; text-align:centre"/>
@@ -1208,25 +1207,6 @@
                                     <field name="bedtype_id" placeholder="Bed Type" style="width:20%%" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/> -->
                                     <field name="rooms" placeholder="Rooms" style="width:20%%"/>
                                     <field name="room_no" placeholder="Room No" style="width:20%%" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
-=======
-                                <field name="roomtype_ids" invisible="1"/>
-                                <field name="room_type" string="Room Type"/>
-                                <label for="rooms" string="Rooms"/>
-                                <div class="address_format">
-                                    <field name="rooms" placeholder="Rooms" style="width: 26%%"/>
-                                    <label for="pax" string="Pax" style="width:9%"/>
-                                    <field name="pax" placeholder="Pax" style="width: 26%%"/>
-                                    <label for="child" string="Child" style="width:9%%"/>
-                                    <field name="child" placeholder="Child" style="width:26%%"/>
-                                </div>
-                                <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}"/>
-                                <label for="ratecode_id" string="Rate Code"/>
-                                <div class="address_format">
-                                    <field name="ratehead_id"/>
-                                    <field name="ratecode_id" style="width:35%%"/>
-                                    <label for="room_rate" string="Room Rate" style="width: 28%%"/>
-                                    <field name="room_rate" style="width:35%%"/>
->>>>>>> 05012c54152bb3cee55d37cc3eeb885be6a0738c
                                 </div>
                                 <label for="pax" string="Pax / Child"/>
                                 <div class="address_format">
@@ -1251,7 +1231,7 @@
                                 <field name="allotment_id" placeholder="Allotment"/>
                                 <label for="ratecode_id" string="Rate Code / Room Rate"/>
                                 <div class="address_format">
-                                    <field name="ratecode_ids" invisible="1"/>
+                                    <field name="ratehead_id"/>
                                     <field name="ratecode_id" style="width:33%%"/>
                                     <field name="room_rate" style="width:33%%"/>
                                 </div>
@@ -1402,19 +1382,12 @@
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
-<<<<<<< HEAD
             
             <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary"
                 action="action_hotel_reservation_summary" parent="reservation_menu"
                 sequence="3" />
             <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
             <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
-=======
-
-        <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />
-        <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
-        <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
->>>>>>> 05012c54152bb3cee55d37cc3eeb885be6a0738c
         <menuitem id="cancellation_menu" name="Cancellation" parent="hms_menu_rsvn" sequence="2"/>
         <menuitem id="full_cancel" name="Cancellation Group" parent="cancellation_menu" sequence="1" action="cancel_full_action_window"/>
         <menuitem id="cancellation_list" name="Cancellation List" parent="cancellation_menu" sequence="2" action="cancel_line_action_window"/>

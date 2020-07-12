@@ -22,6 +22,7 @@ CALCUATION_METHODS = [
     ('PP','Per Person'),
     ('PA','Per Adult'),
     ('PC', 'Per Child'),
+    ('PR','Per Room'),
 ]
 
 RATE_ATTRIBUTE = [
@@ -140,13 +141,18 @@ class PackageGroup(models.Model):
     shortcut = fields.Char(string="ShortCut")
     pkg_group_name = fields.Char(string="Group Name", required=True)
     package_id = fields.One2many('package.header',
-                                'package_group_id',
-                                string="Packages",
-                                domain="[('rate_attribute','=?','INR')]")
+                                 'package_group_id',
+                                 string="Packages",
+                                 domain="[('rate_attribute','=?','INR')]")
     addon_pkg_id = fields.One2many('package.header',
-                                'pkg_group_id',
-                                string="Add-On",
-                                domain="[('rate_attribute','!=','INR')]")
+                                   'pkg_group_id',
+                                   string="Add-On",
+                                   domain="[('rate_attribute','!=','INR')]")
+    transaction_id = fields.Many2one(
+        'transaction.transaction',
+        string='Transaction',
+        domain=
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',
