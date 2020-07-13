@@ -1,6 +1,6 @@
 import base64
 import logging
-
+import pytz
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
@@ -9,6 +9,16 @@ from odoo.tools import *
 from datetime import datetime,date, timedelta
 _logger = logging.getLogger(__name__)
 import math
+
+_tzs = [
+    (tz, tz)
+    for tz in sorted(pytz.all_timezones,
+                     key=lambda tz: tz if not tz.startswith('Etc/') else '_')
+]
+
+
+def _tz_get(self):
+    return _tzs
 
 AVAILABLE_STARS = [
     ('0', 'Low'),
@@ -57,7 +67,6 @@ AVAILABLE_PERCENTAGE = [
     ('90', '90 %'),
     ('100', '100 %'),
 ]
-
 
 class Property(models.Model):
     _name = "property.property"
@@ -142,6 +151,16 @@ class Property(models.Model):
                               default=AVAILABLE_STARS[0][0])
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     image = fields.Binary(string='Image', attachment=True, store=True)
+    timezone = fields.Selection(
+        _tz_get,
+        string='Timezone',
+        default=lambda self: self._context.get('tz'),
+        track_visibility=True,
+        help=
+        "The partner's timezone, used to output proper date and time values "
+        "inside printed reports. It is important to set a value for this field. "
+        "You should use the same timezone that is otherwise used to pick and "
+        "render date and time values: your computer's timezone.")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -190,6 +209,9 @@ class Property(models.Model):
     packageheader_ids = fields.One2many('package.header',
                                   'property_id',
                                   string="Package")
+    packagegroup_ids = fields.One2many('package.group',
+                                       'property_id',
+                                       string="Package Group")
     subgroup_ids = fields.One2many('sub.group',
                                    'property_id',
                                    string="Sub Group")
@@ -534,6 +556,29 @@ class Property(models.Model):
         }
         return action
 
+    def action_package_group(self):
+        package_groups = self.mapped('packagegroup_ids')
+        action = self.env.ref('hms.package_group_action_window').read()[0]
+        if len(package_groups) >= 1:
+            action['domain'] = [('id', 'in', package_groups.ids)]
+        elif len(package_groups) == 0:
+            form_view = [(self.env.ref('hms.package_group_view_form').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = package_groups.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        context = {
+            'default_type': 'out_package_group',
+        }
+        return action
+
     def action_building_count(self):
         buildings = self.mapped('building_ids')
         action = self.env.ref('hms.building_action_window').read()[0]
@@ -764,6 +809,7 @@ class Property(models.Model):
                     'building_id' : building_id.id,
                     'roomlocation_id' : location_id.id,
                     'room_bedqty' : 1,
+                    'is_hfo' : True,
                 })
                 room_no += 1
         
@@ -962,7 +1008,6 @@ class Property(models.Model):
                         'color': rt_avail_obj.color,
                         }))
                         new_avail_obj.update({'avail_roomtype_ids': vals})
-
 
 class Property_roomtype(models.Model):
     _name = "property.roomtype"
@@ -1274,6 +1319,7 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
     _group = 'roomlocation_id'
 
+    is_hfo = fields.Boolean(default = False)
     sequence = fields.Integer (default=1)
     zip_type = fields.Boolean(string= "Zip?", default=False)
     is_roomtype_fix = fields.Boolean(string = "Fixed Type?", readonly=False, related="roomtype_id.fix_type")
@@ -1327,6 +1373,8 @@ class PropertyRoom(models.Model):
     bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
     bedtype_id = fields.Many2one('bed.type', domain="[('id', '=?', bedtype_ids)]" )
     no_of_pax = fields.Integer(string="Allow Pax", default=2)
+    room_reservation_line_ids = fields.One2many('hms.reservation.line',
+                                                'room_no')
 
     _sql_constraints = [
         ('room_no_unique', 'UNIQUE(property_id, room_no)',
@@ -1370,16 +1418,23 @@ class PropertyRoom(models.Model):
                 return {'domain': domain}
     
     # Room location link with Building
-    @api.onchange('building_id')
-    def onchange_room_location_id(self):
-        location_list = []
-        domain = {}
-        for rec in self:
-            if (rec.building_id.location_ids):
-                for location in rec.building_id.location_ids:
-                    location_list.append(location.id)
-                domain = {'roomlocation_id': [('id', 'in', location_list)]}
-                return {'domain': domain}
+    # @api.onchange('building_id')
+    # def onchange_room_location_id(self):
+    #     location_list = []
+    #     domain = {}
+    #     for rec in self:
+    #         if (rec.building_id.location_ids):
+    #             for location in rec.building_id.location_ids:
+    #                 location_list.append(location.id)
+    #             domain = {'roomlocation_id': [('id', 'in', location_list)]}
+    #             return {'domain': domain}
+
+    @api.onchange('roomtype_id')
+    def check_is_hfo(self):
+        for record in self:
+            if record.roomtype_id:
+                if record.roomtype_id.code[0] == 'H':
+                    record.is_hfo = True
 
 
 class MarketSegment(models.Model):
@@ -1593,7 +1648,7 @@ class SubGroup(models.Model):
 
     property_id = fields.Many2one('property.property',
                                   string="Property",
-                                  required=True)
+                                  required=True,  default=lambda self: self.env.user.property_id.id)
     revtype_id = fields.Many2one('revenue.type',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
@@ -1667,6 +1722,7 @@ class Transaction(models.Model):
     root_id = fields.Many2one('transaction.root',
                               compute='_compute_transaction_root',
                               store=True)
+    allowed_pkg = fields.Boolean(string="Allow Package?")
     ratecode_ids = fields.One2many('rate.code',
                                    'transcation_id',
                                    string="Rate Code")

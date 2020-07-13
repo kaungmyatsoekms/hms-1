@@ -86,4 +86,18 @@ class RoomNoCopyWizard(models.TransientModel):
             'tag': 'reload',
             # 'target':'new',
         }
+
+        # return {
+        #     'name':_('Copy'),
+        #     'view_type':'form',
+        #     'view_mode':'form',
+        #     'view_id':self.env.ref('hms.view_roomno_copy_wiz').id,
+        #     'res_model':'hms.roomno_copy_wizard',
+        #     'context':"{'type':'out_roomno_copy_wizard'}",
+        #     'type': 'ir.actions.client',
+        #     'tag': 'reload',
+        #     'target':'new',
+        # }
+
+        
         

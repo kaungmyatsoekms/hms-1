@@ -27,17 +27,23 @@ class RateCodeHeader(models.Model):
                                   readonly=True)
     rate_code = fields.Char(string="Rate Code", size=10, required=True)
     ratecode_name = fields.Char(string="Description", required=True)
-    start_date = fields.Date(string="Start Date", required=True, default=datetime.today())
+    start_date = fields.Date(string="Start Date",
+                             required=True,
+                             default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
     ratecode_type = fields.Selection(AVAILABLE_RATETYPE,
                                      string="Type",
                                      default='D',
                                      required=True)
-    ratecode_details = fields.One2many('ratecode.details','ratehead_id',
-                                  string="Rate Code Details")
+    ratecode_details = fields.One2many('ratecode.details',
+                                       'ratehead_id',
+                                       string="Rate Code Details")
     rate_category_id = fields.Many2one('rate.categories',
-                                     string="Rate Categories",
-                                     required=True)
+                                       string="Rate Categories",
+                                       required=True)
+    pkg_group_ids = fields.One2many('package.group',
+                                    related="property_id.packagegroup_ids")
+    pkg_group_id = fields.Many2one('package.group', string="Package")
 
     _sql_constraints = [(
         'rate_code_unique', 'UNIQUE(property_id,rate_category_id,rate_code,ratecode_name)',
@@ -47,17 +53,28 @@ class RateCodeHeader(models.Model):
     def _compute_is_ratecode(self):
         self.is_ratecode = True
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({} {})".format(record.rate_code,
+                                                record.start_date,
+                                                record.end_date)))
+        return result
+
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
     def get_two_date_comp(self):
-        startdate = self.start_date
-        enddate = self.end_date
-        if startdate and enddate and startdate > enddate:
-            raise ValidationError("End Date cannot be set before Start Date.")
+        for rec in self:
+            startdate = rec.start_date
+            enddate = rec.end_date
+            if startdate and enddate and startdate > enddate:
+                raise ValidationError(
+                    "End Date cannot be set before Start Date.")
 
     @api.model
-    def create(self,values):
-        res = super(RateCodeHeader,self).create(values)
+    def create(self, values):
+        res = super(RateCodeHeader, self).create(values)
 
         if res.header_create is True:
             rate_category_id = res.rate_category_id
@@ -68,7 +85,9 @@ class RateCodeHeader(models.Model):
             ratecode_name = res.ratecode_name
             create = False
 
-            res.rate_category_id.rate_header_ids._update_property_ratecodeheader(rate_category_id,property_id,start_date,end_date,rate_code,ratecode_name,create)
+            res.rate_category_id.rate_header_ids._update_property_ratecodeheader(
+                rate_category_id, property_id, start_date, end_date, rate_code,
+                ratecode_name, create)
 
         return res
 
@@ -96,10 +115,19 @@ class RateCodeDetails(models.Model):
     roomtype_ids = fields.Many2many("room.type",
                                     related="property_id.roomtype_ids")
     roomtype_id = fields.Many2many('room.type',
-                                  string="Room Type",
-                                  domain="[('id', '=?', roomtype_ids)]",
-                                  required=True)
-    start_date = fields.Date(string="Start Date", required=True)
+                                   string="Room Type",
+                                   store=True,
+                                   domain="[('id', '=?', roomtype_ids)]",
+                                   required=True)
+    # roomtype_id = fields.One2many('room.type',
+    #                               'rate_id',
+    #                               string="Room Type",
+    #                               store=True,
+    #                               domain="[('id', '=?', roomtype_ids)]",
+    #                               required=True)
+    start_date = fields.Date(string="Start Date",
+                             required=True,
+                             default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
     normal_price1 = fields.Float(string="1 Adult")
     normal_price2 = fields.Float(string="+2 Adult")
@@ -117,9 +145,35 @@ class RateCodeDetails(models.Model):
     special_price4 = fields.Float(string="+4 Adult")
     special_extra = fields.Float(string="Extra")
     extra_bed = fields.Float(string="Extra Bed")
+    adult_bf = fields.Float(string="Adult Breakfast")
+    child_bf = fields.Float(string="Child Breakfast")
     package_id = fields.Char(string="Package")
     discount_percent = fields.Float(string="Discount Percentage", default=10.0)
     discount_amount = fields.Float(string="Discount Amount", default=50.0)
+
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         result.append(
+    #             (record.id,
+    #              "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".
+    #              format(record.ratehead_id.rate_code, record.start_date,
+    #                     record.end_date, record.normal_price1,
+    #                     record.normal_price2, record.normal_price3,
+    #                     record.normal_price4, record.normal_extra)))
+    #     return result
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id,
+                 "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".
+                 format(record.season_code, record.start_date, record.end_date,
+                        record.normal_price1, record.normal_price2,
+                        record.normal_price3, record.normal_price4,
+                        record.normal_extra)))
+        return result
 
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
@@ -146,6 +200,7 @@ class RateCodeDetails(models.Model):
             if count > 1:
                 raise ValidationError(
             _("One of your room type have overlapping date range"))
+
 
     @api.onchange('start_date')
     def get_start_date(self):
@@ -181,16 +236,14 @@ class RateCodeDetails(models.Model):
                 if cur_start_date < header_start_date or cur_end_date > header_end_date:
                     raise ValidationError(_("Season Code date range must be within Rate Code date range"))
 
-
-
-
-
 # Rate Code Categories
 class RateCategories(models.Model):
     _name = "rate.categories"
     _description = "Rate Categories"
     _order = 'sequence, code'
 
+    is_rate_category = fields.Boolean(string='Is Rate Category',
+                                 compute='_compute_is_rate_category')
     active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
     code = fields.Char(string="Code", size=10, required=True)
@@ -200,6 +253,10 @@ class RateCategories(models.Model):
     rate_header_ids = fields.One2many('ratecode.head','rate_category_id',
                                   string="Rate Codes",
                                   required=True)
+    terminate_end_date = fields.Date(string="Terminate End Date",compute='get_terminate_end_date',store=True)
+
+    def _compute_is_rate_category(self):
+        self.is_rate_category = True
 
     def name_get(self):
         result = []
@@ -219,6 +276,18 @@ class RateCategories(models.Model):
         res = super(RateCategories, self).unlink()
         return res
 
+    @api.depends('rate_header_ids')
+    def get_terminate_end_date(self):
+        tmp_end_date = date(1000, 1, 11)
+        rate_header_obj = self.env['ratecode.head']
+        for rec in self.rate_header_ids:
+            if  rec.end_date and rec.end_date > tmp_end_date:
+                tmp_end_date = rec.end_date
+                rate_header_obj = rec
+        if rate_header_obj:
+            self.terminate_end_date = rate_header_obj.end_date  
+
+
     # @api.constrains('start_date')
     # def check_start_date(self):
     #     for rec in self:
@@ -231,7 +300,6 @@ class RateCategories(models.Model):
     #                     _('Start date should be greater than or equal to the current date.'
     #                       ))
     #                 rec.start_date = datetime.now().date()
-
 
 # Rate Code Header for Rate Categories
 class RateCodeHead(models.Model):
