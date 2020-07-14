@@ -11,6 +11,7 @@
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
 
+
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -21,10 +22,10 @@
         <form string="Property">
           <header>
             <field name='is_property' invisible='1'/>
-            <button string="New Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="New Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="New RateCode" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
@@ -69,17 +70,15 @@
             <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
-              <label for="name" string="Hotel Name"/>
               <h3>
-                <field name="name" placeholder="Hotel Name" style="width:80%%"/>
+                <field name="name" placeholder="Hotel Name" style="width:73%%"/>
               </h3>
               <!-- s -->
               <h4>
-                <field name="code" style="width:80%%"/>
+                <field name="code" style="width:73%%"/>
               </h4>
-              <label for="hotelgroup_id" string="Hotel Group" />
               <h4>
-                <field name="hotelgroup_id" style="width:80%%"/>
+                <field name="hotelgroup_id" style="width:76%%"/>
               </h4>
             </div>
             <newline/>
@@ -97,6 +96,10 @@
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
                 </div>
+                <field name="system_date"/>
+                <field name="ci_time" widget="float_time"/>
+                <field name="co_time" widget="float_time"/>
+                <field name="night_audit"/>
                 <label for="image" string="Image"/>
                 <div>
                   <field name="image"/>
@@ -104,25 +107,24 @@
               </group>
               <group>
                 <newline/>
+                <field name="timezone"/>
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
                 <field name="email" placeholder="example@company.com....."/>
                 <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
                 <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
-                <label for="high_occupancy" string="High Occupancy"/>
-                <div class="o_address_class">
-                  <field name="high_occupancy" style="width:20%%"/>
-                  <label for="low_occupancy" string="Low Occupancy"/>
-                  <field name="low_occupancy" style="width:20%%"/>
-                  <label for="availability" string="Availability"/>
-                  <field name="availability" style="width:20.5%%"/>
+                <label for="availability" string="Availability"/>
+                <div class="o_address_format">
+                  <field name="availability" style="width:33%%"/>
+                  <field name="high_occupancy" style="width:33.5%%"/>
+                  <field name="low_occupancy" style="width:33.5%%"/>
                 </div>
-                <label for="roomqty" string="Total Rooms"/>
-                <div class="o_address_class">
-                  <field name="roomqty" style="width:30%%"/>
-                  <label for="dummy_rooms" string="Dummy Rooms"/>
-                  <field name="dummy_rooms" style="width:30%%" force_save="1"/>
+                <label for="roomqty" string="Total / Dummy Rooms"/>
+                <div class="o_address_format">
+                  <field name="roomqty" style="width:16.5%%"/>
+                  <!-- <label for="dummy_rooms" string=" " style="width:0.01em"/> -->
+                  <field name="dummy_rooms" style="width:16.5%%" force_save="1"/>
                 </div>
               </group>
               <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
@@ -255,6 +257,7 @@
         <tree string="Property">
           <field name="name"/>
           <field name="code"/>
+          <field name="timezone"/>
           <field name="city_id" optional="show"/>
           <field name="state_id" optional="hide"/>
           <field name="country_id" optional="show"/>
@@ -284,11 +287,14 @@
           <field name="email"/>
           <field name="website"/>
           <field name="rating"/>
+          <field name="timezone"/>
+          <field name="system_date"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
                 <div class="o_kanban_image">
                   <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
+                  <field name="system_date"/>
                 </div>
                 <!-- <div class="container o_kanban_card_content">
                   <div class="row o_kanban_card_upper_content">
@@ -336,6 +342,9 @@
                   </div>
                   <div>
                     <field name="hotelgroup_id"/>
+                  </div>
+                  <div>
+                    <field name="timezone"/>
                   </div>
                   <div>
                     <field t-if="record.city_id.raw_value" name="city_id"/>
@@ -1151,7 +1160,7 @@
           <field name="rev_type" string ="Revenue"/>
           <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
           <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
-          <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}"/>
+          <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}" widget='many2many_tags'/>
         </tree>
       </field>
     </record>
@@ -1190,8 +1199,8 @@
             <group>
               <field name="property_id"/>
               <field name="revtype_id"/>
-              <field name="sub_group"/>
-              <field name="sub_desc"/>
+              <field name="sub_group" placeholder="0 ~ 9"/>
+              <field name="sub_desc" placeholder="Sub Group Revenue"/>
             </group>
           </sheet>
         </form>
@@ -1286,10 +1295,12 @@
           <field name="trans_tax" string="TAX"/>
           <field name="trans_internal" string="Internal" optional="hide"/>
           <field name="trans_minus" optional="hide"/>
+          <field name="allowed_pkg" optional="hide"/>
           <field name="trans_type" optional="hide"/>
         </tree>
       </field>
     </record>
+
 
     <record id="transaction_view_search" model="ir.ui.view">
       <field name="name">transaction.transaction.search</field>

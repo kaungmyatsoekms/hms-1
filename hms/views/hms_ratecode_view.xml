@@ -172,6 +172,7 @@
                     <field name="sequence"/>
                     <field name="property_id"/>
                     <field name="season_code"/>
+                    <field name="roomtype_ids"/>
                     <field name="roomtype_id"/>
                     <field name="start_date"/>
                     <field name="end_date"/>
@@ -187,12 +188,15 @@
                                             <b>     Code: </b>
                                             <field name="season_code"/>
                                         </div>
-                                        <t t-foreach="record.roomtype_id.raw_value" t-as="o">
+                                        <!-- <t t-foreach="record.roomtype_id.raw_value" t-as="o">
                                             <div>
                                                 <b>Rmty: </b>
                                                 <t t-esc="o.code"/>
                                             </div>
-                                        </t>
+                                        </t> -->
+                                        <span class="oe_kanban_list_many2many">
+                                            <field name="roomtype_id"/>
+                                        </span>
                                         <div>
                                             <b>From: </b>
                                             <field name="start_date"/>
