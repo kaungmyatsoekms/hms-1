@@ -719,10 +719,19 @@ class ReservationLine(models.Model):
         domain=
         "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
     )
+    # ratecode_ids = fields.One2many(
+    #     'ratecode.details',
+    #     'ratehead_id',
+    #     readonly=True,
+    #     domain=
+    #     "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
+    # )
+    ratecode_ids = fields.One2many('ratecode.details',
+                                   related='ratehead_id.ratecode_details')
     ratecode_id = fields.Many2one(
         'ratecode.details',
         domain=
-        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
+        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )
     room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
@@ -736,6 +745,8 @@ class ReservationLine(models.Model):
     package_id = fields.Many2one('package.group',
         related="ratecode_id.ratehead_id.pkg_group_id",
         string="Package")
+    additional_pkg_ids = fields.Many2many('package.header',
+                                          string="Additional Pkg")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
@@ -777,25 +788,111 @@ class ReservationLine(models.Model):
         'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
 
     # Compute Room Rate based on Pax
+    def _check_rate(self, check_date, pax, rate, property_id):
+        check_date = datetime.strptime(
+            str(check_date), '%Y-%m-%d').weekday()  # get 'day' of arrival date
+        temp = (calendar.day_name[check_date])  # get 'day' of arrival date
+        weekend_days = self.env['weekend.weekend'].search([('property_id', '=',
+                                                            property_id)])
+        # Get objs for special days based on property_id
+        special_day_objs = self.env['special.day'].search([('property_id', '=',
+                                                            property_id)])
+        is_weekend = False
+        if weekend_days:
+            for weekend in weekend_days:
+                if temp == 'Monday':
+                    if weekend.monday is True:
+                        is_weekend = True
+                elif temp == 'Tuesday':
+                    if weekend.tuesday is True:
+                        is_weekend = True
+                elif temp == 'Wednesday':
+                    if weekend.wednesday is True:
+                        is_weekend = True
+                elif temp == 'Thursday':
+                    if weekend.thursday is True:
+                        is_weekend = True
+                elif temp == 'Friday':
+                    if weekend.friday is True:
+                        is_weekend = True
+                elif temp == 'Saturday':
+                    if weekend.saturday is True:
+                        is_weekend = True
+                elif temp == 'Sunday':
+                    if weekend.sunday is True:
+                        is_weekend = True
+                else:
+                    is_weekend = False
+
+        is_special_day = False
+        for special_day in special_day_objs:
+            if check_date == special_day.special_date:
+                is_special_day = True
+        if is_special_day is True and rate.special_price1 > 0.0:
+            if pax == 1:
+                room_rate = rate.special_price1
+            elif pax == 2:
+                room_rate = rate.special_price1 + rate.special_price2
+            elif pax == 3:
+                room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3
+            elif pax == 4:
+                room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3 + rate.special_price4
+            else:
+                x = pax - 4
+                room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3 + rate.special_price4 + (
+                    rate.special_extra * x)
+        elif is_weekend is True and rate.weekend_price1 > 0.0:
+            if pax == 1:
+                room_rate = rate.weekend_price1
+            elif pax == 2:
+                room_rate = rate.weekend_price1 + rate.weekend_price2
+            elif pax == 3:
+                room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3
+            elif pax == 4:
+                room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3 + rate.weekend_price4
+            else:
+                x = pax - 4
+                room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3 + rate.weekend_price4 + (
+                    rate.weekend_extra * x)
+        else:
+            if pax == 1:
+                room_rate = rate.normal_price1
+            elif pax == 2:
+                room_rate = rate.normal_price1 + rate.normal_price2
+            elif pax == 3:
+                room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3
+            elif pax == 4:
+                room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4
+            else:
+                x = pax - 4
+                room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4 + (
+                    rate.normal_extra * x)
+        return room_rate
+
+    # Compute Room Rate based on Pax
     @api.depends('ratecode_id')
     def _compute_room_rate(self):
         for rec in self:
-            arrival = datetime.strptime(str(rec.arrival), '%Y-%m-%d').weekday()
-            temp = (calendar.day_name[arrival])
-            pax = rec.pax
-            rate = rec.ratecode_id
-            if pax == 1:
-                rec.room_rate = rate.normal_price1
-            elif pax == 2:
-                rec.room_rate = rate.normal_price1 + rate.normal_price2
-            elif pax == 3:
-                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3
-            elif pax == 4:
-                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4
-            else:
-                x = pax - 4
-                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4 + (
-                    rate.normal_extra * x)
+            rec.room_rate = rec._check_rate(rec.arrival, rec.pax,
+                                            rec.ratecode_id,
+                                            rec.property_id.id)
+
+    # Get default rate code based on ratehead_id
+    @api.onchange('ratehead_id', 'ratecode_id')
+    def onchange_ratecode_id(self):
+        for rec in self:
+            if rec.ratehead_id:
+                for r in rec.ratehead_id.ratecode_details:
+                    if (rec.arrival >=
+                            r.start_date) and (rec.arrival <= r.end_date) and (
+                                rec.room_type._origin.id in r.roomtype_id.ids):
+                        rec.ratecode_id = r
+
+    # @api.onchange('ratehead_id')
+    # def onchange_ratecode_ids(self):
+    #     for rec in self:
+    #         if rec.ratehead_id:
+    #             ratecode_ids = self.env['ratecode.details'].search([])
 
     def set_kanban_color(self):
         for record in self:
@@ -1719,6 +1816,62 @@ class ReservationLine(models.Model):
         for no_show_rsvn_line in no_show_rsvn_lines:
             no_show_rsvn_line.update({'is_no_show': True})
 
+    # For Additional Packages
+    def create_additional_pkg(self):
+        if self.additional_pkg_ids:
+            for rec in self.additional_pkg_ids:
+                res = {}
+                self.env['hms.room.transaction.charge.line'].create({
+                    'reservation_line_id':
+                    self.id,
+                    'active':
+                    True,
+                    'property_id':
+                    self.property_id.id,
+                    'package_code':
+                    rec.package_code,
+                    'package_name':
+                    rec.package_name,
+                    'start_date':
+                    rec.start_date,
+                    'end_date':
+                    rec.end_date,
+                    'forecast_next_day':
+                    rec.forecast_next_day,
+                    'post_next_day':
+                    rec.post_next_day,
+                    'catering':
+                    rec.catering,
+                    'transaction_id':
+                    rec.transaction_id.id,
+                    'package_profit':
+                    rec.package_profit.id,
+                    'package_loss':
+                    rec.package_loss.id,
+                    'product_item':
+                    rec.product_item,
+                    'include_service':
+                    rec.include_service,
+                    'include_tax':
+                    rec.include_tax,
+                    'allowance':
+                    rec.allowance,
+                    'valid_eod':
+                    rec.valid_eod,
+                    'currency_id':
+                    rec.currency_id,
+                    'posting_rythms':
+                    rec.posting_rythms,
+                    'Calculation_method':
+                    rec.Calculation_method,
+                    'Fix_price':
+                    rec.Fix_price,
+                    'rate_attribute':
+                    rec.rate_attribute,
+                })
+                return res
+
+
 # Cancel Reservation
 class CancelReservation(models.Model):
     _name = 'hms.cancel.rsvn'
@@ -1807,11 +1960,13 @@ class CancelReservation(models.Model):
     ratehead_id = fields.Many2one(
         'ratecode.header',
         domain=
-        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]")
+        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
+    )
     ratecode_id = fields.Many2one(
         'ratecode.details',
         domain=
-        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]")
+        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
+    )
     room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
@@ -1829,11 +1984,13 @@ class CancelReservation(models.Model):
     cotime = fields.Datetime("Check-Out Time")
 
     extrabed = fields.Integer("Extra Bed")
-    extrabed_amount = fields.Float("Number of Extra Bed", related="ratecode_id.extra_bed")
+    extrabed_amount = fields.Float("Number of Extra Bed",
+                                   related="ratecode_id.extra_bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast", related="ratecode_id.adult_bf")
+    extrapax_bf = fields.Float("Extra Pax Breakfast",
+                               related="ratecode_id.adult_bf")
     child_bfpax = fields.Integer("Child BF-Pax")
     child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")

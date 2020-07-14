@@ -161,6 +161,13 @@ class Property(models.Model):
         "inside printed reports. It is important to set a value for this field. "
         "You should use the same timezone that is otherwise used to pick and "
         "render date and time values: your computer's timezone.")
+    system_date = fields.Date(string="System Date",
+                              default=date.today(),
+                              track_visibility=True)
+    ci_time = fields.Float(string="Check-In")
+    co_time = fields.Float(string="Check-Out")
+    night_audit = fields.Selection([('auto', "Auto"), ('manual', "Manual")],
+                                   string="Night Audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(

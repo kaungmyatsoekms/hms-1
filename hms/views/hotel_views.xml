@@ -94,6 +94,10 @@
              <group>
              <newline/>
                 <field name="timezone"/>
+                <field name="system_date"/>
+                <field name="ci_time" widget="float_time"/>
+                <field name="co_time" widget="float_time"/>
+                <field name="night_audit"/>
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
@@ -274,11 +278,13 @@
           <field name="website"/>
           <field name="rating"/>
           <field name="timezone"/>
+          <field name="system_date"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
                 <div class="o_kanban_image">
                   <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
+                  <field name="system_date"/>
                 </div>
                 <!-- <div class="container o_kanban_card_content">
                   <div class="row o_kanban_card_upper_content">
@@ -324,6 +330,9 @@
                   <div><field name="name"/></div>
                   <div><field name="hotelgroup_id"/></div>
                   <div><field name="timezone"/></div>
+                  <div>
+                    <field name="timezone"/>
+                  </div>
                   <div>
                     <field t-if="record.city_id.raw_value" name="city_id"/>
                     <field t-if="record.country_id.raw_value" name="country_id"/>

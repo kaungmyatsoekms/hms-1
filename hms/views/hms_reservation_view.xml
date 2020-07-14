@@ -540,7 +540,7 @@
                                 </div>
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
-                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
+                                    <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
                                     <field name="arrival_flight" style="width:35%%" placeholder="Flight"/>
                                     <field name="arrival_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
                                     <field name="eta" style="width:15%%" placeholder="ETA" widget="float_time"/>
@@ -581,47 +581,45 @@
                                 <field name="reason_id" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>                            
                             </group>
                             <group>
-                                
-                                <label for="ratecode_id" string="Rate Code / Room Rate"/>
-                                <div class="address_format">
-                                    <field name="ratehead_id"/>
-                                    <field name="ratecode_id" style="width:33%%"/>
-                                    <field name="room_rate" style="width:33%%"/>
-                                </div>
-                                <field name="allotment_id" style="width:33%%" placeholder="Allotment"/>
-                                <field name="package_id" placeholder="Package" style="width:33%%"/>
+                                <field name="ratehead_id" string="Rate Code Header"/>
+                                <field name="ratecode_id" string="Rate Code"/>
+                                <field name="ratecode_ids" invisible="1" domain="[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&amp;',('start_date','&lt;=',arrival),('end_date', '&gt;=', arrival),'&amp;',('start_date','&lt;=',departure),('end_date', '&gt;=', departure)]"/>
+                                <field name="allotment_id" placeholder="Allotment"/>
+                                <field name="package_id"/>
+                                <field name="additional_pkg_ids" widget="many2many_tags"/>
                                 <label for="updown_amt" string="Updown Amt / Pc"/>
                                 <div class="o_address_format">
+                                    <field name="room_rate" style="width:33%%"/>
                                     <field name="updown_amt" style="width:33%%"/>
                                     <field name="updown_pc" style="width:33%%"/>
                                 </div>
                                 <field name="rate_nett" style="width:33%%"/>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>  
-                                    <label for="child_bfpax" string="Child BF"/>
-                                    <div class="address_format">
-                                        <field name="child_bfpax" style="width: 33%"/>
-                                        <field name="child_bf" style="width: 33%"/>
-                                        <!-- <field name="extra_addon" style="width: 33%"/> -->
-                                    </div>  
-                                    <label for="extrabed" string="Extra Bed"/>
-                                    <div class="address_format">
-                                        <field name="extrabed" style="width: 33%"/>
-                                        <field name="extrabed_amount" style="width: 33%"/>
-                                        <field name="extrabed_bf" style="width: 33%"/>
-                                    </div>
-                                    <label for="extrapax" string="Extra Pax"/>
-                                    <div class="address_format">
-                                        <field name="extrapax" style="width: 33%"/>
-                                        <field name="extrapax_amount" style="width: 33%"/>
-                                        <field name="extrapax_bf" style="width: 33%"/>
-                                    </div>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <label for="child_bfpax" string="Child BF"/>
+                                <div class="address_format">
+                                    <field name="child_bfpax" style="width: 33%"/>
+                                    <field name="child_bf" style="width: 33%"/>
+                                    <!-- <field name="extra_addon" style="width: 33%"/> -->
+                                </div>
+                                <label for="extrabed" string="Extra Bed"/>
+                                <div class="address_format">
+                                    <field name="extrabed" style="width: 33%"/>
+                                    <field name="extrabed_amount" style="width: 33%"/>
+                                    <field name="extrabed_bf" style="width: 33%"/>
+                                </div>
+                                <label for="extrapax" string="Extra Pax"/>
+                                <div class="address_format">
+                                    <field name="extrapax" style="width: 33%"/>
+                                    <field name="extrapax_amount" style="width: 33%"/>
+                                    <field name="extrapax_bf" style="width: 33%"/>
+                                </div>
                             </group>
                         </group>
                         <hr></hr>
                         <notebook>
-                            <page string="Charges">
-                                <field name='room_transaction_line_ids'>
-                                    <tree editable="bottom">
+                            <page string="Additional Packages">
+                                <field name='room_transaction_line_ids' readonly="1">
+                                    <!-- <tree editable="bottom">
                                         <field name="property_id"/>
                                         <field name="package_id"/>
                                         <field name="package_charge_id"/>
@@ -630,7 +628,7 @@
                                         <field name="trans_date"/>
                                         <field name="rate" />
                                         <field name="total_amount"/>
-                                    </tree> 
+                                    </tree> -->
                                 </field>
                             </page>
                             <page string="Travelling Info">
@@ -940,7 +938,9 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
                     </header>
                     <sheet>
@@ -994,7 +994,7 @@
                                 <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
-                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
+                                    <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
                                     <field name="arrival_flight" style="width:35%%" placeholder="Flight"/>
                                     <field name="arrival_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
                                     <field name="eta" style="width:15%%" placeholder="ETA" widget="float_time"/>
@@ -1213,7 +1213,7 @@
                                     <!-- <label for="child" string=" " style="width:1em"/> -->
                                     <field name="child" placeholder="Child" style="width:20%%"/>
                                 </div>
-                                 <label for="citime" string="CI / CO Time"/>
+                                <label for="citime" string="CI / CO Time"/>
                                 <div class="address_format">
                                     <field name="citime" placeholder="Check In" style="width:50%%"/>
                                     <field name="cotime" placeholder="Check Out" style="width:50%%"/>
@@ -1241,39 +1241,39 @@
                                     <field name="updown_pc" style="width:33%%"/>
                                 </div>
                                 <field name="rate_nett" style="width:33%%"/>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' :2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>  
-                                    <label for="child_bfpax" string="Child BF"/>
-                                    <div class="address_format">
-                                        <field name="child_bfpax" style="width: 33%"/>
-                                        <field name="child_bf" style="width: 33%"/>
-                                        <!-- <field name="extra_addon" style="width: 33%"/> -->
-                                    </div>  
-                                    <label for="extrabed" string="Extra Bed"/>
-                                    <div class="address_format">
-                                        <field name="extrabed" style="width: 33%"/>
-                                        <field name="extrabed_amount" style="width: 33%"/>
-                                        <field name="extrabed_bf" style="width: 33%"/>
-                                    </div>
-                                    <label for="extrapax" string="Extra Pax"/>
-                                    <div class="address_format">
-                                        <field name="extrapax" style="width: 33%"/>
-                                        <field name="extrapax_amount" style="width: 33%"/>
-                                        <field name="extrapax_bf" style="width: 33%"/>
-                                    </div>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' :2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <label for="child_bfpax" string="Child BF"/>
+                                <div class="address_format">
+                                    <field name="child_bfpax" style="width: 33%"/>
+                                    <field name="child_bf" style="width: 33%"/>
+                                    <!-- <field name="extra_addon" style="width: 33%"/> -->
+                                </div>
+                                <label for="extrabed" string="Extra Bed"/>
+                                <div class="address_format">
+                                    <field name="extrabed" style="width: 33%"/>
+                                    <field name="extrabed_amount" style="width: 33%"/>
+                                    <field name="extrabed_bf" style="width: 33%"/>
+                                </div>
+                                <label for="extrapax" string="Extra Pax"/>
+                                <div class="address_format">
+                                    <field name="extrapax" style="width: 33%"/>
+                                    <field name="extrapax_amount" style="width: 33%"/>
+                                    <field name="extrapax_bf" style="width: 33%"/>
+                                </div>
                             </group>
                         </group>
                         <hr></hr>
                         <notebook>
-                            <page string="Charges">
-                                <field name='room_transaction_line_ids'>
-                                    <tree editable="buttom">
+                            <page string="Additional Packages">
+                                <field name='room_transaction_line_ids' readonly="1">
+                                    <!-- <tree editable="buttom">
                                         <field name="package_charge_id"/>
                                         <field name="charge_type_id"/>
                                         <field name="calculation_method_id"/>
                                         <field name="trans_date"/>
                                         <field name="rate" />
                                         <field name="total_amount"/>
-                                    </tree> 
+                                    </tree> -->
                                 </field>
                             </page>
                             <page string="Travelling Info">
@@ -1376,6 +1376,44 @@
         <record id="cancel_record_action_window" model="ir.actions.act_window">
             <field name="name">Cancel Records List</field>
             <field name="res_model">hms.cancel.rsvn</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <!-- Package Details View List-->
+        <record id="package_details_view_list" model="ir.ui.view">
+            <field name="name">package.details.view.list</field>
+            <field name="model">hms.room.transaction.charge.line</field>
+            <field name="arch" type="xml">
+                <tree string="Package Details" create="false" edit="false" delete="false">
+                    <field name="active" invisible="1"/>
+                    <field name="package_code"/>
+                    <field name="package_name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="transaction_id"/>
+                    <field name="include_service"/>
+                    <field name="include_tax"/>
+                    <field name="package_profit" optional="hide"/>
+                    <field name="package_loss" optional="hide"/>
+                    <field name="rate_attribute"/>
+                    <field name="Calculation_method"/>
+                    <field name="Fix_price"/>
+                    <field name="posting_rythms"/>
+                    <field name="forecast_next_day" optional="hide"/>
+                    <field name="post_next_day" optional="hide"/>
+                    <field name="catering" optional="hide"/>
+                    <field name="allowance" optional="hide"/>
+                    <field name="valid_eod" optional="hide"/>
+                    <field name="product_item" optional="hide"/>
+                    <field name="currency_id" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Package Details Action-->
+        <record id="package_details_action_window" model="ir.actions.act_window">
+            <field name="name">Package Details</field>
+            <field name="res_model">hms.room.transaction.charge.line</field>
             <field name="view_mode">tree</field>
         </record>
 

@@ -61,6 +61,7 @@
         'views/hms_users_view.xml',
         'views/hms_country_view.xml',
         'data/res_country_data.xml',
+        'views/hms_currency_view.xml',
         'data/res.country.state.csv',
         'views/hms_city_view.xml',
         'data/hms.city.csv',
