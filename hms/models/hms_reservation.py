@@ -154,7 +154,6 @@ class Reservation(models.Model):
         'reservation_id',
         string="Reservation Line",
         track_visibility=True,
-        context={'active_test': False},
         readonly=False,
         states={'cancel': [('readonly', True)]})
     confirm_no = fields.Char(string="Confirm Number", readonly=True)
@@ -201,11 +200,14 @@ class Reservation(models.Model):
         self.confirm_room_count = tmp
 
     def _compute_cancel_rooms(self):
-        hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', self.id),('room_type.code', '=', 'HFO')])
-        no_hfo_reservation = list(set(self.reservation_line_ids) - set(hfo_reservation))
+        hfo_reservation = self.env['hms.reservation.line'].search([
+            ('reservation_id', '=', self.id), ('room_type.code', '=', 'HFO')
+        ])
+        no_hfo_reservation = list(
+            set(self.reservation_line_ids) - set(hfo_reservation))
         tmp = 0
         for record in no_hfo_reservation:
-            if record.active is False and record.state == 'cancel':
+            if record.is_cancel is True and record.state == 'cancel':
                 tmp = tmp + record.rooms
         self.cancel_room_count = tmp
 
@@ -621,7 +623,7 @@ class ReservationLine(models.Model):
     def get_state(self):
         if self._context.get('state') != False:
             return self._context.get('state')
-
+    is_cancel = fields.Boolean(string="Cancel", default=False, readonly=True)
     is_no_show = fields.Boolean(string = "No Show",default = False, readonly=True)
     is_roomtype_fix = fields.Boolean(string = "Fixed Type?", readonly=False, related="room_type.fix_type")
     sequence = fields.Integer(default=1)
@@ -1258,25 +1260,22 @@ class ReservationLine(models.Model):
             if self.reservation_id.rooms != line_rooms_total:
                 self.reservation_id.rooms = line_rooms_total
 
-    @api.constrains('arrival','departure')
+    @api.constrains('arrival', 'departure')
     def _update_arrival_departure(self):
         tmp_arrival_date = date(9999, 1, 11)
         tmp_departure_date = date(1000, 1, 11)
-        # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', self.reservation_id.id),('room_type', '=ilike', 'H%')])
         for rec in self.reservation_id.reservation_line_ids:
-            if rec.room_type[0] != 'H':
+            if rec.room_type.code[0] != 'H':
                 if rec.arrival < tmp_arrival_date:
                     tmp_arrival_date = rec.arrival
                 if rec.departure > tmp_departure_date:
                     tmp_departure_date = rec.departure
-        self.reservation_id.write({'arrival': tmp_arrival_date})
-        self.reservation_id.write({'departure': tmp_departure_date})
-        # hfo_reservation = self.reservation_id.reservation_line_ids.filtered(
-        #                 lambda r: r.room_type[0] == 'H' )
-        # hfo_reservation.arrival = tmp_arrival_date
-        # hfo_reservation.departure = tmp_departure_date
-        # if hfo_reservation :
-        #     hfo_reservation.update({'arrival': tmp_arrival_date,'departure': tmp_departure_date})
+        
+        d1 = datetime.strptime(str(tmp_arrival_date), '%Y-%m-%d')
+        d2 = datetime.strptime(str(tmp_departure_date), '%Y-%m-%d')
+        d3 = d2 - d1
+        days = str(d3.days)
+        self.reservation_id.write({'arrival': tmp_arrival_date,'departure': tmp_departure_date, 'nights': int(days)})
 
     # @api.onchange('reservation_id')
     # def onchange_hfo_arrival(self):
@@ -1870,6 +1869,20 @@ class ReservationLine(models.Model):
                     rec.rate_attribute,
                 })
                 return res
+
+    @api.model
+    def _remove_reservation_daily(self):
+        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('arrival', '<', datetime.today()), ('active', '=', True),'|', ('state', '=', 'booking'),('state', '=', 'reservation')
+        ])
+        for rsvn_line in out_date_rsvn_lines:
+            rsvn_line.update({'active': False})
+
+        out_date_reservations = self.env['hms.reservation'].search([
+            ('arrival', '<', datetime.today())
+        ])
+        for rsvn in out_date_reservations:
+            rsvn.update({'active': False})
 
 
 # Cancel Reservation

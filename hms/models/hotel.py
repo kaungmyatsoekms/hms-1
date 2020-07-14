@@ -20,6 +20,7 @@ _tzs = [
 def _tz_get(self):
     return _tzs
 
+
 AVAILABLE_STARS = [
     ('0', 'Low'),
     ('1', 'One Star'),
@@ -97,7 +98,7 @@ class Property(models.Model):
         return country_id
 
         # Default Get Building
-    
+
     def default_get_building(self):
         return self.env['building.building'].search([('building_name', '=', 'ZZZ')]).ids
 
@@ -167,7 +168,9 @@ class Property(models.Model):
     ci_time = fields.Float(string="Check-In")
     co_time = fields.Float(string="Check-Out")
     night_audit = fields.Selection([('auto', "Auto"), ('manual', "Manual")],
-                                   string="Night Audit")
+                                    string="Night Audit", compute='_compute_night_audit',
+                                    inverse='_write_night_audit')
+    is_manual = fields.Boolean(default=False)
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -198,7 +201,8 @@ class Property(models.Model):
                                    string="Bank Info")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('room.type', default=default_get_roomtype)
-    building_ids = fields.Many2many('building.building',default=default_get_building)
+    building_ids = fields.Many2many('building.building',
+                                    default=default_get_building)
     market_ids = fields.Many2many('market.segment', string="Market Segment")
     propertyroom_ids = fields.One2many('property.room',
                                        'property_id',
@@ -214,8 +218,8 @@ class Property(models.Model):
                                   'property_id',
                                   string="Package")
     packageheader_ids = fields.One2many('package.header',
-                                  'property_id',
-                                  string="Package")
+                                        'property_id',
+                                        string="Package")
     packagegroup_ids = fields.One2many('package.group',
                                        'property_id',
                                        string="Package Group")
@@ -238,8 +242,8 @@ class Property(models.Model):
                                    'property_id',
                                    string="Rate Code")
     ratecodeheader_ids = fields.One2many('ratecode.header',
-                                   'property_id',
-                                   string="Rate Code")
+                                         'property_id',
+                                         string="Rate Code")
     allotment_ids = fields.One2many('hms.allotment.line',
                                     'property_id',
                                     string="Allotment")
@@ -303,9 +307,32 @@ class Property(models.Model):
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
-    def set_onboarding_step_done(self, step_name):
-        if self[step_name] == 'not_done':
-            self[step_name] = 'just_done'
+    @api.depends('is_manual')
+    def _compute_night_audit(self):
+        for property in self:
+            if property.is_manual or self._context.get(
+                    'default_night_audit') == 'manual':
+                property.night_audit = 'manual'
+                property.is_manual = True
+            else:
+                property.night_audit = 'auto'
+
+    def _write_night_audit(self):
+        for property in self:
+            property.is_manual = property.night_audit == 'manual'
+
+    @api.onchange('night_audit')
+    def onchange_night_audit(self):
+        if self.night_audit == 'manual':
+            self.is_manual = True
+        elif self.night_audit == 'auto':
+            self.is_manual = False
+
+    def action_night_audit(self):
+        # property_objs = self.env['property.property'].search([])
+        # for record in property_objs:
+        #     record._cron_daily_create_forecast(self)
+        return
 
     def set_onboarding_step_done(self, step_name):
         if self[step_name] == 'not_done':
@@ -587,7 +614,8 @@ class Property(models.Model):
         return action
 
     def action_building_count(self):
-        buildings = self.mapped('building_ids')
+        # buildings = self.mapped('building_ids')
+        buildings = self.building_ids.filtered(lambda x: x.building_name != "ZZZ")
         action = self.env.ref('hms.building_action_window').read()[0]
         if len(buildings) > 1:
             action['domain'] = [('id', 'in', buildings.ids)]
@@ -615,7 +643,8 @@ class Property(models.Model):
 
     # Room Count
     def action_room_count(self):
-        rooms = self.mapped('propertyroom_ids')
+        # rooms = self.mapped('propertyroom_ids')
+        rooms = self.propertyroom_ids.filtered(lambda x: x.roomtype_id.code[0] != 'H')
         action = self.env.ref('hms.property_room_action_window').read()[0]
         if len(rooms) > 1:
             action['domain'] = [('id', 'in', rooms.ids)]
@@ -649,7 +678,8 @@ class Property(models.Model):
 
     # Room Type Count
     def action_room_type_count(self):
-        room_types = self.mapped('roomtype_ids')
+        # room_types = self.mapped('roomtype_ids')
+        room_types = self.roomtype_ids.filtered(lambda x: x.code[0] != 'H')
         action = self.env.ref('hms.room_type_action_window').read()[0]
         if len(room_types) > 1:
             action['domain'] = [('id', 'in', room_types.ids)]
@@ -680,12 +710,9 @@ class Property(models.Model):
         if property_rooms:
             total_rooms = len(property_rooms)
             self.env['property.roomtype'].create({
-                'property_id':
-                property_id,
-                'roomtype_id':
-                roomtype_id,
-                'total_rooms':
-                total_rooms,
+                'property_id': property_id,
+                'roomtype_id': roomtype_id,
+                'total_rooms': total_rooms,
             })
         else:
             self.env['property.roomtype'].create({
@@ -694,25 +721,26 @@ class Property(models.Model):
                 'total_rooms': 0,
             })
 
-        #Dummy Room 
-    
+        #Dummy Room
+
     @api.onchange('roomqty')
     def _compute_dummy_room_count(self):
-        self.dummy_rooms = math.ceil(self.roomqty*0.03)*10
+        self.dummy_rooms = math.ceil(self.roomqty * 0.03) * 10
 
     # Limit total rooms
-    @api.constrains('roomqty','propertyroom_ids')
+    @api.constrains('roomqty', 'propertyroom_ids')
     def limit_total_room(self):
-        total_rooms = self.propertyroom_ids.filtered(lambda x: x.roomtype_id.code[0] != 'H')
+        total_rooms = self.propertyroom_ids.filtered(
+            lambda x: x.roomtype_id.code[0] != 'H')
         if len(total_rooms) > self.roomqty:
             raise ValidationError(
-        _("Number of rooms must not exceed Total Rooms."))
-    
+                _("Number of rooms must not exceed Total Rooms."))
+
     @api.constrains('roomqty')
     def check_total_room(self):
-        if self.roomqty <= 0 :
+        if self.roomqty <= 0:
             raise ValidationError(
-        _("Total Room cannot be zero or smaller than zero"))
+                _("Total Room cannot be zero or smaller than zero"))
 
     # Create function
     @api.model
@@ -764,7 +792,7 @@ class Property(models.Model):
                 roomtype_id =rec.id
                 property_id = res.id
                 self._create_property_roomtype(roomtype_id,property_rooms,property_id)
-                
+
         if res.availability:
 
             avail_date = datetime.today() - timedelta(days=1)
@@ -778,7 +806,7 @@ class Property(models.Model):
                     'total_room':
                     res.room_count,
                 })
-            
+
             if res.propertyroom_ids or res.roomtype_ids:
                 if res.roomtype_ids:
                     hfo_roomtype = self.env['room.type'].search([('code' , '=ilike', 'H%')])
@@ -802,7 +830,7 @@ class Property(models.Model):
                                 'color': roomtype.color,
                             }))
                             avail_obj.update({'avail_roomtype_ids': vals})
-        
+
         if res.dummy_rooms:
             room_no = 9001
             for record in range(res.dummy_rooms):
@@ -819,7 +847,7 @@ class Property(models.Model):
                     'is_hfo' : True,
                 })
                 room_no += 1
-        
+
         return res
 
     # Write Function
@@ -910,7 +938,7 @@ class Property(models.Model):
         ratecode_header_objs = self.env['ratecode.header']
         ratecode_detail_objs = self.env['ratecode.details']
         ratecode_objs = self.env['rate.code']
-        
+
         for rec in self:
             if rec.gprofile_id_format:
                 sequence_objs += self.env['ir.sequence'].search([
@@ -958,7 +986,7 @@ class Property(models.Model):
             package_objs.unlink()
             subgroup_objs += self.env['sub.group'].search([
                 ('property_id', '=', rec.id)
-            ])
+            ])            
             subgroup_objs.unlink()
             transaction_objs += self.env['transaction.transaction'].search([
                 ('property_id', '=', rec.id)
@@ -978,20 +1006,23 @@ class Property(models.Model):
             ratecode_detail_objs.unlink()
             ratecode_objs += self.env['rate.code'].search([
                 ('property_id', '=', rec.id)
-            ])
+            ])                 
             ratecode_objs.unlink()
 
         res = super(Property, self).unlink()
         return res
 
-    # Schedule Update 
+    # Schedule Update
     @api.model
     def _cron_daily_create_forecast(self):
 
         property_objs = self.env['property.property'].search([])
         for record in property_objs:
-            to_delete_date = datetime.today() - timedelta (days=1)
-            avail_objs = self.env['availability.availability'].search([('property_id', '=', record.id),('avail_date','<=', to_delete_date)])
+            to_delete_date = datetime.today() - timedelta(days=1)
+            avail_objs = self.env['availability.availability'].search([
+                ('property_id', '=', record.id),
+                ('avail_date', '<=', to_delete_date)
+            ])
 
             for avail_obj in avail_objs:
                 avail_obj.update({'active': False})
@@ -1008,11 +1039,11 @@ class Property(models.Model):
                         rt_avail_obj.update({'active': False})
                         vals = []
                         vals.append((0, 0, {
-                        'availability_id': new_avail_obj.id,
-                        'property_id': new_avail_obj.property_id.id,
-                        'ravail_date': new_avail_obj.avail_date,
-                        'ravail_rmty': rt_avail_obj.ravail_rmty.id,
-                        'color': rt_avail_obj.color,
+                            'availability_id': new_avail_obj.id,
+                            'property_id': new_avail_obj.property_id.id,
+                            'ravail_date': new_avail_obj.avail_date,
+                            'ravail_rmty': rt_avail_obj.ravail_rmty.id,
+                            'color': rt_avail_obj.color,
                         }))
                         new_avail_obj.update({'avail_roomtype_ids': vals})
 
@@ -1238,16 +1269,15 @@ class RoomType(models.Model):
             else:
                 room_count = 0
             rec.totalroom = room_count
-    
+
     @api.constrains('color')
     def limit_color_code(self):
         if self.color < 0 or self.color > 9:
-            raise ValidationError(
-        _("Color can only be 0 to 9"))
+            raise ValidationError(_("Color can only be 0 to 9"))
 
     #Write Function
-    def write(self,values):
-        res = super(RoomType,self).write(values)
+    def write(self, values):
+        res = super(RoomType, self).write(values)
 
         if 'color' in values.keys():
             rt_avail_objs = self.env['roomtype.available'].search([
@@ -1296,7 +1326,7 @@ class RoomFacility(models.Model):
 class RoomAmenitiy(models.Model):
     _name = "room.amenity"
     _description = "Room Amenity"
-    
+
     name = fields.Char(string="Amenity Name", required=True)
     amenity_desc = fields.Text(string="Descripton")
 
@@ -1308,7 +1338,8 @@ class RoomFacilityType(models.Model):
     sequence = fields.Integer(default=1)
     facility_type = fields.Char(string="Room Facility Type ",
                                 help='Eg. Entertainments.....',
-                                required=True, size=3)
+                                required=True,
+                                size=3)
     facilitytype_desc = fields.Char(string="Description",
                                     help='Eg.Room Equipment.....',
                                     required=True)
@@ -1327,11 +1358,13 @@ class PropertyRoom(models.Model):
     _group = 'roomlocation_id'
 
     is_hfo = fields.Boolean(default = False)
-    sequence = fields.Integer (default=1)
-    zip_type = fields.Boolean(string= "Zip?", default=False)
-    is_roomtype_fix = fields.Boolean(string = "Fixed Type?", readonly=False, related="roomtype_id.fix_type")
+    sequence = fields.Integer(default=1)
+    zip_type = fields.Boolean(string="Zip?", default=False)
+    is_roomtype_fix = fields.Boolean(string="Fixed Type?",
+                                     readonly=False,
+                                     related="roomtype_id.fix_type")
     is_propertyroom = fields.Boolean(string='Is Property Room',
-                                 compute='_compute_is_propertyroom')
+                                     compute='_compute_is_propertyroom')
     room_no = fields.Char(string="Room No", required=True)
     property_id = fields.Many2one('property.property',
                                   string="Property",
@@ -1378,7 +1411,8 @@ class PropertyRoom(models.Model):
                               default='CL',
                               invisible=True)
     bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
-    bedtype_id = fields.Many2one('bed.type', domain="[('id', '=?', bedtype_ids)]" )
+    bedtype_id = fields.Many2one('bed.type',
+                                 domain="[('id', '=?', bedtype_ids)]")
     no_of_pax = fields.Integer(string="Allow Pax", default=2)
     room_reservation_line_ids = fields.One2many('hms.reservation.line',
                                                 'room_no')
@@ -1390,16 +1424,18 @@ class PropertyRoom(models.Model):
 
     # Check HFO Room
     @api.onchange('roomtype_id', 'room_no')
-    @api.constrains('roomtype_id','room_no')
+    @api.constrains('roomtype_id', 'room_no')
     def _check_hfo_roomno(self):
         for record in self:
-            if record.roomtype_id and record.room_no and record.roomtype_id.code[0] == 'H':
+            if record.roomtype_id and record.room_no and record.roomtype_id.code[
+                    0] == 'H':
                 if record.room_no and not str(record.room_no).isdigit():
                     raise UserError(_("Room Number must be digit"))
                 else:
                     if int(record.room_no) < 9000:
                         raise ValidationError(
-                            _("Room number with HFO room type must be greather than 9000 "))
+                            _("Room number with HFO room type must be greather than 9000 "
+                              ))
 
     def _compute_is_propertyroom(self):
         self.is_propertyroom = True
@@ -1423,18 +1459,7 @@ class PropertyRoom(models.Model):
                     location_list.append(location.id)
                 domain = {'roomlocation_id': [('id', 'in', location_list)]}
                 return {'domain': domain}
-    
-    # Room location link with Building
-    # @api.onchange('building_id')
-    # def onchange_room_location_id(self):
-    #     location_list = []
-    #     domain = {}
-    #     for rec in self:
-    #         if (rec.building_id.location_ids):
-    #             for location in rec.building_id.location_ids:
-    #                 location_list.append(location.id)
-    #             domain = {'roomlocation_id': [('id', 'in', location_list)]}
-    #             return {'domain': domain}
+
 
     @api.onchange('roomtype_id')
     def check_is_hfo(self):
@@ -1653,9 +1678,11 @@ class SubGroup(models.Model):
     _description = "Revenue Sub Group"
     _order = "property_id, sub_group"
 
-    property_id = fields.Many2one('property.property',
-                                  string="Property",
-                                  required=True,  default=lambda self: self.env.user.property_id.id)
+    property_id = fields.Many2one(
+        'property.property',
+        string="Property",
+        required=True,
+        default=lambda self: self.env.user.property_id.id)
     revtype_id = fields.Many2one('revenue.type',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
@@ -1970,6 +1997,7 @@ class CreditLimit(models.Model):
     #             same_payment = rec
     #         if same_payment:
     #             self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
+
 
 #Rate Code
 class RateCode(models.Model):
