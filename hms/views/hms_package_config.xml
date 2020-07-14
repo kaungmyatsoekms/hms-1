@@ -188,14 +188,14 @@
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <field name="property_id" placeholder="Property"/>
-                        <separator string="Package Group" colspan="4"/>
+                        <separator string="Package Group" colspan='4'/>
                         <group>
                             <group>
                                 <field name="pkg_group_code"/>
                                 <field name="shortcut"/>
                                 <field name="pkg_group_name"/>
-                                <field name="package_id" context="{'default_rate_attribute': 'INR'}" string="Packages" widget="many2many_tags"/>
-                                <field name="addon_pkg_id" context="{'default_rate_attribute': 'ARS'}" string="Add-On" widget="many2many_tags"/>>
+                                <field name="package_id" string="Packages" widget="many2many_tags"/>
+                                <field name="addon_pkg_id" string="Add-On" widget="many2many_tags"/>
                             </group>
                             <group>
                                 <field name="transaction_id"/>
