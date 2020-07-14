@@ -5,7 +5,7 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
-from datetime import datetime, date, timedelta
+from datetime import datetime,date, timedelta
 
 POSTING_RYTHMS = [
     ('1', 'Post Every Night'),
@@ -18,9 +18,9 @@ POSTING_RYTHMS = [
 ]
 
 CALCUATION_METHODS = [
-    ('FIX', 'Fix Rate'),
-    ('PP', 'Per Person'),
-    ('PA', 'Per Adult'),
+    ('FIX','Fix Rate'),
+    ('PP','Per Person'),
+    ('PA','Per Adult'),
     ('PC', 'Per Child'),
     ('PR', 'Per Room'),
 ]
@@ -32,15 +32,14 @@ RATE_ATTRIBUTE = [
     ('SS', 'Sell Separate'),
 ]
 
-
 class Package(models.Model):
     _name = "package.header"
     _rec_name = 'package_name'
     _description = "Package"
 
-    active = fields.Boolean(string="Active",
-                            default=True,
-                            track_visibility=True)
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
+    active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
     rate_separate_line = fields.Boolean(default=False)
     rate_combined_line = fields.Boolean(default=False)
@@ -52,36 +51,20 @@ class Package(models.Model):
     package_code = fields.Char(string="Package Code", size=4, required=True)
     shortcut = fields.Char(string="ShortCut")
     package_name = fields.Char(string="Package Name", required=True)
-    start_date = fields.Date(string="Start Date",
-                             required=True,
-                             help="Start of Package")
-    end_date = fields.Date(string="End Date",
-                           required=True,
-                           help="End of Package")
-    forecast_next_day = fields.Boolean(string="Forecast Next Day",
-                                       default=False,
-                                       track_visibility=True)
-    post_next_day = fields.Boolean(string="Post Next Day",
-                                   default=False,
-                                   track_visibility=True)
-    catering = fields.Boolean(string="Catering",
-                              default=False,
-                              track_visibility=True)
-    transaction_id = fields.Many2one(
-        'transaction.transaction',
-        string='Transaction',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    package_profit = fields.Many2one(
-        'transaction.transaction',
-        string='Profit',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    package_loss = fields.Many2one(
-        'transaction.transaction',
-        string='Loss',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+    start_date = fields.Date(string="Start Date", required=True,help="Start of Package")
+    end_date = fields.Date(string="End Date", required=True, help="End of Package")
+    forecast_next_day = fields.Boolean(string="Forecast Next Day", default=False, track_visibility=True)
+    post_next_day = fields.Boolean(string="Post Next Day", default=False, track_visibility=True)
+    catering = fields.Boolean(string="Catering", default=False, track_visibility=True)
+    transaction_id = fields.Many2one('transaction.transaction',
+                                     string='Transaction',
+                                     domain="[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+    package_profit = fields.Many2one('transaction.transaction',
+                                     string='Profit',
+                                     domain="[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+    package_loss = fields.Many2one('transaction.transaction',
+                                     string='Loss',
+                                     domain="[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     product_item = fields.Char('Product Item')
     include_service = fields.Boolean('Include Service',
                                      track_visibility=True,
@@ -101,9 +84,9 @@ class Package(models.Model):
                                       index=True,
                                       default=POSTING_RYTHMS[0][0])
     Calculation_method = fields.Selection(CALCUATION_METHODS,
-                                          string='Calculation Method',
-                                          index=True,
-                                          default=CALCUATION_METHODS[0][0])
+                              string='Rating',
+                              index=True,
+                              default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
@@ -162,7 +145,6 @@ class Package(models.Model):
             self.rate_separate_line = False
             self.rate_combined_line = False
             self.is_sell_separate = False
-
 
 class PackageGroup(models.Model):
     _name = "package.group"

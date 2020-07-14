@@ -113,10 +113,10 @@
                             </group>
                             <group>
                                 <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
-                                    <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
+                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
                                     <field name="arrival_flight" style="width:35%%" placeholder="Flight"/>
                                     <field name="arrival_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
                                     <field name="eta" style="width:15%%" placeholder="ETA" widget="float_time"/>
@@ -146,7 +146,7 @@
                         </group>
                         <notebook>
                             <page string="Reservation Details">
-                                <separator string="Reservation Details" colspan="4" />
+                                <separator string="Reservation Details" colspan="4" />                      
                                 <field name="reservation_line_ids" context="{'state': state, 'arrival': arrival,'departure':departure, 
                                                                 'nights': nights, 'rooms': rooms,
                                                                 'default_property_id':property_id, 'default_market':market, 'default_source':source, 
@@ -176,7 +176,7 @@
                                             <field name="ratecode_id" string="Rate Code"/>
                                             <field name="room_rate" string="Room Rate"/>
                                             <field name="market_ids" invisible="1"/>
-                                            <field name="market" invisible="1"/>
+                                            <field name="market" invisible="1"/> 
                                             <field name="source" string='Source' invisible='1'/>
                                             <field name="reservation_type" invisible='1'/>
                                             <field name='reservation_status' invisible='1'/>
@@ -205,6 +205,7 @@
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                         <field name="rooms"/>
+                                        <field name="avail_room_ids" widget='many2many_tags' />
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id"/>
@@ -212,7 +213,7 @@
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="market_ids" invisible="1"/>
-                                        <field name="market" invisible="1"/>
+                                        <field name="market" invisible="1"/> 
                                         <field name="source" string='Source' invisible='1'/>
                                         <field name="reservation_type" invisible='1' force_save="1"/>
                                         <field name='reservation_status' invisible='1' force_save="1"/>
@@ -221,18 +222,16 @@
                                         <field name='dep_flight' invisible='1'/>
                                         <field name='dep_flighttime' invisible='1'/>
                                         <field name='eta' invisible='1'/>
-                                        <field name='etd' invisible='1'/>
-                                        <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
-                                    </tree>
+                                        <field name='etd' invisible='1'/>                                    </tree>
                                 </field>
                             </page>
                         </notebook>
                     </sheet>
                     <footer>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="message_ids" widget="mail_thread"/>
-                        </div>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                     </footer>
                 </form>
             </field>
@@ -350,7 +349,9 @@
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
                 <search string="Reservation">
-                    <filter name='current_reservations' string="Current Reservations" domain="[('departure','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('arrival','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]" help="Current Reservations" />
+                    <filter name='current_reservations' string="Current Reservations"
+                        domain="[('departure','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('arrival','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]"
+                        help="Current Reservations" />
                     <filter name='booking' domain="[('state','=','booking')]" string="Booking" />
                     <filter name='reservation' domain="[('state','=','reservation')]" string="Reservation" />
                     <filter name='confirm' domain="[('state','=','confirm')]" string="Confirm" />
@@ -365,9 +366,12 @@
                     <field name="state" />
                     <newline />
                     <group expand="0" string="Group By">
-                        <filter name="guest_id" string="Guest Name" icon="terp-personal" domain="[]" context="{'group_by':'guest_id'}" />
-                        <filter name='order_by_month_arrival' string="Arrival" domain="[]" context="{'group_by':'arrival'}" />
-                        <filter name='order_by_month_departure' string="Departure" domain="[]" context="{'group_by':'departure'}" />
+                        <filter name="guest_id" string="Guest Name" icon="terp-personal"
+                            domain="[]" context="{'group_by':'guest_id'}" />
+                        <filter name='order_by_month_arrival' string="Arrival" domain="[]"
+                            context="{'group_by':'arrival'}" />
+                        <filter name='order_by_month_departure' string="Departure" domain="[]"
+                            context="{'group_by':'departure'}" />
                     </group>
                 </search>
             </field>
@@ -387,7 +391,11 @@
             <field name="model">hms.reservation</field>
             <field eval="2" name="priority"/>
             <field name="arch" type="xml">
-                <calendar string="Reservation" date_start="arrival" date_stop="departure" mode="month" color="state">
+                <calendar string="Reservation"
+                            date_start="arrival"
+                            date_stop="departure"
+                            mode="month"
+                            color="state">
                     <field name="guest_id"/>
                     <field name="group_id"/>
                 </calendar>
@@ -399,7 +407,9 @@
             <field name="name">hms.reservation.gantt</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <gantt string="Reservation" date_start="arrival" date_stop="departure"
+                <gantt string="Reservation"
+                            date_start="arrival"
+                            date_stop="departure"
                             default_group_by ="guest_id">
                     <!-- <field name="guest_id"/>
                     <field name="group_id"/> -->
@@ -445,7 +455,6 @@
             <field name="res_model">room.reservation.summary</field>
             <field name="view_mode">form</field>
         </record>
-
         <!-- Form view of quick room reservation -->
         <record id="quick_room_reservation_form_view" model="ir.ui.view">
             <field name="name">quick.room.reservation.form</field>
@@ -474,6 +483,8 @@
             </field>
         </record>
 
+
+    
         <!--Reservation Line-->
         <!-- Reservation Line Form View -->
         <record id="reservation_line_view_form" model="ir.ui.view">
@@ -509,7 +520,7 @@
                         <div class="oe_title">
                             <field name="property_id"/>
                             <field name="reservation_id" invisible="1"/>
-                            <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1>
                                 <field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/>
                             </h1>
@@ -520,8 +531,8 @@
                         <group>
                             <group name="">
                                 <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
-                                <field name="group_id" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <field name="group_id"  context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id"  context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
                                     <field name="reservation_type" style="width:50%%" placeholder="Type"/>
@@ -567,7 +578,7 @@
                                     <field name="market" placeholder="Market" style="width: 50%%"/>
                                     <field name="source" placeholder="Source" style="width: 50%%"/>
                                 </div>
-                                <field name="reason_id" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
+                                <field name="reason_id" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>                            
                             </group>
                             <group>
                                 <field name="ratehead_id" string="Rate Code Header"/>
@@ -657,7 +668,7 @@
                                     <div class="address_format">
                                         <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%"/>
                                         <field name="general_remark" placeholder="General Remark" style="width: 50%" />
-                                    </div>
+                                    </div>                               
                                     <field name="specialrequest_id"/>
                                 </group>
                             </page>
@@ -675,7 +686,7 @@
             <field name="name">reservation.line.view.list</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <tree string="Reservation Details" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                 <tree string="Reservation Details" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="is_roomtype_fix" invisible="1"/>
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible="1"/>
@@ -709,7 +720,7 @@
             </field>
         </record>
 
-        <!-- Reservation Line Kanban View -->
+         <!-- Reservation Line Kanban View -->
         <record id="reservation_line_view_kanban" model="ir.ui.view">
             <field name="name">reservation.line.view.kanban</field>
             <field name="model">hms.reservation.line</field>
@@ -954,7 +965,9 @@
                         </div>
                         <div>
                             <div>
-                                <field name="type" widget="radio" class="oe_edit_only" options="{'horizontal': true}"/>
+                            <field name="type" widget="radio"
+                                        class="oe_edit_only"
+                                        options="{'horizontal': true}"/>
                             </div>
                             <div>
                                 <field name="user_id" readonly="1" class="oe_avatar"/>
@@ -969,7 +982,7 @@
                                 <field name="company_id" attrs="{'required': [('type','=', 'group')]}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
                                 <field name="sales_id" placeholder="Sales Person" required="1" context="{'default_company_type' :'person','default_is_from_hms': True }"/>
                                 <field name="contact_id" placeholder="Contact Person" required="1" context="{'default_company_type' : 'person','default_is_from_hms': True }"/>
-                                <label for="reservation_type" string="Rsvn Type"/>
+                               <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
                                     <field name="reservation_type" style="width:50%%" placeholder="Type" force_save="1"/>
                                     <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1"/>
@@ -978,7 +991,7 @@
                             </group>
                             <group>
                                 <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
@@ -1011,14 +1024,16 @@
                         </group>
                         <notebook>
                             <page string="Reservation Details">
-                                <separator string="Reservation Details" colspan="4" />
+                                <separator string="Reservation Details" colspan="4" />                      
                                 <field name="reservation_line_ids" context="{'state': state, 'arrival': arrival,'departure':departure, 
                                                                 'nights': nights, 'rooms': rooms,
                                                                 'default_property_id':property_id, 'default_market':market, 'default_source':source, 
                                                                 'default_reservation_type':reservation_type, 'default_reservation_status':reservation_status,
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
-                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
+                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}"
+                                                                colspan="4" 
+                                                                nolabel="1" >  <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
                                     <form string="Reservation Line">
                                         <group colspan="4" col="4">
                                             <field name="state"/>
@@ -1036,7 +1051,7 @@
                                             <field name="ratecode_id" string="Rate Code"/>
                                             <field name="room_rate" string="Room Rate"/>
                                             <field name="market_ids" invisible="1"/>
-                                            <field name="market" invisible="1"/>
+                                            <field name="market" invisible="1"/> 
                                             <field name="source" string='Source' invisible='1'/>
                                             <field name="reservation_type" invisible='1'/>
                                             <field name='reservation_status' invisible='1'/>
@@ -1067,7 +1082,7 @@
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="market_ids" invisible="1"/>
-                                        <field name="market" invisible="1"/>
+                                        <field name="market" invisible="1"/> 
                                         <field name="source" string='Source' invisible='1'/>
                                         <field name="reservation_type" invisible='1'/>
                                         <field name='reservation_status' invisible='1'/>
@@ -1084,10 +1099,10 @@
                         </notebook>
                     </sheet>
                     <footer>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="message_ids" widget="mail_thread"/>
-                        </div>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                     </footer>
                 </form>
             </field>
@@ -1150,21 +1165,19 @@
                         <div class="oe_title">
                             <field name="property_id"/>
                             <field name="reservation_id" invisible="1"/>
-                            <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
-                            <h1>
-                                <field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/>
-                            </h1>
+                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
+                            <h1><field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/></h1>
                         </div>
                         <div class="o_row">
-                            <field name="reservation_user_id" readonly="1" class="oe_avatar"/>
-                            <br></br>
-                            <field name="madeondate" class="oe_avatar"/>
+                        <field name="reservation_user_id" readonly="1" class="oe_avatar"/>
+                        <br></br>
+                        <field name="madeondate" class="oe_avatar"/>
                         </div>
                         <group>
                             <group name="">
                                 <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
-                                <field name="group_id" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <field name="group_id"  context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id"  context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
                                 <label for="reservation_type" string="Reservation"/>
                                 <div class="address_format">
                                     <field name="reservation_type" placeholder="Type" style="width:50%%"/>
@@ -1172,7 +1185,7 @@
                                 </div>
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
-                                    <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
+                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
                                     <field name="arrival_flight" style="width:35%%" placeholder="Flight"/>
                                     <field name="arrival_flighttime" style="width:15%%" placeholder="Time" widget="float_time"/>
                                     <field name="eta" style="width:15%" placeholder="ETA" widget="float_time"/>
@@ -1300,7 +1313,7 @@
                                     <div class="address_format">
                                         <field name="cashier_remark" placeholder="Cashier Remark" style="width: 50%"/>
                                         <field name="general_remark" placeholder="General Remark" style="width: 50%" />
-                                    </div>
+                                    </div>                               
                                     <field name="specialrequest_id"/>
                                 </group>
                             </page>
@@ -1406,10 +1419,12 @@
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
-
-        <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />
-        <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
-        <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
+            
+            <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary"
+                action="action_hotel_reservation_summary" parent="reservation_menu"
+                sequence="3" />
+            <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
+            <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
         <menuitem id="cancellation_menu" name="Cancellation" parent="hms_menu_rsvn" sequence="2"/>
         <menuitem id="full_cancel" name="Cancellation Group" parent="cancellation_menu" sequence="1" action="cancel_full_action_window"/>
         <menuitem id="cancellation_list" name="Cancellation List" parent="cancellation_menu" sequence="2" action="cancel_line_action_window"/>

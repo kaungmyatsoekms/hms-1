@@ -53,7 +53,7 @@ class HMSRersvnWizard(models.TransientModel):
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
                     'state': state,
-                    'is_cancel': False,
+                    'active': True,
                 })
         reservations.write({
             'reservation_type': self.reservation_type,
@@ -115,7 +115,7 @@ class HMSRersvnLineWizard(models.TransientModel):
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
                     'state': state,
-                    'is_cancel': False,
+                    'active': False,
                 })
         # 1st time changes cancel to confirm or reservation
         if (reservation_lines.reservation_id.state == 'cancel'):
