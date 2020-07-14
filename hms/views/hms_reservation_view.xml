@@ -205,10 +205,7 @@
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                         <field name="rooms"/>
-<<<<<<< HEAD
-=======
                                         <field name="avail_room_ids" widget='many2many_tags' />
->>>>>>> 0125b89950f344821993e92a5fdfe04d671c1a7f
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id"/>

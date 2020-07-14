@@ -46,15 +46,12 @@ class RateCodeHeader(models.Model):
     pkg_group_id = fields.Many2one('package.group', string="Package")
 
     _sql_constraints = [(
-<<<<<<< HEAD
         'rateheader_code_unique',
         'UNIQUE(property_id, rate_category_id, rate_code)',
         'Rate header code already exists with this name! Rate header code must be unique!'
     )]
 
     _sql_constraints = [(
-=======
->>>>>>> 0125b89950f344821993e92a5fdfe04d671c1a7f
         'rate_code_unique', 'UNIQUE(property_id,rate_category_id,rate_code,ratecode_name)',
         'Rate Code already exists! Rate Code Name and Description must be unique!'
     )]
