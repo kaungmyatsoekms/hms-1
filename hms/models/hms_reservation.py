@@ -411,8 +411,8 @@ class Reservation(models.Model):
                     'confirm_no' : res.confirm_no,
                     'property_id':res.property_id.id,
                     'company_id' : res.company_id.id,
-                    'group_id' : res.group_id,
-                    'guest_id' : res.guest_id,
+                    'group_id' : res.group_id.id,
+                    'guest_id' : res.guest_id.id,
                     'room_type' : res.roomtype_id.id,
                     'arrival' : res.arrival,
                     'departure' : res.departure,
@@ -473,17 +473,8 @@ class Reservation(models.Model):
 
         reservation_line_objs = self.env['hms.reservation.line']
         for record in self:
-            # state = record.state
-            # rooms = record.rooms
-            # room_type = record.roomtype_id.id
-            # property_id = record.property_id.id
-            # arrival = record.arrival
-            # departure = record.departure
-            # reduce = True
-            # status = 'HFO'
-            # record.reservation_line_ids._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
             reservation_line_objs += self.env['hms.reservation.line'].search([('reservation_id', '=', record.id)])
-            reservation_line_objs.unlink()
+        reservation_line_objs.unlink()
         
         res = super(Reservation, self).unlink()
         return res
@@ -597,12 +588,6 @@ class Reservation(models.Model):
                     }))
                 self.update({'reservation_line_ids': vals})
 
-    # @api.onchange('state','reservation_line_ids')
-    # def _change_hfo_state(self):
-    #     for record in self:
-    #         hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', record.id),('room_type.code', '=', 'HFO')])
-    #         for rec in hfo_reservation:
-    #             rec.state = record.state
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -1098,6 +1083,7 @@ class ReservationLine(models.Model):
                 ]).ids
 
                 occ_room_per_roomtype = self.env['hms.reservation.line'].search([
+                    ('id', '!=', rec._origin.id),
                     ('property_id', '=', rec.property_id.id),
                     ('room_type', '=', room_type),
                     ('arrival', '<', rec.departure),
@@ -1331,7 +1317,6 @@ class ReservationLine(models.Model):
 
     # Split Reservation
     def action_split(self):
-        _logger.info('self = %s', self)
         rooms = self.rooms - 1
         if rooms:
             # super(ReservationLine,self).update({'rooms':1})

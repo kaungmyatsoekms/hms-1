@@ -4,3 +4,4 @@ from . import hms_reason_wizard
 from . import hms_rersvn_wizard
 from . import reservation_report_wizard
 from . import hms_roomno_copy_wizard
+from . import hms_ratecate_terminate_wizard

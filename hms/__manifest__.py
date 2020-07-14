@@ -32,7 +32,7 @@
     'qweb': ['static/src/xml/hotel_room_summary.xml'], 
     # always loaded
     'data': [
-        'security/hms_security.xml',
+        # 'security/hms_security.xml',
         'security/ir.model.access.csv',
         'wizard/hms_roomno_copy_wizard.xml',
         'views/hotel_views.xml',
@@ -94,8 +94,10 @@
         'report/expected_arrival_template.xml',
         'data/hms_scheduled_actions_data.xml',
         'views/color_attribute_view.xml',
+        'wizard/hms_ratecate_terminate_wizard_view.xml',
         'views/hms_rate_config.xml',
-        'views/hms_package_config.xml'
+        'views/hms_package_config.xml',
+        
         #'views/views.xml',
         # 'views/templates.xml',
     ],

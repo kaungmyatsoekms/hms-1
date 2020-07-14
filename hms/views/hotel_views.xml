@@ -153,6 +153,7 @@
                   <div>
                     <field name="propertyroom_ids" context="{'default_property_id' : id}">
                       <tree limit="10">
+                        <field name="is_hfo" invisible="1"/>
                         <field name="is_propertyroom" invisible="1"/>
                         <field name="sequence" widget="handle"/>
                         <field name="room_no" optional="show"/>
@@ -163,7 +164,7 @@
                         <field name="room_bedqty" optional="show"/>
                         <field name="room_extension" optional="show"/>
                         <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}">
+                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
                           <i class="fa fa-paint-brush"></i></button>
                       </tree>
                     </field>
@@ -769,6 +770,7 @@
             <field name="room_img" widget="image" class="oe_avatar"/>
             <group>
               <group>
+                <field name="is_hfo" invisible="1"/>
                 <field name="is_propertyroom" invisible='1'/>
                 <field name="property_id"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
@@ -819,7 +821,7 @@
                 </notebook>
               </group>
             </group>
-            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}" context="{'default_property_id' : id}">
+            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
             <i class="fa fa-paint-brush"></i></button>
           </sheet>
           <!-- <footer> -->

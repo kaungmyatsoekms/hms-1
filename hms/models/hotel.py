@@ -809,6 +809,7 @@ class Property(models.Model):
                     'building_id' : building_id.id,
                     'roomlocation_id' : location_id.id,
                     'room_bedqty' : 1,
+                    'is_hfo' : True,
                 })
                 room_no += 1
         
@@ -1318,6 +1319,7 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
     _group = 'roomlocation_id'
 
+    is_hfo = fields.Boolean(default = False)
     sequence = fields.Integer (default=1)
     zip_type = fields.Boolean(string= "Zip?", default=False)
     is_roomtype_fix = fields.Boolean(string = "Fixed Type?", readonly=False, related="roomtype_id.fix_type")
@@ -1416,16 +1418,23 @@ class PropertyRoom(models.Model):
                 return {'domain': domain}
     
     # Room location link with Building
-    @api.onchange('building_id')
-    def onchange_room_location_id(self):
-        location_list = []
-        domain = {}
-        for rec in self:
-            if (rec.building_id.location_ids):
-                for location in rec.building_id.location_ids:
-                    location_list.append(location.id)
-                domain = {'roomlocation_id': [('id', 'in', location_list)]}
-                return {'domain': domain}
+    # @api.onchange('building_id')
+    # def onchange_room_location_id(self):
+    #     location_list = []
+    #     domain = {}
+    #     for rec in self:
+    #         if (rec.building_id.location_ids):
+    #             for location in rec.building_id.location_ids:
+    #                 location_list.append(location.id)
+    #             domain = {'roomlocation_id': [('id', 'in', location_list)]}
+    #             return {'domain': domain}
+
+    @api.onchange('roomtype_id')
+    def check_is_hfo(self):
+        for record in self:
+            if record.roomtype_id:
+                if record.roomtype_id.code[0] == 'H':
+                    record.is_hfo = True
 
 
 class MarketSegment(models.Model):
