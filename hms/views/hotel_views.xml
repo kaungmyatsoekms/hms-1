@@ -840,7 +840,7 @@
       <field name="name">property.room.view.list</field>
       <field name="model">property.room</field>
       <field name="arch" type="xml">
-        <tree string="Room Setup" limit='10'>
+        <tree string="Room Setup">
           <field name="sequence" widget="handle"/>
           <field name="is_propertyroom" invisible='1'/>
           <field name="property_id" optional="hide"/>

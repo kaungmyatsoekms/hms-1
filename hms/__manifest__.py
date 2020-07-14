@@ -94,7 +94,7 @@
         'report/expected_arrival_template.xml',
         'data/hms_scheduled_actions_data.xml',
         'views/color_attribute_view.xml',
-        'wizard/hms_ratecate_terminate_wizard_view.xml',
+        'wizard/hms_ratecat_terminate_wizard_view.xml',
         'views/hms_rate_config.xml',
         'views/hms_package_config.xml',
         
