@@ -8,33 +8,23 @@
                 <form string="Rate Code">
                     <sheet>
                         <separator string="Rate Code" colspan="4" />
-                        <field name="rate_category_id"/>
-                        <div class="o_address_format">
-                            <label for='rate_code' string="Rate Code" style="width:7%%"/>
-                            <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:20%%"/>
-                            <label for="ratecode_name" string=" " style="width:1.5%%"/>
-                            <label for="ratecode_name" string="Description" style="width:7%%"/>
-                            <field name="ratecode_name" placeholder="Description" style="width:20%%"/>
-                            <field name="property_id" class="oe_avatar"/>
-                        </div>
-                        <div class="o_address_format">
-                            <field name="is_ratecode" invisible='1'/>
-                            <label for="start_date" string="Start Date" style="width:7%%"/>
-                            <field name="start_date" style="width:20%%"/>
-                            <label for="end_date" string=" " style="width:1.5%%"/>
-                            <label for="end_date" string="End Date" style="width:7%%"/>
-                            <field name="end_date" style="width:20%%"/>
-                        </div>
-                        <div class="o_address_format">
-                            <!-- <field name="transaction_ids" invisible='1'/>
-                        <label for="transaction_id" string="Trans#" style="width:5.5%%"/>
-                        <field name="transcation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" style="width:20%%"/> -->
-                            <label for="pkg_group_id" string="Package" style="width:7%%"/>
-                            <field name="pkg_group_id" style="width:20%%"/>
-                            <label for="ratecode_type" string=" " style="width:1.5%%"/>
-                            <label for="ratecode_type" string="Type" style="width:7%%"/>
-                            <field name="ratecode_type" style="width:20%%"/>
-                        </div>
+                        <field name="property_id" class="oe_avatar"/>
+                        <group>
+                            <group>
+                                <field name="rate_category_id" style="width:50%%"/>
+                                <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:50%%"/>
+                                <field name="ratecode_name" placeholder="Description" style="width:50%%"/>
+                                <field name="is_ratecode" invisible='1'/>
+                            </group>
+                            <group>
+                                <field name="start_date" style="width:50%%"/>
+                                <field name="end_date" style="width:50%%"/>
+                                <field name="ratecode_type" style="width:50%%"/>
+                            </group>
+                            <group>
+                                <field name="pkg_group_id"/>
+                            </group>
+                        </group>
                         <notebook>
                             <page string="Rate Code Details">
                                 <field name="ratecode_details" context="{'default_property_id':property_id}" mode="kanban" />
@@ -90,7 +80,9 @@
                             <label for="end_date" string="End Date" style="width:10%%"/>
                             <field name="end_date" style="width:20%%"/>
                         </div>
-                        <separator string="Rate Code Details" colspan="4" />
+                        <label for="transaction_id" string="Transaction" style="width:10%%"/>
+                        <field name="transaction_id" style="width:20%%"/>
+                        <separator string="Rate Code Details" colspan="4"/>
                         <group colspan="3" col="3">
                             <group string="Normal">
                                 <field name="normal_price1"/>

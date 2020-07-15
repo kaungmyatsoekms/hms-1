@@ -19,10 +19,10 @@ POSTING_RYTHMS = [
 
 CALCUATION_METHODS = [
     ('FIX', 'Fix Rate'),
-    ('PP', 'Per Person'),
     ('PA', 'Per Adult'),
     ('PC', 'Per Child'),
-    ('PR', 'Per Room'),
+    ('CBP', 'Child BF Pax'),
+    ('NEB', 'No. of Extra Bed'),
 ]
 
 RATE_ATTRIBUTE = [
@@ -38,6 +38,8 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
+    rate_separate_line = fields.Boolean(default=False)
+    rate_combined_line = fields.Boolean(default=False)
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -101,7 +103,7 @@ class Package(models.Model):
                                       index=True,
                                       default=POSTING_RYTHMS[0][0])
     Calculation_method = fields.Selection(CALCUATION_METHODS,
-                                          string='Rating',
+                                          string='Calculation Method',
                                           index=True,
                                           default=CALCUATION_METHODS[0][0])
     Fix_price = fields.Float('Price')
@@ -111,6 +113,9 @@ class Package(models.Model):
                                       default=RATE_ATTRIBUTE[0][0],
                                       compute='_compute_attribute_type',
                                       inverse='_write_attribute_type')
+    reservation_fields_id = fields.Many2one('hms.reservation.fields',
+                                            string="Reservation Fields",
+                                            help="Reservation Fields")
     # package_group_id = fields.Many2one('package.group', string="Package Group")
     # pkg_group_id = fields.Many2one('package.group', string="Package Group")
 
@@ -183,36 +188,6 @@ class PackageGroup(models.Model):
     package_ids = fields.Many2many('package.header',
                                    string="Packages",
                                    required=True)
-    # package_id = fields.One2many(
-    #     'package.header',
-    #     'package_group_id',
-    #     string="Packages",
-    #     domain=
-    #     "['&', '&' ('rate_separate_line', '=', False), ('rate_combined_line', '=', False), ('is_sell_separate', '=', False)]"
-    # )
-    # addon_pkg_id = fields.One2many(
-    #     'package.header',
-    #     'pkg_group_id',
-    #     string="Add-On",
-    #     domain=
-    #     "['|', ('rate_separate_line', '=', True), ('rate_combined_line', '=', True)]"
-    # )
-    transaction_id = fields.Many2one(
-        'transaction.transaction',
-        string='Transaction',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    transaction_id = fields.Many2one(
-        'transaction.transaction',
-        string='Transaction',
-        domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    include_service = fields.Boolean('Include Service',
-                                     track_visibility=True,
-                                     related='transaction_id.trans_svc')
-    include_tax = fields.Boolean('Include Tax',
-                                 track_visibility=True,
-                                 related='transaction_id.trans_tax')
 
     _sql_constraints = [(
         'pkg_group_code_unique', 'UNIQUE(property_id, pkg_group_code)',

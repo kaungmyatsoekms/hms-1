@@ -5,13 +5,14 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
-from datetime import datetime,date, timedelta
+from datetime import datetime, date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 AVAILABLE_RATETYPE = [
     ('D', 'Daily'),
     ('M', 'Monthly'),
 ]
+
 
 # Rate Code Header
 class RateCodeHeader(models.Model):
@@ -46,13 +47,8 @@ class RateCodeHeader(models.Model):
     pkg_group_id = fields.Many2one('package.group', string="Package")
 
     _sql_constraints = [(
-        'rateheader_code_unique',
-        'UNIQUE(property_id, rate_category_id, rate_code)',
-        'Rate header code already exists with this name! Rate header code must be unique!'
-    )]
-
-    _sql_constraints = [(
-        'rate_code_unique', 'UNIQUE(property_id,rate_category_id,rate_code,ratecode_name)',
+        'rate_code_unique',
+        'UNIQUE(property_id,rate_category_id,rate_code,ratecode_name)',
         'Rate Code already exists! Rate Code Name and Description must be unique!'
     )]
 
@@ -97,6 +93,7 @@ class RateCodeHeader(models.Model):
 
         return res
 
+
 # Rate Code Detail
 class RateCodeDetails(models.Model):
 
@@ -112,8 +109,8 @@ class RateCodeDetails(models.Model):
     _name = "ratecode.details"
     _description = "Rate Code Details"
 
-    sequence = fields.Integer('Sequence',default=1)
-    ratehead_id = fields.Many2one('ratecode.header',string="Rate Code Header")
+    sequence = fields.Integer('Sequence', default=1)
+    ratehead_id = fields.Many2one('ratecode.header', string="Rate Code Header")
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   readonly=True)
@@ -135,6 +132,12 @@ class RateCodeDetails(models.Model):
                              required=True,
                              default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
+    transaction_id = fields.Many2one(
+        'transaction.transaction',
+        string='Transaction',
+        domain=
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
+        required=True)
     normal_price1 = fields.Float(string="1 Adult")
     normal_price2 = fields.Float(string="+2 Adult")
     normal_price3 = fields.Float(string="+3 Adult")
@@ -157,18 +160,6 @@ class RateCodeDetails(models.Model):
     discount_percent = fields.Float(string="Discount Percentage", default=10.0)
     discount_amount = fields.Float(string="Discount Amount", default=50.0)
 
-    # def name_get(self):
-    #     result = []
-    #     for record in self:
-    #         result.append(
-    #             (record.id,
-    #              "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".
-    #              format(record.ratehead_id.rate_code, record.start_date,
-    #                     record.end_date, record.normal_price1,
-    #                     record.normal_price2, record.normal_price3,
-    #                     record.normal_price4, record.normal_extra)))
-    #     return result
-
     def name_get(self):
         result = []
         for record in self:
@@ -188,12 +179,13 @@ class RateCodeDetails(models.Model):
             startdate = record.start_date
             enddate = record.end_date
             if startdate and enddate and startdate > enddate:
-                raise ValidationError("End Date cannot be set before Start Date.")
+                raise ValidationError(
+                    "End Date cannot be set before Start Date.")
 
-    @api.onchange('start_date', 'end_date','roomtype_id')
+    @api.onchange('start_date', 'end_date', 'roomtype_id')
     @api.constrains('start_date', 'end_date', 'roomtype_id')
     def check_date_range(self):
-        
+
         for current in self:
             count = 0
             for rec in current.ratehead_id.ratecode_details:
@@ -205,12 +197,11 @@ class RateCodeDetails(models.Model):
                                 break
             if count > 1:
                 raise ValidationError(
-            _("One of your room type have overlapping date range"))
-
+                    _("One of your room type have overlapping date range"))
 
     @api.onchange('start_date')
     def get_start_date(self):
-        
+
         tmp_end_date = date(1000, 1, 11)
         prv_ratecode_details = self.env['ratecode.details']
         for rec in self.ratehead_id.ratecode_details:
@@ -240,7 +231,10 @@ class RateCodeDetails(models.Model):
                 # if not (cur_start_date < header_end_date and cur_end_date > header_start_date):
                 #     raise ValidationError(_("Season Code date range must be within Rate Code date range"))
                 if cur_start_date < header_start_date or cur_end_date > header_end_date:
-                    raise ValidationError(_("Season Code date range must be within Rate Code date range"))
+                    raise ValidationError(
+                        _("Season Code date range must be within Rate Code date range"
+                          ))
+
 
 # Rate Code Categories
 class RateCategories(models.Model):
@@ -248,33 +242,58 @@ class RateCategories(models.Model):
     _description = "Rate Categories"
     _order = 'sequence, code'
 
-    active = fields.Boolean(string="Active", default=True, track_visibility=True)
+    is_rate_category = fields.Boolean(string='Is Rate Category',
+                                      compute='_compute_is_rate_category')
+    active = fields.Boolean(string="Active",
+                            default=True,
+                            track_visibility=True)
     sequence = fields.Integer(default=1)
     code = fields.Char(string="Code", size=10, required=True)
     categories = fields.Char(string="Description", required=True)
-    start_date = fields.Date(string="Start Date", required=True, default=datetime.today())
+    start_date = fields.Date(string="Start Date",
+                             required=True,
+                             default=datetime.today())
     end_date = fields.Date(string="End Date")
-    rate_header_ids = fields.One2many('ratecode.head','rate_category_id',
-                                  string="Rate Codes",
-                                  required=True)
+    rate_header_ids = fields.One2many('ratecode.head',
+                                      'rate_category_id',
+                                      string="Rate Codes",
+                                      required=True)
+    terminate_end_date = fields.Date(string="Terminate End Date",
+                                     compute='get_terminate_end_date',
+                                     store=True)
+
+    def _compute_is_rate_category(self):
+        self.is_rate_category = True
 
     def name_get(self):
         result = []
         for record in self:
-            result.append(
-                (record.id, "{} ({})".format(record.code,
-                                             record.start_date)))
+            result.append((record.id, "{} ({})".format(record.code,
+                                                       record.start_date)))
         return result
 
     def unlink(self):
         ratecode_head_objs = self.env['ratecode.head']
 
         for rec in self:
-            ratecode_head_objs += self.env['ratecode.head'].search([('rate_category_id', '=', rec.id)])
+            ratecode_head_objs += self.env['ratecode.head'].search([
+                ('rate_category_id', '=', rec.id)
+            ])
             ratecode_head_objs.unlink()
 
         res = super(RateCategories, self).unlink()
         return res
+
+    @api.depends('rate_header_ids')
+    def get_terminate_end_date(self):
+        tmp_end_date = date(1000, 1, 11)
+        rate_header_obj = self.env['ratecode.head']
+        for rec in self.rate_header_ids:
+            if rec.end_date and rec.end_date > tmp_end_date:
+                tmp_end_date = rec.end_date
+                rate_header_obj = rec
+        if rate_header_obj:
+            self.terminate_end_date = rate_header_obj.end_date
 
     # @api.constrains('start_date')
     # def check_start_date(self):
@@ -289,6 +308,7 @@ class RateCategories(models.Model):
     #                       ))
     #                 rec.start_date = datetime.now().date()
 
+
 # Rate Code Header for Rate Categories
 class RateCodeHead(models.Model):
     _name = "ratecode.head"
@@ -297,60 +317,74 @@ class RateCodeHead(models.Model):
     head_create = fields.Boolean(default=True)
     rate_code = fields.Char(string="Rate Code", size=10, required=True)
     ratecode_name = fields.Char(string="Description", required=True)
-    start_date = fields.Date(string="Start Date", required=True, default=datetime.today())
+    start_date = fields.Date(string="Start Date",
+                             required=True,
+                             default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
     rate_category_id = fields.Many2one('rate.categories',
-                                     string="Rate Categories")
+                                       string="Rate Categories")
     property_ids = fields.Many2many("property.property",
-                                   store=True,
-                                   track_visibility=True)
+                                    store=True,
+                                    track_visibility=True)
 
-    
-    def _update_property_ratecodeheader(self,rate_category_id,property_id,start_date,end_date,rate_code,ratecode_name,create):
+    def _update_property_ratecodeheader(self, rate_category_id, property_id,
+                                        start_date, end_date, rate_code,
+                                        ratecode_name, create):
         if create is True:
             vals = []
-            vals.append((0, 0, {
-                            'rate_category_id':rate_category_id.id,
-                            'property_id': property_id.id,
-                            'start_date': start_date,
-                            'end_date': end_date,
-                            'rate_code': rate_code,
-                            'ratecode_name': ratecode_name,
-                            'ratecode_type': 'D',
-                            'header_create': False,
-                            # 'rate_category_id': res.rate_category_id.id,
-                        }))
+            vals.append((
+                0,
+                0,
+                {
+                    'rate_category_id': rate_category_id.id,
+                    'property_id': property_id.id,
+                    'start_date': start_date,
+                    'end_date': end_date,
+                    'rate_code': rate_code,
+                    'ratecode_name': ratecode_name,
+                    'ratecode_type': 'D',
+                    'header_create': False,
+                    # 'rate_category_id': res.rate_category_id.id,
+                }))
             property_id.update({'ratecodeheader_ids': vals})
 
         if create is False:
-            rate_category_objs = self.env['rate.categories'].search([('id', '=', rate_category_id.id)])
+            rate_category_objs = self.env['rate.categories'].search([
+                ('id', '=', rate_category_id.id)
+            ])
 
             for rate_category_obj in rate_category_objs:
-                same_rate_code_objs = rate_category_obj.rate_header_ids.filtered(lambda x: x.rate_code == rate_code and x.ratecode_name == ratecode_name)
+                same_rate_code_objs = rate_category_obj.rate_header_ids.filtered(
+                    lambda x: x.rate_code == rate_code and x.ratecode_name ==
+                    ratecode_name)
 
                 if same_rate_code_objs:
                     if end_date > same_rate_code_objs.end_date:
-                        same_rate_code_objs.update({'end_date': end_date,'property_ids':[(4,property_id.id)]})
-                    else :
-                        same_rate_code_objs.update({'property_ids':[(4,property_id.id)]})
-                
+                        same_rate_code_objs.update({
+                            'end_date':
+                            end_date,
+                            'property_ids': [(4, property_id.id)]
+                        })
+                    else:
+                        same_rate_code_objs.update(
+                            {'property_ids': [(4, property_id.id)]})
+
                 else:
                     vals = []
                     vals.append((0, 0, {
-                                        'rate_category_id': rate_category_id.id,
-                                        'property_ids':[(4,property_id.id)],
-                                        'start_date': start_date,
-                                        'end_date': end_date,
-                                        'rate_code': rate_code,
-                                        'ratecode_name': ratecode_name,
-                                        'head_create': False,
-                                    }))
+                        'rate_category_id': rate_category_id.id,
+                        'property_ids': [(4, property_id.id)],
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'rate_code': rate_code,
+                        'ratecode_name': ratecode_name,
+                        'head_create': False,
+                    }))
                     rate_category_obj.update({'rate_header_ids': vals})
 
-
     @api.model
-    def create(self,values):
-        res = super(RateCodeHead,self).create(values)
+    def create(self, values):
+        res = super(RateCodeHead, self).create(values)
 
         if res.property_ids and res.head_create is True:
             for record in res.property_ids:
@@ -361,12 +395,15 @@ class RateCodeHead(models.Model):
                 rate_code = res.rate_code
                 ratecode_name = res.ratecode_name
                 create = True
-                res._update_property_ratecodeheader(rate_category_id,property_id,start_date,end_date,rate_code,ratecode_name,create)
+                res._update_property_ratecodeheader(rate_category_id,
+                                                    property_id, start_date,
+                                                    end_date, rate_code,
+                                                    ratecode_name, create)
 
         return res
 
-    def write(self,values):
-        res = super(RateCodeHead,self).write(values)
+    def write(self, values):
+        res = super(RateCodeHead, self).write(values)
 
         if 'property_ids' in values.keys():
             head_create = values.get('head_create')
@@ -376,26 +413,37 @@ class RateCodeHead(models.Model):
             rate_code = self.rate_code
             ratecode_name = self.ratecode_name
             for property_id in properties:
-                ratecode_header_objs = self.env['ratecode.header'].search([('rate_category_id', '=', rate_category_id.id),('rate_code','=', rate_code),('ratecode_name','=', ratecode_name),('property_id', '=', property_id.id)])
-                
+                ratecode_header_objs = self.env['ratecode.header'].search([
+                    ('rate_category_id', '=', rate_category_id.id),
+                    ('rate_code', '=', rate_code),
+                    ('ratecode_name', '=', ratecode_name),
+                    ('property_id', '=', property_id.id)
+                ])
+
                 if not ratecode_header_objs:
                     property_id = property_id
                     start_date = self.start_date
                     end_date = self.end_date
                     create = True
-                    self._update_property_ratecodeheader(rate_category_id,property_id,start_date,end_date,rate_code,ratecode_name,create)
-            
+                    self._update_property_ratecodeheader(
+                        rate_category_id, property_id, start_date, end_date,
+                        rate_code, ratecode_name, create)
+
         return res
 
     def unlink(self):
         ratecode_header_objs = self.env['ratecode.header']
 
         for rec in self:
-            ratecode_header_objs += self.env['ratecode.header'].search([('rate_code', '=', rec.rate_code),('ratecode_name', '=', rec.ratecode_name)])
+            ratecode_header_objs += self.env['ratecode.header'].search([
+                ('rate_code', '=', rec.rate_code),
+                ('ratecode_name', '=', rec.ratecode_name)
+            ])
             ratecode_header_objs.unlink()
 
         res = super(RateCodeHead, self).unlink()
         return res
+
 
 # Season Code Categories
 # class SeasonCode(models.Model):

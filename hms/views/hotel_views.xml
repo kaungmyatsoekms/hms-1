@@ -25,24 +25,24 @@
             <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="New Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="New RateCode" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="RateCode" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <!-- <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
-            </button>
+            </button> -->
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <!-- <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
-            </button>
+            </button> -->
             <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
@@ -55,6 +55,7 @@
           </header>
           <sheet>
             <field name="active" invisible="1"/>
+            <field name="is_manual" invisible="1"/>
             <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
             <div class="oe_button_box" name="button_box">
               <button name="action_building_count" type="object" class="oe_stat_button" icon="fa-building">
@@ -96,10 +97,6 @@
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
                 </div>
-                <field name="system_date"/>
-                <field name="ci_time" widget="float_time"/>
-                <field name="co_time" widget="float_time"/>
-                <field name="night_audit"/>
                 <label for="image" string="Image"/>
                 <div>
                   <field name="image"/>
@@ -108,6 +105,10 @@
               <group>
                 <newline/>
                 <field name="timezone"/>
+                <field name="system_date"/>
+                <field name="ci_time" widget="float_time"/>
+                <field name="co_time" widget="float_time"/>
+                <field name="night_audit"/>
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
@@ -167,6 +168,7 @@
                   <div>
                     <field name="propertyroom_ids" context="{'default_property_id' : id}">
                       <tree limit="10">
+                        <field name="is_hfo" invisible="1"/>
                         <field name="is_propertyroom" invisible="1"/>
                         <field name="sequence" widget="handle"/>
                         <field name="room_no" optional="show"/>
@@ -177,7 +179,7 @@
                         <field name="room_bedqty" optional="show"/>
                         <field name="room_extension" optional="show"/>
                         <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}">
+                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
                           <i class="fa fa-paint-brush"></i>
                         </button>
                       </tree>
@@ -804,6 +806,7 @@
             <field name="room_img" widget="image" class="oe_avatar"/>
             <group>
               <group>
+                <field name="is_hfo" invisible="1"/>
                 <field name="is_propertyroom" invisible='1'/>
                 <field name="property_id"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
@@ -854,7 +857,7 @@
                 </notebook>
               </group>
             </group>
-            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}" context="{'default_property_id' : id}">
+            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
               <i class="fa fa-paint-brush"></i>
             </button>
           </sheet>
@@ -873,7 +876,7 @@
       <field name="name">property.room.view.list</field>
       <field name="model">property.room</field>
       <field name="arch" type="xml">
-        <tree string="Room Setup" limit='10'>
+        <tree string="Room Setup">
           <field name="sequence" widget="handle"/>
           <field name="is_propertyroom" invisible='1'/>
           <field name="property_id" optional="hide"/>

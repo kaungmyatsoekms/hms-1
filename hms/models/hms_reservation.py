@@ -162,7 +162,6 @@ class Reservation(models.Model):
         'reservation_id',
         string="Reservation Line",
         track_visibility=True,
-        context={'active_test': False},
         readonly=False,
         states={'cancel': [('readonly', True)]})
     confirm_no = fields.Char(string="Confirm Number", readonly=True)
@@ -222,7 +221,7 @@ class Reservation(models.Model):
             set(self.reservation_line_ids) - set(hfo_reservation))
         tmp = 0
         for record in no_hfo_reservation:
-            if record.active is False and record.state == 'cancel':
+            if record.is_cancel is True and record.state == 'cancel':
                 tmp = tmp + record.rooms
         self.cancel_room_count = tmp
 
@@ -432,8 +431,8 @@ class Reservation(models.Model):
                     'confirm_no': res.confirm_no,
                     'property_id': res.property_id.id,
                     'company_id': res.company_id.id,
-                    'group_id': res.group_id,
-                    'guest_id': res.guest_id,
+                    'group_id': res.group_id.id,
+                    'guest_id': res.guest_id.id,
                     'room_type': res.roomtype_id.id,
                     'arrival': res.arrival,
                     'departure': res.departure,
@@ -500,19 +499,10 @@ class Reservation(models.Model):
 
         reservation_line_objs = self.env['hms.reservation.line']
         for record in self:
-            # state = record.state
-            # rooms = record.rooms
-            # room_type = record.roomtype_id.id
-            # property_id = record.property_id.id
-            # arrival = record.arrival
-            # departure = record.departure
-            # reduce = True
-            # status = 'HFO'
-            # record.reservation_line_ids._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
             reservation_line_objs += self.env['hms.reservation.line'].search([
                 ('reservation_id', '=', record.id)
             ])
-            reservation_line_objs.unlink()
+        reservation_line_objs.unlink()
 
         res = super(Reservation, self).unlink()
         return res
@@ -627,13 +617,6 @@ class Reservation(models.Model):
                     }))
                 self.update({'reservation_line_ids': vals})
 
-    # @api.onchange('state','reservation_line_ids')
-    # def _change_hfo_state(self):
-    #     for record in self:
-    #         hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', record.id),('room_type.code', '=', 'HFO')])
-    #         for rec in hfo_reservation:
-    #             rec.state = record.state
-
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -668,6 +651,7 @@ class ReservationLine(models.Model):
         if self._context.get('state') != False:
             return self._context.get('state')
 
+    is_cancel = fields.Boolean(string="Cancel", default=False, readonly=True)
     is_no_show = fields.Boolean(string="No Show", default=False, readonly=True)
     is_roomtype_fix = fields.Boolean(string="Fixed Type?",
                                      readonly=False,
@@ -786,7 +770,9 @@ class ReservationLine(models.Model):
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )
-    room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
+    room_rate = fields.Float("Room Rate",
+                             compute='_compute_room_rate',
+                             help="Included Rate")
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
     reason_id = fields.Many2one('hms.reason',
@@ -802,7 +788,7 @@ class ReservationLine(models.Model):
     additional_pkg_ids = fields.Many2many('package.header',
                                           string="Additional Pkg")
     allotment_id = fields.Char(string="Allotment")
-    rate_nett = fields.Float(string="Rate Nett")
+    rate_nett = fields.Float(string="Rate Nett", help="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
     hk_remark = fields.Char(string="H.K Remark")
     cashier_remark = fields.Char(string="Cashier Remark")
@@ -817,17 +803,15 @@ class ReservationLine(models.Model):
     citime = fields.Datetime("Check-In Time")
     cotime = fields.Datetime("Check-Out Time")
 
-    extrabed = fields.Integer("Extra Bed")
-    extrabed_amount = fields.Float("Number of Extra Bed",
+    extrabed = fields.Integer("Extra Bed", help="No. of Extra Bed")
+    extrabed_amount = fields.Float("Extra Bed Amount",
+                                   help="Extra Bed Amount",
                                    related="ratecode_id.extra_bed")
-    extrabed_bf = fields.Float("Extra Bed Breakfast")
-    extrapax = fields.Integer("Extra Pax")
-    extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast",
-                               related="ratecode_id.adult_bf")
-    child_bfpax = fields.Integer("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
-    extra_addon = fields.Float("Extra Addon")
+    child_bfpax = fields.Integer("Child BF-Pax", help="Child BF Pax")
+    child_bf = fields.Float("Child Breakfast",
+                            help="Child BF Amount",
+                            related="ratecode_id.child_bf")
+    extra_addon = fields.Float("Extra Addon", help="Extra Amount")
 
     pickup = fields.Datetime("Pick Up Time")
     dropoff = fields.Datetime("Drop Off Time")
@@ -943,12 +927,6 @@ class ReservationLine(models.Model):
                             r.start_date) and (rec.arrival <= r.end_date) and (
                                 rec.room_type._origin.id in r.roomtype_id.ids):
                         rec.ratecode_id = r
-
-    # @api.onchange('ratehead_id')
-    # def onchange_ratecode_ids(self):
-    #     for rec in self:
-    #         if rec.ratehead_id:
-    #             ratecode_ids = self.env['ratecode.details'].search([])
 
     def set_kanban_color(self):
         for record in self:
@@ -1237,6 +1215,7 @@ class ReservationLine(models.Model):
 
                 occ_room_per_roomtype = self.env[
                     'hms.reservation.line'].search([
+                        ('id', '!=', rec._origin.id),
                         ('property_id', '=', rec.property_id.id),
                         ('room_type', '=', room_type),
                         ('arrival', '<', rec.departure),
@@ -1330,21 +1309,22 @@ class ReservationLine(models.Model):
     def _update_arrival_departure(self):
         tmp_arrival_date = date(9999, 1, 11)
         tmp_departure_date = date(1000, 1, 11)
-        # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', self.reservation_id.id),('room_type', '=ilike', 'H%')])
         for rec in self.reservation_id.reservation_line_ids:
-            if rec.room_type[0] != 'H':
+            if rec.room_type.code[0] != 'H':
                 if rec.arrival < tmp_arrival_date:
                     tmp_arrival_date = rec.arrival
                 if rec.departure > tmp_departure_date:
                     tmp_departure_date = rec.departure
-        self.reservation_id.write({'arrival': tmp_arrival_date})
-        self.reservation_id.write({'departure': tmp_departure_date})
-        # hfo_reservation = self.reservation_id.reservation_line_ids.filtered(
-        #                 lambda r: r.room_type[0] == 'H' )
-        # hfo_reservation.arrival = tmp_arrival_date
-        # hfo_reservation.departure = tmp_departure_date
-        # if hfo_reservation :
-        #     hfo_reservation.update({'arrival': tmp_arrival_date,'departure': tmp_departure_date})
+
+        d1 = datetime.strptime(str(tmp_arrival_date), '%Y-%m-%d')
+        d2 = datetime.strptime(str(tmp_departure_date), '%Y-%m-%d')
+        d3 = d2 - d1
+        days = str(d3.days)
+        self.reservation_id.write({
+            'arrival': tmp_arrival_date,
+            'departure': tmp_departure_date,
+            'nights': int(days)
+        })
 
     # @api.onchange('reservation_id')
     # def onchange_hfo_arrival(self):
@@ -1482,7 +1462,6 @@ class ReservationLine(models.Model):
 
     # Split Reservation
     def action_split(self):
-        _logger.info('self = %s', self)
         rooms = self.rooms - 1
         if rooms:
             # super(ReservationLine,self).update({'rooms':1})
@@ -1572,6 +1551,64 @@ class ReservationLine(models.Model):
         self._state_update_forecast(state, property_id, arrival, departure,
                                     room_type, rooms, reduce, status)
 
+        # Room Transaction Charge Line Create
+        for rec in range(res.nights):
+            if res.package_id:
+                total_amount_include = 0.0
+                total_room_rate = 0.0
+                for pkg in res.package_id.package_ids:
+                    rate = res.rate_calculate(pkg, res)
+                    total_amount = res.total_amount_calculate(rate, pkg, res)
+                    self.env['hms.room.transaction.charge.line'].create({
+                        'property_id':
+                        res.property_id.id,
+                        'transaction_id':
+                        pkg.transaction_id.id,
+                        'reservation_line_id':
+                        res.id,
+                        'rate':
+                        rate,
+                        'total_amount':
+                        total_amount,
+                        'active':
+                        True,
+                        'package_id':
+                        pkg.id,
+                        'transaction_date':
+                        res.arrival,
+                        'total_room':
+                        res.rooms,
+                        'ref':
+                        'AUTO',
+                    })
+                    total_amount_include += total_amount
+                    if total_amount > 0.0:
+                        total_room_rate += rate
+                # Update Room Charge for rate code
+                room_rate = res.room_rate - total_room_rate
+                room_amount = (res.room_rate *
+                               res.rooms) - total_amount_include
+                self.env['hms.room.transaction.charge.line'].create({
+                    'property_id':
+                    res.property_id.id,
+                    'transaction_id':
+                    res.ratecode_id.transaction_id.id,
+                    'reservation_line_id':
+                    res.id,
+                    'rate':
+                    room_rate,
+                    'total_amount':
+                    room_amount,
+                    'active':
+                    True,
+                    'transaction_date':
+                    res.arrival,
+                    'total_room':
+                    res.rooms,
+                    'ref':
+                    'AUTO',
+                })
+
         return res
 
     # Write Function
@@ -1623,40 +1660,6 @@ class ReservationLine(models.Model):
             self._state_update_forecast(self.state, property_id.id, arrival,
                                         departure, old_room_type.id, rooms,
                                         True, status)
-            # oldrt_avails = self.env['roomtype.available'].search([
-            #     ('property_id', '=', property_id.id),
-            #     ('ravail_date', '>=', arrival),
-            #     ('ravail_date', '<', departure),
-            #     ('ravail_rmty', '=', old_room_type.id)
-            # ])
-            # oldavails = self.env['availability.availability'].search([
-            #     ('property_id', '=', property_id.id),
-            #     ('avail_date', '>=', arrival), ('avail_date', '<', departure)
-            # ])
-            # olddep_avails = self.env['availability.availability'].search([
-            #     ('property_id', '=', property_id.id),
-            #     ('avail_date', '=', departure)
-            # ])
-            # if self.state == 'confirm':
-            #     for record in oldrt_avails:
-            #         record.ravail_occupancy -= rooms
-            #     for avail in oldavails:
-            #         avail.avail_occupancy -= rooms
-            #         if avail.avail_date == arrival:
-            #             avail.avail_arrival -= rooms
-            #     for depavail in olddep_avails:
-            #         if depavail.avail_date == departure:
-            #             depavail.avail_dep -= rooms
-            # elif self.state == 'reservation':
-            #     for record in oldrt_avails:
-            #         record.ravail_unconfirm -= rooms
-            #     for avail in oldavails:
-            #         avail.avail_unconfirm -= rooms
-            # elif self.state == 'booking':
-            #     for record in oldrt_avails:
-            #         record.ravail_booking -= rooms
-            #     for avail in oldavails:
-            #         avail.avail_booking -= rooms
 
             # Check & Retreive for New Availability
             rt_avails = self.env['roomtype.available']
@@ -1787,6 +1790,112 @@ class ReservationLine(models.Model):
                             avail.avail_unconfirm += rooms
 
         res = super(ReservationLine, self).write(values)
+        if 'ratehead_id' in values.keys() or 'ratecode_id' in values.keys(
+        ) or 'package_id' in values.keys() or 'rooms' in values.keys(
+        ) or 'arrival' in values.keys() or 'departure' in values.keys(
+        ) or 'room_type' in values.keys() or 'nights' in values.keys():
+
+            # Room Transaction Charge Line Create
+            if not self.room_transaction_line_ids:
+                for rec in range(self.nights):
+                    if self.package_id:
+                        total_amount_include = 0.0
+                        total_room_rate = 0.0
+                        for pkg in self.package_id.package_ids:
+                            rate = self.rate_calculate(pkg, self)
+                            total_amount = self.total_amount_calculate(
+                                rate, pkg, self)
+                            vals = []
+                            vals.append((0, 0, {
+                                'property_id': self.property_id.id,
+                                'transaction_id': pkg.transaction_id.id,
+                                'reservation_line_id': self.id,
+                                'rate': rate,
+                                'total_amount': total_amount,
+                                'active': True,
+                                'package_id': pkg.id,
+                                'transaction_date': self.arrival,
+                                'total_room': self.rooms,
+                                'ref': 'AUTO',
+                            }))
+                            self.update({'room_transaction_line_ids': vals})
+                            total_amount_include += total_amount
+                            if total_amount > 0.0:
+                                total_room_rate += rate
+                        # Update Room Charge for rate code
+                        room_rate = self.room_rate - total_room_rate
+                        room_amount = (self.room_rate *
+                                       self.rooms) - total_amount_include
+                        vals = []
+                        vals.append((0, 0, {
+                            'property_id':
+                            self.property_id.id,
+                            'transaction_id':
+                            self.ratecode_id.transaction_id.id,
+                            'reservation_line_id':
+                            self.id,
+                            'rate':
+                            room_rate,
+                            'total_amount':
+                            room_amount,
+                            'active':
+                            True,
+                            'transaction_date':
+                            self.arrival,
+                            'total_room':
+                            self.rooms,
+                            'ref':
+                            'AUTO',
+                        }))
+                        self.update({'room_transaction_line_ids': vals})
+            else:
+
+                if self.package_id:
+                    total_amount_include = 0.0
+                    total_room_rate = 0.0
+                    for pkg in self.package_id.package_ids:
+                        for r in self.room_transaction_line_ids:
+                            rate = self.rate_calculate(pkg, self)
+                            total_amount = self.total_amount_calculate(
+                                rate, pkg, self)
+                            if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
+                                r.update({
+                                    'transaction_id': pkg.transaction_id.id,
+                                    'rate': rate,
+                                    'total_amount': total_amount,
+                                    'active': True,
+                                    'package_id': pkg.id,
+                                    'transaction_date': self.arrival,
+                                    'total_room': self.rooms,
+                                    'ref': 'AUTO',
+                                })
+                                total_amount_include += total_amount
+                                if total_amount > 0.0:
+                                    total_room_rate += rate
+                            else:
+                                if not r.package_id:
+                                    # Update Room Charge for rate code
+                                    room_rate = self.room_rate - total_room_rate
+                                    room_amount = (self.room_rate * self.rooms
+                                                   ) - total_amount_include
+                                    r.update({
+                                        'transaction_id':
+                                        self.ratecode_id.transaction_id.id,
+                                        'rate':
+                                        room_rate,
+                                        'total_amount':
+                                        room_amount,
+                                        'active':
+                                        True,
+                                        'transaction_date':
+                                        self.arrival,
+                                        'total_room':
+                                        self.rooms,
+                                        'ref':
+                                        'AUTO',
+                                    })
+
+        # res = super(ReservationLine, self).write(values)
         return res
 
     # Unlink Function
@@ -1891,60 +2000,49 @@ class ReservationLine(models.Model):
         for no_show_rsvn_line in no_show_rsvn_lines:
             no_show_rsvn_line.update({'is_no_show': True})
 
-    # For Additional Packages
-    def create_additional_pkg(self):
-        if self.additional_pkg_ids:
-            for rec in self.additional_pkg_ids:
-                res = {}
-                self.env['hms.room.transaction.charge.line'].create({
-                    'reservation_line_id':
-                    self.id,
-                    'active':
-                    True,
-                    'property_id':
-                    self.property_id.id,
-                    'package_code':
-                    rec.package_code,
-                    'package_name':
-                    rec.package_name,
-                    'start_date':
-                    rec.start_date,
-                    'end_date':
-                    rec.end_date,
-                    'forecast_next_day':
-                    rec.forecast_next_day,
-                    'post_next_day':
-                    rec.post_next_day,
-                    'catering':
-                    rec.catering,
-                    'transaction_id':
-                    rec.transaction_id.id,
-                    'package_profit':
-                    rec.package_profit.id,
-                    'package_loss':
-                    rec.package_loss.id,
-                    'product_item':
-                    rec.product_item,
-                    'include_service':
-                    rec.include_service,
-                    'include_tax':
-                    rec.include_tax,
-                    'allowance':
-                    rec.allowance,
-                    'valid_eod':
-                    rec.valid_eod,
-                    'currency_id':
-                    rec.currency_id,
-                    'posting_rythms':
-                    rec.posting_rythms,
-                    'Calculation_method':
-                    rec.Calculation_method,
-                    'Fix_price':
-                    rec.Fix_price,
-                    'rate_attribute':
-                    rec.rate_attribute,
-                })
-                return res
+    def rate_calculate(self, package_id, reservation_line_id):
+        rate = 0.0
+        if package_id.rate_attribute == 'INR':
+            if package_id.reservation_fields_id:
+                if package_id.reservation_fields_id.code == 'BF':
+                    rate = reservation_line_id.ratecode_id.adult_bf
+                elif package_id.reservation_fields_id.code == 'EB':
+                    rate = reservation_line_id.ratecode_id.extra_bed
+                elif package_id.reservation_fields_id.code == 'CBF':
+                    rate = reservation_line_id.ratecode_id.child_bf
+            else:
+                rate = package_id.Fix_price
+        return rate
+
+    def total_amount_calculate(self, rate, package_id, reservation_line_id):
+        total_amount = 0.0
+        if package_id.rate_attribute == 'INR':
+            if package_id.Calculation_method == 'FIX':
+                total_amount = rate * reservation_line_id.rooms
+            elif package_id.Calculation_method == 'PA':
+                total_amount = rate * reservation_line_id.pax * reservation_line_id.rooms
+            elif package_id.Calculation_method == 'PC':
+                total_amount = rate * reservation_line_id.child * reservation_line_id.rooms
+            elif package_id.Calculation_method == 'CBP':
+                total_amount = rate * reservation_line_id.child_bfpax * reservation_line_id.rooms
+            elif package_id.Calculation_method == 'NEB':
+                total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
+        return total_amount
+
+    @api.model
+    def _remove_reservation_daily(self):
+        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('arrival', '<', datetime.today()), ('active', '=', True), '|',
+            ('state', '=', 'booking'), ('state', '=', 'reservation')
+        ])
+        for rsvn_line in out_date_rsvn_lines:
+            rsvn_line.update({'active': False})
+
+        out_date_reservations = self.env['hms.reservation'].search([
+            ('arrival', '<', datetime.today())
+        ])
+        for rsvn in out_date_reservations:
+            rsvn.update({'active': False})
 
 
 # Cancel Reservation

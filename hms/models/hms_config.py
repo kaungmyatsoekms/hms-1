@@ -6,6 +6,7 @@ from odoo.tools import *
 import base64
 import datetime
 
+
 class PmsFormat(models.Model):
     _name = "pms.format"
     _description = "Property Formats"
@@ -82,16 +83,16 @@ class PmsFormat(models.Model):
     #         raise UserError(_("%s is already existed" % values['name']))
     #     return super(PmsFormat, self).create(values)
 
-        # if 'name' in values:
-        #     sample_id = self.search([('name', '=', values['name'])])
-        #     if sample_id:
-        #         raise UserError(_("%s is already existed" % values['name']))
-        # return super(PmsFormat, self).create(values)
-        # format_ids = self.search([('name', '=', values['name'])])
-        # for format_id in format_ids:
-        #     if format_id:
-        #         raise UserError(_("%s is already existed" % values['name']))
-        # return super(PmsFormat, self).create(values)
+    # if 'name' in values:
+    #     sample_id = self.search([('name', '=', values['name'])])
+    #     if sample_id:
+    #         raise UserError(_("%s is already existed" % values['name']))
+    # return super(PmsFormat, self).create(values)
+    # format_ids = self.search([('name', '=', values['name'])])
+    # for format_id in format_ids:
+    #     if format_id:
+    #         raise UserError(_("%s is already existed" % values['name']))
+    # return super(PmsFormat, self).create(values)
 
     # def write(self, vals):
     #     sample_id = None
@@ -100,7 +101,6 @@ class PmsFormat(models.Model):
     #         if sample_id:
     #             raise UserError(_("%s is already existed" % vals['name']))
     #     return super(PmsFormat, self).write(vals)
-    
 
     # def unlink(self):
     #     sequence_objs = self.env['ir.sequence']
@@ -109,6 +109,7 @@ class PmsFormat(models.Model):
     #     sequence_objs.unlink()
     #     res = super(PmsFormat,self).unlink()
     #     return res
+
 
 class PmsFormatDetail(models.Model):
     _name = "pms.format.detail"
@@ -146,14 +147,12 @@ class PmsFormatDetail(models.Model):
                                   default="")
     fix_value = fields.Char("Fixed Value", store=True)
     digit_value = fields.Integer("Digit Value", store=True)
-    dynamic_value = fields.Selection([('unit code', 'unit code'),
-                                      ('property code', 'property code'),
-                                      ('company type code','company type code'),
-                                      ('pos code', 'pos code'),
-                                      ('floor code', 'floor code'),
-                                      ('floor ref code', 'floor ref code')],
-                                     string="Dynamic Value",
-                                     store=True)
+    dynamic_value = fields.Selection(
+        [('unit code', 'unit code'), ('property code', 'property code'),
+         ('company type code', 'company type code'), ('pos code', 'pos code'),
+         ('floor code', 'floor code'), ('floor ref code', 'floor ref code')],
+        string="Dynamic Value",
+        store=True)
     datetime_value = fields.Selection([('MM', 'MM'), ('MMM', 'MMM'),
                                        ('YY', 'YY'), ('YYYY', 'YYYY')],
                                       string="Date Value",
@@ -177,6 +176,7 @@ class PmsFormatDetail(models.Model):
         })
         return res
 
+
 class Users(models.Model):
     _inherit = "res.users"
 
@@ -187,6 +187,7 @@ class Users(models.Model):
                                    "Property",
                                    store=True,
                                    track_visibility=True)
+
 
 class Company(models.Model):
     _inherit = "res.company"
@@ -212,33 +213,34 @@ class Company(models.Model):
             return self.env.ref('base.main_company').confirm_id_format
 
     property_code_len = fields.Integer("Property Code Length",
-                                    default=8,
-                                    track_visibility=True)
+                                       default=8,
+                                       track_visibility=True)
     location_code_len = fields.Integer('Floor Code Length',
-                                    track_visibility=True,
-                                    default=2)
-    building_code_len = fields.Integer('Building Code Length', 
-                                    track_visibility=True,
-                                    default=3)
-    roomtype_code_len = fields.Integer('Room Type Code Length', 
-                                    track_visibility=True,
-                                    default=3)
+                                       track_visibility=True,
+                                       default=2)
+    building_code_len = fields.Integer('Building Code Length',
+                                       track_visibility=True,
+                                       default=3)
+    roomtype_code_len = fields.Integer('Room Type Code Length',
+                                       track_visibility=True,
+                                       default=3)
     confirm_id_format = fields.Many2one('pms.format',
-                                    'Confirm No Format',
-                                    default=_default_confirm_id_format, 
-                                    track_visibility=True)
+                                        'Confirm No Format',
+                                        default=_default_confirm_id_format,
+                                        track_visibility=True)
     profile_id_format = fields.Many2one('pms.format',
-                                    'Profile ID Format',
-                                    default=_default_profile_id_format,
-                                    track_visibility=True)
+                                        'Profile ID Format',
+                                        default=_default_profile_id_format,
+                                        track_visibility=True)
     cprofile_id_format = fields.Many2one('pms.format',
-                                    'Company Profile ID Format',
-                                    default=_default_cprofile_id_format,
-                                    track_visibility=True)
+                                         'Company Profile ID Format',
+                                         default=_default_cprofile_id_format,
+                                         track_visibility=True)
     gprofile_id_format = fields.Many2one('pms.format',
-                                    'Group Profile ID Format',
-                                    default=_default_gprofile_id_format,
-                                    track_visibility=True)
+                                         'Group Profile ID Format',
+                                         default=_default_gprofile_id_format,
+                                         track_visibility=True)
+
 
 class ColorAttribute(models.Model):
     _name = "color.attribute"
@@ -288,6 +290,18 @@ class ColorAttributeValue(models.Model):
     )]
 
 
+class ReservationFields(models.Model):
+    _name = "hms.reservation.fields"
+    _description = "Reservation Fields"
+
+    name = fields.Char("Name", required=True)
+    code = fields.Char("Code")
+    active = fields.Boolean(default=True)
+    sequence = fields.Integer('Sequence',
+                              help="Determine the display order",
+                              index=True)
+
+
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -297,35 +311,36 @@ class ResConfigSettings(models.TransientModel):
 
     company_id = fields.Many2one('res.company', default=get_company_id)
     property_code_len = fields.Integer("Property Code Length",
-                                    related="company_id.property_code_len",
-                                    readonly=False)
+                                       related="company_id.property_code_len",
+                                       readonly=False)
     location_code_len = fields.Integer('Floor Code Length',
-                                    related="company_id.location_code_len",
-                                    readonly=False)
+                                       related="company_id.location_code_len",
+                                       readonly=False)
     building_code_len = fields.Integer('Building Code Length',
-                                    related="company_id.building_code_len",
-                                    readonly=False)
+                                       related="company_id.building_code_len",
+                                       readonly=False)
     roomtype_code_len = fields.Integer('Room Type Code Length',
-                                    related="company_id.roomtype_code_len",
-                                    readonly=False)
+                                       related="company_id.roomtype_code_len",
+                                       readonly=False)
     confirm_id_format = fields.Many2one('pms.format',
-                                    'Confirm No Format',
-                                    related="company_id.confirm_id_format", 
-                                    track_visibility=True)
+                                        'Confirm No Format',
+                                        related="company_id.confirm_id_format",
+                                        track_visibility=True)
     profile_id_format = fields.Many2one('pms.format',
-                                    'Guest Profile ID Format',
-                                    related="company_id.profile_id_format",
-                                    track_visibility=True)
-    cprofile_id_format = fields.Many2one('pms.format',
-                                    'Company Profile ID Format',
-                                    related="company_id.cprofile_id_format",
-                                    track_visibility=True)
-    gprofile_id_format = fields.Many2one('pms.format',
-                                    'Group Profile ID Format',
-                                    related="company_id.gprofile_id_format",
-                                    track_visibility=True)
+                                        'Guest Profile ID Format',
+                                        related="company_id.profile_id_format",
+                                        track_visibility=True)
+    cprofile_id_format = fields.Many2one(
+        'pms.format',
+        'Company Profile ID Format',
+        related="company_id.cprofile_id_format",
+        track_visibility=True)
+    gprofile_id_format = fields.Many2one(
+        'pms.format',
+        'Group Profile ID Format',
+        related="company_id.gprofile_id_format",
+        track_visibility=True)
 
-    
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):
         if self.property_code_len:
@@ -340,12 +355,12 @@ class ResConfigSettings(models.TransientModel):
     def onchange_building_code_len(self):
         if self.building_code_len:
             self.company_id.building_code_len = self.building_code_len
-            
+
     @api.onchange('roomtype_code_len')
     def onchange_roomtype_code_len(self):
         if self.roomtype_code_len:
             self.company_id.roomtype_code_len = self.roomtype_code_len
-    
+
     @api.onchange('confirm_id_format')
     def onchange_confirm_id_format(self):
         if self.confirm_id_format:
@@ -355,7 +370,7 @@ class ResConfigSettings(models.TransientModel):
     def onchange_profile_id_format(self):
         if self.profile_id_format:
             self.company_id.profile_id_format = self.profile_id_format
-    
+
     @api.onchange('cprofile_id_format')
     def onchange_cprofile_id_format(self):
         if self.cprofile_id_format:
@@ -365,6 +380,3 @@ class ResConfigSettings(models.TransientModel):
     def onchange_gprofile_id_format(self):
         if self.gprofile_id_format:
             self.company_id.gprofile_id_format = self.gprofile_id_format
-
-    
-

@@ -65,6 +65,7 @@
         'views/hms_users_view.xml',
         'views/hms_country_view.xml',
         'data/res_country_data.xml',
+        'views/hms_currency_view.xml',
         'data/res.country.state.csv',
         'views/hms_city_view.xml',
         'data/hms.city.csv',
@@ -98,8 +99,11 @@
         'report/expected_arrival_template.xml',
         'data/hms_scheduled_actions_data.xml',
         'views/color_attribute_view.xml',
+        'wizard/hms_ratecat_terminate_wizard_view.xml',
         'views/hms_rate_config.xml',
-        'views/hms_package_config.xml'
+        'data/hms.reservation.fields.csv',
+        'views/hms_package_config.xml',
+
         #'views/views.xml',
         # 'views/templates.xml',
     ],

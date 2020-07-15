@@ -174,7 +174,10 @@ class Property(models.Model):
     ci_time = fields.Float(string="Check-In")
     co_time = fields.Float(string="Check-Out")
     night_audit = fields.Selection([('auto', "Auto"), ('manual', "Manual")],
-                                   string="Night Audit")
+                                   string="Night Audit",
+                                   compute='_compute_night_audit',
+                                   inverse='_write_night_audit')
+    is_manual = fields.Boolean(default=False)
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -311,9 +314,32 @@ class Property(models.Model):
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
-    def set_onboarding_step_done(self, step_name):
-        if self[step_name] == 'not_done':
-            self[step_name] = 'just_done'
+    @api.depends('is_manual')
+    def _compute_night_audit(self):
+        for property in self:
+            if property.is_manual or self._context.get(
+                    'default_night_audit') == 'manual':
+                property.night_audit = 'manual'
+                property.is_manual = True
+            else:
+                property.night_audit = 'auto'
+
+    def _write_night_audit(self):
+        for property in self:
+            property.is_manual = property.night_audit == 'manual'
+
+    @api.onchange('night_audit')
+    def onchange_night_audit(self):
+        if self.night_audit == 'manual':
+            self.is_manual = True
+        elif self.night_audit == 'auto':
+            self.is_manual = False
+
+    def action_night_audit(self):
+        # property_objs = self.env['property.property'].search([])
+        # for record in property_objs:
+        #     record._cron_daily_create_forecast(self)
+        return
 
     def set_onboarding_step_done(self, step_name):
         if self[step_name] == 'not_done':
@@ -597,7 +623,9 @@ class Property(models.Model):
         return action
 
     def action_building_count(self):
-        buildings = self.mapped('building_ids')
+        # buildings = self.mapped('building_ids')
+        buildings = self.building_ids.filtered(
+            lambda x: x.building_name != "ZZZ")
         action = self.env.ref('hms.building_action_window').read()[0]
         if len(buildings) > 1:
             action['domain'] = [('id', 'in', buildings.ids)]
@@ -626,7 +654,9 @@ class Property(models.Model):
 
     # Room Count
     def action_room_count(self):
-        rooms = self.mapped('propertyroom_ids')
+        # rooms = self.mapped('propertyroom_ids')
+        rooms = self.propertyroom_ids.filtered(
+            lambda x: x.roomtype_id.code[0] != 'H')
         action = self.env.ref('hms.property_room_action_window').read()[0]
         if len(rooms) > 1:
             action['domain'] = [('id', 'in', rooms.ids)]
@@ -661,7 +691,8 @@ class Property(models.Model):
 
     # Room Type Count
     def action_room_type_count(self):
-        room_types = self.mapped('roomtype_ids')
+        # room_types = self.mapped('roomtype_ids')
+        room_types = self.roomtype_ids.filtered(lambda x: x.code[0] != 'H')
         action = self.env.ref('hms.room_type_action_window').read()[0]
         if len(room_types) > 1:
             action['domain'] = [('id', 'in', room_types.ids)]
@@ -840,6 +871,8 @@ class Property(models.Model):
                     location_id.id,
                     'room_bedqty':
                     1,
+                    'is_hfo':
+                    True,
                 })
                 room_no += 1
 
@@ -1360,6 +1393,7 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
     _group = 'roomlocation_id'
 
+    is_hfo = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     zip_type = fields.Boolean(string="Zip?", default=False)
     is_roomtype_fix = fields.Boolean(string="Fixed Type?",
@@ -1462,17 +1496,12 @@ class PropertyRoom(models.Model):
                 domain = {'roomlocation_id': [('id', 'in', location_list)]}
                 return {'domain': domain}
 
-    # Room location link with Building
-    @api.onchange('building_id')
-    def onchange_room_location_id(self):
-        location_list = []
-        domain = {}
-        for rec in self:
-            if (rec.building_id.location_ids):
-                for location in rec.building_id.location_ids:
-                    location_list.append(location.id)
-                domain = {'roomlocation_id': [('id', 'in', location_list)]}
-                return {'domain': domain}
+    @api.onchange('roomtype_id')
+    def check_is_hfo(self):
+        for record in self:
+            if record.roomtype_id:
+                if record.roomtype_id.code[0] == 'H':
+                    record.is_hfo = True
 
 
 class MarketSegment(models.Model):
@@ -1721,6 +1750,7 @@ class SubGroup(models.Model):
 class Transaction(models.Model):
     _name = "transaction.transaction"
     _description = "Transaction"
+    _order = 'trans_code'
 
     property_id = fields.Many2one('property.property',
                                   string="Property",

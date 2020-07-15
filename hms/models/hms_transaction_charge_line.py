@@ -7,129 +7,112 @@ from odoo.modules import get_module_resource
 from odoo.tools import *
 from datetime import datetime, date, timedelta
 
-POSTING_RYTHMS = [
-    ('1', 'Post Every Night'),
-    ('2', 'Post on Arrival Night'),
-    ('3', 'Post on Last Night'),
-    ('4', 'Post Every Night Except Arrival Night'),
-    ('5', 'Post Every Night Except Last Night'),
-    ('6', 'Post on Certain Nights of the Week'),
-    ('7', 'Do Not Post on First and Last Night'),
-]
-
-CALCUATION_METHODS = [
-    ('FIX', 'Fix Rate'),
-    ('PP', 'Per Person'),
-    ('PA', 'Per Adult'),
-    ('PC', 'Per Child'),
-    ('PR', 'Per Room'),
-]
-
-RATE_ATTRIBUTE = [
-    ('INR', 'Include in Rate'),
-    ('ARS', 'Add Rate Separate Line'),
-    ('ARC', 'Add Rate Combined Line'),
-    ('SS', 'Sell Separate'),
-]
-
 
 class HMSTransactionChargeLine(models.Model):
     _name = 'hms.room.transaction.charge.line'
     _description = "Room Charges Type"
+    _order = 'transaction_date'
     _inherit = ['mail.thread']
 
-    reservation_line_id = fields.Many2one("hms.reservation.line", "Charges")
-    property_id = fields.Many2one('property.property',
-                                  string="Property",
-                                  required=True)
-    active = fields.Boolean(string="Active",
-                            default=True,
-                            track_visibility=True)
-    sequence = fields.Integer(default=1)
-    package_code = fields.Char(string="Package Code", size=4, required=True)
-    package_name = fields.Char(string="Package Name", required=True)
-    start_date = fields.Date(string="Start Date",
-                             required=True,
-                             help="Start of Package")
-    end_date = fields.Date(string="End Date",
-                           required=True,
-                           help="End of Package")
-    forecast_next_day = fields.Boolean(string="Forecast Next Day",
-                                       track_visibility=True)
-    post_next_day = fields.Boolean(string="Post Next Day",
-                                   track_visibility=True)
-    catering = fields.Boolean(string="Catering", track_visibility=True)
-    transaction_id = fields.Many2one('transaction.transaction',
-                                     string='Transaction')
-    package_profit = fields.Many2one('transaction.transaction',
-                                     string='Profit')
-    package_loss = fields.Many2one('transaction.transaction', string='Loss')
-    product_item = fields.Char('Product Item')
-    include_service = fields.Boolean('Include Service', track_visibility=True)
-    include_tax = fields.Boolean('Include Tax', track_visibility=True)
-    allowance = fields.Boolean(string="Allowance", track_visibility=True)
-    valid_eod = fields.Boolean(string="Valid C/O EOD", track_visibility=True)
-    currency_id = fields.Char(string="Currency")
-    posting_rythms = fields.Selection(POSTING_RYTHMS, string='Posting Rythms')
-    Calculation_method = fields.Selection(CALCUATION_METHODS, string='Rating')
-    Fix_price = fields.Float('Price')
-    rate_attribute = fields.Selection(RATE_ATTRIBUTE,
-                                      string="Attribute",
-                                      index=True)
-    # reservation_line_id = fields.Many2one("hms.reservation.line", "Charges")
-    # reservation_id = fields.Many2one("hms.reservation",
-    #                            "Reservation",
-    #                            compute="get_reservation_id")
-    # property_id = fields.Many2one('property.property', string="Property")
-    # package_id = fields.Many2one('package.package',string='Package', related='reservation_line_id.package_id')
-    # package_charge_id = fields.Many2one("hms.package.charge.line",
-    #                                        "Package Name",
-    #                                        required=True,
-    #                                        track_visibility=True)
-    # charge_type_id = fields.Many2one(
-    #     "hms.charge_types",
-    #     'Main Charge Type',
-    #     related="package_charge_id.charge_type_id",
-    #     required=True,
-    #     track_visibility=True)
-    # calculation_method_id = fields.Many2one(
-    #     'hms.calculation.method',
-    #     "Calculation Method",
-    #     related="package_charge_id.calculation_method_id",
-    #     readonly=True)
-    # rate = fields.Float("Rate", store=True)
-    # total_amount = fields.Float("Total") #, compute="compute_total_amount"
-    # active = fields.Boolean(default=True)
-    # room_no = fields.Many2one('property.room', "Room No", related='reservation_line_id.room_no')
-    # transfer_room = fields.Many2one('property.room','Room No', related='reservation_line_id.room_no')
-    # trans_date = fields.Date("Date")
+    def get_reservation_line_id(self):
+        reservation_line = self.env['hms.reservation.line'].browse(
+            self._context.get('reservation_line_id', []))
+        if reservation_line:
+            return reservation_line
 
-    # @api.depends('reservation_line_id')
-    # def get_reservation_id(self):
-    #     for rec in self:
-    #         if rec.reservation_line_id:
-    #             rec.reservation_id = rec.reservation_line_id.reservation_id.id
-    #             rec.room_no = rec.reservation_line_id.room_no.id
+    property_id = fields.Many2one('property.property', string="Property")
+    transaction_id = fields.Many2one(
+        'transaction.transaction',
+        string='Transaction',
+        domain="[('property_id', '=?', property_id)]")
+    reservation_line_id = fields.Many2one("hms.reservation.line",
+                                          "Reservation",
+                                          default=get_reservation_line_id)
+    rate = fields.Float("Rate", store=True)
+    total_amount = fields.Float("Total")
+    active = fields.Boolean(default=True)
+    package_ids = fields.Many2many(
+        'package.header', related="reservation_line_id.package_id.package_ids")
+    package_id = fields.Many2one('package.header', string='Package')
+    total_room = fields.Integer('Rooms', related="reservation_line_id.rooms")
+    transaction_date = fields.Date("Date")
+    ref = fields.Char(string="Reference")
 
-    # @api.depends('package_charge_id', 'calculation_method_id', 'rate')
-    # def compute_total_amount(self):
-    # if self.calculation_method_id.name == 'Fix':
-    #     self.total_amount = self.rate
-    # if self.calculation_method_id.name == 'Percentage':
-    #     if self.lease_line_id:
-    #         self.total_amount = 0
-    # if self.calculation_method_id.name == 'Area':
-    #     if self.lease_line_id:
-    #         area = self.lease_line_id.unit_no.area
-    #         self.total_amount = (area * self.rate)
-    # if self.calculation_method_id.name == 'MeterUnit':
-    #     if self.lease_line_id and self.applicable_charge_id:
-    #         if self.applicable_charge_id.use_formula == True:
-    #             self.rate = 0
-    #             self.total_amount = 0
-    #         elif self.applicable_charge_id.use_formula != True and self.rate == 0:
-    #             self.rate = self.applicable_charge_id.rate
-    #             self.total_amount = self.rate
-    #         else:
-    #             self.rate = self.rate
-    #             self.total_amount = self.rate
+    @api.onchange('package_id')
+    def onchange_rate(self):
+        for rec in self:
+            package_id = rec.package_id
+            reservation_line_id = rec.reservation_line_id
+            rec.rate = reservation_line_id.rate_calculate(
+                package_id, reservation_line_id)
+            rec.total_amount = reservation_line_id.total_amount_calculate(
+                rec.rate, package_id, reservation_line_id)
+
+            # rec.transaction_id = rec.package_id.transaction_id
+            # if rec.package_id.rate_attribute == 'INR':
+            #     if rec.package_id.Calculation_method == 'FIX':
+            #         if rec.package_id.reservation_fields_id:
+            #             if rec.package_id.reservation_fields_id.code == 'BF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
+            #             elif rec.package_id.reservation_fields_id.code == 'EB':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
+            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
+            #         else:
+            #             rec.rate = rec.total_amount = rec.package_id.Fix_price
+            #     elif rec.package_id.Calculation_method == 'PA':
+            #         if rec.package_id.reservation_fields_id:
+            #             if rec.package_id.reservation_fields_id.code == 'BF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
+            #                 rec.total_amount = rec.reservation_line_id.ratecode_id.adult_bf * rec.reservation_line_id.pax
+            #             elif rec.package_id.reservation_fields_id.code == 'EB':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
+            #                 rec.total_amount = rec.reservation_line_id.ratecode_id.extra_bed * rec.reservation_line_id.pax
+            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.pax
+            #         else:
+            #             rec.rate = rec.package_id.Fix_price
+            #             rec.total_amount = rec.rate * rec.reservation_line_id.pax
+            #     elif rec.package_id.Calculation_method == 'PC':
+            #         if rec.package_id.reservation_fields_id:
+            #             if rec.package_id.reservation_fields_id.code == 'BF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child
+            #             elif rec.package_id.reservation_fields_id.code == 'EB':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child
+            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child
+            #         else:
+            #             rec.rate = rec.package_id.Fix_price
+            #             rec.total_amount = rec.rate * rec.reservation_line_id.child
+            #     elif rec.package_id.Calculation_method == 'CBP':
+            #         if rec.package_id.reservation_fields_id:
+            #             if rec.package_id.reservation_fields_id.code == 'BF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
+            #             elif rec.package_id.reservation_fields_id.code == 'EB':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
+            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
+            #         else:
+            #             rec.rate = rec.package_id.Fix_price
+            #             rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
+            #     elif rec.package_id.Calculation_method == 'NEB':
+            #         if rec.package_id.reservation_fields_id:
+            #             if rec.package_id.reservation_fields_id.code == 'BF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
+            #             elif rec.package_id.reservation_fields_id.code == 'EB':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
+            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
+            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
+            #                 rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
+            #         else:
+            #             rec.rate = rec.package_id.Fix_price
+            #             rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
