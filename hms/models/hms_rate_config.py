@@ -68,8 +68,8 @@ class RateCodeHeader(models.Model):
                                                 record.end_date)))
         return result
 
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date')
+    @api.constrains('start_date')
     def get_two_date_comp(self):
         for rec in self:
             startdate = rec.start_date
@@ -181,8 +181,8 @@ class RateCodeDetails(models.Model):
                         record.normal_extra)))
         return result
 
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date')
+    @api.constrains('start_date')
     def get_two_date_comp(self):
         for record in self:
             startdate = record.start_date
@@ -248,6 +248,8 @@ class RateCategories(models.Model):
     _description = "Rate Categories"
     _order = 'sequence, code'
 
+    is_rate_category = fields.Boolean(string='Is Rate Category',
+                                 compute='_compute_is_rate_category')
     active = fields.Boolean(string="Active", default=True, track_visibility=True)
     sequence = fields.Integer(default=1)
     code = fields.Char(string="Code", size=10, required=True)
@@ -257,6 +259,10 @@ class RateCategories(models.Model):
     rate_header_ids = fields.One2many('ratecode.head','rate_category_id',
                                   string="Rate Codes",
                                   required=True)
+    terminate_end_date = fields.Date(string="Terminate End Date",compute='get_terminate_end_date',store=True)
+
+    def _compute_is_rate_category(self):
+        self.is_rate_category = True
 
     def name_get(self):
         result = []
@@ -275,6 +281,18 @@ class RateCategories(models.Model):
 
         res = super(RateCategories, self).unlink()
         return res
+
+    @api.depends('rate_header_ids')
+    def get_terminate_end_date(self):
+        tmp_end_date = date(1000, 1, 11)
+        rate_header_obj = self.env['ratecode.head']
+        for rec in self.rate_header_ids:
+            if  rec.end_date and rec.end_date > tmp_end_date:
+                tmp_end_date = rec.end_date
+                rate_header_obj = rec
+        if rate_header_obj:
+            self.terminate_end_date = rate_header_obj.end_date  
+
 
     # @api.constrains('start_date')
     # def check_start_date(self):

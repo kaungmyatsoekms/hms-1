@@ -56,8 +56,8 @@ access_rate_categories,rate.categories,model_rate_categories,base.group_user,1,1
 access_ratecode_head,ratecode.head,model_ratecode_head,base.group_user,1,1,1,1
 access_ratecode_header,ratecode.header,model_ratecode_header,base.group_user,1,1,1,1
 access_ratecode_details,ratecode.details,model_ratecode_details,base.group_user,1,1,1,1
-access_package_header,package.header,model_package_header,base.group_user,1,1,1,1
 access_package_group,package.group,model_package_group,base.group_user,1,1,1,1
+access_package_header,package.header,model_package_header,base.group_user,1,1,1,1
 access_color_attribute,color.attribute,model_color_attribute,base.group_user,1,1,1,1
 access_color_attribute_value,color.attribute.value,model_color_attribute_value,base.group_user,1,1,1,1
 

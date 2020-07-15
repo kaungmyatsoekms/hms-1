@@ -144,8 +144,8 @@ class Passport(models.Model):
                 for rec in record_list:
                     rec.active = False
 
-    @api.onchange('issue_date', 'expire_date')
-    @api.constrains('issue_date', 'expire_date')
+    @api.onchange('issue_date')
+    @api.constrains('issue_date')
     def get_two_date_comp(self):
         issue_date = self.issue_date
         expire_date = self.expire_date
@@ -170,8 +170,8 @@ class Contract(models.Model):
     note = fields.Text(string="Internal Note")
     file = fields.Binary(string="File")
 
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date')
+    @api.constrains('start_date')
     def get_two_date_comp(self):
         start_date = self.start_date
         end_date = self.end_date
