@@ -1718,6 +1718,7 @@ class ReservationLine(models.Model):
     # Unlink Function
     def unlink(self):
 
+        room_transaction_line_objs = self.env['hms.room.transaction.charge.line']
         for record in self:
             state = record.state
             rooms = record.rooms
@@ -1730,7 +1731,8 @@ class ReservationLine(models.Model):
             record._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
 
             record.reservation_id.rooms = record.reservation_id.rooms - record.rooms
-        
+            room_transaction_line_objs += self.env['hms.room.transaction.charge.line'].search([('reservation_line_id', '=', record.id)])
+        room_transaction_line_objs.unlink()
         res = super(ReservationLine, self).unlink()
         return res
 
