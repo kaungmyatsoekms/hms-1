@@ -445,6 +445,7 @@
             <field name="res_model">room.reservation.summary</field>
             <field name="view_mode">form</field>
         </record>
+
         <!-- Form view of quick room reservation -->
         <record id="quick_room_reservation_form_view" model="ir.ui.view">
             <field name="name">quick.room.reservation.form</field>
@@ -472,8 +473,6 @@
                 </form>
             </field>
         </record>
-
-
 
         <!--Reservation Line-->
         <!-- Reservation Line Form View -->
@@ -576,7 +575,7 @@
                                 <field name="ratecode_ids" invisible="1" domain="[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&amp;',('start_date','&lt;=',arrival),('end_date', '&gt;=', arrival),'&amp;',('start_date','&lt;=',departure),('end_date', '&gt;=', departure)]"/>
                                 <field name="allotment_id" placeholder="Allotment"/>
                                 <field name="package_id"/>
-                                <field name="additional_pkg_ids" widget="many2many_tags"/>
+                                <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <div class="o_address_format">
                                     <field name="room_rate" style="width:33%%"/>
@@ -602,7 +601,7 @@
                         <notebook>
                             <page string="Charges">
                                 <field name='room_transaction_line_ids' context="{'default_property_id': property_id, 'reservation_line_id': id}">
-                                    <tree editable="bottom" default_order="transaction_id">
+                                    <tree editable="bottom">
                                         <field name="property_id" invisible="1"/>
                                         <field name="transaction_date"/>
                                         <field name="transaction_id"/>
@@ -610,7 +609,7 @@
                                         <field name="package_id"/>
                                         <field name="rate" />
                                         <field name="total_room" />
-                                        <field name="total_amount"/>
+                                        <field name="total_amount" sum="Total"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>

@@ -38,8 +38,6 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
-    rate_separate_line = fields.Boolean(default=False)
-    rate_combined_line = fields.Boolean(default=False)
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -116,8 +114,6 @@ class Package(models.Model):
     reservation_fields_id = fields.Many2one('hms.reservation.fields',
                                             string="Reservation Fields",
                                             help="Reservation Fields")
-    # package_group_id = fields.Many2one('package.group', string="Package Group")
-    # pkg_group_id = fields.Many2one('package.group', string="Package Group")
 
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',
@@ -132,41 +128,41 @@ class Package(models.Model):
                     'default_rate_attribute') == 'ARS':
                 package.rate_attribute = 'ARS'
                 package.rate_separate_line = True
+            elif package.is_sell_separate or self._context.get(
+                    'default_rate_attribute') == 'SS':
+                package.rate_attribute = 'SS'
+                package.is_sell_separate = True
             elif package.rate_combined_line or self._context.get(
                     'default_rate_attribute') == 'ARC':
                 package.rate_attribute = 'ARC'
                 package.rate_combined_line = True
-            elif package.is_sell_separate or self._context.get(
-                    'default_rate_attribute') == 'SS':
-                package.rate_attribute == 'SS'
-                package.is_sell_separate = True
             else:
                 package.rate_attribute = 'INR'
 
     def _write_attribute_type(self):
         for package in self:
             package.rate_separate_line = package.rate_attribute == 'ARS'
-            package.rate_combined_line = package.rate_attribute == 'ARC'
             package.is_sell_separate = package.rate_attribute == 'SS'
+            package.rate_combined_line = package.rate_attribute == 'ARC'
 
     @api.onchange('rate_attribute')
     def onchange_attribute_type(self):
         if self.rate_attribute == 'ARS':
             self.rate_separate_line = True
+            self.is_sell_separate = False
             self.rate_combined_line = False
-            self.is_sell_separate = False
-        elif self.rate_attribute == 'ARC':
-            self.rate_separate_line = False
-            self.rate_combined_line = True
-            self.is_sell_separate = False
         elif self.rate_attribute == 'SS':
             self.rate_separate_line = False
-            self.rate_combined_line = False
             self.is_sell_separate = True
-        else:
-            self.rate_separate_line = False
             self.rate_combined_line = False
+        elif self.rate_attribute == 'ARC':
+            self.rate_separate_line = False
             self.is_sell_separate = False
+            self.rate_combined_line = True
+        elif self.rate_attribute == 'INR':
+            self.rate_separate_line = False
+            self.is_sell_separate = False
+            self.rate_combined_line = False
 
 
 class PackageGroup(models.Model):

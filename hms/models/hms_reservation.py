@@ -785,8 +785,10 @@ class ReservationLine(models.Model):
         'package.group',
         related="ratecode_id.ratehead_id.pkg_group_id",
         string="Package")
-    additional_pkg_ids = fields.Many2many('package.header',
-                                          string="Additional Pkg")
+    additional_pkg_ids = fields.Many2many(
+        'package.header',
+        string="Additional Pkg",
+        domain="[('is_sell_separate', '=', True)]")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett", help="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
@@ -1535,6 +1537,40 @@ class ReservationLine(models.Model):
             'tag': 'reload',
         }
 
+    # Create Transaction Charge Lines
+    def create_charge_line(self, property_id, transaction_id,
+                           reservation_line_id, rate, total_amount, active,
+                           package_id, transaction_date, total_room):
+        vals = []
+        vals.append((0, 0, {
+            'property_id': property_id.id,
+            'transaction_id': transaction_id.id,
+            'reservation_line_id': reservation_line_id.id,
+            'rate': rate,
+            'total_amount': total_amount,
+            'active': active,
+            'package_id': package_id.id,
+            'transaction_date': transaction_date,
+            'total_room': total_room,
+            'ref': 'AUTO',
+        }))
+        reservation_line_id.update({'room_transaction_line_ids': vals})
+
+    # Update Transaction Charge Lines
+    def update_charge_line(self, room_transaction_line_id, transaction_id,
+                           rate, total_amount, active, package_id,
+                           transaction_date, total_room):
+        room_transaction_line_id.update({
+            'transaction_id': transaction_id.id,
+            'rate': rate,
+            'total_amount': total_amount,
+            'active': active,
+            'package_id': package_id.id,
+            'transaction_date': transaction_date,
+            'total_room': total_room,
+            'ref': 'AUTO',
+        })
+
     @api.model
     def create(self, values):
         # _logger.info(values)
@@ -1550,65 +1586,39 @@ class ReservationLine(models.Model):
         status = ''
         self._state_update_forecast(state, property_id, arrival, departure,
                                     room_type, rooms, reduce, status)
-
+        day_count = 0
         # Room Transaction Charge Line Create
         for rec in range(res.nights):
+            transaction_date = res.arrival + timedelta(days=day_count)
             if res.package_id:
                 total_amount_include = 0.0
                 total_room_rate = 0.0
                 for pkg in res.package_id.package_ids:
                     rate = res.rate_calculate(pkg, res)
                     total_amount = res.total_amount_calculate(rate, pkg, res)
-                    self.env['hms.room.transaction.charge.line'].create({
-                        'property_id':
-                        res.property_id.id,
-                        'transaction_id':
-                        pkg.transaction_id.id,
-                        'reservation_line_id':
-                        res.id,
-                        'rate':
-                        rate,
-                        'total_amount':
-                        total_amount,
-                        'active':
-                        True,
-                        'package_id':
-                        pkg.id,
-                        'transaction_date':
-                        res.arrival,
-                        'total_room':
-                        res.rooms,
-                        'ref':
-                        'AUTO',
-                    })
+                    if total_amount == 0.0 and rate > 0.0:
+                        res.create_charge_line(res.property_id,
+                                               pkg.transaction_id, res, rate,
+                                               total_amount, False, pkg,
+                                               transaction_date, res.rooms)
+                    else:
+                        res.create_charge_line(res.property_id,
+                                               pkg.transaction_id, res, rate,
+                                               total_amount, True, pkg,
+                                               transaction_date, res.rooms)
                     total_amount_include += total_amount
                     if total_amount > 0.0:
                         total_room_rate += rate
                 # Update Room Charge for rate code
+                pkg = self.env['package.header']
                 room_rate = res.room_rate - total_room_rate
                 room_amount = (res.room_rate *
                                res.rooms) - total_amount_include
-                self.env['hms.room.transaction.charge.line'].create({
-                    'property_id':
-                    res.property_id.id,
-                    'transaction_id':
-                    res.ratecode_id.transaction_id.id,
-                    'reservation_line_id':
-                    res.id,
-                    'rate':
-                    room_rate,
-                    'total_amount':
-                    room_amount,
-                    'active':
-                    True,
-                    'transaction_date':
-                    res.arrival,
-                    'total_room':
-                    res.rooms,
-                    'ref':
-                    'AUTO',
-                })
-
+                res.create_charge_line(res.property_id,
+                                       res.ratecode_id.transaction_id, res,
+                                       room_rate, room_amount, True, pkg,
+                                       transaction_date, res.rooms)
+            day_count += 1
         return res
 
     # Write Function
@@ -1788,16 +1798,20 @@ class ReservationLine(models.Model):
                             record.ravail_unconfirm += rooms
                         for avail in avails:
                             avail.avail_unconfirm += rooms
-
+        nights = self.nights
         res = super(ReservationLine, self).write(values)
         if 'ratehead_id' in values.keys() or 'ratecode_id' in values.keys(
-        ) or 'package_id' in values.keys() or 'rooms' in values.keys(
+        ) or 'package_id' in values.keys(
+        ) or 'additional_pkg_ids' in values.keys() or 'rooms' in values.keys(
         ) or 'arrival' in values.keys() or 'departure' in values.keys(
-        ) or 'room_type' in values.keys() or 'nights' in values.keys():
+        ) or 'room_type' in values.keys() or 'nights' in values.keys(
+        ) or 'extrabed' in values.keys() or 'child_bfpax' in values.keys():
 
             # Room Transaction Charge Line Create
             if not self.room_transaction_line_ids:
+                day_count = 0
                 for rec in range(self.nights):
+                    transaction_date = self.arrival + timedelta(days=day_count)
                     if self.package_id:
                         total_amount_include = 0.0
                         total_room_rate = 0.0
@@ -1805,102 +1819,298 @@ class ReservationLine(models.Model):
                             rate = self.rate_calculate(pkg, self)
                             total_amount = self.total_amount_calculate(
                                 rate, pkg, self)
-                            vals = []
-                            vals.append((0, 0, {
-                                'property_id': self.property_id.id,
-                                'transaction_id': pkg.transaction_id.id,
-                                'reservation_line_id': self.id,
-                                'rate': rate,
-                                'total_amount': total_amount,
-                                'active': True,
-                                'package_id': pkg.id,
-                                'transaction_date': self.arrival,
-                                'total_room': self.rooms,
-                                'ref': 'AUTO',
-                            }))
-                            self.update({'room_transaction_line_ids': vals})
+                            if total_amount == 0.0 and rate > 0.0:
+                                self.create_charge_line(
+                                    self.property_id, pkg.transaction_id, self,
+                                    rate, total_amount, False, pkg,
+                                    transaction_date, self.rooms)
+                            else:
+                                self.create_charge_line(
+                                    self.property_id, pkg.transaction_id, self,
+                                    rate, total_amount, True, pkg,
+                                    transaction_date, self.rooms)
                             total_amount_include += total_amount
                             if total_amount > 0.0:
                                 total_room_rate += rate
+                        pkg = self.env['package.header']
                         # Update Room Charge for rate code
                         room_rate = self.room_rate - total_room_rate
                         room_amount = (self.room_rate *
                                        self.rooms) - total_amount_include
-                        vals = []
-                        vals.append((0, 0, {
-                            'property_id':
-                            self.property_id.id,
-                            'transaction_id':
-                            self.ratecode_id.transaction_id.id,
-                            'reservation_line_id':
-                            self.id,
-                            'rate':
-                            room_rate,
-                            'total_amount':
-                            room_amount,
-                            'active':
-                            True,
-                            'transaction_date':
-                            self.arrival,
-                            'total_room':
-                            self.rooms,
-                            'ref':
-                            'AUTO',
-                        }))
-                        self.update({'room_transaction_line_ids': vals})
-            else:
-
-                if self.package_id:
-                    total_amount_include = 0.0
-                    total_room_rate = 0.0
-                    for pkg in self.package_id.package_ids:
-                        for r in self.room_transaction_line_ids:
-                            rate = self.rate_calculate(pkg, self)
+                        self.create_charge_line(
+                            self.property_id, self.ratecode_id.transaction_id,
+                            self, room_rate, room_amount, True, pkg,
+                            transaction_date, self.rooms)
+                    # Check for additional packages
+                    if self.additional_pkg_ids:
+                        # Create charge line for additional packages
+                        for p in self.additional_pkg_ids:
+                            rate = self.rate_calculate(p, self)
                             total_amount = self.total_amount_calculate(
-                                rate, pkg, self)
-                            if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
-                                r.update({
-                                    'transaction_id': pkg.transaction_id.id,
-                                    'rate': rate,
-                                    'total_amount': total_amount,
-                                    'active': True,
-                                    'package_id': pkg.id,
-                                    'transaction_date': self.arrival,
-                                    'total_room': self.rooms,
-                                    'ref': 'AUTO',
-                                })
-                                total_amount_include += total_amount
-                                if total_amount > 0.0:
-                                    total_room_rate += rate
+                                rate, p, self)
+                            self.create_charge_line(self.property_id,
+                                                    p.transaction_id, self,
+                                                    rate, total_amount, True,
+                                                    p, transaction_date,
+                                                    self.rooms)
+                    day_count += 1
+            else:
+                if arrival == self.arrival and departure != self.departure:
+                    if self.nights < nights:
+                        old_day_count = 0
+                        oldtransaction_date = arrival
+                        for rec in range(nights):
+                            oldtransaction_date = arrival + timedelta(
+                                days=old_day_count)
+                            if oldtransaction_date >= self.departure:
+                                room_transaction_line_objs = self.env[
+                                    'hms.room.transaction.charge.line'].search(
+                                        [('property_id', '=',
+                                          self.property_id.id),
+                                         ('reservation_line_id', '=', self.id),
+                                         ('transaction_date', '>=',
+                                          oldtransaction_date), '|',
+                                         ('active', '=', True),
+                                         ('active', '=', False)])
+                                for r in room_transaction_line_objs:
+                                    r.update({
+                                        'active': False,
+                                    })
                             else:
-                                if not r.package_id:
+                                if self.package_id:
+                                    total_amount_include = 0.0
+                                    total_room_rate = 0.0
+                                    room_transaction_line_objs = self.env[
+                                        'hms.room.transaction.charge.line'].search(
+                                            [('property_id', '=',
+                                              self.property_id.id),
+                                             ('reservation_line_id', '=',
+                                              self.id),
+                                             ('transaction_date', '=',
+                                              oldtransaction_date), '|',
+                                             ('active', '=', True),
+                                             ('active', '=', False)])
+                                    for r in room_transaction_line_objs:
+                                        for pkg in self.package_id.package_ids:
+                                            rate = self.rate_calculate(
+                                                pkg, self)
+                                            total_amount = self.total_amount_calculate(
+                                                rate, pkg, self)
+                                            if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
+                                                if total_amount == 0.0 and rate > 0.0:
+                                                    self.update_charge_line(
+                                                        r, pkg.transaction_id,
+                                                        rate, total_amount,
+                                                        False, pkg,
+                                                        oldtransaction_date,
+                                                        self.rooms)
+                                                else:
+                                                    self.update_charge_line(
+                                                        r, pkg.transaction_id,
+                                                        rate, total_amount,
+                                                        True, pkg,
+                                                        oldtransaction_date,
+                                                        self.rooms)
+                                                total_amount_include += total_amount
+                                                if total_amount > 0.0:
+                                                    total_room_rate += rate
+                                            else:
+                                                if not r.package_id:
+                                                    pkg = self.env[
+                                                        'package.header']
+                                                    room_rate = self.room_rate - total_room_rate
+                                                    room_amount = (
+                                                        self.room_rate *
+                                                        self.rooms
+                                                    ) - total_amount_include
+                                                    self.update_charge_line(
+                                                        r, self.ratecode_id.
+                                                        transaction_id,
+                                                        room_rate, room_amount,
+                                                        True, pkg,
+                                                        oldtransaction_date,
+                                                        self.rooms)
+                            old_day_count += 1
+                    elif self.nights > nights:
+                        old_day_count = 0
+                        oldtransaction_date = arrival
+                        for rec in range(nights):
+                            # transaction_date = self.arrival + timedelta(
+                            #     days=day_count)
+                            oldtransaction_date += timedelta(
+                                days=old_day_count)
+                            if self.package_id:
+                                total_amount_include = 0.0
+                                total_room_rate = 0.0
+                                room_transaction_line_objs = self.env[
+                                    'hms.room.transaction.charge.line'].search(
+                                        [('property_id', '=',
+                                          self.property_id.id),
+                                         ('reservation_line_id', '=', self.id),
+                                         ('transaction_date', '=',
+                                          oldtransaction_date), '|',
+                                         ('active', '=', True),
+                                         ('active', '=', False)])
+                                for r in room_transaction_line_objs:
+                                    for pkg in self.package_id.package_ids:
+                                        rate = self.rate_calculate(pkg, self)
+                                        total_amount = self.total_amount_calculate(
+                                            rate, pkg, self)
+                                        if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
+                                            if total_amount == 0.0 and rate > 0.0:
+                                                self.update_charge_line(
+                                                    r, pkg.transaction_id,
+                                                    rate, total_amount, False,
+                                                    pkg, oldtransaction_date,
+                                                    self.rooms)
+                                            else:
+                                                self.update_charge_line(
+                                                    r, pkg.transaction_id,
+                                                    rate, total_amount, True,
+                                                    pkg, oldtransaction_date,
+                                                    self.rooms)
+                                            total_amount_include += total_amount
+                                            if total_amount > 0.0:
+                                                total_room_rate += rate
+                                        else:
+                                            if not r.package_id:
+                                                pkg = self.env[
+                                                    'package.header']
+                                                room_rate = self.room_rate - total_room_rate
+                                                room_amount = (
+                                                    self.room_rate * self.rooms
+                                                ) - total_amount_include
+                                                self.update_charge_line(
+                                                    r, self.ratecode_id.
+                                                    transaction_id, room_rate,
+                                                    room_amount, True, pkg,
+                                                    oldtransaction_date,
+                                                    self.rooms)
+                                old_day_count += 1
+
+                        if oldtransaction_date != self.departure and self.nights > nights:
+                            diff_nights = self.nights - nights
+                            new_day_count = 1
+                            for n in range(diff_nights):
+                                oldtransaction_date += timedelta(
+                                    days=new_day_count)
+                                if self.package_id:
+                                    total_amount_include = 0.0
+                                    total_room_rate = 0.0
+                                    for pkg in self.package_id.package_ids:
+                                        rate = self.rate_calculate(pkg, self)
+                                        total_amount = self.total_amount_calculate(
+                                            rate, pkg, self)
+                                        room_transaction_line_objs = self.env[
+                                            'hms.room.transaction.charge.line'].search(
+                                                [('property_id', '=',
+                                                  self.property_id.id),
+                                                 ('reservation_line_id', '=',
+                                                  self.id),
+                                                 ('transaction_date', '=',
+                                                  transaction_date), '|',
+                                                 ('active', '=', True),
+                                                 ('active', '=', False)])
+
+                                        if total_amount == 0.0 and rate > 0.0:
+                                            self.create_charge_line(
+                                                self.property_id,
+                                                pkg.transaction_id, self, rate,
+                                                total_amount, False, pkg,
+                                                oldtransaction_date,
+                                                self.rooms)
+                                        else:
+                                            self.create_charge_line(
+                                                self.property_id,
+                                                pkg.transaction_id, self, rate,
+                                                total_amount, True, pkg,
+                                                oldtransaction_date,
+                                                self.rooms)
+                                        total_amount_include += total_amount
+                                        if total_amount > 0.0:
+                                            total_room_rate += rate
+                                    pkg = self.env['package.header']
                                     # Update Room Charge for rate code
                                     room_rate = self.room_rate - total_room_rate
                                     room_amount = (self.room_rate * self.rooms
                                                    ) - total_amount_include
-                                    r.update({
-                                        'transaction_id':
-                                        self.ratecode_id.transaction_id.id,
-                                        'rate':
-                                        room_rate,
-                                        'total_amount':
-                                        room_amount,
-                                        'active':
-                                        True,
-                                        'transaction_date':
-                                        self.arrival,
-                                        'total_room':
-                                        self.rooms,
-                                        'ref':
-                                        'AUTO',
-                                    })
+                                    self.create_charge_line(
+                                        self.property_id,
+                                        self.ratecode_id.transaction_id, self,
+                                        room_rate, room_amount, True, pkg,
+                                        oldtransaction_date, self.rooms)
 
-        # res = super(ReservationLine, self).write(values)
+                        # # For additional package update
+                    # if self.additional_pkg_ids:
+                    #     for p in self.additional_pkg_ids:
+                    #         for r in self.room_transaction_line_ids:
+                    #             rate = self.rate_calculate(p, self)
+                    #             total_amount = self.total_amount_calculate(
+                    #                 rate, p, self)
+                    #             # Check for same package and update charge line
+                    #             if r.package_id.id == p.id and r.transaction_id.id == p.transaction_id.id:
+                    #                 self.update_charge_line(
+                    #                     r, p.transaction_id, rate,
+                    #                     total_amount, True, p,
+                    #                     transaction_date, self.rooms)
+                # elif arrival != self.arrival:
+                #     pass
+                else:
+                    day_count = 0
+                    for rec in range(self.nights):
+                        transaction_date = self.arrival + timedelta(
+                            days=day_count)
+                        if self.package_id:
+                            total_amount_include = 0.0
+                            total_room_rate = 0.0
+                            room_transaction_line_objs = self.env[
+                                'hms.room.transaction.charge.line'].search([
+                                    ('property_id', '=', self.property_id.id),
+                                    ('reservation_line_id', '=', self.id),
+                                    ('transaction_date', '=',
+                                     transaction_date), '|',
+                                    ('active', '=', True),
+                                    ('active', '=', False)
+                                ])
+                            for r in room_transaction_line_objs:
+                                for pkg in self.package_id.package_ids:
+                                    rate = self.rate_calculate(pkg, self)
+                                    total_amount = self.total_amount_calculate(
+                                        rate, pkg, self)
+                                    if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
+                                        if total_amount == 0.0 and rate > 0.0:
+                                            self.update_charge_line(
+                                                r, pkg.transaction_id, rate,
+                                                total_amount, False, pkg,
+                                                transaction_date, self.rooms)
+                                        else:
+                                            self.update_charge_line(
+                                                r, pkg.transaction_id, rate,
+                                                total_amount, True, pkg,
+                                                transaction_date, self.rooms)
+                                        total_amount_include += total_amount
+                                        if total_amount > 0.0:
+                                            total_room_rate += rate
+                                    else:
+                                        if not r.package_id:
+                                            pkg = self.env['package.header']
+                                            room_rate = self.room_rate - total_room_rate
+                                            room_amount = (
+                                                self.room_rate * self.rooms
+                                            ) - total_amount_include
+                                            self.update_charge_line(
+                                                r, self.ratecode_id.
+                                                transaction_id, room_rate,
+                                                room_amount, True, pkg,
+                                                transaction_date, self.rooms)
+                            day_count += 1
         return res
 
     # Unlink Function
     def unlink(self):
 
+        room_transaction_line_objs = self.env[
+            'hms.room.transaction.charge.line']
         for record in self:
             state = record.state
             rooms = record.rooms
@@ -1915,7 +2125,11 @@ class ReservationLine(models.Model):
                                           status)
 
             record.reservation_id.rooms = record.reservation_id.rooms - record.rooms
-
+            room_transaction_line_objs += self.env[
+                'hms.room.transaction.charge.line'].search([
+                    ('reservation_line_id', '=', record.id)
+                ])
+        room_transaction_line_objs.unlink()
         res = super(ReservationLine, self).unlink()
         return res
 
@@ -2002,31 +2216,29 @@ class ReservationLine(models.Model):
 
     def rate_calculate(self, package_id, reservation_line_id):
         rate = 0.0
-        if package_id.rate_attribute == 'INR':
-            if package_id.reservation_fields_id:
-                if package_id.reservation_fields_id.code == 'BF':
-                    rate = reservation_line_id.ratecode_id.adult_bf
-                elif package_id.reservation_fields_id.code == 'EB':
-                    rate = reservation_line_id.ratecode_id.extra_bed
-                elif package_id.reservation_fields_id.code == 'CBF':
-                    rate = reservation_line_id.ratecode_id.child_bf
-            else:
-                rate = package_id.Fix_price
+        if package_id.reservation_fields_id:
+            if package_id.reservation_fields_id.code == 'BF':
+                rate = reservation_line_id.ratecode_id.adult_bf
+            elif package_id.reservation_fields_id.code == 'EB':
+                rate = reservation_line_id.ratecode_id.extra_bed
+            elif package_id.reservation_fields_id.code == 'CBF':
+                rate = reservation_line_id.ratecode_id.child_bf
+        else:
+            rate = package_id.Fix_price
         return rate
 
     def total_amount_calculate(self, rate, package_id, reservation_line_id):
         total_amount = 0.0
-        if package_id.rate_attribute == 'INR':
-            if package_id.Calculation_method == 'FIX':
-                total_amount = rate * reservation_line_id.rooms
-            elif package_id.Calculation_method == 'PA':
-                total_amount = rate * reservation_line_id.pax * reservation_line_id.rooms
-            elif package_id.Calculation_method == 'PC':
-                total_amount = rate * reservation_line_id.child * reservation_line_id.rooms
-            elif package_id.Calculation_method == 'CBP':
-                total_amount = rate * reservation_line_id.child_bfpax * reservation_line_id.rooms
-            elif package_id.Calculation_method == 'NEB':
-                total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
+        if package_id.Calculation_method == 'FIX':
+            total_amount = rate * reservation_line_id.rooms
+        elif package_id.Calculation_method == 'PA':
+            total_amount = rate * reservation_line_id.pax * reservation_line_id.rooms
+        elif package_id.Calculation_method == 'PC':
+            total_amount = rate * reservation_line_id.child * reservation_line_id.rooms
+        elif package_id.Calculation_method == 'CBP':
+            total_amount = rate * reservation_line_id.child_bfpax * reservation_line_id.rooms
+        elif package_id.Calculation_method == 'NEB':
+            total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
         return total_amount
 
     @api.model

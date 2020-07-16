@@ -28,7 +28,7 @@
             <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="RateCode" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <!-- <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">

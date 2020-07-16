@@ -34,6 +34,7 @@
                             </group>
                             <group string="Access Rate">
                                 <field name="rate_attribute" widget="radio" class="oe_edit_only"/>
+                                <!-- widget="radio" class="oe_edit_only" -->
                                 <field name="reservation_fields_id"/>
                                 <field name="Calculation_method"/>
                                 <field name="Fix_price"/>
