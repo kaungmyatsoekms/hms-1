@@ -68,7 +68,9 @@
             <field name="arch" type="xml">
                 <form string="Rate Code Details">
                     <sheet>
-                        <field name="property_id"/>
+                        <group>
+                            <field name="property_id"/>
+                        </group>
                         <group>
                             <group>
                                 <field name="season_code" style="width:50%%"/>
@@ -96,6 +98,8 @@
                                 <field name="weekend_price4"/>
                                 <field name="weekend_extra"/>
                             </group>
+                        </group>
+                        <group>    
                             <group>
                                 <field name="special_price1"/>
                                 <field name="special_price2"/>
@@ -103,6 +107,7 @@
                                 <field name="special_price4"/>
                                 <field name="special_extra"/>
                             </group>
+                            <group></group>
                         </group>
                     </sheet>
                 </form>

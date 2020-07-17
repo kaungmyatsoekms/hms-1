@@ -6,7 +6,8 @@ from odoo.modules import get_module_resource
 from odoo.tools import *
 from datetime import datetime, date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
-_logger = logging.getLogger(__name__)
+import pytz
+import calendar
 
 
 class HMSReason(models.Model):
@@ -135,7 +136,6 @@ class Reservation(models.Model):
         string="Contact")
     reservation_type = fields.Many2one('rsvn.type',
                                        string="Reservation Type",
-                                       required=True,
                                        readonly=True,
                                        default=2, store=True)
     reservation_status = fields.Many2one(
@@ -487,7 +487,6 @@ class Reservation(models.Model):
         
         res = super(Reservation, self).unlink()
         return res
-
     # All Split Rsvn Action
     def action_split(self):
         # arrival = self.arrival
@@ -665,7 +664,8 @@ class ReservationLine(models.Model):
     property_id = fields.Many2one('property.property',
                                   string="Property",
                                   readonly=True,
-                                  related='reservation_id.property_id')
+                                  related='reservation_id.property_id',
+                                  store=True)
     confirm_no = fields.Char(string="Confirm No.",
                              readonly=True,
                              related='reservation_id.confirm_no')
@@ -729,8 +729,17 @@ class ReservationLine(models.Model):
                                       compute='get_avail_room_ids')
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
-    ratecode_id = fields.Many2one('rate.code', string="Rate Code")
-    room_rate = fields.Float("Room Rate")
+    ratehead_id = fields.Many2one(
+        'ratecode.header',
+        domain=
+        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
+    )
+    ratecode_id = fields.Many2one(
+        'ratecode.details',
+        domain=
+        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
+    )
+    room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
     reason_id = fields.Many2one('hms.reason',
@@ -739,7 +748,9 @@ class ReservationLine(models.Model):
     discount_reason_id = fields.Many2one('hms.reason',
                                          string="Discount Reason",
                                          domain="[('type_id', '=', 2)]")
-    package_id = fields.Many2one('package.package', string="Package")
+    package_id = fields.Many2one('package.group',
+        related="ratecode_id.ratehead_id.pkg_group_id",
+        string="Package")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
@@ -749,7 +760,6 @@ class ReservationLine(models.Model):
     specialrequest_id = fields.One2many('hms.special.request',
                                         'reservationline_id',
                                         string="Special Request")
-
     reservation_user_id = fields.Many2one('res.users',
                                           string="User",
                                           related='reservation_id.user_id')
@@ -758,13 +768,13 @@ class ReservationLine(models.Model):
     cotime = fields.Datetime("Check-Out Time")
 
     extrabed = fields.Integer("Extra Bed")
-    extrabed_amount = fields.Float("Number of Extra Bed")
+    extrabed_amount = fields.Float("Number of Extra Bed", related="ratecode_id.extra_bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
     extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast")
+    extrapax_bf = fields.Float("Extra Pax Breakfast", related="ratecode_id.adult_bf")
     child_bfpax = fields.Integer("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast")
+    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")
 
     pickup = fields.Datetime("Pick Up Time")
@@ -777,9 +787,30 @@ class ReservationLine(models.Model):
     visa_issue = fields.Date("Visa Issue Date")
     visa_expire = fields.Date("Visa Expired Date")
     arrive_reason_id = fields.Char("Arrive Reason")
-
+    weekend_id = fields.Many2one('weekend.weekend', "Weekend")
     room_transaction_line_ids = fields.One2many(
         'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
+
+    # Compute Room Rate based on Pax
+    @api.depends('ratecode_id')
+    def _compute_room_rate(self):
+        for rec in self:
+            arrival = datetime.strptime(str(rec.arrival), '%Y-%m-%d').weekday()
+            temp = (calendar.day_name[arrival])
+            pax = rec.pax
+            rate = rec.ratecode_id
+            if pax == 1:
+                rec.room_rate = rate.normal_price1
+            elif pax == 2:
+                rec.room_rate = rate.normal_price1 + rate.normal_price2
+            elif pax == 3:
+                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3
+            elif pax == 4:
+                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4
+            else:
+                x = pax - 4
+                rec.room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4 + (
+                    rate.normal_extra * x)
 
     def set_kanban_color(self):
         for record in self:
@@ -814,7 +845,6 @@ class ReservationLine(models.Model):
         @param self: object pointer
         """
         return self.write({ 'color': 2})
-
 
     @api.constrains('arrival')
     def check_arrival_date(self):
@@ -1167,9 +1197,6 @@ class ReservationLine(models.Model):
 
     # @api.onchange('reservation_id')
     # def onchange_hfo_arrival(self):
-
-
-
     @api.onchange('arrival', 'departure', 'room_type', 'rooms')
     def onchange_roomtype(self):
         for rec in self:
@@ -1362,6 +1389,17 @@ class ReservationLine(models.Model):
                     'visa_expire': self.visa_expire,
                 }))
             self.reservation_id.update({'reservation_line_ids': vals})
+        # return {
+        #     'name':_('Copy'),
+        #     'view_type':'form',
+        #     'view_mode':'form',
+        #     'view_id':self.env.ref('hms.property_room_view_form').id,
+        #     'res_model':'property.room',
+        #     'context':"{'type':'out_propertyroom'}",
+        #     'type': 'ir.actions.client',
+        #     'tag': 'reload',
+        #     'target':'new',
+        # }
         return {
             'type': 'ir.actions.client',
             'tag': 'reload',
@@ -1617,7 +1655,6 @@ class ReservationLine(models.Model):
         res = super(ReservationLine, self).unlink()
         return res
 
-
     # State Update Forecast
     def _state_update_forecast(self,state,property_id,arrival,departure,room_type,rooms,reduce,status):
 
@@ -1696,8 +1733,6 @@ class ReservationLine(models.Model):
         no_show_rsvn_lines = self.env['hms.reservation.line'].search([('arrival', '<', datetime.today()),('state', '=','confirm')])
         for no_show_rsvn_line in no_show_rsvn_lines:
             no_show_rsvn_line.update({'is_no_show': True})
-
-
 
 # Cancel Reservation
 class CancelReservation(models.Model):
@@ -1784,8 +1819,15 @@ class CancelReservation(models.Model):
                                 domain="[('id', '=?', roomtype_ids)]")
     pax = fields.Integer("Pax", default=1)
     child = fields.Integer("Child")
-    ratecode_id = fields.Many2one('rate.code', string="Rate Code")
-    room_rate = fields.Float("Room Rate")
+    ratehead_id = fields.Many2one(
+        'ratecode.header',
+        domain=
+        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]")
+    ratecode_id = fields.Many2one(
+        'ratecode.details',
+        domain=
+        "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]")
+    room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
     package_id = fields.Many2one('package.package', string="Package")
@@ -1801,14 +1843,14 @@ class CancelReservation(models.Model):
     citime = fields.Datetime("Check-In Time")
     cotime = fields.Datetime("Check-Out Time")
 
-    extrabed = fields.Char("Extra Bed")
-    extrabed_amount = fields.Integer("Number of Extra Bed")
+    extrabed = fields.Integer("Extra Bed")
+    extrabed_amount = fields.Float("Number of Extra Bed", related="ratecode_id.extra_bed")
     extrabed_bf = fields.Float("Extra Bed Breakfast")
-    extrapax = fields.Float("Extra Pax")
+    extrapax = fields.Integer("Extra Pax")
     extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast")
-    child_bfpax = fields.Float("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast")
+    extrapax_bf = fields.Float("Extra Pax Breakfast", related="ratecode_id.adult_bf")
+    child_bfpax = fields.Integer("Child BF-Pax")
+    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")
 
     pickup = fields.Datetime("Pick Up Time")
@@ -1836,13 +1878,15 @@ class RoomReservationSummary(models.Model):
     _name = 'room.reservation.summary'
     _description = 'Room reservation summary'
 
-    property_id = fields.Many2one('property.property',string="Property", help="Property")
-    avail_room_ids = fields.Many2many('property.room',
-                                      string="Room Nos")#compute='get_avail_room_ids'
-    name = fields.Char('Reservation Summary', default='Reservations Summary',
+    property_id = fields.Many2one(
+        'property.property',
+        string="Property",
+        default=lambda self: self.env.user.property_id.id)
+    name = fields.Char('Reservation Summary',
+                       default='Reservations Summary',
                        invisible=True)
-    date_from = fields.Date('Date From', help="From Date")
-    date_to = fields.Date('Date To', help="To Date")
+    date_from = fields.Date('Date From')
+    date_to = fields.Date('Date To')
     summary_header = fields.Text('Summary Header')
     room_summary = fields.Text('Room Summary')
 
@@ -1858,7 +1902,7 @@ class RoomReservationSummary(models.Model):
             self._context = {}
         res = super(RoomReservationSummary, self).default_get(fields)
         # Added default datetime as today and date to as today + 30.
-        from_dt =  datetime.today()
+        from_dt = datetime.today()
         dt_from = from_dt.strftime(dt)
         to_dt = from_dt + relativedelta(days=30)
         dt_to = to_dt.strftime(dt)
@@ -1866,8 +1910,8 @@ class RoomReservationSummary(models.Model):
 
         if not self.date_from and self.date_to:
             date_today = datetime.datetime.today()
-            first_day = datetime.datetime(date_today.year,
-                                          date_today.month, 1, 0, 0, 0)
+            first_day = datetime.datetime(date_today.year, date_today.month, 1,
+                                          0, 0, 0)
             first_temp_day = first_day + relativedelta(months=1)
             last_temp_day = first_temp_day - relativedelta(days=1)
             last_day = datetime.datetime(last_temp_day.year,
@@ -1886,19 +1930,185 @@ class RoomReservationSummary(models.Model):
         if self._context is None:
             self._context = {}
         model_data_ids = mod_obj.search([('model', '=', 'ir.ui.view'),
-                                         ('name', '=',
-                                          'reservation_view_form')])
+                                         ('name', '=', 'reservation_view_form')
+                                         ])
         resource_id = model_data_ids.read(fields=['res_id'])[0]['res_id']
-        return {'name': _('Reconcile Write-Off'),
-                'context': self._context,
-                'view_type': 'form',
-                'view_mode': 'form',
-                'res_model': 'hotel.reservation',
-                'views': [(resource_id, 'form')],
-                'type': 'ir.actions.act_window',
-                'target': 'new',
-                }
-    
+        return {
+            'name': _('Reconcile Write-Off'),
+            'context': self._context,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'hms.reservation',
+            'views': [(resource_id, 'form')],
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
+
+    @api.onchange('property_id', 'date_from', 'date_to')
+    def get_room_summary(self):
+        '''
+        @param self: object pointer
+         '''
+        res = {}
+        all_detail = []
+        room_obj = self.env['property.room'].search([
+            ('property_id', '=', self.property_id.id),
+            ('roomtype_id.code', '!=', 'HFO')
+        ])
+        reservation_line_obj = self.env['hms.reservation.line'].search([
+            ('property_id', '=', self.property_id.id)
+        ])
+        date_range_list = []
+        main_header = []
+        summary_header_list = ['Rooms']
+        if self.date_from and self.date_to:
+            if self.date_from > self.date_to:
+                raise UserError(
+                    _('Please Check Time period Date From can\'t \
+                                   be greater than Date To !'))
+            if self._context.get('tz', False):
+                timezone = pytz.timezone(self._context.get('tz', False))
+            else:
+                timezone = pytz.timezone('UTC')
+            dt_from = self.date_from.strftime(dt)
+            dt_to = self.date_to.strftime(dt)
+            d_frm_obj = datetime.strptime(dt_from, dt)\
+                .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
+            d_to_obj = datetime.strptime(dt_to, dt)\
+                .replace(tzinfo=pytz.timezone('UTC')).astimezone(timezone)
+            temp_date = d_frm_obj
+            while (temp_date <= d_to_obj):
+                val = ''
+                val = (str(temp_date.strftime("%a")) + ' ' +
+                       str(temp_date.strftime("%b")) + ' ' +
+                       str(temp_date.strftime("%d")))
+                summary_header_list.append(val)
+                date_range_list.append(temp_date.strftime(dt))
+                temp_date = temp_date + timedelta(days=1)
+            all_detail.append(summary_header_list)
+            room_ids = room_obj
+            all_room_detail = []
+            for room in room_ids:
+                room_detail = {}
+                room_list_stats = []
+                room_detail.update({'name': room.room_no or ''})
+                if not room.room_reservation_line_ids:
+                    for chk_date in date_range_list:
+                        room_list_stats.append({
+                            'state': 'Free',
+                            'date': chk_date,
+                            'room_id': room.id
+                        })
+                else:
+                    for chk_date in date_range_list:
+                        ch_dt = chk_date[:10] + ' 23:59:59'
+                        ttime = datetime.strptime(ch_dt, dt)
+                        c = ttime.replace(tzinfo=timezone).\
+                            astimezone(pytz.timezone('UTC'))
+                        chk_date = c.strftime(dt)
+                        reserline_ids = room.room_reservation_line_ids.ids
+                        reservline_ids = reservation_line_obj.search([
+                            ('id', 'in', reserline_ids),
+                            ('arrival', '<=', chk_date),
+                            ('departure', '>', chk_date),
+                            ('state', '=', 'confirm')
+                        ])
+                        if reservline_ids:
+                            room_list_stats.append({
+                                'state': 'Reserved',
+                                'date': chk_date,
+                                'room_id': room.id,
+                                'is_draft': 'No',
+                                'data_model': '',
+                                'data_id': 0
+                            })
+                        else:
+                            room_list_stats.append({
+                                'state': 'Free',
+                                'date': chk_date,
+                                'room_id': room.id
+                            })
+
+                room_detail.update({'value': room_list_stats})
+                all_room_detail.append(room_detail)
+            main_header.append({'header': summary_header_list})
+            self.summary_header = str(main_header)
+            self.room_summary = str(all_room_detail)
+        return res
+
+class QuickRoomReservation(models.TransientModel):
+    _name = 'quick.room.reservation'
+    _description = 'Quick Room Reservation'
+
+    property_id = fields.Many2one('property.property', 'Hotel', required=True)
+    check_in = fields.Date('Check In', required=True)
+    check_out = fields.Date('Check Out', required=True)
+    rooms = fields.Integer('Rooms', required=True)
+    market_ids = fields.Many2many('market.segment',
+                                  related="property_id.market_ids")
+    market = fields.Many2one('market.segment',
+                             string="Market",
+                             domain="[('id', '=?', market_ids)]",
+                             required=True)
+    source = fields.Many2one('market.source', string="Source", required=True)
+    # roomtype_id = fields.Many2one('room.type', 'Room Type', required=True)
+    # room_id = fields.Many2one('property.room', 'Room', required=True)
+    # adults = fields.Integer('Adults', size=64)
+
+    @api.onchange('check_out', 'check_in')
+    def on_change_check_out(self):
+        '''
+        When you change checkout or checkin it will check whether
+        Checkout date should be greater than Checkin date
+        and update dummy field
+        -----------------------------------------------------------
+        @param self: object pointer
+        @return: raise warning depending on the validation
+        '''
+        if self.check_out and self.check_in:
+            if self.check_out < self.check_in:
+                raise ValidationError(
+                    _('Checkout date should be greater \
+                                         than Checkin date.'))
+
+    @api.model
+    def default_get(self, fields):
+        """
+        To get default values for the object.
+        @param self: The object pointer.
+        @param fields: List of fields for which we want default values
+        @return: A dictionary which of fields with values.
+        """
+        if self._context is None:
+            self._context = {}
+        res = super(QuickRoomReservation, self).default_get(fields)
+        if self._context:
+            keys = self._context.keys()
+            if 'date' in keys:
+                res.update({'check_in': self._context['date']})
+            if 'rooms' in keys:
+                room = self._context['rooms']
+                res.update({'rooms': int(room)})
+        return res
+
+    def room_reserve(self):
+        """
+        This method create a new record for hms.reservation
+        -----------------------------------------------------
+        @param self: The object pointer
+        @return: new record set for hotel reservation.
+        """
+        hotel_res_obj = self.env['hms.reservation']
+        for res in self:
+            rec = hotel_res_obj.create({
+                'arrival': res.check_in,
+                'departure': res.check_out,
+                'property_id': res.property_id.id,
+                'rooms': res.rooms,
+                'market': res.market.id,
+                'source': res.source.id,
+            })
+        return rec
 
 class OverBooking(models.Model):
     _name = "over.booking"

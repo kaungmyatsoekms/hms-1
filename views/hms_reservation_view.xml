@@ -45,13 +45,25 @@
                     <header>
                         <field name="is_reservation" invisible="1"/>
                         <field name="is_arrival_today" invisible="1"/>
-                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
-                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
                     </header>
                     <sheet>
@@ -69,22 +81,19 @@
                                 <field name="checkin_room_count" widget='statinfo'/>
                             </button>
                         </div>
-                        <div class="oe_title" >
+                        <div class="oe_title">
                             <h1>
                                 <field name="confirm_no" class="oe_inline"/>
                             </h1>
                         </div>
                         <div>
                             <div>
-                            <field name="type" widget="radio"
-                                        class="oe_edit_only"
-                                        options="{'horizontal': true}"/>
-                            </div>
-                            <div>
-                                <field name="user_id" readonly="1" class="oe_avatar"/>
-                                <field name="date_order" class="oe_avatar"/>
+                                <field name="type" widget="radio" class="oe_edit_only" options="{'horizontal': true}"/>
                             </div>
                         </div>
+                        <field name="user_id" readonly="1"/>
+                        <br></br>
+                        <field name="date_order"/>
                         <group>
                             <group>
                                 <field name="property_id"/>
@@ -144,9 +153,7 @@
                                                                 'reservation_type':reservation_type, 'reservation_status': reservation_status,
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
-                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}"
-                                                                colspan="4" 
-                                                                nolabel="1">  <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
+                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
                                     <form string="Reservation Line">
                                         <group colspan="4" col="4">
                                             <field name="is_roomtype_fix" invisible="1"/>
@@ -165,6 +172,7 @@
                                             <field name="rooms"/>
                                             <field name="pax"/>
                                             <field name="child"/>
+                                            <field name="ratehead_id"/>
                                             <field name="ratecode_id" string="Rate Code"/>
                                             <field name="room_rate" string="Room Rate"/>
                                             <field name="market_ids" invisible="1"/>
@@ -196,9 +204,10 @@
                                         <field name="room_type" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
-                                        <field name="rooms" />
+                                        <field name="rooms"/>
                                         <field name="pax"/>
-                                        <field name="child" />
+                                        <field name="child"/>
+                                        <field name="ratehead_id"/>
                                         <field name="ratecode_id" string="Rate Code"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
@@ -419,7 +428,7 @@
                         <separator string="Room Reservation Summary" colspan="4" />
                     </header>
                     <sheet>
-                       <group>
+                        <group>
                             <group>
                                 <field name="property_id"/>
                                 <label for="date_from" string="Summary Period" />
@@ -429,10 +438,27 @@
                                 </div>    
                             </group>
                         </group>
+                        <!-- <h3>
+                            <field name="property_id"/>
+                            <label for="date_from" string="Summary Period" />
+                            <div class="o_address_format"></div>
+                                <field name="date_from" class="oe_inline" />
+                                <label for="date_to" string="to"/>
+                                <field name="date_to" class="oe_inline" />
+                            </div>    
+                        </h3>
+                        <group colspan="4" col="4">
+                            <div>
+                                <label for="date_from" string="Summary Period" />
+                                <field name="date_from" class="oe_inline" />
+                                to
+                                <field name="date_to" class="oe_inline" />
+                            </div>
+                        </group> -->
                         <notebook>
                             <page string="Room Summary">
                                 <field name="summary_header" colspan="4" invisible="1"/>
-                                <field name="room_summary" colspan="4" widget="Room_Reservation" />
+                                <field name="room_summary" colspan="4" widget="Room_Reservation"/>
                             </page>
                         </notebook>
                     </sheet>
@@ -446,7 +472,36 @@
             <field name="res_model">room.reservation.summary</field>
             <field name="view_mode">form</field>
         </record>
+        <!-- Form view of quick room reservation -->
+        <record id="quick_room_reservation_form_view" model="ir.ui.view">
+            <field name="name">quick.room.reservation.form</field>
+            <field name="model">quick.room.reservation</field>
+            <field name="arch" type="xml">
+                <form string="Quick Reservation">
+                    <sheet>
+                        <separator string="Quick Reservation" colspan="4" />
+                        <field name="market_ids" invisible="1"/>
+                        <group colspan="4" col="4">
+                            <field name="property_id" />
+                            <field name="rooms" />
+                            <field name="check_in" />
+                            <field name="check_out" />
+                            <field name="market"/>
+                            <field name="source"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <group colspan="2" col="2">
+                            <button string="Save" name="room_reserve" type="object" class="btn-primary" />
+                            <button string="Cancel" special="cancel" class="btn-primary" />
+                        </group>
+                    </footer>
+                </form>
+            </field>
+        </record>
 
+
+    
         <!--Reservation Line-->
         <!-- Reservation Line Form View -->
         <record id="reservation_line_view_form" model="ir.ui.view">
@@ -457,26 +512,39 @@
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
-                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
+                            <field name="property_id"/>
                             <field name="reservation_id" invisible="1"/>
                              <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
-                            <h1><field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/></h1>
+                            <h1>
+                                <field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/>
+                            </h1>
                         </div>
-                        <div class="o_row">
-                        <field name="reservation_user_id" readonly="1" class="oe_avatar"/>
+                        <field name="reservation_user_id" readonly="1"/>
                         <br></br>
-                        <field name="madeondate" class="oe_avatar"/>
-                        </div>
+                        <field name="madeondate"/>
                         <group>
                             <group name="">
                                 <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
@@ -514,7 +582,6 @@
                                 <label for="pax" string="Pax / Child"/>
                                 <div class="address_format">
                                     <field name="pax" placeholder="Pax" style="width:20%%"/>
-                                    <!-- <label for="child" string=" " style="width:1em"/> -->
                                     <field name="child" placeholder="Child" style="width:20%%"/>
                                 </div>
                                 <label for="citime" string="CI / CO Time"/>
@@ -531,12 +598,14 @@
                                 <field name="reason_id" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>                            
                             </group>
                             <group>
-                                <field name="allotment_id" style="width:33%%" placeholder="Allotment"/>
+                                
                                 <label for="ratecode_id" string="Rate Code / Room Rate"/>
                                 <div class="address_format">
+                                    <field name="ratehead_id"/>
                                     <field name="ratecode_id" style="width:33%%"/>
                                     <field name="room_rate" style="width:33%%"/>
                                 </div>
+                                <field name="allotment_id" style="width:33%%" placeholder="Allotment"/>
                                 <field name="package_id" placeholder="Package" style="width:33%%"/>
                                 <label for="updown_amt" string="Updown Amt / Pc"/>
                                 <div class="o_address_format">
@@ -544,7 +613,7 @@
                                     <field name="updown_pc" style="width:33%%"/>
                                 </div>
                                 <field name="rate_nett" style="width:33%%"/>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' :2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>  
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>  
                                     <label for="child_bfpax" string="Child BF"/>
                                     <div class="address_format">
                                         <field name="child_bfpax" style="width: 33%"/>
@@ -650,6 +719,7 @@
                     <field name="rooms"/>
                     <field name="pax" optional="hide"/>
                     <field name="room_no" optional="hide"/>
+                    <field name="ratehead_id"/>
                     <field name="ratecode_id" optional="hide"/>
                     <field name="room_rate"/>
                     <field name="package_id" optional="hide"/>
@@ -867,11 +937,25 @@
                     <header>
                         <field name="is_reservation" invisible="1"/>
                         <field name="is_arrival_today" invisible="1"/>
-                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
@@ -891,7 +975,7 @@
                                 <field name="checkin_room_count" widget='statinfo'/>
                             </button>
                         </div>
-                        <div class="oe_title" >
+                        <div class="oe_title">
                             <h1>
                                 <field name="confirm_no" class="oe_inline"/>
                             </h1>
@@ -980,6 +1064,7 @@
                                             <field name="rooms"/>
                                             <field name="pax"/>
                                             <field name="child"/>
+                                            <field name="ratehead_id"/>
                                             <field name="ratecode_id" string="Rate Code"/>
                                             <field name="room_rate" string="Room Rate"/>
                                             <field name="market_ids" invisible="1"/>
@@ -1009,6 +1094,7 @@
                                         <field name="rooms" />
                                         <field name="pax"/>
                                         <field name="child" />
+                                        <field name="ratehead_id"/>
                                         <field name="ratecode_id" string="Rate Code"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
@@ -1057,7 +1143,7 @@
             </field>
         </record>
 
-        <!-- Group Cancel Record-->
+        <!-- Group Cancel Action-->
         <record id="cancel_full_action_window" model="ir.actions.act_window">
             <field name="name">Cancellation Group</field>
             <field name="res_model">hms.reservation</field>
@@ -1074,16 +1160,27 @@
                 <form string="Cancel Line Reservation Details" create="false" edit="false" delete="false" no_create_edit="True" import="false">
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
-                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}"><i class="fa fa-paint-brush"></i></button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}"><i class="fa fa-paint-brush"></i></button>
+                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
+                            <field name="property_id"/>
                             <field name="reservation_id" invisible="1"/>
                              <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1><field name="confirm_no" placeholder="Confirm ID" style="width:80%%"/></h1>
@@ -1150,6 +1247,7 @@
                                 <field name="allotment_id" placeholder="Allotment"/>
                                 <label for="ratecode_id" string="Rate Code / Room Rate"/>
                                 <div class="address_format">
+                                    <field name="ratehead_id"/>
                                     <field name="ratecode_id" style="width:33%%"/>
                                     <field name="room_rate" style="width:33%%"/>
                                 </div>
