@@ -29,13 +29,11 @@ class HMSCancelReasonWizard(models.TransientModel):
         reservations = self.env['hms.reservation'].browse(
             self._context.get('active_id', []))
 
-        # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=',reservations.id),('room_type.code', '=', 'HFO')])
-        # no_hfo_reservation = list(set(reservations.reservation_line_ids)- set(hfo_reservation))
-
         # Cancel Table record
         for d in reservations.reservation_line_ids:
             if d.state != 'cancel':
                 #Update Availability
+                room_no = self.env['property.room']
                 state = d.state
                 property_id = d.property_id.id
                 arrival = d.arrival
@@ -50,6 +48,7 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'reason_id': self.reason_id,
                     'state': status,
                     'is_cancel': True,
+                    'room_no' : room_no,
                 })
                 # res = {}
                 self.env['hms.cancel.rsvn'].create({
@@ -106,7 +105,7 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'confirm_no':
                     d.confirm_no,
                     'room_no':
-                    d.room_no.id,
+                    room_no,
                     'room_type':
                     d.room_type.id,
                     'pax':
@@ -218,6 +217,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
 
         for d in reservation_lines:
             #Update Availability
+            room_no = self.env['property.room']
             state = d.state
             property_id = d.property_id.id
             arrival = d.arrival
@@ -232,6 +232,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 'reason_id': self.reason_id,
                 'state': status,
                 'is_cancel': True,
+                'room_no' : room_no,
             })
         reservation_lines.copy_cancel_record()
         # Check All Reservation lines are same state, update main group to state

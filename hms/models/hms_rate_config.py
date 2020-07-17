@@ -140,8 +140,8 @@ class RateCodeDetails(models.Model):
     adult_bf = fields.Float(string="Adult Breakfast")
     child_bf = fields.Float(string="Child Breakfast")
     package_id = fields.Char(string="Package")
-    discount_percent = fields.Float(string="Discount Percentage", default=10.0)
-    discount_amount = fields.Float(string="Discount Amount", default=50.0)
+    discount_percent = fields.Float(string="Discount Percentage")
+    discount_amount = fields.Float(string="Discount Amount")
 
     # def name_get(self):
     #     result = []

@@ -9,7 +9,8 @@
                 <tree string="Reservation" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible='1'/>
-                    <field name="property_id" optional="hide"/>
+                    <field name="is_no_show" optional="show"/>
+                    <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
                     <field name="guest_id" optional="show"/>
@@ -508,7 +509,7 @@
                         <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
+                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', ('system_date', '!=', 'arrival'), ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}">
@@ -539,6 +540,7 @@
                                     <field name="reservation_type" style="width:50%%" placeholder="Type"/>
                                     <field name="reservation_status" style="width:50%%" placeholder="Status"/>
                                 </div>
+                                <field name="system_date" />
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
@@ -688,6 +690,7 @@
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
                  <tree string="Reservation Details" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                    <field name="property_id" optional="show"/>
                     <field name="is_roomtype_fix" invisible="1"/>
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible="1"/>

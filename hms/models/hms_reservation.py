@@ -60,6 +60,7 @@ class Reservation(models.Model):
     _order = 'confirm_no desc'
     _inherit = ['mail.thread']
 
+    is_no_show = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     color = fields.Integer(string='Color Index', compute="set_kanban_color")
     active = fields.Boolean('Active', default=True, track_visibility=True)
@@ -694,6 +695,7 @@ class ReservationLine(models.Model):
                                 index=True)
     bedtype_ids = fields.Many2many('bed.type', related="room_type.bed_type")
     bedtype_id = fields.Many2one('bed.type', domain="[('id', '=?', bedtype_ids)]" )
+    system_date = fields.Date("System Date", related="property_id.system_date")
     arrival = fields.Date("Arrival",
                           default=get_arrival,
                           readonly=False,
@@ -905,13 +907,14 @@ class ReservationLine(models.Model):
             record.color = color
 
     def _compute_is_arrival_today(self):
-        arrival_date = self.arrival
-        if datetime.strptime(
-                str(arrival_date),
-                DEFAULT_SERVER_DATE_FORMAT).date() == datetime.now().date():
-            self.is_arrival_today = True
-        else:
-            self.is_arrival_today = False
+        for rec in self:
+            arrival_date = rec.arrival
+            if datetime.strptime(
+                    str(arrival_date),
+                    DEFAULT_SERVER_DATE_FORMAT).date() == datetime.now().date():
+                rec.is_arrival_today = True
+            else:
+                rec.is_arrival_today = False
 
     def set_to_booking(self):
         for record in self:
@@ -1808,12 +1811,64 @@ class ReservationLine(models.Model):
         #         rsvn_state = reservation_id.state
         #         rsvn.write({'state' : rsvn_state})
 
-
+    # Scheduled Update No Show Reservation Daily
     @api.model
     def _no_show_reservation(self):
         no_show_rsvn_lines = self.env['hms.reservation.line'].search([('arrival', '<', datetime.today()),('state', '=','confirm')])
         for no_show_rsvn_line in no_show_rsvn_lines:
-            no_show_rsvn_line.update({'is_no_show': True})
+            if no_show_rsvn_line.property_id.is_manual is False:
+                no_show_rsvn_line.update({'is_no_show': True})
+        no_show_rsvns = self.env['hms.reservation'].search([
+            ('arrival', '<', datetime.today())
+        ])
+        for no_show_rsvn in no_show_rsvns:
+            if no_show_rsvn.property_id.is_manual is False:
+                no_show_line_count = 0
+                for line in no_show_rsvn.reservation_line_ids:
+                    if line.is_no_show is True:
+                        no_show_line_count += 1
+                if len(no_show_rsvn.reservation_line_ids) == no_show_line_count:
+                    no_show_rsvn.update({'is_no_show': True})
+
+
+
+    # Scheduled Remove Reservation and Reservation line daily
+    @api.model
+    def _remove_reservation_daily(self):
+        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('arrival', '<', datetime.today()), ('active', '=', True),'|', ('state', '=', 'booking'),('state', '=', 'reservation')
+        ])
+        for rsvn_line in out_date_rsvn_lines:
+            if rsvn_line.property_id.is_manual is False:
+                rsvn_line.update({'active': False})
+
+        out_date_reservations = self.env['hms.reservation'].search([
+            ('arrival', '<', datetime.today())
+        ])
+        for rsvn in out_date_reservations:
+            if rsvn.property_id.is_manual is False:
+                if len(rsvn.reservation_line_ids) == 0:
+                    rsvn.update({'active': False})
+
+    # Scheduled Delete NO Show Reservation and Line
+    @api.model
+    def remove_noshow_rsvn_daily(self):
+        ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('is_no_show', '=', True),
+            ('departure', '<', datetime.today())
+        ])
+        for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
+            if ex_noshow_rsvn_line.property_id.is_manual is False:
+                ex_noshow_rsvn_line.update({'active': False})
+
+        ex_noshow_rsvns = self.env['hms.reservation'].search([
+            ('is_no_show', '=', True),
+            ('departure', '<', datetime.today())
+        ])
+        for ex_noshow_rsvn in ex_noshow_rsvns:
+            if ex_noshow_rsvn.property_id.is_manual is False:
+                if len(ex_noshow_rsvn.reservation_line_ids) == 0:
+                    ex_noshow_rsvn.update({'active': False})
 
     # For Additional Packages
     def create_additional_pkg(self):
@@ -1869,20 +1924,6 @@ class ReservationLine(models.Model):
                     rec.rate_attribute,
                 })
                 return res
-
-    @api.model
-    def _remove_reservation_daily(self):
-        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()), ('active', '=', True),'|', ('state', '=', 'booking'),('state', '=', 'reservation')
-        ])
-        for rsvn_line in out_date_rsvn_lines:
-            rsvn_line.update({'active': False})
-
-        out_date_reservations = self.env['hms.reservation'].search([
-            ('arrival', '<', datetime.today())
-        ])
-        for rsvn in out_date_reservations:
-            rsvn.update({'active': False})
 
 
 # Cancel Reservation
