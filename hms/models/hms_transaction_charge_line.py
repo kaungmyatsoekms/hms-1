@@ -7,6 +7,13 @@ from odoo.modules import get_module_resource
 from odoo.tools import *
 from datetime import datetime, date, timedelta
 
+RATE_ATTRIBUTE = [
+    ('INR', 'Include in Rate'),
+    ('ARS', 'Add Rate Separate Line'),
+    ('ARC', 'Add Rate Combined Line'),
+    ('SS', 'Sell Separate'),
+]
+
 
 class HMSTransactionChargeLine(models.Model):
     _name = 'hms.room.transaction.charge.line'
@@ -37,6 +44,10 @@ class HMSTransactionChargeLine(models.Model):
     package_id = fields.Many2one('package.header', string='Package')
     total_room = fields.Integer('Rooms', related="reservation_line_id.rooms")
     transaction_date = fields.Date("Date")
+    rate_attribute = fields.Selection(RATE_ATTRIBUTE,
+                                      string="Attribute",
+                                      index=True,
+                                      default=RATE_ATTRIBUTE[0][0])
     ref = fields.Char(string="Reference")
 
     @api.onchange('package_id')

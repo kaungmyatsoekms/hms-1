@@ -13,8 +13,8 @@ POSTING_RYTHMS = [
     ('3', 'Post on Last Night'),
     ('4', 'Post Every Night Except Arrival Night'),
     ('5', 'Post Every Night Except Last Night'),
-    ('6', 'Post on Certain Nights of the Week'),
-    ('7', 'Do Not Post on First and Last Night'),
+    ('6', 'Do Not Post on First and Last Night'),
+    ('7', 'Post on Certain Nights of the Week'),
 ]
 
 CALCUATION_METHODS = [
