@@ -31,6 +31,7 @@ class HMSTransactionChargeLine(models.Model):
     rate = fields.Float("Rate", store=True)
     total_amount = fields.Float("Total")
     active = fields.Boolean(default=True)
+    delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
         'package.header', related="reservation_line_id.package_id.package_ids")
     package_id = fields.Many2one('package.header', string='Package')
@@ -47,72 +48,3 @@ class HMSTransactionChargeLine(models.Model):
                 package_id, reservation_line_id)
             rec.total_amount = reservation_line_id.total_amount_calculate(
                 rec.rate, package_id, reservation_line_id)
-
-            # rec.transaction_id = rec.package_id.transaction_id
-            # if rec.package_id.rate_attribute == 'INR':
-            #     if rec.package_id.Calculation_method == 'FIX':
-            #         if rec.package_id.reservation_fields_id:
-            #             if rec.package_id.reservation_fields_id.code == 'BF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
-            #             elif rec.package_id.reservation_fields_id.code == 'EB':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
-            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
-            #         else:
-            #             rec.rate = rec.total_amount = rec.package_id.Fix_price
-            #     elif rec.package_id.Calculation_method == 'PA':
-            #         if rec.package_id.reservation_fields_id:
-            #             if rec.package_id.reservation_fields_id.code == 'BF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
-            #                 rec.total_amount = rec.reservation_line_id.ratecode_id.adult_bf * rec.reservation_line_id.pax
-            #             elif rec.package_id.reservation_fields_id.code == 'EB':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
-            #                 rec.total_amount = rec.reservation_line_id.ratecode_id.extra_bed * rec.reservation_line_id.pax
-            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.pax
-            #         else:
-            #             rec.rate = rec.package_id.Fix_price
-            #             rec.total_amount = rec.rate * rec.reservation_line_id.pax
-            #     elif rec.package_id.Calculation_method == 'PC':
-            #         if rec.package_id.reservation_fields_id:
-            #             if rec.package_id.reservation_fields_id.code == 'BF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child
-            #             elif rec.package_id.reservation_fields_id.code == 'EB':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child
-            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child
-            #         else:
-            #             rec.rate = rec.package_id.Fix_price
-            #             rec.total_amount = rec.rate * rec.reservation_line_id.child
-            #     elif rec.package_id.Calculation_method == 'CBP':
-            #         if rec.package_id.reservation_fields_id:
-            #             if rec.package_id.reservation_fields_id.code == 'BF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
-            #             elif rec.package_id.reservation_fields_id.code == 'EB':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
-            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
-            #         else:
-            #             rec.rate = rec.package_id.Fix_price
-            #             rec.total_amount = rec.rate * rec.reservation_line_id.child_bfpax
-            #     elif rec.package_id.Calculation_method == 'NEB':
-            #         if rec.package_id.reservation_fields_id:
-            #             if rec.package_id.reservation_fields_id.code == 'BF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.adult_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
-            #             elif rec.package_id.reservation_fields_id.code == 'EB':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.extra_bed
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
-            #             elif rec.package_id.reservation_fields_id.code == 'CBF':
-            #                 rec.rate = rec.reservation_line_id.ratecode_id.child_bf
-            #                 rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
-            #         else:
-            #             rec.rate = rec.package_id.Fix_price
-            #             rec.total_amount = rec.rate * rec.reservation_line_id.extrabed
