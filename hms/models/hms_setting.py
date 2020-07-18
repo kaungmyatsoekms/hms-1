@@ -144,8 +144,8 @@ class Passport(models.Model):
                 for rec in record_list:
                     rec.active = False
 
-    @api.onchange('issue_date', 'expire_date')
-    @api.constrains('issue_date', 'expire_date')
+    @api.onchange('issue_date')
+    @api.constrains('issue_date')
     def get_two_date_comp(self):
         issue_date = self.issue_date
         expire_date = self.expire_date
@@ -170,8 +170,8 @@ class Contract(models.Model):
     note = fields.Text(string="Internal Note")
     file = fields.Binary(string="File")
 
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date')
+    @api.constrains('start_date')
     def get_two_date_comp(self):
         start_date = self.start_date
         end_date = self.end_date
@@ -589,26 +589,7 @@ class Partner(models.Model):
                     next_by_code(crm_type.code) or 'New'
             pf_no = p_no_pre + p_no
 
-        return pf_no
-
-    # Create Function
-    @api.model
-    def create(self, values):
-
-        values['is_from_hms'] = True
-        company_type= values.get('company_type') 
-        property_id = values.get('property_id')
-        property_id = self.env['property.property'].search(
-            [('id', '=', property_id)])
-        crm_type = values.get('company_channel_type')
-        crm_type = self.env['hms.company.category'].search(
-            [('id', '=', crm_type)])
-        
-        if company_type == 'company' or company_type == 'guest':
-            pf_no = self.generate_profile_no(company_type,property_id,crm_type)
-            values.update({'profile_no':pf_no}) 
-        
-        if company_type == 'group':
+        elif company_type == 'group':
             if property_id:
                 if property_id.gprofile_id_format:
                     format_ids = self.env['pms.format.detail'].search(
@@ -649,13 +630,28 @@ class Partner(models.Model):
                 p_no += self.env['ir.sequence'].\
                         next_by_code(property_id.code+property_id.gprofile_id_format.code) or 'New'
                 pf_no = p_no_pre + p_no
-                values.update({'profile_no':pf_no})
-
             else:
                 raise ValidationError("Select Property or Create Property First!")
 
+        return pf_no
 
-        # values.update({'profile_no':pf_no})
+    # Create Function
+    @api.model
+    def create(self, values):
+
+        values['is_from_hms'] = True
+        company_type= values.get('company_type') 
+        property_id = values.get('property_id')
+        property_id = self.env['property.property'].search(
+            [('id', '=', property_id)])
+        crm_type = values.get('company_channel_type')
+        crm_type = self.env['hms.company.category'].search(
+            [('id', '=', crm_type)])
+        
+        if company_type == 'company' or company_type == 'guest':
+            pf_no = self.generate_profile_no(company_type,property_id,crm_type)
+
+            values.update({'profile_no':pf_no}) 
 
         company_objs = self.env['res.company']
         res = super(Partner,self).create(values)
@@ -696,12 +692,10 @@ class Partner(models.Model):
         
         if 'company_type' in values.keys() or 'company_channel_type' in values.keys():
             crm_type = self.company_channel_type
-            # company_type = values.get('company_type')
             company_type = self.company_type
             property_id = self.property_id
             pf_no = self.generate_profile_no(company_type,property_id,crm_type)
             if pf_no:
-                #values.update({'profile_no':pf_no})
                 self.profile_no = pf_no
         return res
         

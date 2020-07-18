@@ -24,7 +24,7 @@
                                     <field name="start_date" style="width:50%%"/>
                                     <field name="end_date" style="width:50%%"/>
                                 </div>
-                                <field name="transaction_id"/>
+                                <field name="transaction_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="include_service"/>
                                 <field name="include_tax"/>
                                 <field name="package_profit"/>

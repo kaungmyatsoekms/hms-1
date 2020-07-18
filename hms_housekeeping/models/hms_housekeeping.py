@@ -9,7 +9,7 @@ class HMSHousekeeping(models.Model):
     _name = "hms.housekeeping"
     _description = "Reservation"
 
-    property_id = fields.Many2one('property.property',string="Property", default=lambda self: self.env.user.property_id.id)
+    property_id = fields.Many2one('hms.property',string="Property", default=lambda self: self.env.user.property_id.id)
     current_date = fields.Date("Today's Date", required=True,
                                index=True,
                                states={'done': [('readonly', True)]},
@@ -19,7 +19,7 @@ class HMSHousekeeping(models.Model):
                                    ('checkout', 'Check-Out')],
                                   'Clean Type', required=True,
                                   states={'done': [('readonly', True)]},)
-    room_no = fields.Many2one('property.room', 'Room No', required=True,
+    room_no = fields.Many2one('hms.property.room', 'Room No', required=True,
                               states={'done': [('readonly', True)]},
                               index=True)
     activity_line_ids = fields.One2many('hms.housekeeping.activities',

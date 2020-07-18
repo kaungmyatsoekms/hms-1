@@ -328,10 +328,98 @@ class Property(models.Model):
         elif self.night_audit == 'auto':
             self.is_manual = False
 
+    # Night Audit Manual Action
     def action_night_audit(self):
-        # property_objs = self.env['property.property'].search([])
-        # for record in property_objs:
-        #     record._cron_daily_create_forecast(self)
+
+        # For System Date Update
+
+        self.system_date = datetime.today()
+
+        # For Forecast Update
+        avail_objs = self.env['availability.availability'].search([
+            ('property_id', '=', self.id),
+            ('avail_date', '<', datetime.today())
+            ])
+
+        for avail_obj in avail_objs:
+                avail_obj.update({'active': False})
+                rt_avail_objs = self.env['roomtype.available'].search([('property_id', '=', self.id),('ravail_date', '<=', datetime.today()),('availability_id', '=',avail_obj.id)])
+
+                new_avail_obj = self.env['availability.availability'].create({
+                'property_id' : avail_obj.property_id.id,
+                'avail_date' : avail_obj.avail_date + timedelta(days= self.availability),
+                'total_room' : self.room_count})
+
+                for rt_avail_obj in rt_avail_objs:
+                    rt_avail_obj.update({'active': False})
+                    vals = []
+                    vals.append((0, 0, {
+                        'availability_id': new_avail_obj.id,
+                        'property_id': new_avail_obj.property_id.id,
+                        'ravail_date': new_avail_obj.avail_date,
+                        'ravail_rmty': rt_avail_obj.ravail_rmty.id,
+                        'color': rt_avail_obj.color,
+                    }))
+                    new_avail_obj.update({'avail_roomtype_ids': vals})
+
+        # For Removing Reservation and Reservation Line Update
+        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('property_id', '=', self.id),
+            ('arrival', '<', datetime.today()),
+             ('active', '=', True),
+             '|', ('state', '=', 'booking'),('state', '=', 'reservation')
+        ])
+        for rsvn_line in out_date_rsvn_lines:
+            rsvn_line.update({'active': False})
+
+        out_date_reservations = self.env['hms.reservation'].search([
+            ('property_id', '=', self.id),
+            ('arrival', '<', datetime.today())
+        ])
+        for rsvn in out_date_reservations:
+            if len(rsvn.reservation_line_ids) == 0:
+                rsvn.update({'active': False})
+
+        # For No Show Reservation and Reservation Line Update
+            # Reservation Line
+        no_show_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('property_id', '=', self.id),
+            ('arrival', '<', datetime.today()),
+            ('state', '=','confirm')])
+        for no_show_rsvn_line in no_show_rsvn_lines:
+            no_show_rsvn_line.update({'is_no_show': True})
+            # Reservation
+        no_show_rsvns = self.env['hms.reservation'].search([
+            ('property_id', '=', self.id),
+            ('arrival', '<', datetime.today())
+        ])
+        for no_show_rsvn in no_show_rsvns:
+            no_show_line_count = 0
+            for line in no_show_rsvn.reservation_line_ids:
+                if line.is_no_show is True:
+                    no_show_line_count += 1
+            if len(no_show_rsvn.reservation_line_ids) == no_show_line_count:
+                no_show_rsvn.update({'is_no_show': True})
+
+        # For removing No Show Reservation and Reservatin Line
+            # Reservation Lines
+        ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('property_id' , '=', self.id),
+            ('is_no_show', '=', True),
+            ('departure', '<', datetime.today())
+        ])
+        for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
+            ex_noshow_rsvn_line.update({'active': False})
+            # Reservation
+        ex_noshow_rsvns = self.env['hms.reservation'].search([
+            ('property_id', '=', self.id),
+            ('is_no_show', '=', True),
+            ('departure', '<', datetime.today())
+        ])
+        for ex_noshow_rsvn in ex_noshow_rsvns:
+            if len(ex_noshow_rsvn.reservation_line_ids) == 0:
+                ex_noshow_rsvn.update({'active': False})
+
         return
 
     def set_onboarding_step_done(self, step_name):
@@ -742,48 +830,52 @@ class Property(models.Model):
             raise ValidationError(
                 _("Total Room cannot be zero or smaller than zero"))
 
+    #Create Sequence for each Property
+    def create_sequence(self, property):
+        if property.gprofile_id_format:
+            if property.gprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "dynamic"
+            ).dynamic_value == "property code":
+                padding = property.gprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "digit")
+                self.env['ir.sequence'].create({
+                    'name':
+                    property.code + property.gprofile_id_format.code,
+                    'code':
+                    property.code + property.gprofile_id_format.code,
+                    'padding':
+                    padding.digit_value,
+                    'company_id':
+                    False,
+                    'use_date_range':
+                    True,
+                })
+        if property.confirm_id_format:
+            if property.confirm_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "dynamic"
+            ).dynamic_value == "property code":
+                padding = property.confirm_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "digit")
+                self.env['ir.sequence'].create({
+                    'name':
+                    property.code + property.confirm_id_format.code,
+                    'code':
+                    property.code + property.confirm_id_format.code,
+                    'padding':
+                    padding.digit_value,
+                    'company_id':
+                    False,
+                    'use_date_range':
+                    True,
+                })
+
     # Create function
     @api.model
     def create(self, values):
         # _logger.info(values)
         res = super(Property, self).create(values)
-        if res.gprofile_id_format:
-            if res.gprofile_id_format.format_line_id.filtered(
-                    lambda x: x.value_type == "dynamic"
-            ).dynamic_value == "property code":
-                padding = res.gprofile_id_format.format_line_id.filtered(
-                    lambda x: x.value_type == "digit")
-                self.env['ir.sequence'].create({
-                    'name':
-                    res.code + res.gprofile_id_format.code,
-                    'code':
-                    res.code + res.gprofile_id_format.code,
-                    'padding':
-                    padding.digit_value,
-                    'company_id':
-                    False,
-                    'use_date_range':
-                    True,
-                })
-        if res.confirm_id_format:
-            if res.confirm_id_format.format_line_id.filtered(
-                    lambda x: x.value_type == "dynamic"
-            ).dynamic_value == "property code":
-                padding = res.confirm_id_format.format_line_id.filtered(
-                    lambda x: x.value_type == "digit")
-                self.env['ir.sequence'].create({
-                    'name':
-                    res.code + res.confirm_id_format.code,
-                    'code':
-                    res.code + res.confirm_id_format.code,
-                    'padding':
-                    padding.digit_value,
-                    'company_id':
-                    False,
-                    'use_date_range':
-                    True,
-                })
-        #
+        res.create_sequence(res)
+        
         if res.roomtype_ids:
             for rec in res.roomtype_ids:
                 property_rooms = self.env['property.room'].search([
@@ -853,6 +945,11 @@ class Property(models.Model):
     # Write Function
     def write(self, values):
         res = super(Property, self).write(values)
+
+        if 'code' in values.keys():
+            same_code_objs = self.env['ir.sequence'].search([('code', '=', self.code + self.gprofile_id_format.code)])
+            if not same_code_objs:
+                self.create_sequence(self)
 
         if 'roomtype_ids' in values.keys(
         ) or 'propertyroom_ids' in values.keys():
@@ -1012,40 +1109,48 @@ class Property(models.Model):
         res = super(Property, self).unlink()
         return res
 
-    # Schedule Update
+    # Scheduled Forecast Update Daily
     @api.model
     def _cron_daily_create_forecast(self):
 
         property_objs = self.env['property.property'].search([])
         for record in property_objs:
-            to_delete_date = datetime.today() - timedelta(days=1)
-            avail_objs = self.env['availability.availability'].search([
-                ('property_id', '=', record.id),
-                ('avail_date', '<=', to_delete_date)
-            ])
+            if record.is_manual is False:
+                avail_objs = self.env['availability.availability'].search([
+                    ('property_id', '=', record.id),
+                    ('avail_date', '<', datetime.today())
+                ])
 
-            for avail_obj in avail_objs:
-                avail_obj.update({'active': False})
-                rt_avail_objs = self.env['roomtype.available'].search([('property_id', '=', record.id),('ravail_date', '<=', to_delete_date),('availability_id', '=',avail_obj.id)])
+                for avail_obj in avail_objs:
+                    avail_obj.update({'active': False})
+                    rt_avail_objs = self.env['roomtype.available'].search([('property_id', '=', record.id),('ravail_date', '<=', datetime.today()),('availability_id', '=',avail_obj.id)])
 
-                new_avail_objs = self.env['availability.availability'].create({
-                'property_id' : avail_obj.property_id.id,
-                'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
-                'total_room' : record.room_count})
+                    new_avail_objs = self.env['availability.availability'].create({
+                    'property_id' : avail_obj.property_id.id,
+                    'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
+                    'total_room' : record.room_count})
 
-                for new_avail_obj in new_avail_objs:
+                    for new_avail_obj in new_avail_objs:
 
-                    for rt_avail_obj in rt_avail_objs:
-                        rt_avail_obj.update({'active': False})
-                        vals = []
-                        vals.append((0, 0, {
-                            'availability_id': new_avail_obj.id,
-                            'property_id': new_avail_obj.property_id.id,
-                            'ravail_date': new_avail_obj.avail_date,
-                            'ravail_rmty': rt_avail_obj.ravail_rmty.id,
-                            'color': rt_avail_obj.color,
-                        }))
-                        new_avail_obj.update({'avail_roomtype_ids': vals})
+                        for rt_avail_obj in rt_avail_objs:
+                            rt_avail_obj.update({'active': False})
+                            vals = []
+                            vals.append((0, 0, {
+                                'availability_id': new_avail_obj.id,
+                                'property_id': new_avail_obj.property_id.id,
+                                'ravail_date': new_avail_obj.avail_date,
+                                'ravail_rmty': rt_avail_obj.ravail_rmty.id,
+                                'color': rt_avail_obj.color,
+                            }))
+                            new_avail_obj.update({'avail_roomtype_ids': vals})
+
+    #Scheduled Update System Date
+    @api.model
+    def update_system_date(self):
+        property_objs = self.env['property.property'].search([])
+        for record in property_objs:
+            if record.is_manual is False:
+                record.system_date = datetime.today()
 
 class Property_roomtype(models.Model):
     _name = "property.roomtype"
@@ -1961,8 +2066,8 @@ class CreditLimit(models.Model):
                               required=True)  #compute="get_end_date",
     crd_limit = fields.Float(string="Credit Limit")
 
-    @api.onchange('crd_startdate', 'crd_enddate')
-    @api.constrains('crd_startdate', 'crd_enddate')
+    @api.onchange('crd_startdate')
+    @api.constrains('crd_startdate')
     def get_two_date_comp(self):
         start_date = self.crd_startdate
         end_date = self.crd_enddate

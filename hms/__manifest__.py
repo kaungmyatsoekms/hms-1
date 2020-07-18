@@ -87,6 +87,7 @@
         'views/hms_charge_type.xml',
         'views/hms_package_charge_line.xml',
         'views/hms_managment_report.xml',
+        'wizard/hms_rc_detail_copy_wizard_view.xml',
         'views/hms_ratecode_view.xml',
         'report/property_template.xml',
         'report/reservation_report.xml',
@@ -98,6 +99,8 @@
         'wizard/hms_ratecat_terminate_wizard_view.xml',
         'views/hms_rate_config.xml',
         'views/hms_package_config.xml',
+        'data/res.lang.csv',
+        
         
         #'views/views.xml',
         # 'views/templates.xml',

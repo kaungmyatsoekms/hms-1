@@ -9,10 +9,11 @@
                 <tree string="Reservation" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible='1'/>
-                    <field name="property_id" optional="hide"/>
+                    <field name="is_no_show" optional="show"/>
+                    <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
-                    <field name="guest_id" optional="hide"/>
+                    <field name="guest_id" optional="show"/>
                     <field name="arrival" optional="show"/>
                     <field name="departure" optional="show"/>
                     <field name="nights" optional="show"/>
@@ -96,7 +97,8 @@
                         <field name="date_order"/>
                         <group>
                             <group>
-                                <field name="property_id"/>
+                                <field name="property_ids" invisible="1"/>
+                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                 <field name="is_company" invisible="1"/>
                                 <field name="is_group" invisible="1"/>
                                 <field name="company_id" attrs="{'required': [('type','=', 'group')]}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
@@ -205,7 +207,7 @@
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                         <field name="rooms"/>
-                                        <field name="avail_room_ids" widget='many2many_tags' />
+                                        <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id"/>
@@ -507,7 +509,7 @@
                         <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
+                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', ('system_date', '!=', 'arrival'), ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}">
@@ -538,6 +540,7 @@
                                     <field name="reservation_type" style="width:50%%" placeholder="Type"/>
                                     <field name="reservation_status" style="width:50%%" placeholder="Status"/>
                                 </div>
+                                <field name="system_date" />
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
@@ -687,6 +690,7 @@
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
                  <tree string="Reservation Details" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                    <field name="property_id" optional="show"/>
                     <field name="is_roomtype_fix" invisible="1"/>
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible="1"/>
@@ -976,7 +980,8 @@
                         </div>
                         <group>
                             <group>
-                                <field name="property_id"/>
+                                <field name="property_ids" invisible="1"/>
+                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                 <field name="is_company" invisible="1"/>
                                 <field name="is_group" invisible="1"/>
                                 <field name="company_id" attrs="{'required': [('type','=', 'group')]}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>

@@ -102,49 +102,48 @@ class Package(models.Model):
         'Package code already exists with this name! Package code must be unique!'
     )]
 
-    @api.depends('rate_separate_line', 'rate_combined_line',
-                 'is_sell_separate')
+    @api.depends('rate_separate_line','rate_combined_line','is_sell_separate')
     def _compute_attribute_type(self):
         for package in self:
             if package.rate_separate_line or self._context.get(
                     'default_rate_attribute') == 'ARS':
                 package.rate_attribute = 'ARS'
                 package.rate_separate_line = True
+            elif package.is_sell_separate or self._context.get(
+                    'default_rate_attribute') == 'SS':
+                package.rate_attribute = 'SS'
+                package.is_sell_separate = True
             elif package.rate_combined_line or self._context.get(
                     'default_rate_attribute') == 'ARC':
                 package.rate_attribute = 'ARC'
                 package.rate_combined_line = True
-            elif package.is_sell_separate or self._context.get(
-                    'default_rate_attribute') == 'SS':
-                package.rate_attribute == 'SS'
-                package.is_sell_separate = True
-            else:
+            else: 
                 package.rate_attribute = 'INR'
 
     def _write_attribute_type(self):
         for package in self:
             package.rate_separate_line = package.rate_attribute == 'ARS'
-            package.rate_combined_line = package.rate_attribute == 'ARC'
             package.is_sell_separate = package.rate_attribute == 'SS'
-
+            package.rate_combined_line = package.rate_attribute == 'ARC'
+     
     @api.onchange('rate_attribute')
     def onchange_attribute_type(self):
         if self.rate_attribute == 'ARS':
             self.rate_separate_line = True
+            self.is_sell_separate = False
             self.rate_combined_line = False
-            self.is_sell_separate = False
-        elif self.rate_attribute == 'ARC':
-            self.rate_separate_line = False
-            self.rate_combined_line = True
-            self.is_sell_separate = False
         elif self.rate_attribute == 'SS':
             self.rate_separate_line = False
-            self.rate_combined_line = False
             self.is_sell_separate = True
-        else:
-            self.rate_separate_line = False
             self.rate_combined_line = False
+        elif self.rate_attribute == 'ARC':
+            self.rate_separate_line = False
             self.is_sell_separate = False
+            self.rate_combined_line = True
+        elif self.rate_attribute =='INR':
+            self.rate_separate_line = False
+            self.is_sell_separate = False
+            self.rate_combined_line = False
 
 class PackageGroup(models.Model):
     _name = "package.group"

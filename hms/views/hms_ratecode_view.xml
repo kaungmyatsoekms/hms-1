@@ -193,6 +193,10 @@
                                             <b>     To: </b>
                                             <field name="end_date"/>
                                         </div>
+                                        <div>
+                                            <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id}">
+                                                <i class="fa fa-paint-brush"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -68,8 +68,8 @@ class RateCodeHeader(models.Model):
                                                 record.end_date)))
         return result
 
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date')
+    @api.constrains('start_date')
     def get_two_date_comp(self):
         for rec in self:
             startdate = rec.start_date
@@ -100,15 +100,6 @@ class RateCodeHeader(models.Model):
 # Rate Code Detail
 class RateCodeDetails(models.Model):
 
-    # def default_get_start_date(self):
-
-    #     if self.ratehead_id.ratecode_details:
-    #         max_start_date = max(self.ratehead_id.ratecode_details.mapped('end_date'))
-    #         if max_start_date:
-    #             return max_start_date
-    #     else:
-    #         return datetime.today()
-
     _name = "ratecode.details"
     _description = "Rate Code Details"
 
@@ -125,12 +116,7 @@ class RateCodeDetails(models.Model):
                                    store=True,
                                    domain="[('id', '=?', roomtype_ids)]",
                                    required=True)
-    # roomtype_id = fields.One2many('room.type',
-    #                               'rate_id',
-    #                               string="Room Type",
-    #                               store=True,
-    #                               domain="[('id', '=?', roomtype_ids)]",
-    #                               required=True)
+
     start_date = fields.Date(string="Start Date",
                              required=True,
                              default=datetime.today())
@@ -154,8 +140,8 @@ class RateCodeDetails(models.Model):
     adult_bf = fields.Float(string="Adult Breakfast")
     child_bf = fields.Float(string="Child Breakfast")
     package_id = fields.Char(string="Package")
-    discount_percent = fields.Float(string="Discount Percentage", default=10.0)
-    discount_amount = fields.Float(string="Discount Amount", default=50.0)
+    discount_percent = fields.Float(string="Discount Percentage")
+    discount_amount = fields.Float(string="Discount Amount")
 
     # def name_get(self):
     #     result = []
@@ -181,8 +167,8 @@ class RateCodeDetails(models.Model):
                         record.normal_extra)))
         return result
 
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date')
+    @api.constrains('start_date')
     def get_two_date_comp(self):
         for record in self:
             startdate = record.start_date
@@ -241,6 +227,30 @@ class RateCodeDetails(models.Model):
                 #     raise ValidationError(_("Season Code date range must be within Rate Code date range"))
                 if cur_start_date < header_start_date or cur_end_date > header_end_date:
                     raise ValidationError(_("Season Code date range must be within Rate Code date range"))
+
+    def action_copy_rate_detail(self):
+
+        start_date = self.end_date + timedelta(days= 1)
+        return {
+            'name':
+            _('Copy'),
+            'view_type':
+            'form',
+            'view_mode':
+            'form',
+            'view_id':
+            self.env.ref('hms.ratecode_detail_view_form').id,
+            'res_model':
+            'ratecode.details',
+            'context':
+            "{'type':'out_ratecode_details','default_rate_code':'" + self.rate_code +
+            "','default_ratecode_name':'" + self.ratecode_name +
+            "','default_ratecode_type':'" + self.ratecode_type + "'}",
+            'type':
+            'ir.actions.act_window',
+            'target':
+            'new',
+        }
 
 # Rate Code Categories
 class RateCategories(models.Model):
