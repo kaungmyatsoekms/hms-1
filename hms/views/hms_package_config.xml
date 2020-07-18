@@ -34,6 +34,8 @@
                             </group>
                             <group string="Access Rate">
                                 <field name="rate_attribute" widget="radio" class="oe_edit_only"/>
+                                <!-- widget="radio" class="oe_edit_only" -->
+                                <field name="reservation_fields_id"/>
                                 <field name="Calculation_method"/>
                                 <field name="Fix_price"/>
                                 <field name="posting_rythms"/>
@@ -193,11 +195,6 @@
                                 <field name="pkg_group_name"/>
                                 <field name="package_ids" widget="many2many_tags"/>
                             </group>
-                            <group>
-                                <field name="transaction_id"/>
-                                <field name="include_service"/>
-                                <field name="include_tax"/>
-                            </group>
                         </group>
                     </sheet>
                 </form>
@@ -215,9 +212,6 @@
                     <field name="pkg_group_code"/>
                     <field name="pkg_group_name"/>
                     <field name="package_ids" widget="many2many_tags"/>
-                    <field name="transaction_id"/>
-                    <field name="include_service"/>
-                    <field name="include_tax"/>
                 </tree>
             </field>
         </record>

@@ -24,12 +24,16 @@
     'version':
     '0.1',
     # any module necessary for this one to work correctly
-    'depends':
-    ['base','graphql_base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web','website','web_one2many_kanban'],
-    "external_dependencies": {"python": ["graphene"]},
+    'depends': [
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'point_of_sale', 'web', 'website', 'web_one2many_kanban'
+    ],
+    "external_dependencies": {
+        "python": ["graphene"]
+    },
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     'css': ['static/src/css/room_kanban.css'],
-    'qweb': ['static/src/xml/hotel_room_summary.xml'], 
+    'qweb': ['static/src/xml/hotel_room_summary.xml'],
     # always loaded
     'data': [
         # 'security/hms_security.xml',
@@ -98,10 +102,11 @@
         'views/color_attribute_view.xml',
         'wizard/hms_ratecat_terminate_wizard_view.xml',
         'views/hms_rate_config.xml',
+        'data/hms.reservation.fields.csv',
         'views/hms_package_config.xml',
         'data/res.lang.csv',
         
-        
+
         #'views/views.xml',
         # 'views/templates.xml',
     ],
