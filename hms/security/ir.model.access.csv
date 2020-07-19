@@ -1,13 +1,13 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hms_property,hms.property,model_hms_property,base.group_user,1,1,1,1
-access_pms_format,pms.format,model_pms_format,base.group_user,1,1,1,1
-access_pms_format_detail,pms.format.detail,model_pms_format_detail,base.group_user,1,1,1,1
-access_building_building,building.building,model_building_building,base.group_user,1,1,1,1
+access_hms_format,hms.format,model_hms_format,base.group_user,1,1,1,1
+access_hms_format_detail,hms.format.detail,model_hms_format_detail,base.group_user,1,1,1,1
+access_hms_building,hms.building,model_hms_building,base.group_user,1,1,1,1
 access_building_type,building.type,model_building_type,base.group_user,1,1,1,1
 access_room_location,room.location,model_room_location,base.group_user,1,1,1,1
 access_bed_type,bed.type,model_bed_type,base.group_user,1,1,1,1
 access_room_type,room.type,model_room_type,base.group_user,1,1,1,1
-access_property_roomtype,property.roomtype,model_property_roomtype,base.group_user,1,1,1,1
+access_hms_property_roomtype,hms.property.roomtype,model_hms_property_roomtype,base.group_user,1,1,1,1
 access_room_view,room.view,model_room_view,base.group_user,1,1,1,1
 access_room_facility,room.facility,model_room_facility,base.group_user,1,1,1,1
 access_room_amenity,room.amenity,model_room_amenity,base.group_user,1,1,1,1

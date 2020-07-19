@@ -2,7 +2,7 @@
   <data>
     <record model="ir.ui.view" id="view_format_form">
       <field name="name">Format Form</field>
-      <field name="model">pms.format</field>
+      <field name="model">hms.format</field>
       <field name="arch" type="xml">
         <form>
           <sheet>
@@ -60,7 +60,7 @@
     </record>
     <record model="ir.ui.view" id="view_format_tree">
       <field name="name">Format list</field>
-      <field name="model">pms.format</field>
+      <field name="model">hms.format</field>
       <field name="arch" type="xml">
         <tree>
           <field name="name"/>
@@ -71,7 +71,7 @@
     </record>
      <record model="ir.ui.view" id="view_format_filter">
       <field name="name">Format list</field>
-      <field name="model">pms.format</field>
+      <field name="model">hms.format</field>
       <field name="arch" type="xml">
         <search>
           <field name="name"/>
@@ -81,14 +81,14 @@
     </record>
      <record id="action_format_all" model="ir.actions.act_window">
        <field name="name">Format</field>
-       <field name="res_model">pms.format</field>
+       <field name="res_model">hms.format</field>
        <!-- <field name="view_type">form</field> -->
        <field name="view_mode">tree,form</field>
        <field name="view_id" ref="view_format_tree"/> 
     </record> 
     <record model="ir.ui.view" id="view_format_detail_form">
       <field name="name">Format Detail Form</field>
-      <field name="model">pms.format.detail</field>
+      <field name="model">hms.format.detail</field>
       <field name="arch" type="xml">
         <form>
           <sheet>
@@ -111,7 +111,7 @@
     </record>
     <record model="ir.ui.view" id="view_format_detail_tree">
       <field name="name">Format Detail list</field>
-      <field name="model">pms.format.detail</field>
+      <field name="model">hms.format.detail</field>
       <field name="arch" type="xml">
         <tree>
             <field name="position_order"/>
@@ -122,7 +122,7 @@
     </record>
      <record model="ir.ui.view" id="view_format_detail_filter">
       <field name="name">Format Detail list</field>
-      <field name="model">pms.format.detail</field>
+      <field name="model">hms.format.detail</field>
       <field name="arch" type="xml">
         <search>
             <field name="value_type"/>
@@ -132,7 +132,7 @@
     </record>
      <record id="action_format_detail_all" model="ir.actions.act_window">
        <field name="name">Format</field>
-       <field name="res_model">pms.format.detail</field>
+       <field name="res_model">hms.format.detail</field>
        <field name="view_mode">tree,form</field>
        <field name="view_id" ref="view_format_detail_tree"/> 
     </record> 

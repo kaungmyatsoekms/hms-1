@@ -30,9 +30,9 @@ class RoomNoCopyWizard(models.TransientModel):
     bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
     bedtype_id = fields.Many2one('bed.type', string='Bed Type', domain="[('id', '=?', bedtype_ids)]")
     roomview_ids = fields.Many2many('room.view', string="Room View Code",related="propertyroom_id.roomview_ids")
-    building_ids = fields.Many2many("building.building",
+    building_ids = fields.Many2many("hms.building",
                                     related="propertyroom_id.building_ids")
-    building_id = fields.Many2one('building.building',
+    building_id = fields.Many2one('hms.building',
                                   string="Room Building",
                                   related="propertyroom_id.building_id")
     roomlocation_id = fields.Many2one('room.location',

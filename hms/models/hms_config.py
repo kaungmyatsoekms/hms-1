@@ -7,7 +7,7 @@ import base64
 import datetime
 
 class PmsFormat(models.Model):
-    _name = "pms.format"
+    _name = "hms.format"
     _description = "Property Formats"
     _order = "name"
 
@@ -18,7 +18,7 @@ class PmsFormat(models.Model):
                          store=True,
                          readonly=True)
     active = fields.Boolean(default=True)
-    format_line_id = fields.One2many("pms.format.detail", "format_id",
+    format_line_id = fields.One2many("hms.format.detail", "format_id",
                                      "Format Line")
 
     def name_get(self):
@@ -111,7 +111,7 @@ class PmsFormat(models.Model):
     #     return res
 
 class PmsFormatDetail(models.Model):
-    _name = "pms.format.detail"
+    _name = "hms.format.detail"
     _description = "Property Formats Details"
     _order = "position_order"
 
@@ -134,7 +134,7 @@ class PmsFormatDetail(models.Model):
                     record.value = record.datetime_value
 
     name = fields.Char("Name", default="New")
-    format_id = fields.Many2one("pms.format", "Format")
+    format_id = fields.Many2one("hms.format", "Format")
     position_order = fields.Integer("Position Order",
                                     compute='_get_line_numbers',
                                     store=True,
@@ -223,19 +223,19 @@ class Company(models.Model):
     roomtype_code_len = fields.Integer('Room Type Code Length',
                                        track_visibility=True,
                                        default=3)
-    confirm_id_format = fields.Many2one('pms.format',
+    confirm_id_format = fields.Many2one('hms.format',
                                         'Confirm No Format',
                                         default=_default_confirm_id_format,
                                         track_visibility=True)
-    profile_id_format = fields.Many2one('pms.format',
+    profile_id_format = fields.Many2one('hms.format',
                                         'Profile ID Format',
                                         default=_default_profile_id_format,
                                         track_visibility=True)
-    cprofile_id_format = fields.Many2one('pms.format',
+    cprofile_id_format = fields.Many2one('hms.format',
                                          'Company Profile ID Format',
                                          default=_default_cprofile_id_format,
                                          track_visibility=True)
-    gprofile_id_format = fields.Many2one('pms.format',
+    gprofile_id_format = fields.Many2one('hms.format',
                                          'Group Profile ID Format',
                                          default=_default_gprofile_id_format,
                                          track_visibility=True)
@@ -320,19 +320,19 @@ class ResConfigSettings(models.TransientModel):
     roomtype_code_len = fields.Integer('Room Type Code Length',
                                        related="company_id.roomtype_code_len",
                                        readonly=False)
-    confirm_id_format = fields.Many2one('pms.format',
+    confirm_id_format = fields.Many2one('hms.format',
                                         'Confirm No Format',
                                         related="company_id.confirm_id_format",
                                         track_visibility=True)
-    profile_id_format = fields.Many2one('pms.format',
+    profile_id_format = fields.Many2one('hms.format',
                                         'Guest Profile ID Format',
                                         related="company_id.profile_id_format",
                                         track_visibility=True)
-    cprofile_id_format = fields.Many2one('pms.format',
+    cprofile_id_format = fields.Many2one('hms.format',
         'Company Profile ID Format',
         related="company_id.cprofile_id_format",
         track_visibility=True)
-    gprofile_id_format = fields.Many2one('pms.format',
+    gprofile_id_format = fields.Many2one('hms.format',
         'Group Profile ID Format',
         related="company_id.gprofile_id_format",
         track_visibility=True)

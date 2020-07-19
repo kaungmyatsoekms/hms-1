@@ -430,7 +430,7 @@ class Reservation(models.Model):
                                                              property_id)])
         if property_id:
             if property_id.confirm_id_format:
-                format_ids = self.env['pms.format.detail'].search(
+                format_ids = self.env['hms.format.detail'].search(
                     [('format_id', '=', property_id.confirm_id_format.id)],
                     order='position_order asc')
                 val = []

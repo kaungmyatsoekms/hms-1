@@ -447,7 +447,7 @@
     <!-- Building Setup Form View -->
     <record id="building_view_form" model="ir.ui.view">
       <field name="name">building.view.form</field>
-      <field name="model">building.building</field>
+      <field name="model">hms.building</field>
       <field name="arch" type="xml">
         <form string="Building">
           <sheet>
@@ -485,7 +485,7 @@
     <!-- Building Tree View-->
     <record id="building_view_list" model="ir.ui.view">
       <field name="name">building.view.list</field>
-      <field name="model">building.building</field>
+      <field name="model">hms.building</field>
       <field name="arch" type="xml">
         <tree string="Building">
           <field name="sequence" widget="handle"/>
@@ -500,7 +500,7 @@
     <!-- action of building setup -->
     <record id="building_action_window" model="ir.actions.act_window">
       <field name="name">Hotel Building</field>
-      <field name="res_model">building.building</field>
+      <field name="res_model">hms.building</field>
       <field name="view_mode">tree,form</field>
     </record>
 

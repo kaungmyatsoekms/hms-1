@@ -568,7 +568,7 @@ class Partner(models.Model):
 
         if company_type == 'guest':
             if self.env.user.company_id.profile_id_format:
-                format_ids = self.env['pms.format.detail'].search(
+                format_ids = self.env['hms.format.detail'].search(
                     [('format_id', '=',
                       self.env.user.company_id.profile_id_format.id)],
                     order='position_order asc')
@@ -609,7 +609,7 @@ class Partner(models.Model):
 
         elif company_type == 'company':
             if self.env.user.company_id.cprofile_id_format:
-                format_ids = self.env['pms.format.detail'].search(
+                format_ids = self.env['hms.format.detail'].search(
                     [('format_id', '=',
                       self.env.user.company_id.cprofile_id_format.id)],
                     order='position_order asc')
@@ -652,7 +652,7 @@ class Partner(models.Model):
         elif company_type == 'group':
             if property_id:
                 if property_id.gprofile_id_format:
-                    format_ids = self.env['pms.format.detail'].search(
+                    format_ids = self.env['hms.format.detail'].search(
                     [('format_id', '=', property_id.gprofile_id_format.id)],
                     order='position_order asc')
                 val = []
