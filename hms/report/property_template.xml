@@ -64,7 +64,7 @@
         </t>
     </template>
 
-    <template id="report_property_property">
+    <template id="report_hms_property">
         <t t-call="web.basic_layout">
             <div class="page">
                 <t t-foreach = "docs" t-as="property">

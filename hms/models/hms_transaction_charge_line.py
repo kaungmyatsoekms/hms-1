@@ -27,7 +27,7 @@ class HMSTransactionChargeLine(models.Model):
         if reservation_line:
             return reservation_line
 
-    property_id = fields.Many2one('property.property', string="Property")
+    property_id = fields.Many2one('hms.property', string="Property")
     transaction_id = fields.Many2one(
         'transaction.transaction',
         string='Transaction',

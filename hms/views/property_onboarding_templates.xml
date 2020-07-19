@@ -8,7 +8,7 @@
             <t t-set="btn_text">Let's start!</t>
             <t t-set="done_text">Step Completed!</t>
             <t t-set="method" t-value="'action_open_hms_onboarding_property'" />
-            <t t-set="model" t-value="'property.property'" />
+            <t t-set="model" t-value="'hms.property'" />
             <t t-set="state" t-value="state.get('hms_onboarding_property_state')" />
         </t>
     </template>
@@ -19,7 +19,7 @@
             <t t-set="btn_text">Add a building</t>
             <t t-set="done_text">Step Completed!</t>
             <t t-set="method" t-value="'action_open_hms_onboarding_building'" />
-            <t t-set="model" t-value="'property.property'" />
+            <t t-set="model" t-value="'hms.property'" />
             <t t-set="state" t-value="state.get('hms_onboarding_building_state')" />
         </t>
     </template>
@@ -29,7 +29,7 @@
             <t t-set="classes" t-value="'o_onboarding_blue'"/>
             <t t-set="bg_image" t-value="'/hms/static/src/img/account_invoice_onboarding_bg.jpg'"/>
             <t t-set="close_method" t-value="'action_close_property_onboarding'"/>
-            <t t-set="close_model" t-value="'property.property'"/>
+            <t t-set="close_model" t-value="'hms.property'"/>
             <t t-set="text_completed">Congratulations! You are all set.</t>
             <t t-call="hms.onboarding_property_step" name="property_step" />
             <t t-call="hms.onboarding_building_step" name="building_step" />
@@ -39,7 +39,7 @@
     <!-- PROPERTY FORM -->
     <record id="hms_onboarding_property_form" model="ir.ui.view">
         <field name="name">hms.property.onboarding.form</field>
-        <field name="model">property.property</field>
+        <field name="model">hms.property</field>
         <field name="inherit_id" ref="hms.property_view_form"/>
         <field name="mode">primary</field>
         <field name="priority">1000</field>
@@ -55,7 +55,7 @@
     <record id="action_open_hms_onboarding_property" model="ir.actions.act_window">
         <field name="name">Set your property data</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">property.property</field>
+        <field name="res_model">hms.property</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="hms_onboarding_property_form"/>
         <field name="target">new</field>

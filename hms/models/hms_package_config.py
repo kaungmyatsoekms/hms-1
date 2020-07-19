@@ -45,7 +45,7 @@ class Package(models.Model):
     rate_separate_line = fields.Boolean(default=False)
     rate_combined_line = fields.Boolean(default=False)
     is_sell_separate = fields.Boolean(default=False)
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   required=True)
@@ -174,7 +174,7 @@ class PackageGroup(models.Model):
                             default=True,
                             track_visibility=True)
     sequence = fields.Integer(default=1)
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   required=True)

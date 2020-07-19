@@ -15,7 +15,7 @@ class Availability(models.Model):
     
     active = fields.Boolean ('Active', default=True)
     color = fields.Integer(string='Color Index')
-    property_id = fields.Many2one('property.property', String="Property")
+    property_id = fields.Many2one('hms.property', String="Property")
     avail_date = fields.Date(string="Date")
     avail_booking = fields.Integer('Booking', default=0)
     avail_arrival = fields.Integer('Arr', store=True, default=0)
@@ -127,7 +127,7 @@ class RoomTypeAvailable(models.Model):
     active = fields.Boolean ('Active', default=True)
     color = fields.Integer(string='Color Index')
     availability_id = fields.Many2one('availability.availability')
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property")
     ravail_date = fields.Date('Date', required=True)
     roomtype_ids = fields.Many2many('room.type',

@@ -180,10 +180,10 @@ class PmsFormatDetail(models.Model):
 class Users(models.Model):
     _inherit = "res.users"
 
-    property_id = fields.Many2many("property.property",
+    property_id = fields.Many2many("hms.property",
                                    'property_id',
                                    'user_id',
-                                   "property_property_user_rel",
+                                   "hms_property_user_rel",
                                    "Property",
                                    store=True,
                                    track_visibility=True)

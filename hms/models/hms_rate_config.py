@@ -22,7 +22,7 @@ class RateCodeHeader(models.Model):
     header_create = fields.Boolean(default=True)
     is_ratecode = fields.Boolean(string='Is ratecode',
                                  compute='_compute_is_ratecode')
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
@@ -111,7 +111,7 @@ class RateCodeDetails(models.Model):
 
     sequence = fields.Integer('Sequence', default=1)
     ratehead_id = fields.Many2one('ratecode.header', string="Rate Code Header")
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True)
     season_code = fields.Char(string="Season", size=10, required=True)
@@ -342,7 +342,7 @@ class RateCodeHead(models.Model):
     end_date = fields.Date(string="End Date", required=True)
     rate_category_id = fields.Many2one('rate.categories',
                                        string="Rate Categories")
-    property_ids = fields.Many2many("property.property",
+    property_ids = fields.Many2many("hms.property",
                                     store=True,
                                     track_visibility=True)
 
@@ -473,7 +473,7 @@ class RateCodeHead(models.Model):
 #     seasons = fields.Char(string="Description", required=True)
 #     start_date = fields.Date(string="Start Date", required=True)
 #     end_date = fields.Date(string="End Date", required=True)
-#     # property_ids = fields.Many2many("property.property",
+#     # property_ids = fields.Many2many("hms.property",
 #     #                                'property_id',
 #     #                                'season_id',
 #     #                                "property_property_rate_season_rel",

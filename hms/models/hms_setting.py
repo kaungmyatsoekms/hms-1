@@ -26,7 +26,7 @@ class Country(models.Model):
 class Bank(models.Model):
     _inherit = 'res.bank'
 
-    property_id = fields.Many2one('property.property', string="Property", required=True, readonly=True)
+    property_id = fields.Many2one('hms.property', string="Property", required=True, readonly=True)
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     bic = fields.Char('Switch Code',
                       index=True,
@@ -420,8 +420,8 @@ class Partner(models.Model):
     township = fields.Many2one('hms.township',
                                "Township",
                                track_visibility=True)
-    property_id = fields.Many2one("property.property", track_visibility=True)  #default=get_property_id,
-    property_ids = fields.Many2many("property.property", track_visibility=True)
+    property_id = fields.Many2one("hms.property", track_visibility=True)  #default=get_property_id,
+    property_ids = fields.Many2many("hms.property", track_visibility=True)
     is_from_hms = fields.Boolean(string="Is from HMS",
                                  default=False,
                                  help="Check if creation is from HMS System")
@@ -702,7 +702,7 @@ class Partner(models.Model):
         values['is_from_hms'] = True
         company_type = values.get('company_type')
         property_id = values.get('property_id')
-        property_id = self.env['property.property'].search(
+        property_id = self.env['hms.property'].search(
             [('id', '=', property_id)])
         crm_type = values.get('company_channel_type')
         crm_type = self.env['hms.company.category'].search(

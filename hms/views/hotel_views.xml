@@ -16,7 +16,7 @@
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
       <field name="name">property.view.form</field>
-      <field name="model">property.property</field>
+      <field name="model">hms.property</field>
       <field name="priority" eval="1"/>
       <field name="arch" type="xml">
         <form string="Property">
@@ -254,7 +254,7 @@
     <!-- List View of Property -->
     <record id="property_view_list" model="ir.ui.view">
       <field name="name">property.view.list</field>
-      <field name="model">property.property</field>
+      <field name="model">hms.property</field>
       <field name="arch" type="xml">
         <tree string="Property">
           <field name="name"/>
@@ -275,7 +275,7 @@
     <!-- Kanban View of Property -->
     <record id="property_view_kanban" model="ir.ui.view">
       <field name="name">property.view.kanban</field>
-      <field name="model">property.property</field>
+      <field name="model">hms.property</field>
       <field name="arch" type="xml">
         <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban">
           <field name="id"/>
@@ -295,7 +295,7 @@
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
                 <div class="o_kanban_image">
-                  <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
+                  <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
                   <field name="system_date"/>
                 </div>
                 <!-- <div class="container o_kanban_card_content">
@@ -374,7 +374,7 @@
 
     <!-- <record id="property_view_kanban" model="ir.ui.view">
       <field name="name">property.view.kanban</field>
-      <field name="model">property.property</field>
+      <field name="model">hms.property</field>
       <field name="arch" type="xml">
         <kanban>
           <field name="id"/>
@@ -392,7 +392,7 @@
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
                 <div class="o_kanban_image">
-                  <img t-att-src="kanban_image('property.property','logo',record.id.raw_value)" alt="image"/>
+                  <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
                   
                 </div>
                 <div class="oe_kanban_details">
@@ -417,7 +417,7 @@
     <!-- Kanban View of Property -->
     <record model="ir.ui.view" id="view_pms_properites_filter">
       <field name="name">Properties Filter</field>
-      <field name="model">property.property</field>
+      <field name="model">hms.property</field>
       <field name="arch" type="xml">
         <search>
           <field name="code" string="Property Code"/>
@@ -430,7 +430,7 @@
     <record id="property_action_tree" model="ir.actions.act_window">
       <field name="name">Hotel Properties</field>
       <field name="type">ir.actions.act_window</field>
-      <field name="res_model">property.property</field>
+      <field name="res_model">hms.property</field>
       <field name="view_mode">tree,form</field>
       <field name="domain">[('id','=',active_id)]</field>
     </record>
@@ -438,7 +438,7 @@
     <!-- action of property setup -->
     <record id="property_action_window" model="ir.actions.act_window">
       <field name="name">Hotel Property</field>
-      <field name="res_model">property.property</field>
+      <field name="res_model">hms.property</field>
       <field name="view_mode">kanban,tree,form</field>
       <field name="view_id" ref="property_view_kanban"/>
     </record>

@@ -83,9 +83,9 @@ class Reservation(models.Model):
                              'Status',
                              readonly=True,
                              default='booking')
-    property_ids = fields.Many2many('property.property',related="user_id.property_id")                             
+    property_ids = fields.Many2many('hms.property',related="user_id.property_id")                             
     property_id = fields.Many2one(
-        'property.property',
+        'hms.property',
         string="Property",
         domain="[('id', '=?', property_ids)]")
     user_id = fields.Many2one('res.users',
@@ -426,7 +426,7 @@ class Reservation(models.Model):
     @api.model
     def create(self, values):
         property_id = values.get('property_id')
-        property_id = self.env['property.property'].search([('id', '=',
+        property_id = self.env['hms.property'].search([('id', '=',
                                                              property_id)])
         if property_id:
             if property_id.confirm_id_format:
@@ -675,7 +675,7 @@ class ReservationLine(models.Model):
     is_arrival_today = fields.Boolean(string="Is Arrival Today",
                                       compute='_compute_is_arrival_today')
     reservation_id = fields.Many2one('hms.reservation', string="Reservation")
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   related='reservation_id.property_id',
@@ -2180,7 +2180,7 @@ class CancelReservation(models.Model):
                              readonly=True,
                              default=lambda *a: 'booking')
     property_id = fields.Many2one(
-        'property.property',
+        'hms.property',
         string="Property",
         default=lambda self: self.env.user.property_id.id)
     user_id = fields.Many2one('res.users',
@@ -2300,7 +2300,7 @@ class RoomReservationSummary(models.Model):
     _description = 'Room reservation summary'
 
     property_id = fields.Many2one(
-        'property.property',
+        'hms.property',
         string="Property",
         default=lambda self: self.env.user.property_id.id)
     name = fields.Char('Reservation Summary',
@@ -2462,7 +2462,7 @@ class QuickRoomReservation(models.TransientModel):
     _name = 'quick.room.reservation'
     _description = 'Quick Room Reservation'
 
-    property_id = fields.Many2one('property.property', 'Hotel', required=True)
+    property_id = fields.Many2one('hms.property', 'Hotel', required=True)
     check_in = fields.Date('Check In', required=True)
     check_out = fields.Date('Check Out', required=True)
     rooms = fields.Integer('Rooms', required=True)
@@ -2540,6 +2540,6 @@ class OverBooking(models.Model):
     reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
     rt_avail_id = fields.Many2one('roomtype.available',
                                   string="Room Type Available")
-    property_id = fields.Many2one("property.property", 'Property')
+    property_id = fields.Many2one("hms.property", 'Property')
     overbook_date = fields.Date(string="Date")
     overbook_rooms = fields.Integer(string="Rooms")

@@ -70,7 +70,7 @@ AVAILABLE_PERCENTAGE = [
 ]
 
 class Property(models.Model):
-    _name = "property.property"
+    _name = "hms.property"
     _inherit = ['mail.thread']
     _rec_name = "code"
     _description = "Property"
@@ -196,7 +196,7 @@ class Property(models.Model):
         default='not_done')
 
     contact_ids = fields.Many2many('res.partner',
-                                   'property_property_contact_rel',
+                                   'hms_property_contact_rel',
                                    'property_id',
                                    'partner_id',
                                    string='Contacts',
@@ -1131,7 +1131,7 @@ class Property(models.Model):
     @api.model
     def _cron_daily_create_forecast(self):
 
-        property_objs = self.env['property.property'].search([])
+        property_objs = self.env['hms.property'].search([])
         for record in property_objs:
             if record.is_manual is False:
             
@@ -1170,7 +1170,7 @@ class Property(models.Model):
     #Scheduled Update System Date
     @api.model
     def update_system_date(self):
-        property_objs = self.env['property.property'].search([])
+        property_objs = self.env['hms.property'].search([])
         for record in property_objs:
             if record.is_manual is False:
                 record.system_date = datetime.today()
@@ -1180,12 +1180,12 @@ class Property_roomtype(models.Model):
     _description = "Property_Roomtype"
 
     def get_property_id(self):
-        property_id = self.env['property.property'].browse(
+        property_id = self.env['hms.property'].browse(
             self._context.get('active_id', []))
         if property_id:
             return property_id
 
-    property_id = fields.Many2one("property.property",
+    property_id = fields.Many2one("hms.property",
                                   default=get_property_id,
                                   store=True)
     roomtype_ids = fields.Many2many("room.type",
@@ -1390,7 +1390,7 @@ class RoomType(models.Model):
         for rec in self:
             property_id = self._context.get('property_id')
             if property_id:
-                property_obj = self.env['property.property'].search([
+                property_obj = self.env['hms.property'].search([
                     ('id', '=', property_id)
                 ])
                 room_objs_per_type = property_obj.propertyroom_ids.filtered(
@@ -1496,7 +1496,7 @@ class PropertyRoom(models.Model):
     is_propertyroom = fields.Boolean(string='Is Property Room',
                                      compute='_compute_is_propertyroom')
     room_no = fields.Char(string="Room No", required=True)
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True)
     roomtype_ids = fields.Many2many("room.type",
@@ -1677,7 +1677,7 @@ class SpecialDay(models.Model):
     _description = "Special Day"
     _rec_name = 'special_date'
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
@@ -1689,7 +1689,7 @@ class Weekend(models.Model):
     _name = "weekend.weekend"
     _description = "Weekend"
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
@@ -1708,7 +1708,7 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   required=True)
@@ -1809,7 +1809,7 @@ class SubGroup(models.Model):
     _order = "property_id, sub_group"
 
     property_id = fields.Many2one(
-        'property.property',
+        'hms.property',
         string="Property",
         required=True,
         default=lambda self: self.env.user.property_id.id)
@@ -1847,7 +1847,7 @@ class Transaction(models.Model):
     _description = "Transaction"
     _order = 'trans_code'
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
@@ -2080,7 +2080,7 @@ class CreditLimit(models.Model):
     _description = "Credit Limit"
     _group = 'payment_type'
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
@@ -2137,7 +2137,7 @@ class RateCode(models.Model):
 
     is_ratecode = fields.Boolean(string='Is ratecode',
                                  compute='_compute_is_ratecode')
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
