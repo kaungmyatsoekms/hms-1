@@ -506,9 +506,9 @@
 
     <!-- ===========Building Type Setup============-->
     <!-- Building Type View List -->
-    <record id="building_type_view_list" model="ir.ui.view">
-      <field name="name">building.type.view.list</field>
-      <field name="model">building.type</field>
+    <record id="hms_buildingtype_view_list" model="ir.ui.view">
+      <field name="name">hms.buildingtype.view.list</field>
+      <field name="model">hms.buildingtype</field>
       <field name="arch" type="xml">
         <tree string="State" editable="bottom">
           <field name="building_type"/>
@@ -518,9 +518,9 @@
     </record>
 
     <!-- Building Type View Form -->
-    <record id="building_type_view_form" model="ir.ui.view">
-      <field name="name">building.type.view.form</field>
-      <field name="model">building.type</field>
+    <record id="hms_buildingtype_view_form" model="ir.ui.view">
+      <field name="name">hms.buildingtype.view.form</field>
+      <field name="model">hms.buildingtype</field>
       <field name="arch" type="xml">
         <form string="Building Type">
           <sheet>
@@ -537,16 +537,16 @@
     <record id="action_country_state" model="ir.actions.act_window">
       <field name="name">Fed. States</field>
       <field name="type">ir.actions.act_window</field>
-      <field name="res_model">building.type</field>
-      <field name="view_id" ref="building_type_view_list"/>
+      <field name="res_model">hms.buildingtype</field>
+      <field name="view_id" ref="hms_buildingtype_view_list"/>
       <field name="help">You can manage the different federal states you are working on from here. Each state is attached to one country.</field>
     </record>
 
     <!-- ========== Hotel Room Location Setup ========== -->
     <!-- Room Location Setup Form View -->
-    <record id="room_location_view_form" model="ir.ui.view">
-      <field name="name">room.location.view.form</field>
-      <field name="model">room.location</field>
+    <record id="hms_roomlocation_view_form" model="ir.ui.view">
+      <field name="name">hms.roomlocation.view.form</field>
+      <field name="model">hms.roomlocation</field>
       <field name="arch" type="xml">
         <form string="Room Location">
           <sheet>
@@ -562,9 +562,9 @@
     </record>
 
     <!-- Room Location Tree View-->
-    <record id="room_location_view_list" model="ir.ui.view">
-      <field name="name">room.location.view.list</field>
-      <field name="model">room.location</field>
+    <record id="hms_roomlocation_view_list" model="ir.ui.view">
+      <field name="name">hms.roomlocation.view.list</field>
+      <field name="model">hms.roomlocation</field>
       <field name="arch" type="xml">
         <tree string="Room Location">
           <field name="sequence" widget="handle"/>
@@ -575,17 +575,17 @@
     </record>
 
     <!-- action of room location setup -->
-    <record id="room_location_action_window" model="ir.actions.act_window">
+    <record id="hms_roomlocation_action_window" model="ir.actions.act_window">
       <field name="name">Room Location</field>
-      <field name="res_model">room.location</field>
+      <field name="res_model">hms.roomlocation</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- ========== Room Type Setup ========== -->
     <!-- Room Type Setup Form View -->
-    <record id="room_type_view_form" model="ir.ui.view">
-      <field name="name">room.type.view.form</field>
-      <field name="model">room.type</field>
+    <record id="hms_roomtype_view_form" model="ir.ui.view">
+      <field name="name">hms.roomtype.view.form</field>
+      <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
         <form string="Room Type">
           <sheet>
@@ -614,9 +614,9 @@
     </record>
 
     <!-- Room Type List View-->
-    <record id="room_type_view_list" model="ir.ui.view">
-      <field name="name">room.type.view.list</field>
-      <field name="model">room.type</field>
+    <record id="hms_roomtype_view_list" model="ir.ui.view">
+      <field name="name">hms.roomtype.view.list</field>
+      <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
         <tree string="Room Type List">
           <field name="sequence" widget="handle"/>
@@ -631,9 +631,9 @@
     </record>
 
     <!-- Kanban View of Room Type -->
-    <record id="room_type_view_kanban" model="ir.ui.view">
-      <field name="name">room.type.view.kanban</field>
-      <field name="model">room.type</field>
+    <record id="hms_roomtype_view_kanban" model="ir.ui.view">
+      <field name="name">hms.roomtype.view.kanban</field>
+      <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
         <kanban>
           <field name="color" />
@@ -669,7 +669,7 @@
                   <div class="oe_kanban_content">
                     <div class="oe_kanban_project_list">
                       <div class="o_kanban_image">
-                        <img alt="" t-att-src="kanban_image('room.type', 'image')"/>
+                        <img alt="" t-att-src="kanban_image('hms.roomtype', 'image')"/>
                       </div>
                       <div class="oe_kanban_details">
                         <field name="code"/>
@@ -691,17 +691,17 @@
     </record>
 
     <!-- action of room type setup -->
-    <record id="room_type_action_window" model="ir.actions.act_window">
+    <record id="hms_roomtype_action_window" model="ir.actions.act_window">
       <field name="name">Room Type</field>
-      <field name="res_model">room.type</field>
+      <field name="res_model">hms.roomtype</field>
       <field name="view_mode">kanban,tree,form</field>
     </record>
 
     <!-- ========== Room View Setup ========== -->
     <!-- Room View Setup Form View -->
-    <record id="room_view_view_form" model="ir.ui.view">
-      <field name="name">room.view.view.form</field>
-      <field name="model">room.view</field>
+    <record id="hms_roomview_view_form" model="ir.ui.view">
+      <field name="name">hms.roomview.form</field>
+      <field name="model">hms.roomview</field>
       <field name="arch" type="xml">
         <form string="Room View">
           <sheet>
@@ -716,17 +716,17 @@
       </field>
     </record>
     <!-- action of room view setup -->
-    <record id="room_view_action_window" model="ir.actions.act_window">
+    <record id="hms_roomview_action_window" model="ir.actions.act_window">
       <field name="name">Room View</field>
-      <field name="res_model">room.view</field>
+      <field name="res_model">hms.roomview</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- ========== Room Facility Setup ========== -->
     <!-- Room Facility Setup Form View -->
-    <record id="room_facility_view_form" model="ir.ui.view">
-      <field name="name">room.facility.view.form</field>
-      <field name="model">room.facility</field>
+    <record id="hms_room_facility_view_form" model="ir.ui.view">
+      <field name="name">hms.room.facility.view.form</field>
+      <field name="model">hms.room.facility</field>
       <field name="arch" type="xml">
         <form string="Room Facility">
           <sheet>
@@ -743,9 +743,9 @@
     </record>
 
     <!-- Room Facility List View -->
-    <record id="room_facility_view_tree" model="ir.ui.view">
-      <field name="name">room.facility.view.tree</field>
-      <field name="model">room.facility</field>
+    <record id="hms_room_facility_view_tree" model="ir.ui.view">
+      <field name="name">hms.room.facility.view.tree</field>
+      <field name="model">hms.room.facility</field>
       <field name="arch" type="xml">
         <tree string="Room Facility">
           <field name="sequence" widget="handle"/>
@@ -757,16 +757,16 @@
     </record>
 
     <!-- action of room facility setup -->
-    <record id="room_facility_action_window" model="ir.actions.act_window">
+    <record id="hms_room_facility_action_window" model="ir.actions.act_window">
       <field name="name">Room Facility</field>
-      <field name="res_model">room.facility</field>
+      <field name="res_model">hms.room.facility</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Room Facility Type Form View -->
-    <record id="room_facility_type_view_form" model="ir.ui.view">
-      <field name="name">room.facility.type.view.form</field>
-      <field name="model">room.facility.type</field>
+    <record id="hms_room_facility_type_view_form" model="ir.ui.view">
+      <field name="name">hms.room.facility.type.view.form</field>
+      <field name="model">hms.room.facility.type</field>
       <field name="arch" type="xml">
         <form string="Room Facility">
           <sheet>
@@ -782,9 +782,9 @@
     </record>
 
     <!-- Room Facility List View -->
-    <record id="room_facility_type_view_tree" model="ir.ui.view">
-      <field name="name">room.facility.type.view.tree</field>
-      <field name="model">room.facility.type</field>
+    <record id="hms_room_facility_type_view_tree" model="ir.ui.view">
+      <field name="name">hms.room.facility.type.view.tree</field>
+      <field name="model">hms.room.facility.type</field>
       <field name="arch" type="xml">
         <tree string="Facility Type">
           <field name="facility_type"/>
@@ -795,9 +795,9 @@
 
     <!-- ========== Hotel Room Setup ========== -->
     <!-- Hotel Room Setup Form View -->
-    <record id="property_room_view_form" model="ir.ui.view">
-      <field name="name">property.room.view.form</field>
-      <field name="model">property.room</field>
+    <record id="hms_property_room_view_form" model="ir.ui.view">
+      <field name="name">hms.property.room.view.form</field>
+      <field name="model">hms.property.room</field>
       <field name="arch" type="xml">
         <form string="Property Room">
           <sheet>
@@ -872,9 +872,9 @@
     </record>
 
     <!-- Hotel Room List View -->
-    <record id="property_room_view_list" model="ir.ui.view">
-      <field name="name">property.room.view.list</field>
-      <field name="model">property.room</field>
+    <record id="hms_property_room_view_list" model="ir.ui.view">
+      <field name="name">hms.property.room.view.list</field>
+      <field name="model">hms.property.room</field>
       <field name="arch" type="xml">
         <tree string="Room Setup">
           <field name="sequence" widget="handle"/>
@@ -898,17 +898,17 @@
     </record>
 
     <!-- action of room setup -->
-    <record id="property_room_action_window" model="ir.actions.act_window">
+    <record id="hms_property_room_action_window" model="ir.actions.act_window">
       <field name="name">Room Setup</field>
-      <field name="res_model">property.room</field>
+      <field name="res_model">hms.property.room</field>
       <field name="limit">10</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Market Segment Setup Form View -->
-    <record id="market_segment_view_form" model="ir.ui.view">
-      <field name="name">market.segment.view.form</field>
-      <field name="model">market.segment</field>
+    <record id="hms_marketsegment_view_form" model="ir.ui.view">
+      <field name="name">hms.marketsegment.view.form</field>
+      <field name="model">hms.marketsegment</field>
       <field name="arch" type="xml">
         <form string="Market Segment">
           <sheet>
@@ -926,9 +926,9 @@
     </record>
 
     <!-- Market Segment List View -->
-    <record id="market_segment_view_tree" model="ir.ui.view">
-      <field name="name">market.segment.view.tree</field>
-      <field name="model">market.segment</field>
+    <record id="hms_marketsegment_view_tree" model="ir.ui.view">
+      <field name="name">hms.marketsegment.view.tree</field>
+      <field name="model">hms.marketsegment</field>
       <field name="arch" type="xml">
         <tree string="Market Segment">
           <field name="sequence" widget="handle"/>
@@ -941,16 +941,16 @@
     </record>
 
     <!-- action of market segment -->
-    <record id="market_segment_action_window" model="ir.actions.act_window">
+    <record id="hms_marketsegment_action_window" model="ir.actions.act_window">
       <field name="name">Market Segment</field>
-      <field name="res_model">market.segment</field>
+      <field name="res_model">hms.marketsegment</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Market Source Form View -->
-    <record id="market_source_view_form" model="ir.ui.view">
-      <field name="name">market.source.view.form</field>
-      <field name="model">market.source</field>
+    <record id="hms_marketsource_view_form" model="ir.ui.view">
+      <field name="name">hms.marketsource.view.form</field>
+      <field name="model">hms.marketsource</field>
       <field name="arch" type="xml">
         <form string="Market Source">
           <sheet>
@@ -966,9 +966,9 @@
     </record>
 
     <!-- Market Source List View -->
-    <record id="market_source_view_tree" model="ir.ui.view">
-      <field name="name">market.source.view.tree</field>
-      <field name="model">market.source</field>
+    <record id="hms_marketsource_view_tree" model="ir.ui.view">
+      <field name="name">hms.marketsource.view.tree</field>
+      <field name="model">hms.marketsource</field>
       <field name="arch" type="xml">
         <tree string="Market Source">
           <field name="sequence" widget="handle"/>
@@ -979,9 +979,9 @@
     </record>
 
     <!-- action of market source -->
-    <record id="market_source_action_window" model="ir.actions.act_window">
+    <record id="hms_marketsource_action_window" model="ir.actions.act_window">
       <field name="name">Market Source</field>
-      <field name="res_model">market.source</field>
+      <field name="res_model">hms.marketsource</field>
       <field name="view_mode">tree,form</field>
     </record>
 
@@ -1564,14 +1564,14 @@
     <menuitem id="room_view_menu" name="Room View" parent="room_config" sequence="2" action="room_view_action_window"/>
     <menuitem id="room_facility_menu" name="Room Facility" parent="room_config" sequence="3" action="room_facility_action_window"/>
     <menuitem id="building_menu" name="Hotel Building" parent="room_config" sequence="4" action="building_action_window"/>
-    <menuitem id="room_location_menu" name="Room Location" parent="room_config" sequence="5" action="room_location_action_window"/>
+    <menuitem id="hms_roomlocation_menu" name="Room Location" parent="room_config" sequence="5" action="hms_roomlocation_action_window"/>
 
     <menuitem id="revenue_type_menu" name="Revenue Type" parent="hms_menu_config" sequence="3" action="revenue_type_action_window"/>
     <!-- <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hms_menu_config" sequence="3" action="sub_group_action_window"/> -->
 
     <menuitem id="market_config" name="Market Config" parent="hms_menu_config" sequence="4"/>
-    <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="market_segment_action_window"/>
-    <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="market_source_action_window"/>
+    <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="hms_marketsegment_action_window"/>
+    <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="hms_marketsource_action_window"/>
 
     <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hms_menu_config" sequence="5"/>
     <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="rsvn_type_action_window"/>

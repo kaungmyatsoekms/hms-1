@@ -104,7 +104,7 @@ class Property(models.Model):
                                                       'ZZZ')]).ids
 
     def default_get_roomtype(self):
-        return self.env['room.type'].search([('code', '=', 'HFO')]).ids
+        return self.env['hms.roomtype'].search([('code', '=', 'HFO')]).ids
 
     is_property = fields.Boolean(string='Is Property',
                                  compute='_compute_is_property')
@@ -206,11 +206,11 @@ class Property(models.Model):
                                    'property_id',
                                    string="Bank Info")
     comments = fields.Text(string='Notes')
-    roomtype_ids = fields.Many2many('room.type', default=default_get_roomtype)
+    roomtype_ids = fields.Many2many('hms.roomtype', default=default_get_roomtype)
     building_ids = fields.Many2many('hms.building',
                                     default=default_get_building)
-    market_ids = fields.Many2many('market.segment', string="Market Segment")
-    propertyroom_ids = fields.One2many('property.room',
+    market_ids = fields.Many2many('hms.marketsegment', string="Market Segment")
+    propertyroom_ids = fields.One2many('hms.property.room',
                                        'property_id',
                                        string="Property Room")
     building_count = fields.Integer("Building",
@@ -768,7 +768,7 @@ class Property(models.Model):
 
     @api.depends('propertyroom_ids')
     def _compute_room_count(self):
-        property_rooms = self.env['property.room'].search([('property_id', '=',
+        property_rooms = self.env['hms.property.room'].search([('property_id', '=',
                                                             self.id)])
         room_count = 0
         for rec in property_rooms:
@@ -891,7 +891,7 @@ class Property(models.Model):
         
         if res.roomtype_ids:
             for rec in res.roomtype_ids:
-                property_rooms = self.env['property.room'].search([
+                property_rooms = self.env['hms.property.room'].search([
                     ('property_id', '=', res.id), ('roomtype_id', '=', rec.id)
                 ])
                 roomtype_id = rec.id
@@ -915,7 +915,7 @@ class Property(models.Model):
 
             if res.propertyroom_ids or res.roomtype_ids:
                 if res.roomtype_ids:
-                    hfo_roomtype = self.env['room.type'].search([
+                    hfo_roomtype = self.env['hms.roomtype'].search([
                         ('code', '=ilike', 'H%')
                     ])
                     room_types = list(
@@ -926,7 +926,7 @@ class Property(models.Model):
                     for avail_obj in avail_objs:
                         for roomtype in room_types:
                             vals = []
-                            property_rooms = self.env['property.room'].search([
+                            property_rooms = self.env['hms.property.room'].search([
                                 ('property_id', '=', res.id),
                                 ('roomtype_id', '=', roomtype.id)
                             ])
@@ -943,13 +943,13 @@ class Property(models.Model):
         if res.dummy_rooms:
             room_no = 9001
             for record in range(res.dummy_rooms):
-                roomtype_id = self.env['room.type'].search([('code', '=ilike',
+                roomtype_id = self.env['hms.roomtype'].search([('code', '=ilike',
                                                              'H%')])
                 building_id = self.env['hms.building'].search([('id', '=',
                                                                      1)])
-                location_id = self.env['room.location'].search([('id', '=', 1)
+                location_id = self.env['hms.roomlocation'].search([('id', '=', 1)
                                                                 ])
-                self.env['property.room'].create({
+                self.env['hms.property.room'].create({
                     'room_no' : room_no,
                     'property_id': res.id,
                     'roomtype_id': roomtype_id.id,
@@ -974,7 +974,7 @@ class Property(models.Model):
 
         if 'roomtype_ids' in values.keys(
         ) or 'propertyroom_ids' in values.keys():
-            hfo_roomtype = self.env['room.type'].search([('code', '=ilike',
+            hfo_roomtype = self.env['hms.roomtype'].search([('code', '=ilike',
                                                           'H%')])
             roomtypes = list(set(self.roomtype_ids) - set(hfo_roomtype))
 
@@ -983,14 +983,14 @@ class Property(models.Model):
                     ('property_id', '=', self.id), ('roomtype_id', '=', rec.id)
                 ])
                 if property_roomtype:
-                    property_rooms = self.env['property.room'].search([
+                    property_rooms = self.env['hms.property.room'].search([
                         ('property_id', '=', self.id),
                         ('roomtype_id', '=', rec.id)
                     ])
                     total_rooms = len(property_rooms)
                     property_roomtype.total_rooms = total_rooms
                 else:
-                    property_rooms = self.env['property.room'].search([
+                    property_rooms = self.env['hms.property.room'].search([
                         ('property_id', '=', self.id),
                         ('roomtype_id', '=', rec.id)
                     ])
@@ -1020,7 +1020,7 @@ class Property(models.Model):
                     avail_objs = self.env['availability.availability'].search([
                         ('property_id', '=', self.id)
                     ])
-                    property_rooms = self.env['property.room'].search([
+                    property_rooms = self.env['hms.property.room'].search([
                         ('property_id', '=', self.id),
                         ('roomtype_id', '=', rec.id)
                     ])
@@ -1048,7 +1048,7 @@ class Property(models.Model):
         property_roomtypeobjs = self.env['hms.property.roomtype']
         reservation_objs = self.env['hms.reservation']
         reservation_line_objs = self.env['hms.reservation.line']
-        property_room_objs = self.env['property.room']
+        property_room_objs = self.env['hms.property.room']
         special_day_objs = self.env['special.day']
         weekend_objs = self.env['weekend.weekend']
         package_objs = self.env['package.package']
@@ -1088,7 +1088,7 @@ class Property(models.Model):
             reservation_line_objs += self.env['hms.reservation.line'].search([
                 ('property_id', '=', rec.id)
             ])
-            property_room_objs += self.env['property.room'].search([
+            property_room_objs += self.env['hms.property.room'].search([
                 ('property_id', '=', rec.id)
             ])
             property_room_objs.unlink()
@@ -1188,9 +1188,9 @@ class Property_roomtype(models.Model):
     property_id = fields.Many2one("hms.property",
                                   default=get_property_id,
                                   store=True)
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('room.type',
+    roomtype_id = fields.Many2one('hms.roomtype',
                                   string="Room Type",
                                   domain="[('id', '=?', roomtype_ids)]",
                                   required=True)
@@ -1209,7 +1209,7 @@ class Building(models.Model):
 
     sequence = fields.Integer(default=1)
     building_name = fields.Char(string='Building Name', required=True)
-    building_type = fields.Many2one('building.type',
+    building_type = fields.Many2one('hms.buildingtype',
                                     string='Building Type',
                                     required=True)
     building_location = fields.Char(string='Location')
@@ -1220,7 +1220,7 @@ class Building(models.Model):
     building_capacity = fields.Integer(string='Capacity',
                                        default=1,
                                        required=True)
-    location_ids = fields.Many2many('room.location',
+    location_ids = fields.Many2many('hms.roomlocation',
                                     string="Room Location",
                                     required=True)
     # location_number = fields.Integer("Location Number", compute="_room_location_count", readonly=True)
@@ -1273,7 +1273,7 @@ class Building(models.Model):
 
 
 class BuildingType(models.Model):
-    _name = "building.type"
+    _name = "hms.buildingtype"
     _description = "Building Type"
 
     building_type = fields.Char(string='Building Type', required=True)
@@ -1306,7 +1306,7 @@ class BuildingType(models.Model):
 
 
 class RoomLocation(models.Model):
-    _name = "room.location"
+    _name = "hms.roomlocation"
     _description = "Room Location"
 
     sequence = fields.Integer(default=1)
@@ -1340,7 +1340,7 @@ class RoomLocation(models.Model):
 
 
 class BedType(models.Model):
-    _name = "bed.type"
+    _name = "hms.bedtype"
     _description = "Bed Type"
 
     name = fields.Char(string="Bed Type Name")
@@ -1348,7 +1348,7 @@ class BedType(models.Model):
 
 
 class RoomType(models.Model):
-    _name = "room.type"
+    _name = "hms.roomtype"
     _description = "Room Type"
     _rec_name = "code"
 
@@ -1360,7 +1360,7 @@ class RoomType(models.Model):
     name = fields.Char(string='Room Type', required=True)
     color = fields.Integer('Color Index', default=0, size=1)
     fix_type = fields.Boolean(string="Fix Type", default=True)
-    bed_type = fields.Many2many('bed.type', string="Bed Type")
+    bed_type = fields.Many2many('hms.bedtype', string="Bed Type")
     ratecode_id = fields.Char(string='Rate Code')
     totalroom = fields.Integer(string='Total Rooms',
                                compute='compute_totalroom')
@@ -1426,7 +1426,7 @@ class RoomType(models.Model):
 
 
 class RoomView(models.Model):
-    _name = "room.view"
+    _name = "hms.roomview"
     _description = "Room View"
 
     name = fields.Char(string='Room View', required=True)
@@ -1439,22 +1439,22 @@ class RoomView(models.Model):
 
 
 class RoomFacility(models.Model):
-    _name = "room.facility"
+    _name = "hms.room.facility"
     _description = "Room Facility"
     _order = 'facilitytype_id'
 
     sequence = fields.Integer(default=1)
-    amenity_ids = fields.Many2many('room.amenity',
+    amenity_ids = fields.Many2many('hms.room.amenity',
                                    string="Room Facility",
                                    required=True)
-    facilitytype_id = fields.Many2one('room.facility.type',
+    facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string='Facility Type',
                                       required=True)
     facility_desc = fields.Text(string="Description")
 
 
 class RoomAmenitiy(models.Model):
-    _name = "room.amenity"
+    _name = "hms.room.amenity"
     _description = "Room Amenity"
 
     name = fields.Char(string="Amenity Name", required=True)
@@ -1462,7 +1462,7 @@ class RoomAmenitiy(models.Model):
 
 
 class RoomFacilityType(models.Model):
-    _name = "room.facility.type"
+    _name = "hms.room.facility.type"
     _description = "Room Facility Type"
 
     sequence = fields.Integer(default=1)
@@ -1483,7 +1483,7 @@ class RoomFacilityType(models.Model):
 
 
 class PropertyRoom(models.Model):
-    _name = "property.room"
+    _name = "hms.property.room"
     _description = "Property Room"
     _group = 'roomlocation_id'
 
@@ -1499,23 +1499,23 @@ class PropertyRoom(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True)
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('room.type',
+    roomtype_id = fields.Many2one('hms.roomtype',
                                   string="Room Type",
                                   domain="[('id', '=?', roomtype_ids)]",
                                   required=True)
-    roomview_ids = fields.Many2many('room.view', string="Room View Code")
+    roomview_ids = fields.Many2many('hms.roomview', string="Room View Code")
     building_ids = fields.Many2many("hms.building",
                                     related="property_id.building_ids")
     building_id = fields.Many2one('hms.building',
                                   string="Room Building",
                                   domain="[('id', '=?', building_ids)]",
                                   required=True)
-    roomlocation_id = fields.Many2one('room.location',
+    roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       required=True)
-    facility_ids = fields.Many2many('room.facility',
+    facility_ids = fields.Many2many('hms.room.facility',
                                     string="Room Facility",
                                     required=True)
     ratecode_id = fields.Many2one('rate.code', string="Ratecode")
@@ -1540,8 +1540,8 @@ class PropertyRoom(models.Model):
                               size=2,
                               default='CL',
                               invisible=True)
-    bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
-    bedtype_id = fields.Many2one('bed.type',
+    bedtype_ids = fields.Many2many('hms.bedtype', related="roomtype_id.bed_type")
+    bedtype_id = fields.Many2one('hms.bedtype',
                                  domain="[('id', '=?', bedtype_ids)]")
     no_of_pax = fields.Integer(string="Allow Pax", default=2)
     room_reservation_line_ids = fields.One2many('hms.reservation.line',
@@ -1600,14 +1600,14 @@ class PropertyRoom(models.Model):
 
 
 class MarketSegment(models.Model):
-    _name = "market.segment"
+    _name = "hms.marketsegment"
     _description = "Maret Segment"
     _order = 'group_id'
 
     sequence = fields.Integer(default=1)
     market_code = fields.Char(string="Market Code", size=3, required=True)
     market_name = fields.Char(string="Market Name", required=True)
-    group_id = fields.Many2one('market.group',
+    group_id = fields.Many2one('hms.marketgroup',
                                string="Group Code",
                                required=True)
     options = fields.Selection([
@@ -1632,7 +1632,7 @@ class MarketSegment(models.Model):
 
 
 class MarketGroup(models.Model):
-    _name = "market.group"
+    _name = "hms.marketgroup"
     _description = "Market Group"
 
     group_code = fields.Char(string="Group Code",
@@ -1652,7 +1652,7 @@ class MarketGroup(models.Model):
 
 
 class MarketSource(models.Model):
-    _name = "market.source"
+    _name = "hms.marketsource"
     _description = "Market Source"
 
     sequence = fields.Integer(default=1)
@@ -2143,9 +2143,9 @@ class RateCode(models.Model):
                                   readonly=True)
     rate_code = fields.Char(string="Rate Code", size=10, required=True)
     ratecode_name = fields.Char(string="Description", required=True)
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('room.type',
+    roomtype_id = fields.Many2one('hms.roomtype',
                                   string="Room Type",
                                   domain="[('id', '=?', roomtype_ids)]",
                                   required=True)

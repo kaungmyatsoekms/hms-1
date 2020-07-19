@@ -21,9 +21,9 @@ class RatecodeDetailCopyWizard(models.TransientModel):
     property_id = fields.Many2one('property.property',
                                   readonly=True)
     season_code = fields.Char(string="Season",related="ratecode_detail_id.season_code")
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="ratecode_detail_id.roomtype_ids")
-    roomtype_id = fields.Many2many('room.type',
+    roomtype_id = fields.Many2many('hms.roomtype',
                                    related="ratecode_detail_id.roomtype_id")
     old_end_date = fields.Date(related="ratecode_detail_id.end_date")
     start_date = fields.Date(string="Start Date",

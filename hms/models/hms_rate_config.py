@@ -115,9 +115,9 @@ class RateCodeDetails(models.Model):
                                   string="Property",
                                   readonly=True)
     season_code = fields.Char(string="Season", size=10, required=True)
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2many('room.type',
+    roomtype_id = fields.Many2many('hms.roomtype',
                                    string="Room Type",
                                    store=True,
                                    domain="[('id', '=?', roomtype_ids)]",

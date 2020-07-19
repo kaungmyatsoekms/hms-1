@@ -10,32 +10,32 @@ class RoomNoCopyWizard(models.TransientModel):
     _description = "Copy Wizard"
 
     def get_propertyroom_id(self):
-        propertyroom_id = self.env['property.room'].browse(
+        propertyroom_id = self.env['hms.property.room'].browse(
             self._context.get('active_id',[])
         )
         if propertyroom_id:
             return propertyroom_id
 
     is_roomtype_fix = fields.Boolean(related="roomtype_id.fix_type")
-    propertyroom_id = fields.Many2one("property.room",
+    propertyroom_id = fields.Many2one("hms.property.room",
                                      default=get_propertyroom_id,
                                      store=True)
     property_id = fields.Many2one("property.property",related="propertyroom_id.property_id")
     room_no = fields.Char(string="Room No", required=True)
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="propertyroom_id.roomtype_ids")
-    roomtype_id = fields.Many2one('room.type',
+    roomtype_id = fields.Many2one('hms.roomtype',
                                   string="Room Type",
                                   related="propertyroom_id.roomtype_id")
-    bedtype_ids = fields.Many2many('bed.type', related="roomtype_id.bed_type")
-    bedtype_id = fields.Many2one('bed.type', string='Bed Type', domain="[('id', '=?', bedtype_ids)]")
-    roomview_ids = fields.Many2many('room.view', string="Room View Code",related="propertyroom_id.roomview_ids")
+    bedtype_ids = fields.Many2many('hms.bedtype', related="roomtype_id.bed_type")
+    bedtype_id = fields.Many2one('hms.bedtype', string='Bed Type', domain="[('id', '=?', bedtype_ids)]")
+    roomview_ids = fields.Many2many('hms.roomview', string="Room View Code",related="propertyroom_id.roomview_ids")
     building_ids = fields.Many2many("hms.building",
                                     related="propertyroom_id.building_ids")
     building_id = fields.Many2one('hms.building',
                                   string="Room Building",
                                   related="propertyroom_id.building_id")
-    roomlocation_id = fields.Many2one('room.location',
+    roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       related="propertyroom_id.roomlocation_id")
     facility_ids = fields.Many2many('room.facility',
@@ -51,7 +51,7 @@ class RoomNoCopyWizard(models.TransientModel):
     room_connect = fields.Char(string="Connecting Room",related="propertyroom_id.room_connect")
 
     def action_roomno_copy_wiz(self):
-        property_rooms = self.env['property.room'].browse(
+        property_rooms = self.env['hms.property.room'].browse(
             self._context.get('active_id'))
 
         vals = []
@@ -80,7 +80,7 @@ class RoomNoCopyWizard(models.TransientModel):
             'view_type':'form',
             'view_mode':'form',
             'view_id':self.env.ref('hms.property_room_view_form').id,
-            'res_model':'property.room',
+            'res_model':'hms.property.room',
             'context':"{'type':'out_propertyroom'}",
             'type': 'ir.actions.client',
             'tag': 'reload',

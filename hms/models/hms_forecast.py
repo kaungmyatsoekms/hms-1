@@ -130,10 +130,10 @@ class RoomTypeAvailable(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property")
     ravail_date = fields.Date('Date', required=True)
-    roomtype_ids = fields.Many2many('room.type',
+    roomtype_ids = fields.Many2many('hms.roomtype',
                                     related="property_id.roomtype_ids")
     ravail_rmty = fields.Many2one(
-        'room.type',
+        'hms.roomtype',
         string="Room Type",
         domain="[('id', '=?', roomtype_ids)]",
         required=True)  #, domain="[('id', '=?', roomtype_ids)]", required=True
