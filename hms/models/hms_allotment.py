@@ -15,7 +15,7 @@ class HMSAllotment(models.Model):
 
     name=fields.Char("Allotment Name", required=True)
     description = fields.Char("Description", required=True)
-    property_id = fields.Many2one('property.property', track_visibility=True)
+    property_id = fields.Many2one('hms.property', track_visibility=True)
     cut_off = fields.Boolean(default=True, track_visibility=True)
     active = fields.Boolean(default=True, track_visibility=True)
     allotment_line_ids = fields.One2many('hms.allotment.line','allotment_id','Allotment')
@@ -35,11 +35,11 @@ class HMSAllotmentLine(models.Model):
     allotment_id = fields.Many2one("hms.allotment",
                                 "Allotment Details",
                                 track_visibility=True)
-    property_id = fields.Many2one("property.property",             
+    property_id = fields.Many2one("hms.property",             
                                 store=True,
                                 track_visibility=True)
-    roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
+    roomtype_ids = fields.Many2many("hms.roomtype", related="property_id.roomtype_ids")
+    roomtype_id = fields.Many2one('hms.roomtype', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
     ratecode_id = fields.Many2one('rate.code', string="Rate Code")
     start_date = fields.Date(string="Start Date",
                              readonly=False,

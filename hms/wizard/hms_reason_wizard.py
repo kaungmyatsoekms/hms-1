@@ -33,7 +33,7 @@ class HMSCancelReasonWizard(models.TransientModel):
         for d in reservations.reservation_line_ids:
             if d.state != 'cancel':
                 #Update Availability
-                room_no = self.env['property.room']
+                room_no = self.env['hms.property.room']
                 state = d.state
                 property_id = d.property_id.id
                 arrival = d.arrival
@@ -217,7 +217,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
 
         for d in reservation_lines:
             #Update Availability
-            room_no = self.env['property.room']
+            room_no = self.env['hms.property.room']
             state = d.state
             property_id = d.property_id.id
             arrival = d.arrival

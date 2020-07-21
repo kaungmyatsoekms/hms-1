@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <!--pms.format -->
-        <record model="pms.format" id="pms_format_id1">
+        <!--hms.format -->
+        <record model="hms.format" id="pms_format_id1">
           <field name="name">Guest Profile ID Format</field>
           <field name="sample">P-YYYY-xxxxxx</field>
           <field name="code">guest.format</field>
           <field name="active">True</field>
         </record>
-        <record model="pms.format" id="pms_format_id2">
+        <record model="hms.format" id="pms_format_id2">
           <field name="name">Company Profile ID Format</field>
           <field name="sample">C-company type code-YYYY-xxxxxx</field>
           <field name="code">company.format</field>
           <field name="active">True</field>
         </record>
-         <record model="pms.format" id="pms_format_id3">
+         <record model="hms.format" id="pms_format_id3">
           <field name="name">Group Profile ID Format</field>
           <field name="sample">G-property code-YYYY-xxxxxx</field>
           <field name="code">group.format</field>
           <field name="active">True</field>
         </record>
-        <record model="pms.format" id="pms_format_id4">
+        <record model="hms.format" id="pms_format_id4">
           <field name="name">Confirmation No Format</field>
           <field name="sample">R-property code-YYYY-xxxxxx</field>
           <field name="code">confirm.format</field>
           <field name="active">True</field>
         </record>
-        <!-- <record model="pms.format" id="pms_format_id5">
+        <!-- <record model="hms.format" id="pms_format_id5">
           <field name="name">Cancellation No Format</field>
           <field name="sample">Cxl-property code-YYYY-xxxxxx</field>
           <field name="code">cancel.format</field>
           <field name="active">True</field>
         </record>
-        <record model="pms.format" id="pms_format_id6">
+        <record model="hms.format" id="pms_format_id6">
           <field name="name">Share No Format</field>
           <field name="sample">SG-property code-YY-xxxxxx</field>
           <field name="code">share.format</field>
           <field name="active">True</field>
         </record> -->
         <!-- Guest Profile ID Format-->
-        <record model="pms.format.detail" id="pms_format_detail_id7">
+        <record model="hms.format.detail" id="pms_format_detail_id7">
             <field name="format_id" ref="pms_format_id1"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -50,7 +50,7 @@
             <field name="datetime_value"></field>
             <field name="value">P-</field>
         </record>
-        <!--<record model="pms.format.detail" id="pms_format_detail_id8">
+        <!--<record model="hms.format.detail" id="pms_format_detail_id8">
             <field name="format_id" ref="pms_format_id1"/>
             <field name="name">Property</field>
             <field name="position_order">2</field>
@@ -61,7 +61,7 @@
             <field name="datetime_value"></field>
             <field name="value">property code</field>
         </record> -->
-        <!-- <record model="pms.format.detail" id="pms_format_detail_id9">
+        <!-- <record model="hms.format.detail" id="pms_format_detail_id9">
             <field name="format_id" ref="pms_format_id1"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -72,7 +72,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record> -->
-        <record model="pms.format.detail" id="pms_format_detail_id10">
+        <record model="hms.format.detail" id="pms_format_detail_id10">
             <field name="format_id" ref="pms_format_id1"/>
             <field name="name">DateTime Char</field>
             <field name="position_order">2</field>
@@ -83,7 +83,7 @@
             <field name="datetime_value">YYYY</field>
             <field name="value">YYYY</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id11">
+        <record model="hms.format.detail" id="pms_format_detail_id11">
             <field name="format_id" ref="pms_format_id1"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -94,7 +94,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id12">
+        <record model="hms.format.detail" id="pms_format_detail_id12">
             <field name="format_id" ref="pms_format_id1"/>
             <field name="name">Digit Char</field>
             <field name="position_order">4</field>
@@ -106,7 +106,7 @@
             <field name="value">6</field>
         </record>
         <!-- Company Profile ID Format-->
-        <record model="pms.format.detail" id="pms_format_detail_id13">
+        <record model="hms.format.detail" id="pms_format_detail_id13">
             <field name="format_id" ref="pms_format_id2"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -117,7 +117,7 @@
             <field name="datetime_value"></field>
             <field name="value">C-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id14">
+        <record model="hms.format.detail" id="pms_format_detail_id14">
             <field name="format_id" ref="pms_format_id2"/>
             <field name="name">Company Type</field>
             <field name="position_order">2</field>
@@ -128,7 +128,7 @@
             <field name="datetime_value"></field>
             <field name="value">company type code</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id15">
+        <record model="hms.format.detail" id="pms_format_detail_id15">
             <field name="format_id" ref="pms_format_id2"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -139,7 +139,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id16">
+        <record model="hms.format.detail" id="pms_format_detail_id16">
             <field name="format_id" ref="pms_format_id2"/>
             <field name="name">DateTime Char</field>
             <field name="position_order">4</field>
@@ -150,7 +150,7 @@
             <field name="datetime_value">YYYY</field>
             <field name="value">YYYY</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id17">
+        <record model="hms.format.detail" id="pms_format_detail_id17">
             <field name="format_id" ref="pms_format_id2"/>
             <field name="name">Fix Char</field>
             <field name="position_order">5</field>
@@ -161,7 +161,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id18">
+        <record model="hms.format.detail" id="pms_format_detail_id18">
             <field name="format_id" ref="pms_format_id2"/>
             <field name="name">Digit Char</field>
             <field name="position_order">6</field>
@@ -173,7 +173,7 @@
             <field name="value">6</field>
         </record>
         <!-- Group Profile ID Format-->
-        <record model="pms.format.detail" id="pms_format_detail_id19">
+        <record model="hms.format.detail" id="pms_format_detail_id19">
             <field name="format_id" ref="pms_format_id3"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -184,7 +184,7 @@
             <field name="datetime_value"></field>
             <field name="value">G-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id20">
+        <record model="hms.format.detail" id="pms_format_detail_id20">
             <field name="format_id" ref="pms_format_id3"/>
             <field name="name">Property</field>
             <field name="position_order">2</field>
@@ -195,7 +195,7 @@
             <field name="datetime_value"></field>
             <field name="value">property code</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id21">
+        <record model="hms.format.detail" id="pms_format_detail_id21">
             <field name="format_id" ref="pms_format_id3"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -206,7 +206,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id22">
+        <record model="hms.format.detail" id="pms_format_detail_id22">
             <field name="format_id" ref="pms_format_id3"/>
             <field name="name">DateTime Char</field>
             <field name="position_order">4</field>
@@ -217,7 +217,7 @@
             <field name="datetime_value">YYYY</field>
             <field name="value">YYYY</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id23">
+        <record model="hms.format.detail" id="pms_format_detail_id23">
             <field name="format_id" ref="pms_format_id3"/>
             <field name="name">Fix Char</field>
             <field name="position_order">5</field>
@@ -228,7 +228,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id24">
+        <record model="hms.format.detail" id="pms_format_detail_id24">
             <field name="format_id" ref="pms_format_id3"/>
             <field name="name">Digit Char</field>
             <field name="position_order">6</field>
@@ -240,7 +240,7 @@
             <field name="value">6</field>
         </record>
         <!-- Cancellation No Format-->
-        <!-- <record model="pms.format.detail" id="pms_format_detail_id25">
+        <!-- <record model="hms.format.detail" id="pms_format_detail_id25">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -251,7 +251,7 @@
             <field name="datetime_value"></field>
             <field name="value">C-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id26">
+        <record model="hms.format.detail" id="pms_format_detail_id26">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">Property</field>
             <field name="position_order">2</field>
@@ -262,7 +262,7 @@
             <field name="datetime_value"></field>
             <field name="value">property code</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id27">
+        <record model="hms.format.detail" id="pms_format_detail_id27">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -273,7 +273,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id28">
+        <record model="hms.format.detail" id="pms_format_detail_id28">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">DateTime Char</field>
             <field name="position_order">4</field>
@@ -284,7 +284,7 @@
             <field name="datetime_value">YYYY</field>
             <field name="value">YYYY</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id29">
+        <record model="hms.format.detail" id="pms_format_detail_id29">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">Fix Char</field>
             <field name="position_order">5</field>
@@ -295,7 +295,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id30">
+        <record model="hms.format.detail" id="pms_format_detail_id30">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">Digit Char</field>
             <field name="position_order">6</field>
@@ -307,7 +307,7 @@
             <field name="value">6</field>
         </record> -->
         <!-- Share No Format -->
-        <!-- <record model="pms.format.detail" id="pms_format_detail_id31">
+        <!-- <record model="hms.format.detail" id="pms_format_detail_id31">
             <field name="format_id" ref="pms_format_id6"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -318,7 +318,7 @@
             <field name="datetime_value"></field>
             <field name="value">C-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id32">
+        <record model="hms.format.detail" id="pms_format_detail_id32">
             <field name="format_id" ref="pms_format_id6"/>
             <field name="name">Property</field>
             <field name="position_order">2</field>
@@ -329,7 +329,7 @@
             <field name="datetime_value"></field>
             <field name="value">property code</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id33">
+        <record model="hms.format.detail" id="pms_format_detail_id33">
             <field name="format_id" ref="pms_format_id6"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -340,7 +340,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id34">
+        <record model="hms.format.detail" id="pms_format_detail_id34">
             <field name="format_id" ref="pms_format_id6"/>
             <field name="name">DateTime Char</field>
             <field name="position_order">4</field>
@@ -351,7 +351,7 @@
             <field name="datetime_value">YY</field>
             <field name="value">YY</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id35">
+        <record model="hms.format.detail" id="pms_format_detail_id35">
             <field name="format_id" ref="pms_format_id6"/>
             <field name="name">Fix Char</field>
             <field name="position_order">5</field>
@@ -362,7 +362,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id36">
+        <record model="hms.format.detail" id="pms_format_detail_id36">
             <field name="format_id" ref="pms_format_id6"/>
             <field name="name">Digit Char</field>
             <field name="position_order">6</field>
@@ -374,7 +374,7 @@
             <field name="value">6</field>
         </record> -->
         <!-- Confirmation ID Format-->
-        <record model="pms.format.detail" id="pms_format_detail_id1">
+        <record model="hms.format.detail" id="pms_format_detail_id1">
             <field name="format_id" ref="pms_format_id4"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -385,7 +385,7 @@
             <field name="datetime_value"></field>
             <field name="value">R-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id2">
+        <record model="hms.format.detail" id="pms_format_detail_id2">
             <field name="format_id" ref="pms_format_id4"/>
             <field name="name">Property</field>
             <field name="position_order">2</field>
@@ -396,7 +396,7 @@
             <field name="datetime_value"></field>
             <field name="value">property code</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id3">
+        <record model="hms.format.detail" id="pms_format_detail_id3">
             <field name="format_id" ref="pms_format_id4"/>
             <field name="name">Fix Char</field>
             <field name="position_order">3</field>
@@ -407,7 +407,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id4">
+        <record model="hms.format.detail" id="pms_format_detail_id4">
             <field name="format_id" ref="pms_format_id4"/>
             <field name="name">DateTime Char</field>
             <field name="position_order">4</field>
@@ -418,7 +418,7 @@
             <field name="datetime_value">YYYY</field>
             <field name="value">YYYY</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id5">
+        <record model="hms.format.detail" id="pms_format_detail_id5">
             <field name="format_id" ref="pms_format_id4"/>
             <field name="name">Fix Char</field>
             <field name="position_order">5</field>
@@ -429,7 +429,7 @@
             <field name="datetime_value"></field>
             <field name="value">-</field>
         </record>
-        <record model="pms.format.detail" id="pms_format_detail_id6">
+        <record model="hms.format.detail" id="pms_format_detail_id6">
             <field name="format_id" ref="pms_format_id4"/>
             <field name="name">Digit Char</field>
             <field name="position_order">6</field>

@@ -10,20 +10,20 @@ class RatecodeDetailCopyWizard(models.TransientModel):
     _description = "Copy Wizard"
 
     def get_ratecode_detail_id(self):
-        ratecode_detail_id = self.env['ratecode.details'].browse(
+        ratecode_detail_id = self.env['hms.ratecode.details'].browse(
             self._context.get('active_id',[])
         )
         if ratecode_detail_id:
             return ratecode_detail_id
 
-    ratecode_detail_id = fields.Many2one('ratecode.details',default=get_ratecode_detail_id)
-    ratehead_id = fields.Many2one('ratecode.header',related="ratecode_detail_id.ratehead_id")
-    property_id = fields.Many2one('property.property',
+    ratecode_detail_id = fields.Many2one('hms.ratecode.details',default=get_ratecode_detail_id)
+    ratehead_id = fields.Many2one('hms.ratecode.header',related="ratecode_detail_id.ratehead_id")
+    property_id = fields.Many2one('hms.property',
                                   readonly=True)
     season_code = fields.Char(string="Season",related="ratecode_detail_id.season_code")
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="ratecode_detail_id.roomtype_ids")
-    roomtype_id = fields.Many2many('room.type',
+    roomtype_id = fields.Many2many('hms.roomtype',
                                    related="ratecode_detail_id.roomtype_id")
     old_end_date = fields.Date(related="ratecode_detail_id.end_date")
     start_date = fields.Date(string="Start Date",
@@ -57,7 +57,7 @@ class RatecodeDetailCopyWizard(models.TransientModel):
             self.start_date = self.old_end_date + timedelta(days=1)
 
     def action_rc_detail_copy_wiz(self):
-        ratecode_detail_id = self.env['ratecode.details'].browse(
+        ratecode_detail_id = self.env['hms.ratecode.details'].browse(
             self._context.get('active_id'))
 
         vals = []

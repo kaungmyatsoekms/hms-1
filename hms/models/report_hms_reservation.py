@@ -8,7 +8,7 @@ class ReportHMSReservationLineStatus(models.Model):
     _description = "Reservation By State"
     _auto = False
 
-    property_id = fields.Many2one('property.property')
+    property_id = fields.Many2one('hms.property')
     # confirm_no = fields.Char('Reservation No', size=64, readonly=True)
     nbr = fields.Integer('Reservation', readonly=True)
     state = fields.Selection([('booking', 'Booking'), ('reservation', 'Reservation'),

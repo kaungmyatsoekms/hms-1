@@ -10,7 +10,7 @@ class PropertyReport(models.AbstractModel):
     _description = 'Property Report'
 
     def get_property(self, property_id):
-        property_obj = self.env['property.property'].search([('id', '=',
+        property_obj = self.env['hms.property'].search([('id', '=',
                                                               property_id[0])])
         return property_obj
 
@@ -23,7 +23,7 @@ class PropertyReport(models.AbstractModel):
             docids = data.get('ids', data.get('active_ids'))
 
         property_id = data['form']['property_id']
-        folio_profile = self.env['property.property'].search([
+        folio_profile = self.env['hms.property'].search([
             ('id', '=', property_id[0])
         ])
 
@@ -32,7 +32,7 @@ class PropertyReport(models.AbstractModel):
 
         return {
             'doc_ids': docids,
-            'doc_model': 'property.property',
+            'doc_model': 'hms.property',
             # 'data': data['form'],
             'property_id': property_id[1],
             'docs': folio_profile,
