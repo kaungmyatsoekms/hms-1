@@ -112,7 +112,7 @@ class Package(models.Model):
                                   required=True,
                                   track_visibility=True)
     posting_rythms = fields.Selection(POSTING_RYTHMS,
-                                      string='Posting Rythms',
+                                      string='Posting Rhythms',
                                       index=True,
                                       default=POSTING_RYTHMS[0][0])
     Calculation_method = fields.Selection(CALCUATION_METHODS,

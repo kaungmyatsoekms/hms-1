@@ -1634,8 +1634,8 @@ class ReservationLine(models.Model):
                 day_count += 1
         return posting_dates
 
-    def create_line_with_posting_rythm(self, reservation_line_id,
-                                       transaction_date, package_ids):
+    def create_line_with_posting_rhythm(self, reservation_line_id,
+                                        transaction_date, package_ids):
         res = reservation_line_id
         total_amount_include = 0.0
         total_room_rate = 0.0
@@ -1685,7 +1685,7 @@ class ReservationLine(models.Model):
                                    room_rate, room_amount, True, pkg,
                                    transaction_date, res.rooms, False, 'INR')
 
-    def update_line_with_posting_rythm(self, reservation_line_id, delete):
+    def update_line_with_posting_rhythm(self, reservation_line_id, delete):
         res = reservation_line_id
         day_count = 0
         for rec in range(res.nights):
@@ -1762,7 +1762,7 @@ class ReservationLine(models.Model):
                                             transaction_date, res.rooms, False,
                                             'INR')
                 else:
-                    res.create_line_with_posting_rythm(
+                    res.create_line_with_posting_rhythm(
                         res, transaction_date, res.package_id.package_ids)
 
             day_count += 1
@@ -1804,8 +1804,8 @@ class ReservationLine(models.Model):
                                         pkg.rate_attribute)
 
                 else:
-                    res.create_line_with_posting_rythm(res, transaction_date,
-                                                       pkg)
+                    res.create_line_with_posting_rhythm(
+                        res, transaction_date, pkg)
 
             day_count += 1
 
@@ -1828,13 +1828,13 @@ class ReservationLine(models.Model):
         for rec in range(res.nights):
             transaction_date = res.arrival + timedelta(days=day_count)
             if res.package_id:
-                res.create_line_with_posting_rythm(res, transaction_date,
-                                                   res.package_id.package_ids)
+                res.create_line_with_posting_rhythm(res, transaction_date,
+                                                    res.package_id.package_ids)
             # Check for additional packages
             if res.additional_pkg_ids:
                 # Create charge line for additional packages
-                res.create_line_with_posting_rythm(res, transaction_date,
-                                                   res.additional_pkg_ids)
+                res.create_line_with_posting_rhythm(res, transaction_date,
+                                                    res.additional_pkg_ids)
             day_count += 1
         return res
 
@@ -2031,12 +2031,12 @@ class ReservationLine(models.Model):
                 for rec in range(self.nights):
                     transaction_date = self.arrival + timedelta(days=day_count)
                     if self.package_id:
-                        self.create_line_with_posting_rythm(
+                        self.create_line_with_posting_rhythm(
                             self, transaction_date,
                             self.package_id.package_ids)
                     if self.additional_pkg_ids:
                         # Create charge line for additional packages
-                        self.create_line_with_posting_rythm(
+                        self.create_line_with_posting_rhythm(
                             self, transaction_date, self.additional_pkg_ids)
                     day_count += 1
 
@@ -2055,13 +2055,13 @@ class ReservationLine(models.Model):
                             'active': False,
                             'delete': True,
                         })
-                    self.update_line_with_posting_rythm(self, True)
+                    self.update_line_with_posting_rhythm(self, True)
                     for pkg in self.additional_pkg_ids:
                         self.update_additional_packages(self, True, pkg)
 
                 # No Date & Nights Changes (only other fields changes)
                 else:
-                    self.update_line_with_posting_rythm(self, False)
+                    self.update_line_with_posting_rhythm(self, False)
                     del_room_transaction_line_objs = self.env[
                         'hms.room.transaction.charge.line'].search([
                             ('property_id', '=', self.property_id.id),

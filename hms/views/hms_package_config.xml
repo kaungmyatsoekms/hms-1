@@ -168,7 +168,7 @@
                                             <field name="Fix_price"/>
                                         </div>
                                         <div t-if="record.posting_rythms.raw_value">
-                                            <b>Posting Rythms: </b>
+                                            <b>Posting Rhythms: </b>
                                             <field name="posting_rythms"/>
                                         </div>
                                     </div>
