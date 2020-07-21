@@ -4,8 +4,9 @@ from odoo.exceptions import UserError
 
 class ReservationReportWizard(models.TransientModel):
     _name = 'hms.reservation_report_wizard'
+    _description = "Reservation Report"
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True)
     date_start = fields.Date(string='Start Date',
@@ -50,8 +51,9 @@ class ReservationReportWizard(models.TransientModel):
 
 class ExpectedArrReportWizard(models.TransientModel):
     _name = 'hms.expected_arr_report_wizard'
+    _description = "Expected Arrival Report"
 
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True)
     arr_date = fields.Date(string='Arrival Date',

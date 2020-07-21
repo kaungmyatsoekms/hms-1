@@ -24,12 +24,16 @@
     'version':
     '0.1',
     # any module necessary for this one to work correctly
-    'depends':
-    ['base','graphql_base', 'contacts', 'uom', 'account', 'mail', 'point_of_sale', 'web','website','web_one2many_kanban'],
-    "external_dependencies": {"python": ["graphene"]},
+    'depends': [
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'point_of_sale', 'web', 'website', 'web_one2many_kanban'
+    ],
+    "external_dependencies": {
+        "python": ["graphene"]
+    },
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     'css': ['static/src/css/room_kanban.css'],
-    'qweb': ['static/src/xml/hotel_room_summary.xml'], 
+    'qweb': ['static/src/xml/hotel_room_summary.xml'],
     # always loaded
     'data': [
         # 'security/hms_security.xml',
@@ -37,21 +41,21 @@
         'wizard/hms_roomno_copy_wizard.xml',
         'views/hotel_views.xml',
         'views/property_onboarding_templates.xml',
-        'data/rsvn.type.csv',
-        'data/rsvn.status.csv',
-        'data/market.group.csv',
-        'data/market.segment.csv',
-        'data/market.source.csv',
-        'data/revenue.type.csv',
-        'data/bed.type.csv',
-        'data/room.location.csv',
-        'data/building.type.csv',
-        'data/building.building.csv',
+        'data/hms.rsvntype.csv',
+        'data/hms.rsvnstatus.csv',
+        'data/hms.marketgroup.csv',
+        'data/hms.marketsegment.csv',
+        'data/hms.marketsource.csv',
+        'data/hms.revenuetype.csv',
+        'data/hms.bedtype.csv',
+        'data/hms.roomlocation.csv',
+        'data/hms.buildingtype.csv',
+        'data/hms.building.csv',
         'data/hms.calculation.method.csv',
         'data/hms.charge_types.csv',
-        'data/room.amenity.csv',
-        'data/room.facility.type.csv',
-        'data/room.type.csv',
+        'data/hms.room.amenity.csv',
+        'data/hms.room.facility.type.csv',
+        'data/hms.roomtype.csv',
         'views/hms_forecast_view.xml',
         'views/hms_bank_view.xml',
         'views/hms_format_view.xml',
@@ -98,10 +102,11 @@
         'views/color_attribute_view.xml',
         'wizard/hms_ratecat_terminate_wizard_view.xml',
         'views/hms_rate_config.xml',
+        'data/hms.reservation.fields.csv',
         'views/hms_package_config.xml',
         'data/res.lang.csv',
         
-        
+
         #'views/views.xml',
         # 'views/templates.xml',
     ],
