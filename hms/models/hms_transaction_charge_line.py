@@ -29,7 +29,7 @@ class HMSTransactionChargeLine(models.Model):
 
     property_id = fields.Many2one('hms.property', string="Property")
     transaction_id = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Transaction',
         domain="[('property_id', '=?', property_id)]")
     reservation_line_id = fields.Many2one("hms.reservation.line",
@@ -40,8 +40,8 @@ class HMSTransactionChargeLine(models.Model):
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
-        'package.header', related="reservation_line_id.package_id.package_ids")
-    package_id = fields.Many2one('package.header', string='Package')
+        'hms.package.header', related="reservation_line_id.package_id.package_ids")
+    package_id = fields.Many2one('hms.package.header', string='Package')
     total_room = fields.Integer('Rooms', related="reservation_line_id.rooms")
     transaction_date = fields.Date("Date")
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,

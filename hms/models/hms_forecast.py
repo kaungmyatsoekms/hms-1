@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 #Availability
 class Availability(models.Model):
-    _name = "availability.availability"
+    _name = "hms.availability"
     _description = "Availability"
     
     active = fields.Boolean ('Active', default=True)
@@ -40,7 +40,7 @@ class Availability(models.Model):
                                    store=True)
     revpar = fields.Integer('REVPAR', default=0)
     adr = fields.Integer('ADR', default=0)
-    avail_roomtype_ids = fields.One2many('roomtype.available',
+    avail_roomtype_ids = fields.One2many('hms.roomtype.available',
                                          'availability_id',
                                          "Available Room Type")
     # reservation_line_ids = fields.One2many(
@@ -126,7 +126,7 @@ class RoomTypeAvailable(models.Model):
 
     active = fields.Boolean ('Active', default=True)
     color = fields.Integer(string='Color Index')
-    availability_id = fields.Many2one('availability.availability')
+    availability_id = fields.Many2one('hms.availability')
     property_id = fields.Many2one('hms.property',
                                   string="Property")
     ravail_date = fields.Date('Date', required=True)
@@ -149,7 +149,7 @@ class RoomTypeAvailable(models.Model):
     ravail_totalroom = fields.Integer('Available',
                                       compute='_compute_avail_room',
                                       store=True)
-    overbook_ids = fields.One2many('over.booking', 'rt_avail_id',
+    overbook_ids = fields.One2many('hms.overbooking', 'rt_avail_id',
                                    "Overbookings")
 
     def name_get(self):

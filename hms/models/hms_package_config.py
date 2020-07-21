@@ -34,7 +34,7 @@ RATE_ATTRIBUTE = [
 
 
 class Package(models.Model):
-    _name = "package.header"
+    _name = "hms.package.header"
     _rec_name = 'package_name'
     _description = "Package"
 
@@ -68,17 +68,17 @@ class Package(models.Model):
                               default=False,
                               track_visibility=True)
     transaction_id = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_profit = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Profit',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_loss = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Loss',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
@@ -166,7 +166,7 @@ class Package(models.Model):
 
 
 class PackageGroup(models.Model):
-    _name = "package.group"
+    _name = "hms.package.group"
     _rec_name = 'pkg_group_name'
     _description = "Package Group"
 
@@ -181,7 +181,7 @@ class PackageGroup(models.Model):
     pkg_group_code = fields.Char(string="Group Code", size=4, required=True)
     shortcut = fields.Char(string="ShortCut")
     pkg_group_name = fields.Char(string="Group Name", required=True)
-    package_ids = fields.Many2many('package.header',
+    package_ids = fields.Many2many('hms.package.header',
                                    string="Packages",
                                    required=True)
 

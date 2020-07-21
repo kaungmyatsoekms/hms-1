@@ -1,4 +1,4 @@
-id,rsvntype_id,rsvn_code,hms_rsvnstatus
+id,rsvntype_id,rsvn_code,rsvn_status
 1,Confirmed,ALT,Allotment
 2,Confirmed,BLD,Block Definite
 3,Confirmed,BLT,Block Tentative

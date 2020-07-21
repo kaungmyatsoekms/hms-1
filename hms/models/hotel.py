@@ -223,31 +223,31 @@ class Property(models.Model):
     package_ids = fields.One2many('package.package',
                                   'property_id',
                                   string="Package")
-    packageheader_ids = fields.One2many('package.header',
+    packageheader_ids = fields.One2many('hms.package.header',
                                         'property_id',
                                         string="Package")
-    packagegroup_ids = fields.One2many('package.group',
+    packagegroup_ids = fields.One2many('hms.package.group',
                                        'property_id',
                                        string="Package Group")
-    subgroup_ids = fields.One2many('sub.group',
+    subgroup_ids = fields.One2many('hms.subgroup',
                                    'property_id',
                                    string="Sub Group")
-    transaction_ids = fields.One2many('transaction.transaction',
+    transaction_ids = fields.One2many('hms.transaction',
                                       'property_id',
                                       string="Transaction")
-    creditlimit_ids = fields.One2many('credit.limit',
+    creditlimit_ids = fields.One2many('hms.creditlimit',
                                       'property_id',
                                       string="Credit Limit")
-    specialday_ids = fields.One2many('special.day',
+    specialday_ids = fields.One2many('hms.specialday',
                                      'property_id',
                                      string="Special Days")
-    weekend_id = fields.One2many('weekend.weekend',
+    weekend_id = fields.One2many('hms.weekend',
                                  'property_id',
                                  string="Weekends")
     ratecode_ids = fields.One2many('rate.code',
                                    'property_id',
                                    string="Rate Code")
-    ratecodeheader_ids = fields.One2many('ratecode.header',
+    ratecodeheader_ids = fields.One2many('hms.ratecode.header',
                                          'property_id',
                                          string="Rate Code")
     allotment_ids = fields.One2many('hms.allotment.line',
@@ -342,16 +342,16 @@ class Property(models.Model):
         self.system_date = datetime.today()
 
         # For Forecast Update
-        avail_objs = self.env['availability.availability'].search([
+        avail_objs = self.env['hms.availability'].search([
             ('property_id', '=', self.id),
             ('avail_date', '<', datetime.today())
             ])
 
         for avail_obj in avail_objs:
                 avail_obj.update({'active': False})
-                rt_avail_objs = self.env['roomtype.available'].search([('property_id', '=', self.id),('ravail_date', '<=', datetime.today()),('availability_id', '=',avail_obj.id)])
+                rt_avail_objs = self.env['hms.roomtype.available'].search([('property_id', '=', self.id),('ravail_date', '<=', datetime.today()),('availability_id', '=',avail_obj.id)])
 
-                new_avail_obj = self.env['availability.availability'].create({
+                new_avail_obj = self.env['hms.availability'].create({
                 'property_id' : avail_obj.property_id.id,
                 'avail_date' : avail_obj.avail_date + timedelta(days= self.availability),
                 'total_room' : self.room_count})
@@ -574,11 +574,11 @@ class Property(models.Model):
 
     def action_transaction(self):
         transactions = self.mapped('transaction_ids')
-        action = self.env.ref('hms.transaction_action_window').read()[0]
+        action = self.env.ref('hms.hms_transaction_action_window').read()[0]
         if len(transactions) >= 1:
             action['domain'] = [('id', 'in', transactions.ids)]
         elif len(transactions) == 0:
-            form_view = [(self.env.ref('hms.transaction_view_form').id, 'form')
+            form_view = [(self.env.ref('hms.hms_transaction_view_form').id, 'form')
                          ]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -597,11 +597,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.credit_limit_action_window').read()[0]
+        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
+            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -904,7 +904,7 @@ class Property(models.Model):
             avail_date = datetime.today() - timedelta(days=1)
             for rec in range(res.availability):
                 avail_date1 = avail_date + timedelta(days=rec + 1)
-                self.env['availability.availability'].create({
+                self.env['hms.availability'].create({
                     'property_id':
                     res.id,
                     'avail_date':
@@ -920,7 +920,7 @@ class Property(models.Model):
                     ])
                     room_types = list(
                         set(res.roomtype_ids) - set(hfo_roomtype))
-                    avail_objs = self.env['availability.availability'].search([
+                    avail_objs = self.env['hms.availability'].search([
                         ('property_id', '=', res.id)
                     ])
                     for avail_obj in avail_objs:
@@ -1000,7 +1000,7 @@ class Property(models.Model):
                                                    property_id)
 
                 # Update Total Rooms for Room Type Available
-                ravail_obj = self.env['roomtype.available'].search([
+                ravail_obj = self.env['hms.roomtype.available'].search([
                     ('property_id', '=', self.id), ('ravail_rmty', '=', rec.id)
                 ])
                 if ravail_obj:
@@ -1008,7 +1008,7 @@ class Property(models.Model):
                         ravail.total_room = total_rooms
                     # Update Total Rooms for Availability
                     ptotal_rooms = self.room_count
-                    avail_objs = self.env['availability.availability'].search([
+                    avail_objs = self.env['hms.availability'].search([
                         ('property_id', '=', self.id)
                     ])
                     for avail_obj in avail_objs:
@@ -1017,7 +1017,7 @@ class Property(models.Model):
                 # Create & Update Total rooms for all availability
                 else:
                     ptotal_rooms = self.room_count
-                    avail_objs = self.env['availability.availability'].search([
+                    avail_objs = self.env['hms.availability'].search([
                         ('property_id', '=', self.id)
                     ])
                     property_rooms = self.env['hms.property.room'].search([
@@ -1043,20 +1043,20 @@ class Property(models.Model):
     # Unlink Function
     def unlink(self):
         sequence_objs = self.env['ir.sequence']
-        forecast_objs = self.env['availability.availability']
-        roomavailable_objs = self.env['roomtype.available']
+        forecast_objs = self.env['hms.availability']
+        roomavailable_objs = self.env['hms.roomtype.available']
         property_roomtypeobjs = self.env['hms.property.roomtype']
         reservation_objs = self.env['hms.reservation']
         reservation_line_objs = self.env['hms.reservation.line']
         property_room_objs = self.env['hms.property.room']
-        special_day_objs = self.env['special.day']
-        weekend_objs = self.env['weekend.weekend']
+        special_day_objs = self.env['hms.specialday']
+        weekend_objs = self.env['hms.weekend']
         package_objs = self.env['package.package']
-        subgroup_objs = self.env['sub.group']
-        transaction_objs = self.env['transaction.transaction']
-        creditlimit_objs = self.env['credit.limit']
-        ratecode_header_objs = self.env['ratecode.header']
-        ratecode_detail_objs = self.env['ratecode.details']
+        subgroup_objs = self.env['hms.subgroup']
+        transaction_objs = self.env['hms.transaction']
+        creditlimit_objs = self.env['hms.creditlimit']
+        ratecode_header_objs = self.env['hms.ratecode.header']
+        ratecode_detail_objs = self.env['hms.ratecode.details']
         ratecode_objs = self.env['rate.code']
 
         for rec in self:
@@ -1069,11 +1069,11 @@ class Property(models.Model):
                     ('code', '=', rec.code + rec.confirm_id_format.code)
                 ])
             sequence_objs.unlink()
-            forecast_objs += self.env['availability.availability'].search([
+            forecast_objs += self.env['hms.availability'].search([
                 ('property_id', '=', rec.id)
             ])
             forecast_objs.unlink()
-            roomavailable_objs += self.env['roomtype.available'].search([
+            roomavailable_objs += self.env['hms.roomtype.available'].search([
                 ('property_id', '=', rec.id)
             ])
             roomavailable_objs.unlink()
@@ -1092,31 +1092,31 @@ class Property(models.Model):
                 ('property_id', '=', rec.id)
             ])
             property_room_objs.unlink()
-            special_day_objs += self.env['special.day'].search([('property_id',
+            special_day_objs += self.env['hms.specialday'].search([('property_id',
                                                                  '=', rec.id)])
             special_day_objs.unlink()
-            weekend_objs += self.env['weekend.weekend'].search([('property_id',
+            weekend_objs += self.env['hms.weekend'].search([('property_id',
                                                                  '=', rec.id)])
             weekend_objs.unlink()
             package_objs += self.env['package.package'].search([('property_id',
                                                                  '=', rec.id)])
             package_objs.unlink()
-            subgroup_objs += self.env['sub.group'].search([('property_id', '=',
+            subgroup_objs += self.env['hms.subgroup'].search([('property_id', '=',
                                                             rec.id)])
             subgroup_objs.unlink()
-            transaction_objs += self.env['transaction.transaction'].search([
+            transaction_objs += self.env['hms.transaction'].search([
                 ('property_id', '=', rec.id)
             ])
             transaction_objs.unlink()
-            creditlimit_objs += self.env['credit.limit'].search([
+            creditlimit_objs += self.env['hms.creditlimit'].search([
                 ('property_id', '=', rec.id)
             ])
             creditlimit_objs.unlink()
-            ratecode_header_objs += self.env['ratecode.header'].search([
+            ratecode_header_objs += self.env['hms.ratecode.header'].search([
                 ('property_id', '=', rec.id)
             ])
             ratecode_header_objs.unlink()
-            ratecode_detail_objs += self.env['ratecode.details'].search([
+            ratecode_detail_objs += self.env['hms.ratecode.details'].search([
                 ('property_id', '=', rec.id)
             ])
             ratecode_detail_objs.unlink()
@@ -1135,20 +1135,20 @@ class Property(models.Model):
         for record in property_objs:
             if record.is_manual is False:
             
-                avail_objs = self.env['availability.availability'].search([
+                avail_objs = self.env['hms.availability'].search([
                     ('property_id', '=', record.id),
                     ('avail_date', '<=', datetime.today())
                 ])
 
                 for avail_obj in avail_objs:
                     avail_obj.update({'active': False})
-                    rt_avail_objs = self.env['roomtype.available'].search([
+                    rt_avail_objs = self.env['hms.roomtype.available'].search([
                         ('property_id', '=', record.id),
                         ('ravail_date', '<=', datetime.today()),
                         ('availability_id', '=', avail_obj.id)
                     ])
 
-                    new_avail_objs = self.env['availability.availability'].create({
+                    new_avail_objs = self.env['hms.availability'].create({
                     'property_id' : avail_obj.property_id.id,
                     'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
                     'total_room' : record.room_count})
@@ -1366,7 +1366,7 @@ class RoomType(models.Model):
                                compute='compute_totalroom')
     image = fields.Binary(string='Image', attachment=True, store=True)
     roomtype_desc = fields.Text(string='Description')
-    rate_id = fields.Many2one('ratecode.details', 'Rate Details')
+    rate_id = fields.Many2one('hms.ratecode.details', 'Rate Details')
 
     _sql_constraints = [(
         'code_unique', 'UNIQUE(code)',
@@ -1410,7 +1410,7 @@ class RoomType(models.Model):
         res = super(RoomType, self).write(values)
 
         if 'color' in values.keys():
-            rt_avail_objs = self.env['roomtype.available'].search([
+            rt_avail_objs = self.env['hms.roomtype.available'].search([
                 ('ravail_rmty', '=', self.id)
             ])
             for rt_avail in rt_avail_objs:
@@ -1673,7 +1673,7 @@ class MarketSource(models.Model):
 
 
 class SpecialDay(models.Model):
-    _name = "special.day"
+    _name = "hms.specialday"
     _description = "Special Day"
     _rec_name = 'special_date'
 
@@ -1686,7 +1686,7 @@ class SpecialDay(models.Model):
 
 
 class Weekend(models.Model):
-    _name = "weekend.weekend"
+    _name = "hms.weekend"
     _description = "Weekend"
 
     property_id = fields.Many2one('hms.property',
@@ -1725,7 +1725,7 @@ class Package(models.Model):
 
 
 class RevenueType(models.Model):
-    _name = "revenue.type"
+    _name = "hms.revenuetype"
     _description = "Revenue Type"
     _order = "rev_code"
 
@@ -1735,10 +1735,10 @@ class RevenueType(models.Model):
                                 required=True)
     revtype_name = fields.Char(string="Revenue")
     rev_subgroup = fields.Boolean(string="Sub Group")
-    subgroup_ids = fields.One2many('sub.group',
+    subgroup_ids = fields.One2many('hms.subgroup',
                                    'revtype_id',
                                    string="Sub Group")
-    transaction_id = fields.Many2one('transaction.transaction',
+    transaction_id = fields.Many2one('hms.transaction',
                                      'trans_revtype')
 
     _sql_constraints = [(
@@ -1804,7 +1804,7 @@ class RevenueType(models.Model):
 
 # Revenue Sub Group
 class SubGroup(models.Model):
-    _name = "sub.group"
+    _name = "hms.subgroup"
     _description = "Revenue Sub Group"
     _order = "property_id, sub_group"
 
@@ -1813,13 +1813,13 @@ class SubGroup(models.Model):
         string="Property",
         required=True,
         default=lambda self: self.env.user.property_id.id)
-    revtype_id = fields.Many2one('revenue.type',
+    revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
                                  required=True)
     sub_group = fields.Char(string="Sub Group Code", size=1, required=True)
     sub_desc = fields.Char(string="Description", required=True)
-    transsub_id = fields.Many2one('transaction.transaction', 'subgroup_id')
+    transsub_id = fields.Many2one('hms.transaction', 'subgroup_id')
 
     _sql_constraints = [(
         'sub_group_unique', 'UNIQUE(property_id, revtype_id, sub_group)',
@@ -1843,7 +1843,7 @@ class SubGroup(models.Model):
 
 # Transaction
 class Transaction(models.Model):
-    _name = "transaction.transaction"
+    _name = "hms.transaction"
     _description = "Transaction"
     _order = 'trans_code'
 
@@ -1851,15 +1851,15 @@ class Transaction(models.Model):
                                   string="Property",
                                   required=True,
                                   readonly=True)
-    revtype_id = fields.Many2one('revenue.type',
+    revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  required=True)
     revtype_name = fields.Char(String="Revenue Type")
     revsub_active = fields.Boolean(string="SubGroup")
     trans_ptype = fields.Selection(AVAILABLE_PAY, string="Pay Type")
-    subgroup_ids = fields.One2many('sub.group',
+    subgroup_ids = fields.One2many('hms.subgroup',
                                    related="property_id.subgroup_ids")
-    subgroup_id = fields.Many2one('sub.group',
+    subgroup_id = fields.Many2one('hms.subgroup',
                                   domain="[('id', '=?', subgroup_ids)]",
                                   string="Sub Group")
     subgroup_name = fields.Char(string="Group Name", readonly=True)
@@ -2011,7 +2011,7 @@ class TransactionRoot(models.Model):
     name = fields.Char()
     revname = fields.Char()
     parent_id = fields.Many2one('transaction.root', string="Superior Level")
-    group = fields.Many2one('sub.group')
+    group = fields.Many2one('hms.subgroup')
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -2022,14 +2022,14 @@ class TransactionRoot(models.Model):
                    subgroup_name as revname,
                    ASCII(trans_code) AS parent_id,
                    subgroup_id as group
-            FROM transaction_transaction WHERE trans_code IS NOT NULL
+            FROM hms_transaction WHERE trans_code IS NOT NULL
             UNION ALL
             SELECT DISTINCT ASCII(trans_code) AS id,
                    LEFT(trans_code,1) AS name,
                    revtype_name as revname,
                    NULL::int AS parent_id,
                    subgroup_id as group
-            FROM transaction_transaction WHERE trans_code IS NOT NULL
+            FROM hms_transaction WHERE trans_code IS NOT NULL
             )''' % (self._table, ))
 
     # def name_get(self):
@@ -2041,7 +2041,7 @@ class TransactionRoot(models.Model):
 
 # Reservation Type
 class RsvnType(models.Model):
-    _name = "rsvn.type"
+    _name = "hms.rsvntype"
     _description = "Reservation Type"
     _rec_name = "rsvn_name"
 
@@ -2056,13 +2056,12 @@ class RsvnType(models.Model):
 
 #Reservation Status
 class RsvnStatus(models.Model):
-
-    _name = "rsvn.status"
+    _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 
     rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
     rsvn_status = fields.Char(string="Description", required=True)
-    rsvntype_id = fields.Many2one('rsvn.type',
+    rsvntype_id = fields.Many2one('hms.rsvntype',
                                   string="Reservation Type",
                                   required=True)
 
@@ -2076,7 +2075,7 @@ class RsvnStatus(models.Model):
 
 #Credit Limit
 class CreditLimit(models.Model):
-    _name = "credit.limit"
+    _name = "hms.creditlimit"
     _description = "Credit Limit"
     _group = 'payment_type'
 
@@ -2102,13 +2101,13 @@ class CreditLimit(models.Model):
 
     @api.onchange('payment_type', 'crd_enddate')
     def get_end_date(self):
-        same_payment_objs = self.env['credit.limit'].search([
+        same_payment_objs = self.env['hms.creditlimit'].search([
             ('payment_type', '=', self.payment_type),
             ('property_id.id', '=', self.property_id.id)
         ])
         tmp_end_date = date(1000, 1, 11)
         same_payment = self.env[
-            'credit.limit']  # This is Null Object assignment
+            'hms.creditlimit']  # This is Null Object assignment
         for rec in same_payment_objs:
             if rec.crd_enddate > tmp_end_date:
                 tmp_end_date = rec.crd_enddate
@@ -2119,9 +2118,9 @@ class CreditLimit(models.Model):
 
     # @api.onchange('payment_type','crd_enddate')
     # def get_end_date(self):
-    #     same_payment_objs = self.env['credit.limit'].search([('payment_type','=',self.payment_type)])
+    #     same_payment_objs = self.env['hms.creditlimit'].search([('payment_type','=',self.payment_type)])
     #     tmp_end_date = datetime.date(1000, 1, 11)
-    #     same_payment = self.env['credit.limit'] # This is Null Object assignment
+    #     same_payment = self.env['hms.creditlimit'] # This is Null Object assignment
     #     for rec in same_payment_objs:
     #         if rec.crd_enddate > tmp_end_date:
     #             tmp_end_date = rec.crd_enddate
@@ -2149,9 +2148,9 @@ class RateCode(models.Model):
                                   string="Room Type",
                                   domain="[('id', '=?', roomtype_ids)]",
                                   required=True)
-    transaction_ids = fields.One2many('transaction.transaction',
+    transaction_ids = fields.One2many('hms.transaction',
                                       related="property_id.transaction_ids")
-    transcation_id = fields.Many2one('transaction.transaction',
+    transcation_id = fields.Many2one('hms.transaction',
                                      domain="[('id', '=?', transaction_ids)]",
                                      string="Transcation",
                                      required=True)

@@ -3,7 +3,7 @@
         <!-- Package Header Form View -->
         <record id="package_header_view_form" model="ir.ui.view">
             <field name="name">Package Header Form</field>
-            <field name="model">package.header</field>
+            <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
                 <form string="Package Header">
                     <sheet>
@@ -56,7 +56,7 @@
         <!-- Package Header List View -->
         <record id="package_header_view_list" model="ir.ui.view">
             <field name="name">Package List</field>
-            <field name="model">package.header</field>
+            <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
                 <tree string="Packages">
                     <field name="sequence" widget="handle"/>
@@ -81,7 +81,7 @@
         <!-- Package Header Kanban View -->
         <record id="package_header_view_kanban" model="ir.ui.view">
             <field name="name">Package Kanban View</field>
-            <field name="model">package.header</field>
+            <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
                 <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
                     <field name="sequence"/>
@@ -173,14 +173,14 @@
         <!-- action of Package Header -->
         <record id="package_header_action_window" model="ir.actions.act_window">
             <field name="name">Package</field>
-            <field name="res_model">package.header</field>
+            <field name="res_model">hms.package.header</field>
             <field name="view_mode">tree,kanban,form</field>
         </record>
 
         <!-- Package Group Form View -->
         <record id="package_group_view_form" model="ir.ui.view">
             <field name="name">Package Group Form</field>
-            <field name="model">package.group</field>
+            <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
                 <form string="Package Group">
                     <sheet>
@@ -204,7 +204,7 @@
         <!-- Package Group List View -->
         <record id="package_group_view_list" model="ir.ui.view">
             <field name="name">Package Group List</field>
-            <field name="model">package.group</field>
+            <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
                 <tree string="Package Groups">
                     <field name="sequence" widget="handle"/>
@@ -219,7 +219,7 @@
         <!-- Package Group Kanban View -->
         <record id="package_group_view_kanban" model="ir.ui.view">
             <field name="name">Package Group Kanban View</field>
-            <field name="model">package.group</field>
+            <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
                 <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
                     <field name="sequence"/>
@@ -257,7 +257,7 @@
         <!-- action of Package Group -->
         <record id="package_group_action_window" model="ir.actions.act_window">
             <field name="name">Package Group</field>
-            <field name="res_model">package.group</field>
+            <field name="res_model">hms.package.group</field>
             <field name="view_mode">tree,kanban,form</field>
         </record>
     </data>

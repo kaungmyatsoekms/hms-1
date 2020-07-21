@@ -42,7 +42,7 @@ class HMSPackageChargeLine(models.Model):
     
     name = fields.Char("Name", required=True, track_visibility=True)
     property_id = fields.Many2one('hms.property', string="Property")
-    transaction_id = fields.Many2one('transaction.transaction',
+    transaction_id = fields.Many2one('hms.transaction',
                                      string='Transaction',
                                      domain="[('property_id', '=?', property_id)]")
     package_id = fields.Many2one('package.package',string="Package",track_visibility=True)

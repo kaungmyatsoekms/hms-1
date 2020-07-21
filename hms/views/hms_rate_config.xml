@@ -3,7 +3,7 @@
         <!-- Rate Categories Form View -->
         <record id="rate_categories_view_form" model="ir.ui.view">
             <field name="name">rate.categories.form</field>
-            <field name="model">rate.categories</field>
+            <field name="model">hms.rate.categories</field>
             <field name="arch" type="xml">
                 <form string="Rate Categories">
                 <header>
@@ -51,7 +51,7 @@
         <!-- Rate Categories List View -->
         <record id="rate_categories_view_list" model="ir.ui.view">
             <field name="name">Rate Categories List</field>
-            <field name="model">rate.categories</field>
+            <field name="model">hms.rate.categories</field>
             <field name="arch" type="xml">
                 <tree string="Rate Categories">
                     <field name="sequence" widget="handle"/>
@@ -66,7 +66,7 @@
         <!-- action of Rate Categories -->
         <record id="rate_categories_action_window" model="ir.actions.act_window">
             <field name="name">Rate Categories</field>
-            <field name="res_model">rate.categories</field>
+            <field name="res_model">hms.rate.categories</field>
             <field name="view_mode">tree,form</field>
         </record>
 

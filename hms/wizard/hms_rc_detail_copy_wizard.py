@@ -17,7 +17,7 @@ class RatecodeDetailCopyWizard(models.TransientModel):
             return ratecode_detail_id
 
     ratecode_detail_id = fields.Many2one('ratecode.details',default=get_ratecode_detail_id)
-    ratehead_id = fields.Many2one('ratecode.header',related="ratecode_detail_id.ratehead_id")
+    ratehead_id = fields.Many2one('hms.ratecode.header',related="ratecode_detail_id.ratehead_id")
     property_id = fields.Many2one('property.property',
                                   readonly=True)
     season_code = fields.Char(string="Season",related="ratecode_detail_id.season_code")
