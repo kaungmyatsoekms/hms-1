@@ -29,12 +29,12 @@
                                 <field name="include_tax"/>
                                 <field name="package_profit"/>
                                 <field name="package_loss"/>
+                                <field name="currency_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="allowance"/>
                                 <field name="valid_eod"/>
                             </group>
                             <group string="Access Rate">
                                 <field name="rate_attribute" widget="radio" class="oe_edit_only"/>
-                                <!-- widget="radio" class="oe_edit_only" -->
                                 <field name="reservation_fields_id"/>
                                 <field name="Calculation_method"/>
                                 <field name="Fix_price"/>
@@ -62,18 +62,22 @@
                     <field name="sequence" widget="handle"/>
                     <field name="property_id"/>
                     <field name="package_code"/>
-                    <field name="shortcut"/>
                     <field name="package_name"/>
-                    <field name="forecast_next_day"/>
-                    <field name="post_next_day"/>
-                    <field name="catering"/>
                     <field name="transaction_id"/>
-                    <field name="include_service"/>
-                    <field name="include_tax"/>
-                    <field name="allowance"/>
-                    <field name="valid_eod"/>
-                    <field name="posting_rythms"/>
+                    <field name="include_service" optional="hide"/>
+                    <field name="include_tax" optional="hide"/>
+                    <field name="start_date" optional="hide"/>
+                    <field name="end_date" optional="hide"/>
+                    <field name="currency_id"/>
+                    <field name="rate_attribute"/>
                     <field name="Calculation_method"/>
+                    <field name="Fix_price"/>
+                    <field name="posting_rythms"/>
+                    <field name="forecast_next_day" optional="hide"/>
+                    <field name="post_next_day" optional="hide"/>
+                    <field name="catering" optional="hide"/>
+                    <field name="allowance" optional="hide"/>
+                    <field name="valid_eod" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -91,8 +95,10 @@
                     <field name="start_date"/>
                     <field name="end_date"/>
                     <field name="transaction_id"/>
+                    <field name="rate_attribute"/>
                     <field name="posting_rythms"/>
                     <field name="Calculation_method"/>
+                    <field name="Fix_price"/>
                     <field name="id"/>
                     <templates>
                         <t t-name="kanban-box">
@@ -148,6 +154,10 @@
                                         <div t-if="record.transaction_id.raw_value">
                                             <b>Transaction: </b>
                                             <field name="transaction_id"/>
+                                        </div>
+                                        <div t-if="record.rate_attribute.raw_value">
+                                            <b>Rate Attribute: </b>
+                                            <field name="rate_attribute"/>
                                         </div>
                                         <div t-if="record.Calculation_method.raw_value">
                                             <b>Calculation Method: </b>

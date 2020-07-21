@@ -192,7 +192,7 @@
                                     <tree string="Reservation Line" editable="bottom" decoration-muted="state=='cancel'" decoration-info="state=='reservation'" decoration-success="state=='confirm'">
                                         <field name="is_roomtype_fix" invisible="1"/>
                                         <field name="sequence" widget="handle"/>
-                                        <field name="is_no_show"/>
+                                        <field name="is_no_show" invisible="1"/>
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
                                         <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
@@ -205,11 +205,12 @@
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                         <field name="rooms"/>
-                                        <field name="avail_room_ids" widget='many2many_tags' />
+                                        <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id"/>
-                                        <field name="ratecode_id" string="Rate Code"/>
+                                        <field name="ratecode_id" string="Rate Code" invisible="1"/>
+                                        <field name="additional_pkg_ids" widget='many2many_tags'/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="market_ids" invisible="1"/>

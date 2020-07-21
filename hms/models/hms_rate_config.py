@@ -109,6 +109,17 @@ class RateCodeDetails(models.Model):
     _name = "ratecode.details"
     _description = "Rate Code Details"
 
+    # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
     sequence = fields.Integer('Sequence', default=1)
     ratehead_id = fields.Many2one('ratecode.header', string="Rate Code Header")
     property_id = fields.Many2one('property.property',
@@ -122,12 +133,6 @@ class RateCodeDetails(models.Model):
                                    store=True,
                                    domain="[('id', '=?', roomtype_ids)]",
                                    required=True)
-    # roomtype_id = fields.One2many('room.type',
-    #                               'rate_id',
-    #                               string="Room Type",
-    #                               store=True,
-    #                               domain="[('id', '=?', roomtype_ids)]",
-    #                               required=True)
     start_date = fields.Date(string="Start Date",
                              required=True,
                              default=datetime.today())
@@ -138,6 +143,11 @@ class RateCodeDetails(models.Model):
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
         required=True)
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  default=default_get_curency,
+                                  required=True,
+                                  track_visibility=True)
     normal_price1 = fields.Float(string="1 Adult")
     normal_price2 = fields.Float(string="+2 Adult")
     normal_price3 = fields.Float(string="+3 Adult")
