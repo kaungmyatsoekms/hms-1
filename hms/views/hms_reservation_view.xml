@@ -10,7 +10,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible='1'/>
                     <field name="is_no_show" optional="show"/>
-                    <field name="property_id" optional="show"/>                    
+                    <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
                     <field name="guest_id" optional="show"/>
@@ -194,7 +194,7 @@
                                     <tree string="Reservation Line" editable="bottom" decoration-muted="state=='cancel'" decoration-info="state=='reservation'" decoration-success="state=='confirm'">
                                         <field name="is_roomtype_fix" invisible="1"/>
                                         <field name="sequence" widget="handle"/>
-                                        <field name="is_no_show"/>
+                                        <field name="is_no_show" invisible="1"/>
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
                                         <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
@@ -211,7 +211,8 @@
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id"/>
-                                        <field name="ratecode_id" string="Rate Code"/>
+                                        <field name="ratecode_id" string="Rate Code" invisible="1"/>
+                                        <field name="additional_pkg_ids" widget='many2many_tags'/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="market_ids" invisible="1"/>
@@ -352,9 +353,7 @@
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
                 <search string="Reservation">
-                    <filter name='current_reservations' string="Current Reservations"
-                        domain="[('departure','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('arrival','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]"
-                        help="Current Reservations" />
+                    <filter name='current_reservations' string="Current Reservations" domain="[('departure','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('arrival','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]" help="Current Reservations" />
                     <filter name='booking' domain="[('state','=','booking')]" string="Booking" />
                     <filter name='reservation' domain="[('state','=','reservation')]" string="Reservation" />
                     <filter name='confirm' domain="[('state','=','confirm')]" string="Confirm" />
@@ -369,12 +368,9 @@
                     <field name="state" />
                     <newline />
                     <group expand="0" string="Group By">
-                        <filter name="guest_id" string="Guest Name" icon="terp-personal"
-                            domain="[]" context="{'group_by':'guest_id'}" />
-                        <filter name='order_by_month_arrival' string="Arrival" domain="[]"
-                            context="{'group_by':'arrival'}" />
-                        <filter name='order_by_month_departure' string="Departure" domain="[]"
-                            context="{'group_by':'departure'}" />
+                        <filter name="guest_id" string="Guest Name" icon="terp-personal" domain="[]" context="{'group_by':'guest_id'}" />
+                        <filter name='order_by_month_arrival' string="Arrival" domain="[]" context="{'group_by':'arrival'}" />
+                        <filter name='order_by_month_departure' string="Departure" domain="[]" context="{'group_by':'departure'}" />
                     </group>
                 </search>
             </field>
@@ -394,11 +390,7 @@
             <field name="model">hms.reservation</field>
             <field eval="2" name="priority"/>
             <field name="arch" type="xml">
-                <calendar string="Reservation"
-                            date_start="arrival"
-                            date_stop="departure"
-                            mode="month"
-                            color="state">
+                <calendar string="Reservation" date_start="arrival" date_stop="departure" mode="month" color="state">
                     <field name="guest_id"/>
                     <field name="group_id"/>
                 </calendar>
@@ -410,9 +402,7 @@
             <field name="name">hms.reservation.gantt</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <gantt string="Reservation"
-                            date_start="arrival"
-                            date_stop="departure"
+                <gantt string="Reservation" date_start="arrival" date_stop="departure"
                             default_group_by ="guest_id">
                     <!-- <field name="guest_id"/>
                     <field name="group_id"/> -->
@@ -422,8 +412,8 @@
 
         <!-- Form view of room reservation summary -->
         <record id="room_reservation_summary_form_view" model="ir.ui.view">
-            <field name="name">room.reservation.summary.form</field>
-            <field name="model">room.reservation.summary</field>
+            <field name="name">hms.room.reservation.summary.form</field>
+            <field name="model">hms.room.reservation.summary</field>
             <field name="arch" type="xml">
                 <form string="Reservation Summary">
                     <header>
@@ -455,13 +445,13 @@
         <!-- Action for Room Reservation Summary -->
         <record id="action_hotel_reservation_summary" model="ir.actions.act_window">
             <field name="name">Reservation Summary</field>
-            <field name="res_model">room.reservation.summary</field>
+            <field name="res_model">hms.room.reservation.summary</field>
             <field name="view_mode">form</field>
         </record>
         <!-- Form view of quick room reservation -->
         <record id="quick_room_reservation_form_view" model="ir.ui.view">
-            <field name="name">quick.room.reservation.form</field>
-            <field name="model">quick.room.reservation</field>
+            <field name="name">hms.quick.room.reservation.form</field>
+            <field name="model">hms.quick.room.reservation</field>
             <field name="arch" type="xml">
                 <form string="Quick Reservation">
                     <sheet>
@@ -532,8 +522,8 @@
                         <group>
                             <group name="">
                                 <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
-                                <field name="group_id"  context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id"  context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
+                                <field name="group_id" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
                                     <field name="reservation_type" style="width:50%%" placeholder="Type"/>
@@ -960,9 +950,7 @@
                         </div>
                         <div>
                             <div>
-                                <field name="type" widget="radio"
-                                        class="oe_edit_only"
-                                        options="{'horizontal': true}"/>
+                                <field name="type" widget="radio" class="oe_edit_only" options="{'horizontal': true}"/>
                             </div>
                             <div>
                                 <field name="user_id" readonly="1" class="oe_avatar"/>
@@ -1027,9 +1015,7 @@
                                                                 'default_reservation_type':reservation_type, 'default_reservation_status':reservation_status,
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
-                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" 
-                                                                colspan="4" 
-                                                                nolabel="1" >  <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
+                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
                                     <form string="Reservation Line">
                                         <group colspan="4" col="4">
                                             <field name="state"/>
@@ -1174,8 +1160,8 @@
                         <group>
                             <group name="">
                                 <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
-                                <field name="group_id"  context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id"  context="{'default_company_type' : 'guest','default_is_from_hms': True }"/> 
+                                <field name="group_id" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Reservation"/>
                                 <div class="address_format">
                                     <field name="reservation_type" placeholder="Type" style="width:50%%"/>
@@ -1369,15 +1355,13 @@
             <field name="res_model">hms.cancel.rsvn</field>
             <field name="view_mode">tree</field>
         </record>
-        
 
-        
+
+
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
 
-            <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary"
-                action="action_hotel_reservation_summary" parent="reservation_menu"
-                sequence="3" />
+        <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />
         <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
         <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
         <menuitem id="cancellation_menu" name="Cancellation" parent="hms_menu_rsvn" sequence="2"/>

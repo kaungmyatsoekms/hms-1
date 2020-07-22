@@ -9,7 +9,7 @@ class Hms(http.Controller):
 
     # @http.route('/hms/roomtype/', auth='public')
     # def index(self, **kw):
-    #     roomtypes = http.request.env['hms.roomtype']
+    #     roomtypes = http.request.env['hms.hms.roomtype']
     #     return http.request.render('hms.index',{
     #         'roomtypes': roomtypes.search([])
     #     })

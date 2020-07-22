@@ -220,7 +220,7 @@ class Property(models.Model):
                                 store=True)
     roomtype_count = fields.Integer("Room Type",
                                     compute='_compute_roomtype_count')
-    package_ids = fields.One2many('package.package',
+    package_ids = fields.One2many('hms.package',
                                   'property_id',
                                   string="Package")
     packageheader_ids = fields.One2many('hms.package.header',
@@ -253,7 +253,7 @@ class Property(models.Model):
     allotment_ids = fields.One2many('hms.allotment.line',
                                     'property_id',
                                     string="Allotment")
-    proomtype_ids = fields.One2many('hms.building',
+    proomtype_ids = fields.One2many('hms.property.roomtype',
                                     'property_id',
                                     string="Property Room Type")
     package_line_ids = fields.One2many('hms.package.charge.line',
@@ -574,11 +574,11 @@ class Property(models.Model):
 
     def action_transaction(self):
         transactions = self.mapped('transaction_ids')
-        action = self.env.ref('hms.hms_transaction_action_window').read()[0]
+        action = self.env.ref('hms.transaction_action_window').read()[0]
         if len(transactions) >= 1:
             action['domain'] = [('id', 'in', transactions.ids)]
         elif len(transactions) == 0:
-            form_view = [(self.env.ref('hms.hms_transaction_view_form').id, 'form')
+            form_view = [(self.env.ref('hms.transaction_view_form').id, 'form')
                          ]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -597,11 +597,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
+        action = self.env.ref('hms.credit_limit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
+            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -816,7 +816,7 @@ class Property(models.Model):
                 'total_rooms': total_rooms,
             })
         else:
-            self.env['hms.hms.property.roomtype'].create({
+            self.env['hms.property.roomtype'].create({
                 'property_id': property_id,
                 'roomtype_id': roomtype_id,
                 'total_rooms': 0,
@@ -1051,7 +1051,7 @@ class Property(models.Model):
         property_room_objs = self.env['hms.property.room']
         special_day_objs = self.env['hms.specialday']
         weekend_objs = self.env['hms.weekend']
-        package_objs = self.env['package.package']
+        package_objs = self.env['hms.package']
         subgroup_objs = self.env['hms.subgroup']
         transaction_objs = self.env['hms.transaction']
         creditlimit_objs = self.env['hms.creditlimit']
@@ -1098,7 +1098,7 @@ class Property(models.Model):
             weekend_objs += self.env['hms.weekend'].search([('property_id',
                                                                  '=', rec.id)])
             weekend_objs.unlink()
-            package_objs += self.env['package.package'].search([('property_id',
+            package_objs += self.env['hms.package'].search([('property_id',
                                                                  '=', rec.id)])
             package_objs.unlink()
             subgroup_objs += self.env['hms.subgroup'].search([('property_id', '=',
@@ -1704,7 +1704,7 @@ class Weekend(models.Model):
 
 class Package(models.Model):
 
-    _name = "package.package"
+    _name = "hms.package"
     _rec_name = 'package_name'
     _description = "Package"
 
@@ -1884,7 +1884,7 @@ class Transaction(models.Model):
         ('V', 'Tax'),
     ],
                                   string="Transaction Type")
-    root_id = fields.Many2one('transaction.root',
+    root_id = fields.Many2one('hms.transaction.root',
                               compute='_compute_transaction_root',
                               store=True)
     allowed_pkg = fields.Boolean(string="Allow Package?")
@@ -2004,13 +2004,13 @@ class Transaction(models.Model):
 
 # Transaction Root
 class TransactionRoot(models.Model):
-    _name = 'transaction.root'
+    _name = 'hms.transaction.root'
     _description = 'Transaction codes first 2 digits'
     _auto = False
 
     name = fields.Char()
     revname = fields.Char()
-    parent_id = fields.Many2one('transaction.root', string="Superior Level")
+    parent_id = fields.Many2one('hms.transaction.root', string="Superior Level")
     group = fields.Many2one('hms.subgroup')
 
     def init(self):
@@ -2056,6 +2056,7 @@ class RsvnType(models.Model):
 
 #Reservation Status
 class RsvnStatus(models.Model):
+
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 

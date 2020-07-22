@@ -14,19 +14,27 @@ class Country(models.Model):
     _inherit = "res.country"
 
     code = fields.Char(
-        string='Country Code', size=3,
-        help='The ISO country code in three chars. \nYou can use this field for quick search.')
+        string='Country Code',
+        size=3,
+        help=
+        'The ISO country code in three chars. \nYou can use this field for quick search.'
+    )
 
     def name_get(self):
         result = []
         for record in self:
-            result.append((record.id, "{} ({})".format(record.name, record.code)))
+            result.append((record.id, "{} ({})".format(record.name,
+                                                       record.code)))
         return result
+
 
 class Bank(models.Model):
     _inherit = 'res.bank'
 
-    property_id = fields.Many2one('hms.property', string="Property", required=True, readonly=True)
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  required=True,
+                                  readonly=True)
     logo = fields.Binary(string='Logo', attachment=True, store=True)
     bic = fields.Char('Switch Code',
                       index=True,
@@ -38,6 +46,7 @@ class Bank(models.Model):
 
     _sql_constraints = [('name_unique', 'unique(name)',
                          'Your name is exiting in the database.')]
+
 
 class HMSCity(models.Model):
     _name = "hms.city"
@@ -52,6 +61,7 @@ class HMSCity(models.Model):
     code = fields.Char("City Code", required=True, track_visibility=True)
     _sql_constraints = [('code_unique', 'unique(code)',
                          'City Code is already existed.')]
+
 
 class HMSTownship(models.Model):
     _name = "hms.township"
@@ -74,9 +84,13 @@ class HMSCountry(models.Model):
     _description = "Country"
 
     name = fields.Char("Country Name", required=True, track_visibility=True)
-    code = fields.Char("Country Code", size=3, required=True, track_visibility=True)
+    code = fields.Char("Country Code",
+                       size=3,
+                       required=True,
+                       track_visibility=True)
     _sql_constraints = [('code_unique', 'unique(code)',
                          'Country Code is already existed.')]
+
 
 class Nationality(models.Model):
     _description = "Country state"
@@ -113,7 +127,9 @@ class Nationality(models.Model):
             first_domain = [('code', '=ilike', name)]
             domain = [('name', operator, name)]
 
-        first_state_ids = self._search(expression.AND([first_domain, args]), limit=limit,
+        first_state_ids = self._search(
+            expression.AND([first_domain, args]),
+            limit=limit,
             access_rights_uid=name_get_uid) if first_domain else []
         state_ids = first_state_ids + [
             state_id
@@ -296,7 +312,7 @@ class Company(models.Model):
     _description = 'Companies'
     _order = 'sequence, name'
 
-    code = fields.Char(string="Company Code",size=3, required=True)
+    code = fields.Char(string="Company Code", size=3, required=True)
     city = fields.Many2one("hms.city",
                            "City Name",
                            compute='_compute_address',
@@ -350,7 +366,7 @@ class Company(models.Model):
             'website': vals.get('website'),
             'vat': vals.get('vat'),
             'company_channel_type': crm_type,
-            'company_type' : 'company',
+            'company_type': 'company',
         })
         # compute stored fields, for example address dependent fields
         partner.flush()
@@ -395,15 +411,14 @@ class Partner(models.Model):
     #         return property_id or 1
 
     city_id = fields.Many2one("hms.city", "City Name", track_visibility=True)
-    company_type = fields.Selection(
-        string='Company Type',
-        selection=[('guest', 'Guest'),
-                    ('person', 'Contact'),
-                    ('group', 'Group'),
-                    ('company', 'Company')],
-        compute='_compute_company_type',
-        inverse='_write_company_type',
-        track_visibility=True)
+    company_type = fields.Selection(string='Company Type',
+                                    selection=[('guest', 'Guest'),
+                                               ('person', 'Contact'),
+                                               ('group', 'Group'),
+                                               ('company', 'Company')],
+                                    compute='_compute_company_type',
+                                    inverse='_write_company_type',
+                                    track_visibility=True)
     # New Field
     dob = fields.Date('Date of Birth')
     child_ids = fields.One2many('res.partner',
@@ -420,7 +435,8 @@ class Partner(models.Model):
     township = fields.Many2one('hms.township',
                                "Township",
                                track_visibility=True)
-    property_id = fields.Many2one("hms.property", track_visibility=True)  #default=get_property_id,
+    property_id = fields.Many2one(
+        "hms.property", track_visibility=True)  #default=get_property_id,
     property_ids = fields.Many2many("hms.property", track_visibility=True)
     is_from_hms = fields.Boolean(string="Is from HMS",
                                  default=False,
@@ -486,7 +502,7 @@ class Partner(models.Model):
         self.is_guest_exists = True
 
     # Company Type Radion Button Action
-    @api.depends('is_company','is_guest','is_group')
+    @api.depends('is_company', 'is_guest', 'is_group')
     def _compute_company_type(self):
         for partner in self:
             if partner.is_company or self._context.get(
@@ -653,18 +669,20 @@ class Partner(models.Model):
             if property_id:
                 if property_id.gprofile_id_format:
                     format_ids = self.env['hms.format.detail'].search(
-                    [('format_id', '=', property_id.gprofile_id_format.id)],
-                    order='position_order asc')
+                        [('format_id', '=', property_id.gprofile_id_format.id)
+                         ],
+                        order='position_order asc')
                 val = []
                 for ft in format_ids:
                     if ft.value_type == 'dynamic':
                         if property_id.code and ft.dynamic_value == 'property code':
                             val.append(property_id.code)
                     if ft.value_type == 'fix':
-                            val.append(ft.fix_value)
+                        val.append(ft.fix_value)
                     if ft.value_type == 'digit':
                         sequent_ids = self.env['ir.sequence'].search([
-                            ('code', '=',property_id.code+property_id.gprofile_id_format.code)
+                            ('code', '=', property_id.code +
+                             property_id.gprofile_id_format.code)
                         ])
                         sequent_ids.write({'padding': ft.digit_value})
                     if ft.value_type == 'datetime':
@@ -691,7 +709,8 @@ class Partner(models.Model):
                         next_by_code(property_id.code+property_id.gprofile_id_format.code) or 'New'
                 pf_no = p_no_pre + p_no
             else:
-                raise ValidationError("Select Property or Create Property First!")
+                raise ValidationError(
+                    "Select Property or Create Property First!")
 
         return pf_no
 
@@ -702,19 +721,20 @@ class Partner(models.Model):
         values['is_from_hms'] = True
         company_type = values.get('company_type')
         property_id = values.get('property_id')
-        property_id = self.env['hms.property'].search(
-            [('id', '=', property_id)])
+        property_id = self.env['hms.property'].search([('id', '=', property_id)
+                                                       ])
         crm_type = values.get('company_channel_type')
-        crm_type = self.env['hms.company.category'].search(
-            [('id', '=', crm_type)])
+        crm_type = self.env['hms.company.category'].search([('id', '=',
+                                                             crm_type)])
 
         if company_type == 'company' or company_type == 'guest':
-            pf_no = self.generate_profile_no(company_type,property_id,crm_type)
+            pf_no = self.generate_profile_no(company_type, property_id,
+                                             crm_type)
 
-            values.update({'profile_no':pf_no})
+            values.update({'profile_no': pf_no})
 
         company_objs = self.env['res.company']
-        res = super(Partner,self).create(values)
+        res = super(Partner, self).create(values)
         _logger.info(res)
         if crm_type.type == 'agent':
             company_objs = self.env['res.company'].create({
@@ -778,4 +798,3 @@ class HMSCurrency(models.Model):
                 record.status = False
             else:
                 record.status = True
-

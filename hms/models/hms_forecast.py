@@ -121,7 +121,7 @@ class Availability(models.Model):
 
 # Room Type Available
 class RoomTypeAvailable(models.Model):
-    _name = "roomtype.available"
+    _name = "hms.roomtype.available"
     _description = "Room Type Available"
 
     active = fields.Boolean ('Active', default=True)

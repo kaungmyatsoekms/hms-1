@@ -20,7 +20,7 @@ class RoomNoCopyWizard(models.TransientModel):
     propertyroom_id = fields.Many2one("hms.property.room",
                                      default=get_propertyroom_id,
                                      store=True)
-    property_id = fields.Many2one("property.property",related="propertyroom_id.property_id")
+    property_id = fields.Many2one("hms.property",related="propertyroom_id.property_id")
     room_no = fields.Char(string="Room No", required=True)
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="propertyroom_id.roomtype_ids")
@@ -38,7 +38,7 @@ class RoomNoCopyWizard(models.TransientModel):
     roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       related="propertyroom_id.roomlocation_id")
-    facility_ids = fields.Many2many('room.facility',
+    facility_ids = fields.Many2many('hms.room.facility',
                                     string="Room Facility",
                                     related="propertyroom_id.facility_ids")
     ratecode_id = fields.Many2one('rate.code',string="Ratecode",related="propertyroom_id.ratecode_id")

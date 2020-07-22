@@ -5,7 +5,7 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules import get_module_resource
 from odoo.tools import *
-from datetime import datetime,date, timedelta
+from datetime import datetime, date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 AVAILABLE_RATETYPE = [
@@ -109,8 +109,20 @@ class RateCodeDetails(models.Model):
     _name = "hms.ratecode.details"
     _description = "Rate Code Details"
 
+    # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
     sequence = fields.Integer('Sequence', default=1)
-    ratehead_id = fields.Many2one('hms.ratecode.header', string="Rate Code Header")
+    ratehead_id = fields.Many2one('hms.ratecode.header',
+                                  string="Rate Code Header")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True)
@@ -133,6 +145,11 @@ class RateCodeDetails(models.Model):
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
         required=True)
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  default=default_get_curency,
+                                  required=True,
+                                  track_visibility=True)
     normal_price1 = fields.Float(string="1 Adult")
     normal_price2 = fields.Float(string="+2 Adult")
     normal_price3 = fields.Float(string="+3 Adult")
@@ -194,7 +211,6 @@ class RateCodeDetails(models.Model):
                 raise ValidationError(
                     _("One of your room type have overlapping date range"))
 
-
     @api.onchange('start_date')
     def get_start_date(self):
 
@@ -230,9 +246,10 @@ class RateCodeDetails(models.Model):
                     raise ValidationError(
                         _("Season Code date range must be within Rate Code date range"
                           ))
+
     def action_copy_rate_detail(self):
-    
-        start_date = self.end_date + timedelta(days= 1)
+
+        start_date = self.end_date + timedelta(days=1)
         return {
             'name':
             _('Copy'),
@@ -245,14 +262,16 @@ class RateCodeDetails(models.Model):
             'res_model':
             'hms.ratecode.details',
             'context':
-            "{'type':'out_ratecode_details','default_rate_code':'" + self.rate_code +
-            "','default_ratecode_name':'" + self.ratecode_name +
-            "','default_ratecode_type':'" + self.ratecode_type + "'}",
+            "{'type':'out_ratecode_details','default_rate_code':'" +
+            self.rate_code + "','default_ratecode_name':'" +
+            self.ratecode_name + "','default_ratecode_type':'" +
+            self.ratecode_type + "'}",
             'type':
             'ir.actions.act_window',
             'target':
             'new',
         }
+
 
 # Rate Code Categories
 class RateCategories(models.Model):
@@ -313,7 +332,6 @@ class RateCategories(models.Model):
         if rate_header_obj:
             self.terminate_end_date = rate_header_obj.end_date
 
-
     # @api.constrains('start_date')
     # def check_start_date(self):
     #     for rec in self:
@@ -330,7 +348,7 @@ class RateCategories(models.Model):
 
 # Rate Code Header for Rate Categories
 class RateCodeHead(models.Model):
-    _name = "ratecode.head"
+    _name = "hms.ratecode.head"
     _description = "Rate Code"
 
     head_create = fields.Boolean(default=True)
@@ -340,7 +358,7 @@ class RateCodeHead(models.Model):
                              required=True,
                              default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
-    rate_category_id = fields.Many2one('rate.categories',
+    rate_category_id = fields.Many2one('hms.rate.categories',
                                        string="Rate Categories")
     property_ids = fields.Many2many("hms.property",
                                     store=True,
@@ -351,7 +369,10 @@ class RateCodeHead(models.Model):
                                         ratecode_name, create):
         if create is True:
             vals = []
-            vals.append((0,0, {
+            vals.append((
+                0,
+                0,
+                {
                     'rate_category_id': rate_category_id.id,
                     'property_id': property_id.id,
                     'start_date': start_date,
@@ -397,7 +418,6 @@ class RateCodeHead(models.Model):
                         'head_create': False,
                     }))
                     rate_category_obj.update({'rate_header_ids': vals})
-
 
     @api.model
     def create(self, values):
@@ -461,6 +481,7 @@ class RateCodeHead(models.Model):
         res = super(RateCodeHead, self).unlink()
         return res
 
+
 # Season Code Categories
 # class SeasonCode(models.Model):
 #     _name = "season.code"
@@ -476,7 +497,7 @@ class RateCodeHead(models.Model):
 #     # property_ids = fields.Many2many("hms.property",
 #     #                                'property_id',
 #     #                                'season_id',
-#     #                                "property_property_rate_season_rel",
+#     #                                "hms_property_rate_season_rel",
 #     #                                "Property",
 #     #                                store=True,
 #     #                                track_visibility=True)

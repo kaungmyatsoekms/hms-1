@@ -1,5 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hms_property,hms.property,model_hms_property,base.group_user,1,1,1,1
+access_property_user,hms.property,model_hms_property,hms.group_property_user,1,1,0,0
+access_property_manager,hms.property,model_hms_property,hms.group_property_manager,1,1,1,1
 access_hms_format,hms.format,model_hms_format,base.group_user,1,1,1,1
 access_hms_format_detail,hms.format.detail,model_hms_format_detail,base.group_user,1,1,1,1
 access_hms_building,hms.building,model_hms_building,base.group_user,1,1,1,1
@@ -18,13 +19,15 @@ access_hms_marketgroup,hms.marketgroup,model_hms_marketgroup,base.group_user,1,1
 access_hms_marketsource,hms.marketsource,model_hms_marketsource,base.group_user,1,1,1,1
 access_hms_specialday,hms.specialday,model_hms_specialday,base.group_user,1,1,1,1
 access_hms_weekend,hms.weekend,model_hms_weekend,base.group_user,1,1,1,1
+access_hms_package,hms.package,model_hms_package,base.group_user,1,1,1,1
 access_hms_revenuetype,hms.revenuetype,model_hms_revenuetype,base.group_user,1,1,1,1
 access_hms_subgroup,hms.subgroup,model_hms_subgroup,base.group_user,1,1,1,1
 access_hms_transaction,hms.transaction,model_hms_transaction,base.group_user,1,1,1,1
-access_transaction_root,transaction.root,model_transaction_root,base.group_user,1,1,1,1
+access_hms_transaction_root,hms.transaction.root,model_hms_transaction_root,base.group_user,1,1,1,1
 access_hms_rsvntype,hms.rsvntype,model_hms_rsvntype,base.group_user,1,1,1,1
 access_hms_rsvnstatus,hms.rsvnstatus,model_hms_rsvnstatus,base.group_user,1,1,1,1
 access_hms_creditlimit,hms.creditlimit,model_hms_creditlimit,base.group_user,1,1,1,1
+access_rate_code,rate.code,model_rate_code,base.group_user,1,1,1,1
 access_hms_city,hms.city,model_hms_city,base.group_user,1,1,1,1
 access_hms_country,hms.country,model_hms_country,base.group_user,1,1,1,1
 access_hms_township,hms.township,model_hms_township,base.group_user,1,1,1,1
@@ -38,7 +41,7 @@ access_hms_allotment_line,hms.allotment.line,model_hms_allotment_line,base.group
 access_hms_department,hms.department,model_hms_department,base.group_user,1,1,1,1
 access_hms_special_request,hms.special.request,model_hms_special_request,base.group_user,1,1,1,1
 access_hms_reservation,hms.reservation,model_hms_reservation,base.group_user,1,1,1,1
-access_room_reservation_summary,room.reservation.summary,model_room_reservation_summary,base.group_user,1,1,1,1
+access_hms_room_reservation_summary,hms.room.reservation.summary,model_hms_room_reservation_summary,base.group_user,1,1,1,1
 access_hms_reservation_line,hms.reservation.line,model_hms_reservation_line,base.group_user,1,1,1,1
 access_hms_reason,hms.reason,model_hms_reason,base.group_user,1,1,1,1
 access_hms_reasontype,hms.reasontype,model_hms_reasontype,base.group_user,1,1,1,1
@@ -56,6 +59,7 @@ access_hms_ratecode_header,hms.ratecode.header,model_hms_ratecode_header,base.gr
 access_hms_ratecode_details,hms.ratecode.details,model_hms_ratecode_details,base.group_user,1,1,1,1
 access_hms_package_group,hms.package.group,model_hms_package_group,base.group_user,1,1,1,1
 access_hms_package_header,hms.package.header,model_hms_package_header,base.group_user,1,1,1,1
-access_color_attribute,color.attribute,model_color_attribute,base.group_user,1,1,1,1
-access_color_attribute_value,color.attribute.value,model_color_attribute_value,base.group_user,1,1,1,1
+access_hms_color_attribute,hms.color.attribute,model_hms_color_attribute,base.group_user,1,1,1,1
+access_hms_color_attribute_value,hms.color.attribute.value,model_hms_color_attribute_value,base.group_user,1,1,1,1
+access_hms_reservation_fields,hms.reservation.fields,model_hms_reservation_fields,base.group_user,1,1,1,1
 

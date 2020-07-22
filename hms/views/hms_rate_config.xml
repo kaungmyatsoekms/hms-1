@@ -2,7 +2,7 @@
     <data>
         <!-- Rate Categories Form View -->
         <record id="rate_categories_view_form" model="ir.ui.view">
-            <field name="name">rate.categories.form</field>
+            <field name="name">hms.rate.categories.form</field>
             <field name="model">hms.rate.categories</field>
             <field name="arch" type="xml">
                 <form string="Rate Categories">

@@ -19,7 +19,7 @@ class HMSHousekeeping(models.Model):
                                    ('checkout', 'Check-Out')],
                                   'Clean Type', required=True,
                                   states={'done': [('readonly', True)]},)
-    room_no = fields.Many2one('hms.property.room', 'Room No', required=True,
+    room_no = fields.Many2one('hms.hms.property.room', 'Room No', required=True,
                               states={'done': [('readonly', True)]},
                               index=True)
     activity_line_ids = fields.One2many('hms.housekeeping.activities',

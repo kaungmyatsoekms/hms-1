@@ -6,7 +6,8 @@ from odoo.tools import *
 import base64
 import datetime
 
-class PmsFormat(models.Model):
+
+class HmsFormat(models.Model):
     _name = "hms.format"
     _description = "Property Formats"
     _order = "name"
@@ -30,7 +31,7 @@ class PmsFormat(models.Model):
 
     @api.model
     def create(self, values):
-        return super(PmsFormat, self).create(values)
+        return super(HmsFormat, self).create(values)
 
     @api.depends('format_line_id')
     def get_sample_format(self):
@@ -56,7 +57,7 @@ class PmsFormat(models.Model):
         for pt in self:
             if not pt.active:
                 pt.active = self.active
-        super(PmsFormat, self).toggle_active()
+        super(HmsFormat, self).toggle_active()
 
     # @api.model
     # def create(self, values):
@@ -64,7 +65,7 @@ class PmsFormat(models.Model):
     #     format_id = self.search([('name', '=', values['name'])])
     #     if format_id:
     #         raise UserError(_("%s is already existed" % values['name']))
-    #     res = super(PmsFormat, self).create(values)
+    #     res = super(HmsFormat, self).create(values)
     #     padding = res.format_line_id.filtered(lambda x: x.value_type=="digit")
     #     self.env['ir.sequence'].create({
     #         'name':res.code,
@@ -80,18 +81,18 @@ class PmsFormat(models.Model):
     #     format_id = self.search([('name', '=', values['name'])])
     #     if format_id:
     #         raise UserError(_("%s is already existed" % values['name']))
-    #     return super(PmsFormat, self).create(values)
+    #     return super(HmsFormat, self).create(values)
 
     # if 'name' in values:
     #     sample_id = self.search([('name', '=', values['name'])])
     #     if sample_id:
     #         raise UserError(_("%s is already existed" % values['name']))
-    # return super(PmsFormat, self).create(values)
+    # return super(HmsFormat, self).create(values)
     # format_ids = self.search([('name', '=', values['name'])])
     # for format_id in format_ids:
     #     if format_id:
     #         raise UserError(_("%s is already existed" % values['name']))
-    # return super(PmsFormat, self).create(values)
+    # return super(HmsFormat, self).create(values)
 
     # def write(self, vals):
     #     sample_id = None
@@ -99,18 +100,18 @@ class PmsFormat(models.Model):
     #         sample_id = self.search([('name', '=', vals['name'])])
     #         if sample_id:
     #             raise UserError(_("%s is already existed" % vals['name']))
-    #     return super(PmsFormat, self).write(vals)
+    #     return super(HmsFormat, self).write(vals)
 
-    
     # def unlink(self):
     #     sequence_objs = self.env['ir.sequence']
     #     for rec in self:
     #         sequence_objs += self.env['ir.sequence'].search([('code', '=', rec.code)])
     #     sequence_objs.unlink()
-    #     res = super(PmsFormat,self).unlink()
+    #     res = super(HmsFormat,self).unlink()
     #     return res
 
-class PmsFormatDetail(models.Model):
+
+class HmsFormatDetail(models.Model):
     _name = "hms.format.detail"
     _description = "Property Formats Details"
     _order = "position_order"
@@ -146,14 +147,12 @@ class PmsFormatDetail(models.Model):
                                   default="")
     fix_value = fields.Char("Fixed Value", store=True)
     digit_value = fields.Integer("Digit Value", store=True)
-    dynamic_value = fields.Selection([('unit code', 'unit code'),
-                                      ('property code', 'property code'),
-                                      ('company type code','company type code'), 
-                                      ('pos code', 'pos code'),
-                                      ('floor code', 'floor code'), 
-                                      ('floor ref code', 'floor ref code')],
-                                    string="Dynamic Value",
-                                    store=True)
+    dynamic_value = fields.Selection(
+        [('unit code', 'unit code'), ('property code', 'property code'),
+         ('company type code', 'company type code'), ('pos code', 'pos code'),
+         ('floor code', 'floor code'), ('floor ref code', 'floor ref code')],
+        string="Dynamic Value",
+        store=True)
     datetime_value = fields.Selection([('MM', 'MM'), ('MMM', 'MMM'),
                                        ('YY', 'YY'), ('YYYY', 'YYYY')],
                                       string="Date Value",
@@ -170,12 +169,13 @@ class PmsFormatDetail(models.Model):
 
     @api.model
     def default_get(self, fields_list):
-        res = super(PmsFormatDetail, self).default_get(fields_list)
+        res = super(HmsFormatDetail, self).default_get(fields_list)
         res.update({
             'position_order':
             len(self._context.get('format_line_id', [])) + 1
         })
         return res
+
 
 class Users(models.Model):
     _inherit = "res.users"
@@ -187,6 +187,7 @@ class Users(models.Model):
                                    "Property",
                                    store=True,
                                    track_visibility=True)
+
 
 class Company(models.Model):
     _inherit = "res.company"
@@ -240,13 +241,14 @@ class Company(models.Model):
                                          default=_default_gprofile_id_format,
                                          track_visibility=True)
 
+
 class ColorAttribute(models.Model):
-    _name = "color.attribute"
+    _name = "hms.color.attribute"
     _description = "Color Attribute"
     _order = 'sequence, id'
 
     name = fields.Char('Attribute', required=True)
-    value_ids = fields.One2many('color.attribute.value',
+    value_ids = fields.One2many('hms.color.attribute.value',
                                 'attribute_id',
                                 'Values',
                                 copy=True)
@@ -267,7 +269,7 @@ class ColorAttribute(models.Model):
 
 
 class ColorAttributeValue(models.Model):
-    _name = "color.attribute.value"
+    _name = "hms.color.attribute.value"
     _order = 'attribute_id, sequence, id'
     _description = 'Color Attribute Value'
 
@@ -276,7 +278,7 @@ class ColorAttributeValue(models.Model):
                               help="Determine the display order",
                               index=True)
     html_color = fields.Char(string="Color")
-    attribute_id = fields.Many2one('color.attribute',
+    attribute_id = fields.Many2one('hms.color.attribute',
                                    string="Attribute",
                                    ondelete='cascade',
                                    required=True,
@@ -328,15 +330,16 @@ class ResConfigSettings(models.TransientModel):
                                         'Guest Profile ID Format',
                                         related="company_id.profile_id_format",
                                         track_visibility=True)
-    cprofile_id_format = fields.Many2one('hms.format',
+    cprofile_id_format = fields.Many2one(
+        'hms.format',
         'Company Profile ID Format',
         related="company_id.cprofile_id_format",
         track_visibility=True)
-    gprofile_id_format = fields.Many2one('hms.format',
+    gprofile_id_format = fields.Many2one(
+        'hms.format',
         'Group Profile ID Format',
         related="company_id.gprofile_id_format",
         track_visibility=True)
-
 
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):
@@ -377,6 +380,3 @@ class ResConfigSettings(models.TransientModel):
     def onchange_gprofile_id_format(self):
         if self.gprofile_id_format:
             self.company_id.gprofile_id_format = self.gprofile_id_format
-
-
-

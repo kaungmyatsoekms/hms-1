@@ -68,8 +68,8 @@
         </record>
 
         <!-- Availability List View -->
-        <record id="hms_availability_view_list" model="ir.ui.view">
-            <field name="name">hms.availability.view.list</field>
+        <record id="availability_view_list" model="ir.ui.view">
+            <field name="name">availability.view.list</field>
             <field name="model">hms.availability</field>
             <field name="arch" type="xml">
                 <tree string="Availability">
@@ -93,8 +93,8 @@
         </record>
 
         <!-- Availability Pivot View -->
-        <record id="hms_availability_view_pivot" model="ir.ui.view">
-            <field name="name">lhms.availability.view.pivot</field>
+        <record id="availability_view_pivot" model="ir.ui.view">
+            <field name="name">availability.view.pivot</field>
             <field name="model">hms.availability</field>
             <field name="arch" type="xml">
                 <pivot string="Availability">
@@ -125,7 +125,7 @@
         </record>
 
         <!-- Search view of Availability -->
-        <record id="view_hms_availability_search" model="ir.ui.view">
+        <record id="view_availability_search" model="ir.ui.view">
             <field name="name">hms.availability.search</field>
             <field name="model">hms.availability</field>
             <field name="arch" type="xml">
@@ -147,7 +147,7 @@
         </record>
 
         <!-- action of availability -->
-        <record id="hms_availability_action_window" model="ir.actions.act_window">
+        <record id="availability_action_window" model="ir.actions.act_window">
             <field name="name">Availability</field>
             <field name="res_model">hms.availability</field>
             <field name="view_mode">tree,pivot,form</field>
@@ -157,7 +157,7 @@
         </record>
 
         <!-- Room Type Available Form View -->
-        <record id="hms_roomtype_available_view_form" model="ir.ui.view">
+        <record id="roomtype_available_view_form" model="ir.ui.view">
             <field name="name">hms.roomtype.available.view.form</field>
             <field name="model">hms.roomtype.available</field>
             <field name="arch" type="xml">
@@ -194,7 +194,7 @@
         </record>
 
         <!-- Room Type Available List View -->
-        <record id="hms_roomtype_available_view_list" model="ir.ui.view">
+        <record id="roomtype_available_view_list" model="ir.ui.view">
             <field name="name">hms.roomtype.available.view.list</field>
             <field name="model">hms.roomtype.available</field>
             <field name="arch" type="xml">
@@ -214,7 +214,7 @@
         </record>
 
         <!-- Room Type Available Pivot View -->
-        <record id="hms_roomtype_available_view_pivot" model="ir.ui.view">
+        <record id="roomtype_available_view_pivot" model="ir.ui.view">
             <field name="name">hms.roomtype.available.view.pivot</field>
             <field name="model">hms.roomtype.available</field>
             <field name="arch" type="xml">
@@ -235,7 +235,7 @@
         </record>
 
         <!-- Search view of Room Type Availability -->
-        <record id="view_hms_roomtype_available_search" model="ir.ui.view">
+        <record id="view_room_type_available_search" model="ir.ui.view">
            <field name="name">hms.roomtype.available.view.search</field>
             <field name="model">hms.roomtype.available</field>
             <field name="arch" type="xml">
@@ -257,7 +257,7 @@
         </record>
 
         <!-- action of Room Type Available -->
-        <record id="hms_roomtype_available_action_window" model="ir.actions.act_window">
+        <record id="roomtype_available_action_window" model="ir.actions.act_window">
             <field name="name">Room Type Available</field>
             <field name="res_model">hms.roomtype.available</field>
             <field name="view_mode">tree,pivot,form</field>
@@ -267,7 +267,7 @@
         </record>
 
         <menuitem id="hms_menu_forecast" name="Forecast" parent="hotel_menu_root" sequence="5"/>
-        <menuitem id="availability_menu" name="Availability" parent="hms_menu_forecast" sequence="1" action="hms_availability_action_window"/>
-        <menuitem id="roomtype_available_menu" name="Room Type Available" parent="hms_menu_forecast" sequence="2" action="hms_roomtype_available_action_window"/>
+        <menuitem id="availability_menu" name="Availability" parent="hms_menu_forecast" sequence="1" action="availability_action_window"/>
+        <menuitem id="roomtype_available_menu" name="Room Type Available" parent="hms_menu_forecast" sequence="2" action="roomtype_available_action_window"/>
     </data>
 </odoo>

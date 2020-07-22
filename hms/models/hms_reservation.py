@@ -83,11 +83,11 @@ class Reservation(models.Model):
                              'Status',
                              readonly=True,
                              default='booking')
-    property_ids = fields.Many2many('hms.property',related="user_id.property_id")                             
-    property_id = fields.Many2one(
-        'hms.property',
-        string="Property",
-        domain="[('id', '=?', property_ids)]")
+    property_ids = fields.Many2many('hms.property',
+                                    related="user_id.property_id")
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  domain="[('id', '=?', property_ids)]")
     user_id = fields.Many2one('res.users',
                               string='Salesperson',
                               default=lambda self: self.env.uid)
@@ -181,6 +181,7 @@ class Reservation(models.Model):
                                        compute='_compute_cancel_rooms')
     checkin_room_count = fields.Integer(string="Check-in",
                                         compute='_compute_checkin_rooms')
+
     @api.onchange('property_ids')
     def default_get_property_id(self):
         if self.property_ids:
@@ -188,11 +189,14 @@ class Reservation(models.Model):
                 self.property_id = self.property_ids[0]._origin.id
         else:
             return {
-                    'warning': {
-                        'title': _('No Property Permission'),
-                        'message': _("Select Property in User Setting or you can't create reservation")
-                    }
+                'warning': {
+                    'title':
+                    _('No Property Permission'),
+                    'message':
+                    _("Select Property in User Setting or you can't create reservation"
+                      )
                 }
+            }
 
     def name_get(self):
         result = []
@@ -330,8 +334,8 @@ class Reservation(models.Model):
     def checkin_status(self):
         self.write({'state': 'checkin'})
         for rec in self:
-            val = self.env['hms.rsvntype'].search([('rsvn_name', '=', 'Confirmed')
-                                                ])
+            val = self.env['hms.rsvntype'].search([('rsvn_name', '=',
+                                                    'Confirmed')])
             self.reservation_type = val
 
     @api.onchange('reservation_type')
@@ -392,42 +396,49 @@ class Reservation(models.Model):
             d3 = d2 - d1
             days = str(d3.days)
             rec.nights = int(days)
+
     # Create HFO Room
-    def create_hfo_room(self,reservation_id,confirm_no,property_id,company_id,group_id,guest_id,roomtype_id,arrival,departure,nights,
-    market,source,reservation_type,reservation_status,arrival_flight,arrival_flighttime,dep_flight,dep_flighttime,eta,etd):
+    def create_hfo_room(self, reservation_id, confirm_no, property_id,
+                        company_id, group_id, guest_id, roomtype_id, arrival,
+                        departure, nights, market, source, reservation_type,
+                        reservation_status, arrival_flight, arrival_flighttime,
+                        dep_flight, dep_flighttime, eta, etd):
         vals = []
-        vals.append((0,0,{
-            'state' : 'booking',
-            'reservation_id' : reservation_id.id,
-            'confirm_no' : confirm_no,
-            'property_id':property_id,
-            'company_id' : company_id,
-            'group_id' : group_id,
-            'guest_id' : guest_id,
-            'room_type' : roomtype_id,
-            'arrival' : arrival,
-            'departure' : departure,
-            'nights' : nights,
-            'rooms' : 1,
-            'market' : market,
-            'source' : source,
-            'reservation_type' : reservation_type,
-            'reservation_status' : reservation_status,
-            'arrival_flight' : arrival_flight,
-            'arrival_flighttime' : arrival_flighttime,
-            'dep_flight' : dep_flight,
-            'dep_flighttime' : dep_flighttime,
-            'eta' : eta,
-            'etd' : etd,
+        vals.append((0, 0, {
+            'state': 'booking',
+            'reservation_id': reservation_id.id,
+            'confirm_no': confirm_no,
+            'property_id': property_id,
+            'company_id': company_id,
+            'group_id': group_id,
+            'guest_id': guest_id,
+            'room_type': roomtype_id,
+            'arrival': arrival,
+            'departure': departure,
+            'nights': nights,
+            'rooms': 1,
+            'market': market,
+            'source': source,
+            'reservation_type': reservation_type,
+            'reservation_status': reservation_status,
+            'arrival_flight': arrival_flight,
+            'arrival_flighttime': arrival_flighttime,
+            'dep_flight': dep_flight,
+            'dep_flighttime': dep_flighttime,
+            'eta': eta,
+            'etd': etd,
         }))
-        reservation_id.update({'reservation_line_ids': vals,'dummy_readonly': True})
+        reservation_id.update({
+            'reservation_line_ids': vals,
+            'dummy_readonly': True
+        })
 
     #Create Function
     @api.model
     def create(self, values):
         property_id = values.get('property_id')
-        property_id = self.env['hms.property'].search([('id', '=',
-                                                             property_id)])
+        property_id = self.env['hms.property'].search([('id', '=', property_id)
+                                                       ])
         if property_id:
             if property_id.confirm_id_format:
                 format_ids = self.env['hms.format.detail'].search(
@@ -472,10 +483,15 @@ class Reservation(models.Model):
 
             values.update({'confirm_no': pf_no})
             res = super(Reservation, self).create(values)
-            if  res.is_dummy is True :
-                res.create_hfo_room(res,res.confirm_no,res.property_id.id,res.company_id.id,res.group_id.id,res.guest_id.id,res.roomtype_id.id,res.arrival,res.departure,res.nights
-                ,res.market.id,res.source.id,res.reservation_type.id,res.reservation_status.id,res.arrival_flight,res.arrival_flighttime,res.dep_flight,res.dep_flighttime,res.eta,res.etd)
- 
+            if res.is_dummy is True:
+                res.create_hfo_room(
+                    res, res.confirm_no, res.property_id.id, res.company_id.id,
+                    res.group_id.id, res.guest_id.id, res.roomtype_id.id,
+                    res.arrival, res.departure, res.nights, res.market.id,
+                    res.source.id, res.reservation_type.id,
+                    res.reservation_status.id, res.arrival_flight,
+                    res.arrival_flighttime, res.dep_flight, res.dep_flighttime,
+                    res.eta, res.etd)
 
         return res
 
@@ -485,9 +501,14 @@ class Reservation(models.Model):
         dummy = values.get('is_dummy')
         if 'is_dummy' in values.keys():
             if dummy is True:
-                self.create_hfo_room(self,self.confirm_no,self.property_id.id,self.company_id.id,self.group_id.id,self.guest_id.id,self.roomtype_id.id,self.arrival,self.departure,self.nights
-                ,self.market.id,self.source.id,self.reservation_type.id,self.reservation_status.id,self.arrival_flight,self.arrival_flighttime,self.dep_flight,self.dep_flighttime,self.eta,self.etd)
-                
+                self.create_hfo_room(
+                    self, self.confirm_no, self.property_id.id,
+                    self.company_id.id, self.group_id.id, self.guest_id.id,
+                    self.roomtype_id.id, self.arrival, self.departure,
+                    self.nights, self.market.id, self.source.id,
+                    self.reservation_type.id, self.reservation_status.id,
+                    self.arrival_flight, self.arrival_flighttime,
+                    self.dep_flight, self.dep_flighttime, self.eta, self.etd)
 
         return res
 
@@ -649,13 +670,13 @@ class ReservationLine(models.Model):
             return self._context.get('state')
 
     is_cancel = fields.Boolean(string="Cancel", default=False, readonly=True)
-    is_no_show = fields.Boolean(string = "No Show", default = False, readonly=True)
+    is_no_show = fields.Boolean(string="No Show", default=False, readonly=True)
     is_roomtype_fix = fields.Boolean(string="Fixed Type?",
                                      readonly=False,
                                      related="room_type.fix_type")
     sequence = fields.Integer(default=1)
     color = fields.Integer(string='Color Index', compute="set_kanban_color")
-    ispartial = fields.Boolean('Partial',default=True)
+    ispartial = fields.Boolean('Partial', default=True)
     active = fields.Boolean('Active', default=True, track_visibility=True)
     cancel_rsvn_ids = fields.One2many('hms.cancel.rsvn',
                                       'reservation_line_id',
@@ -727,8 +748,9 @@ class ReservationLine(models.Model):
                                 ondelete='cascade',
                                 index=True)
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
-    bedtype_id = fields.Many2one('hms.bedtype', domain="[('id', '=?', bedtype_ids)]" )
-    system_date = fields.Date("System Date", related="property_id.system_date")                                 
+    bedtype_id = fields.Many2one('hms.bedtype',
+                                 domain="[('id', '=?', bedtype_ids)]")
+    system_date = fields.Date("System Date", related="property_id.system_date")
     arrival = fields.Date("Arrival",
                           default=get_arrival,
                           readonly=False,
@@ -787,7 +809,9 @@ class ReservationLine(models.Model):
         string="Additional Pkg",
         domain="[('is_sell_separate', '=', True)]")
     allotment_id = fields.Char(string="Allotment")
-    rate_nett = fields.Float(string="Rate Nett", help="Rate Nett")
+    rate_nett = fields.Float(string="Rate Nett",
+                             help="Rate Nett",
+                             compute="_compute_rate_nett")
     fo_remark = fields.Char(string="F.O Remark")
     hk_remark = fields.Char(string="H.K Remark")
     cashier_remark = fields.Char(string="Cashier Remark")
@@ -831,10 +855,11 @@ class ReservationLine(models.Model):
             str(check_date), '%Y-%m-%d').weekday()  # get 'day' of arrival date
         temp = (calendar.day_name[check_day])  # get 'day' of arrival date
         weekend_days = self.env['hms.weekend'].search([('property_id', '=',
-                                                            property_id)])
+                                                        property_id)])
         # Get objs for special days based on property_id
-        special_day_objs = self.env['hms.specialday'].search([('property_id', '=',
-                                                            property_id)])
+        special_day_objs = self.env['hms.specialday'].search([
+            ('property_id', '=', property_id)
+        ])
         is_weekend = False
         if weekend_days:
             for weekend in weekend_days:
@@ -914,6 +939,18 @@ class ReservationLine(models.Model):
             rec.room_rate = rec._check_rate(rec.arrival, rec.pax,
                                             rec.ratecode_id,
                                             rec.property_id.id)
+
+    # Compute Rate Nett
+    @api.depends('package_id')
+    def _compute_rate_nett(self):
+        for rec in self:
+            rate = 0.0
+            total_amount = 0.0
+            for pkg in rec.package_id.package_ids:
+                if pkg.rate_attribute == 'ARS' or pkg.rate_attribute == 'ARC':
+                    rate = rec.rate_calculate(pkg, rec)
+                    total_amount += rec.total_amount_calculate(rate, pkg, rec)
+            rec.rate_nett = rec.room_rate + total_amount
 
     # Get default rate code based on ratehead_id
     @api.onchange('ratehead_id', 'ratecode_id')
@@ -1202,17 +1239,16 @@ class ReservationLine(models.Model):
         for rec in self:
             room_type = rec.room_type._origin.id
             room_type_obj = self.env['hms.roomtype'].search([('id', '=',
-                                                           room_type)])
+                                                              room_type)])
 
             bedtype_id = rec.bedtype_id._origin.id
 
             avail_rooms = []
             if room_type_obj.fix_type == True:
 
-                total_room_per_roomtype = self.env['hms.property.room'].search([
-                    ('property_id', '=', rec.property_id.id),
-                    ('roomtype_id', '=', room_type)
-                ]).ids
+                total_room_per_roomtype = self.env['hms.property.room'].search(
+                    [('property_id', '=', rec.property_id.id),
+                     ('roomtype_id', '=', room_type)]).ids
 
                 occ_room_per_roomtype = self.env[
                     'hms.reservation.line'].search([
@@ -1237,8 +1273,8 @@ class ReservationLine(models.Model):
 
                 if bedtype_id:
 
-                    total_room_per_roomtype = self.env['hms.property.room'].search(
-                        [
+                    total_room_per_roomtype = self.env[
+                        'hms.property.room'].search([
                             ('property_id', '=', rec.property_id.id),
                             ('roomtype_id', '=', room_type),
                             ('bedtype_id', '=', bedtype_id),
@@ -1321,8 +1357,13 @@ class ReservationLine(models.Model):
         d2 = datetime.strptime(str(tmp_departure_date), '%Y-%m-%d')
         d3 = d2 - d1
         days = str(d3.days)
-        if tmp_arrival_date != date(9999, 1, 11) and tmp_departure_date != date(1000, 1, 11):
-            self.reservation_id.write({'arrival': tmp_arrival_date,'departure': tmp_departure_date, 'nights': int(days)})
+        if tmp_arrival_date != date(
+                9999, 1, 11) and tmp_departure_date != date(1000, 1, 11):
+            self.reservation_id.write({
+                'arrival': tmp_arrival_date,
+                'departure': tmp_departure_date,
+                'nights': int(days)
+            })
 
     # @api.onchange('reservation_id')
     # def onchange_hfo_arrival(self):
@@ -1607,15 +1648,14 @@ class ReservationLine(models.Model):
                 day_count += 1
         return posting_dates
 
-    def create_line_with_posting_rythm(
-        self,
-        reservation_line_id,
-        transaction_date,
-    ):
+    def create_line_with_posting_rhythm(self, reservation_line_id,
+                                        transaction_date, package_ids):
         res = reservation_line_id
         total_amount_include = 0.0
         total_room_rate = 0.0
+        check_pkg = ''
         for pkg in res.package_id.package_ids:
+            check_pkg = pkg.rate_attribute
             posted_dates = res.get_posting_date(res, pkg)
             if transaction_date in posted_dates:
                 rate = res.rate_calculate(pkg, res)
@@ -1635,83 +1675,153 @@ class ReservationLine(models.Model):
                     if total_amount > 0.0:
                         total_room_rate += rate
         # For Room Charge Transaction
-        pkg = self.env['hms.package.header']
-        # Pass room rate from ratecode details based on transaction date
-        ratecode_detail_obj = self.env['hms.ratecode.details'].search([
-            ('property_id', '=', res.property_id.id),
-            ('ratehead_id', '=', res.ratehead_id.id),
-            ('start_date', '<=', transaction_date),
-            ('end_date', '>=', transaction_date),
-            ('roomtype_id', 'in', res.room_type.id)
-        ])
-        if ratecode_detail_obj and len(ratecode_detail_obj) == 1:
-            temp_rate = res._check_rate(transaction_date, res.pax,
-                                        ratecode_detail_obj,
-                                        res.property_id.id)
-        else:
-            temp_rate = 0.0
+        if check_pkg != 'SS':
+            pkg = self.env['hms.package.header']
+            # Pass room rate from ratecode details based on transaction date
+            ratecode_detail_obj = self.env['hms.ratecode.details'].search([
+                ('property_id', '=', res.property_id.id),
+                ('ratehead_id', '=', res.ratehead_id.id),
+                ('start_date', '<=', transaction_date),
+                ('end_date', '>=', transaction_date),
+                ('roomtype_id', 'in', res.room_type.id)
+            ])
+            if ratecode_detail_obj and len(ratecode_detail_obj) == 1:
+                temp_rate = res._check_rate(transaction_date, res.pax,
+                                            ratecode_detail_obj,
+                                            res.property_id.id)
+            else:
+                temp_rate = 0.0
 
-        room_rate = temp_rate - total_room_rate
-        room_amount = (temp_rate * res.rooms) - total_amount_include
-        res.create_charge_line(res.property_id, res.ratecode_id.transaction_id,
-                               res, room_rate, room_amount, True, pkg,
-                               transaction_date, res.rooms, False, 'INR')
+            room_rate = temp_rate - total_room_rate
+            room_amount = (temp_rate * res.rooms) - total_amount_include
+            res.create_charge_line(res.property_id,
+                                   res.ratecode_id.transaction_id, res,
+                                   room_rate, room_amount, True, pkg,
+                                   transaction_date, res.rooms, False, 'INR')
 
-    def update_line_with_posting_rythm(self, reservation_line_id,
-                                       room_transaction_line_id,
-                                       transaction_date):
+    def update_line_with_posting_rhythm(self, reservation_line_id, delete):
         res = reservation_line_id
-        r = room_transaction_line_id
-        total_amount_include = 0.0
-        total_room_rate = 0.0
-        for pkg in res.package_id.package_ids:
-            posted_dates = res.get_posting_date(res, pkg)
-            if transaction_date in posted_dates:
-                rate = res.rate_calculate(pkg, res)
-                total_amount = res.total_amount_calculate(rate, pkg, res)
-                if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
-                    if total_amount == 0.0 and rate > 0.0:
-                        res.update_charge_line(r, pkg.transaction_id, rate,
-                                               total_amount, False, pkg,
-                                               transaction_date, res.rooms,
-                                               False, pkg.rate_attribute)
-                    else:
-                        res.update_charge_line(r, pkg.transaction_id, rate,
-                                               total_amount, True, pkg,
-                                               transaction_date, res.rooms,
-                                               False, pkg.rate_attribute)
-                    if pkg.rate_attribute == 'INR':
-                        total_amount_include += total_amount
-                        if total_amount > 0.0:
-                            total_room_rate += rate
-                else:
-                    if not r.package_id:
-                        pkg = self.env['hms.package.header']
-                        # Pass room rate from ratecode details based on transaction date
-                        ratecode_detail_obj = self.env[
-                            'hms.ratecode.details'].search([
-                                ('property_id', '=', res.property_id.id),
-                                ('ratehead_id', '=', res.ratehead_id.id),
-                                ('start_date', '<=', transaction_date),
-                                ('end_date', '>=', transaction_date),
-                                ('roomtype_id', 'in', res.room_type.id)
-                            ])
-                        if ratecode_detail_obj and len(
-                                ratecode_detail_obj) == 1:
-                            temp_rate = self._check_rate(
-                                transaction_date, self.pax,
-                                ratecode_detail_obj, self.property_id.id)
-                        else:
-                            temp_rate = 0.0
+        day_count = 0
+        for rec in range(res.nights):
+            transaction_date = res.arrival + timedelta(days=day_count)
+            if res.package_id:
+                total_amount_include = 0.0
+                total_room_rate = 0.0
+                room_transaction_line_objs = self.env[
+                    'hms.room.transaction.charge.line'].search([
+                        ('property_id', '=', res.property_id.id),
+                        ('reservation_line_id', '=', res.id),
+                        ('transaction_date', '=', transaction_date),
+                        ('rate_attribute', '!=', 'SS'),
+                        ('delete', '=', delete), '|', ('active', '=', True),
+                        ('active', '=', False)
+                    ])
+                if room_transaction_line_objs:
+                    for r in room_transaction_line_objs:
+                        for pkg in res.package_id.package_ids:
+                            posted_dates = res.get_posting_date(res, pkg)
+                            if transaction_date in posted_dates:
+                                rate = res.rate_calculate(pkg, res)
+                                total_amount = res.total_amount_calculate(
+                                    rate, pkg, res)
+                                if r.package_id.id == pkg.id and r.transaction_id.id == pkg.transaction_id.id:
+                                    if total_amount == 0.0 and rate > 0.0:
+                                        res.update_charge_line(
+                                            r, pkg.transaction_id, rate,
+                                            total_amount, False, pkg,
+                                            transaction_date, res.rooms, False,
+                                            pkg.rate_attribute)
+                                    else:
+                                        res.update_charge_line(
+                                            r, pkg.transaction_id, rate,
+                                            total_amount, True, pkg,
+                                            transaction_date, res.rooms, False,
+                                            pkg.rate_attribute)
+                                    if pkg.rate_attribute == 'INR':
+                                        total_amount_include += total_amount
+                                        if total_amount > 0.0:
+                                            total_room_rate += rate
+                                else:
+                                    if not r.package_id:
+                                        pkg = self.env['hms.package.header']
+                                        # Pass room rate from ratecode details based on transaction date
+                                        ratecode_detail_obj = self.env[
+                                            'hms.ratecode.details'].search([
+                                                ('property_id', '=',
+                                                 res.property_id.id),
+                                                ('ratehead_id', '=',
+                                                 res.ratehead_id.id),
+                                                ('start_date', '<=',
+                                                 transaction_date),
+                                                ('end_date', '>=',
+                                                 transaction_date),
+                                                ('roomtype_id', 'in',
+                                                 res.room_type.id)
+                                            ])
+                                        if ratecode_detail_obj and len(
+                                                ratecode_detail_obj) == 1:
+                                            temp_rate = res._check_rate(
+                                                transaction_date, res.pax,
+                                                ratecode_detail_obj,
+                                                res.property_id.id)
+                                        else:
+                                            temp_rate = 0.0
 
-                        room_rate = temp_rate - total_room_rate
-                        room_amount = (temp_rate *
-                                       res.rooms) - total_amount_include
-                        res.update_charge_line(r,
-                                               res.ratecode_id.transaction_id,
-                                               room_rate, room_amount, True,
-                                               pkg, transaction_date,
-                                               res.rooms, False, 'INR')
+                                        room_rate = temp_rate - total_room_rate
+                                        room_amount = (temp_rate * res.rooms
+                                                       ) - total_amount_include
+                                        res.update_charge_line(
+                                            r, res.ratecode_id.transaction_id,
+                                            room_rate, room_amount, True, pkg,
+                                            transaction_date, res.rooms, False,
+                                            'INR')
+                else:
+                    res.create_line_with_posting_rhythm(
+                        res, transaction_date, res.package_id.package_ids)
+
+            day_count += 1
+
+    def update_additional_packages(self, reservation_line_id, delete, pkg):
+        res = reservation_line_id
+        day_count = 0
+        for rec in range(res.nights):
+            transaction_date = res.arrival + timedelta(days=day_count)
+            if res.additional_pkg_ids:
+                room_transaction_line_objs = self.env[
+                    'hms.room.transaction.charge.line'].search([
+                        ('property_id', '=', res.property_id.id),
+                        ('reservation_line_id', '=', res.id),
+                        ('transaction_date', '=', transaction_date),
+                        ('rate_attribute', '=', 'SS'),
+                        ('package_id', '=', pkg.id), ('delete', '=', delete),
+                        '|', ('active', '=', True), ('active', '=', False)
+                    ])
+                if room_transaction_line_objs:
+                    for r in room_transaction_line_objs:
+                        posted_dates = res.get_posting_date(res, pkg)
+                        if transaction_date in posted_dates:
+                            rate = res.rate_calculate(pkg, res)
+                            total_amount = res.total_amount_calculate(
+                                rate, pkg, res)
+                            if r.transaction_id.id == pkg.transaction_id.id:
+                                if total_amount == 0.0 and rate > 0.0:
+                                    res.update_charge_line(
+                                        r, pkg.transaction_id, rate,
+                                        total_amount, False, pkg,
+                                        transaction_date, res.rooms, False,
+                                        pkg.rate_attribute)
+                                else:
+                                    res.update_charge_line(
+                                        r, pkg.transaction_id, rate,
+                                        total_amount, True, pkg,
+                                        transaction_date, res.rooms, False,
+                                        pkg.rate_attribute)
+
+                else:
+                    res.create_line_with_posting_rhythm(
+                        res, transaction_date, pkg)
+
+            day_count += 1
 
     @api.model
     def create(self, values):
@@ -1729,12 +1839,17 @@ class ReservationLine(models.Model):
         self._state_update_forecast(state, property_id, arrival, departure,
                                     room_type, rooms, reduce, status)
         # Room Transaction Charge Line Create
-
         day_count = 0
         for rec in range(res.nights):
             transaction_date = res.arrival + timedelta(days=day_count)
             if res.package_id:
-                res.create_line_with_posting_rythm(res, transaction_date)
+                res.create_line_with_posting_rhythm(res, transaction_date,
+                                                    res.package_id.package_ids)
+            # Check for additional packages
+            if res.additional_pkg_ids:
+                # Create charge line for additional packages
+                res.create_line_with_posting_rhythm(res, transaction_date,
+                                                    res.additional_pkg_ids)
             day_count += 1
         return res
 
@@ -1771,7 +1886,7 @@ class ReservationLine(models.Model):
             state = self.state
             newroom_type = values.get('room_type')
             newroom_type = self.env['hms.roomtype'].search([('id', '=',
-                                                          newroom_type)])
+                                                             newroom_type)])
             new_arrival = values.get('arrival')
             if new_arrival:
                 new_arrival = datetime.strptime(str(new_arrival),
@@ -1915,7 +2030,7 @@ class ReservationLine(models.Model):
                             record.ravail_unconfirm += rooms
                         for avail in avails:
                             avail.avail_unconfirm += rooms
-        nights = self.nights
+
         res = super(ReservationLine, self).write(values)
 
         if 'ratehead_id' in values.keys() or 'ratecode_id' in values.keys(
@@ -1923,6 +2038,7 @@ class ReservationLine(models.Model):
         ) or 'additional_pkg_ids' in values.keys() or 'rooms' in values.keys(
         ) or 'arrival' in values.keys() or 'departure' in values.keys(
         ) or 'room_type' in values.keys() or 'nights' in values.keys(
+        ) or 'pax' in values.keys() or 'child' in values.keys(
         ) or 'extrabed' in values.keys() or 'child_bfpax' in values.keys():
             # If No Records >>> Create Room Transaction Charge Lines
             if not self.room_transaction_line_ids:
@@ -1930,8 +2046,13 @@ class ReservationLine(models.Model):
                 for rec in range(self.nights):
                     transaction_date = self.arrival + timedelta(days=day_count)
                     if self.package_id:
-                        self.create_line_with_posting_rythm(
-                            self, transaction_date)
+                        self.create_line_with_posting_rhythm(
+                            self, transaction_date,
+                            self.package_id.package_ids)
+                    if self.additional_pkg_ids:
+                        # Create charge line for additional packages
+                        self.create_line_with_posting_rhythm(
+                            self, transaction_date, self.additional_pkg_ids)
                     day_count += 1
 
             # If Records >>> Update Room Transaction Charge Lines
@@ -1949,53 +2070,28 @@ class ReservationLine(models.Model):
                             'active': False,
                             'delete': True,
                         })
-                    day_count = 0
-                    for rec in range(self.nights):
-                        transaction_date = self.arrival + timedelta(
-                            days=day_count)
-                        if self.package_id:
-                            room_transaction_line_objs = self.env[
-                                'hms.room.transaction.charge.line'].search([
-                                    ('property_id', '=', self.property_id.id),
-                                    ('reservation_line_id', '=', self.id),
-                                    ('transaction_date',
-                                     '=', transaction_date),
-                                    ('delete', '=', True), '|',
-                                    ('active', '=', True),
-                                    ('active', '=', False)
-                                ])
-                            if room_transaction_line_objs:
-                                for r in room_transaction_line_objs:
-                                    self.update_line_with_posting_rythm(
-                                        self, r, transaction_date)
-
-                            else:
-                                self.create_line_with_posting_rythm(
-                                    self, transaction_date)
-                        day_count += 1
+                    self.update_line_with_posting_rhythm(self, True)
+                    for pkg in self.additional_pkg_ids:
+                        self.update_additional_packages(self, True, pkg)
 
                 # No Date & Nights Changes (only other fields changes)
                 else:
-                    day_count = 0
-                    for rec in range(self.nights):
-                        transaction_date = self.arrival + timedelta(
-                            days=day_count)
-                        if self.package_id:
-                            total_amount_include = 0.0
-                            total_room_rate = 0.0
-                            room_transaction_line_objs = self.env[
-                                'hms.room.transaction.charge.line'].search([
-                                    ('property_id', '=', self.property_id.id),
-                                    ('reservation_line_id', '=', self.id),
-                                    ('transaction_date', '=',
-                                     transaction_date), '|',
-                                    ('active', '=', True),
-                                    ('active', '=', False)
-                                ])
-                            for r in room_transaction_line_objs:
-                                self.update_line_with_posting_rythm(
-                                    self, r, transaction_date)
-                            day_count += 1
+                    self.update_line_with_posting_rhythm(self, False)
+                    # For additional packages
+                    del_room_transaction_line_objs = self.env[
+                        'hms.room.transaction.charge.line'].search([
+                            ('property_id', '=', self.property_id.id),
+                            ('reservation_line_id', '=', self.id),
+                            ('rate_attribute', '=', 'SS'), '|',
+                            ('active', '=', True), ('active', '=', False)
+                        ])
+                    for r in del_room_transaction_line_objs:
+                        r.update({
+                            'active': False,
+                            'delete': True,
+                        })
+                    for pkg in self.additional_pkg_ids:
+                        self.update_additional_packages(self, True, pkg)
         return res
 
     # Unlink Function
@@ -2098,6 +2194,7 @@ class ReservationLine(models.Model):
         #     for rsvn in self:
         #         rsvn_state = reservation_id.state
         #         rsvn.write({'state' : rsvn_state})
+
     # Scheduled Update No Show Reservation Daily
     @api.model
     def _no_show_reservation(self):
@@ -2248,7 +2345,7 @@ class CancelReservation(models.Model):
     room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
-    package_id = fields.Many2one('package.package', string="Package")
+    package_id = fields.Many2one('hms.package', string="Package")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
@@ -2296,7 +2393,7 @@ class CancelReservation(models.Model):
 
 # Room Reservation Summary
 class RoomReservationSummary(models.Model):
-    _name = 'room.reservation.summary'
+    _name = 'hms.room.reservation.summary'
     _description = 'Room reservation summary'
 
     property_id = fields.Many2one(
@@ -2459,7 +2556,7 @@ class RoomReservationSummary(models.Model):
 
 
 class QuickRoomReservation(models.TransientModel):
-    _name = 'quick.room.reservation'
+    _name = 'hms.quick.room.reservation'
     _description = 'Quick Room Reservation'
 
     property_id = fields.Many2one('hms.property', 'Hotel', required=True)
@@ -2472,7 +2569,9 @@ class QuickRoomReservation(models.TransientModel):
                              string="Market",
                              domain="[('id', '=?', market_ids)]",
                              required=True)
-    source = fields.Many2one('hms.marketsource', string="Source", required=True)
+    source = fields.Many2one('hms.marketsource',
+                             string="Source",
+                             required=True)
     # roomtype_id = fields.Many2one('hms.roomtype', 'Room Type', required=True)
     # room_id = fields.Many2one('hms.property.room', 'Room', required=True)
     # adults = fields.Integer('Adults', size=64)
