@@ -108,7 +108,7 @@
                 <field name="system_date"/>
                 <field name="ci_time" widget="float_time"/>
                 <field name="co_time" widget="float_time"/>
-                <field name="night_audit" widget="radio"/>
+                <field name="night_audit"/>
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
@@ -518,7 +518,7 @@
     </record>
 
     <!-- Building Type View Form -->
-    <record id="building_type_view_form" model="ir.ui.view">
+    <record id="hms_buildingtype_view_form" model="ir.ui.view">
       <field name="name">hms.buildingtype.view.form</field>
       <field name="model">hms.buildingtype</field>
       <field name="arch" type="xml">
@@ -538,13 +538,13 @@
       <field name="name">Fed. States</field>
       <field name="type">ir.actions.act_window</field>
       <field name="res_model">hms.buildingtype</field>
-      <field name="view_id" ref="building_type_view_list"/>
+      <field name="view_id" ref="hms_buildingtype_view_list"/>
       <field name="help">You can manage the different federal states you are working on from here. Each state is attached to one country.</field>
     </record>
 
     <!-- ========== Hotel Room Location Setup ========== -->
     <!-- Room Location Setup Form View -->
-    <record id="room_location_view_form" model="ir.ui.view">
+    <record id="hms_roomlocation_view_form" model="ir.ui.view">
       <field name="name">hms.roomlocation.view.form</field>
       <field name="model">hms.roomlocation</field>
       <field name="arch" type="xml">
@@ -562,7 +562,7 @@
     </record>
 
     <!-- Room Location Tree View-->
-    <record id="room_location_view_list" model="ir.ui.view">
+    <record id="hms_roomlocation_view_list" model="ir.ui.view">
       <field name="name">hms.roomlocation.view.list</field>
       <field name="model">hms.roomlocation</field>
       <field name="arch" type="xml">
@@ -575,7 +575,7 @@
     </record>
 
     <!-- action of room location setup -->
-    <record id="room_location_action_window" model="ir.actions.act_window">
+    <record id="hms_roomlocation_action_window" model="ir.actions.act_window">
       <field name="name">Room Location</field>
       <field name="res_model">hms.roomlocation</field>
       <field name="view_mode">tree,form</field>
@@ -583,7 +583,7 @@
 
     <!-- ========== Room Type Setup ========== -->
     <!-- Room Type Setup Form View -->
-    <record id="room_type_view_form" model="ir.ui.view">
+    <record id="hms_roomtype_view_form" model="ir.ui.view">
       <field name="name">hms.roomtype.view.form</field>
       <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
@@ -614,7 +614,7 @@
     </record>
 
     <!-- Room Type List View-->
-    <record id="room_type_view_list" model="ir.ui.view">
+    <record id="hms_roomtype_view_list" model="ir.ui.view">
       <field name="name">hms.roomtype.view.list</field>
       <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
@@ -631,7 +631,7 @@
     </record>
 
     <!-- Kanban View of Room Type -->
-    <record id="room_type_view_kanban" model="ir.ui.view">
+    <record id="hms_roomtype_view_kanban" model="ir.ui.view">
       <field name="name">hms.roomtype.view.kanban</field>
       <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
@@ -691,7 +691,7 @@
     </record>
 
     <!-- action of room type setup -->
-    <record id="room_type_action_window" model="ir.actions.act_window">
+    <record id="hms_roomtype_action_window" model="ir.actions.act_window">
       <field name="name">Room Type</field>
       <field name="res_model">hms.roomtype</field>
       <field name="view_mode">kanban,tree,form</field>
@@ -699,8 +699,8 @@
 
     <!-- ========== Room View Setup ========== -->
     <!-- Room View Setup Form View -->
-    <record id="room_view_view_form" model="ir.ui.view">
-      <field name="name">hms.roomview.view.form</field>
+    <record id="hms_roomview_view_form" model="ir.ui.view">
+      <field name="name">hms.roomview.form</field>
       <field name="model">hms.roomview</field>
       <field name="arch" type="xml">
         <form string="Room View">
@@ -716,7 +716,7 @@
       </field>
     </record>
     <!-- action of room view setup -->
-    <record id="room_view_action_window" model="ir.actions.act_window">
+    <record id="hms_roomview_action_window" model="ir.actions.act_window">
       <field name="name">Room View</field>
       <field name="res_model">hms.roomview</field>
       <field name="view_mode">tree,form</field>
@@ -724,7 +724,7 @@
 
     <!-- ========== Room Facility Setup ========== -->
     <!-- Room Facility Setup Form View -->
-    <record id="room_facility_view_form" model="ir.ui.view">
+    <record id="hms_room_facility_view_form" model="ir.ui.view">
       <field name="name">hms.room.facility.view.form</field>
       <field name="model">hms.room.facility</field>
       <field name="arch" type="xml">
@@ -743,7 +743,7 @@
     </record>
 
     <!-- Room Facility List View -->
-    <record id="room_facility_view_tree" model="ir.ui.view">
+    <record id="hms_room_facility_view_tree" model="ir.ui.view">
       <field name="name">hms.room.facility.view.tree</field>
       <field name="model">hms.room.facility</field>
       <field name="arch" type="xml">
@@ -757,14 +757,14 @@
     </record>
 
     <!-- action of room facility setup -->
-    <record id="room_facility_action_window" model="ir.actions.act_window">
+    <record id="hms_room_facility_action_window" model="ir.actions.act_window">
       <field name="name">Room Facility</field>
       <field name="res_model">hms.room.facility</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Room Facility Type Form View -->
-    <record id="room_facility_type_view_form" model="ir.ui.view">
+    <record id="hms_room_facility_type_view_form" model="ir.ui.view">
       <field name="name">hms.room.facility.type.view.form</field>
       <field name="model">hms.room.facility.type</field>
       <field name="arch" type="xml">
@@ -782,7 +782,7 @@
     </record>
 
     <!-- Room Facility List View -->
-    <record id="room_facility_type_view_tree" model="ir.ui.view">
+    <record id="hms_room_facility_type_view_tree" model="ir.ui.view">
       <field name="name">hms.room.facility.type.view.tree</field>
       <field name="model">hms.room.facility.type</field>
       <field name="arch" type="xml">
@@ -795,8 +795,8 @@
 
     <!-- ========== Hotel Room Setup ========== -->
     <!-- Hotel Room Setup Form View -->
-    <record id="property_room_view_form" model="ir.ui.view">
-      <field name="name">hms.property.hms.roomview.form</field>
+    <record id="hms_property_room_view_form" model="ir.ui.view">
+      <field name="name">hms.property.room.view.form</field>
       <field name="model">hms.property.room</field>
       <field name="arch" type="xml">
         <form string="Property Room">
@@ -872,8 +872,8 @@
     </record>
 
     <!-- Hotel Room List View -->
-    <record id="property_room_view_list" model="ir.ui.view">
-      <field name="name">hms.property.hms.roomview.list</field>
+    <record id="hms_property_room_view_list" model="ir.ui.view">
+      <field name="name">hms.property.room.view.list</field>
       <field name="model">hms.property.room</field>
       <field name="arch" type="xml">
         <tree string="Room Setup">
@@ -898,7 +898,7 @@
     </record>
 
     <!-- action of room setup -->
-    <record id="property_room_action_window" model="ir.actions.act_window">
+    <record id="hms_property_room_action_window" model="ir.actions.act_window">
       <field name="name">Room Setup</field>
       <field name="res_model">hms.property.room</field>
       <field name="limit">10</field>
@@ -906,7 +906,7 @@
     </record>
 
     <!-- Market Segment Setup Form View -->
-    <record id="market_segment_view_form" model="ir.ui.view">
+    <record id="hms_marketsegment_view_form" model="ir.ui.view">
       <field name="name">hms.marketsegment.view.form</field>
       <field name="model">hms.marketsegment</field>
       <field name="arch" type="xml">
@@ -926,7 +926,7 @@
     </record>
 
     <!-- Market Segment List View -->
-    <record id="market_segment_view_tree" model="ir.ui.view">
+    <record id="hms_marketsegment_view_tree" model="ir.ui.view">
       <field name="name">hms.marketsegment.view.tree</field>
       <field name="model">hms.marketsegment</field>
       <field name="arch" type="xml">
@@ -941,14 +941,14 @@
     </record>
 
     <!-- action of market segment -->
-    <record id="market_segment_action_window" model="ir.actions.act_window">
+    <record id="hms_marketsegment_action_window" model="ir.actions.act_window">
       <field name="name">Market Segment</field>
       <field name="res_model">hms.marketsegment</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Market Source Form View -->
-    <record id="market_source_view_form" model="ir.ui.view">
+    <record id="hms_marketsource_view_form" model="ir.ui.view">
       <field name="name">hms.marketsource.view.form</field>
       <field name="model">hms.marketsource</field>
       <field name="arch" type="xml">
@@ -966,7 +966,7 @@
     </record>
 
     <!-- Market Source List View -->
-    <record id="market_source_view_tree" model="ir.ui.view">
+    <record id="hms_marketsource_view_tree" model="ir.ui.view">
       <field name="name">hms.marketsource.view.tree</field>
       <field name="model">hms.marketsource</field>
       <field name="arch" type="xml">
@@ -979,14 +979,14 @@
     </record>
 
     <!-- action of market source -->
-    <record id="market_source_action_window" model="ir.actions.act_window">
+    <record id="hms_marketsource_action_window" model="ir.actions.act_window">
       <field name="name">Market Source</field>
       <field name="res_model">hms.marketsource</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Special Day Form View -->
-    <record id="special_day_view_form" model="ir.ui.view">
+    <record id="hms_specialday_view_form" model="ir.ui.view">
       <field name="name">hms.specialday.view.form</field>
       <field name="model">hms.specialday</field>
       <field name="arch" type="xml">
@@ -1011,7 +1011,7 @@
     </record>
 
     <!-- Special List View -->
-    <record id="special_day_view_tree" model="ir.ui.view">
+    <record id="hms_specialday_view_tree" model="ir.ui.view">
       <field name="name">hms.specialday.view.tree</field>
       <field name="model">hms.specialday</field>
       <field name="arch" type="xml">
@@ -1023,15 +1023,15 @@
     </record>
 
     <!-- action of special day -->
-    <record id="special_day_action_window" model="ir.actions.act_window">
+    <record id="hms_specialday_action_window" model="ir.actions.act_window">
       <field name="name">Special Day</field>
       <field name="res_model">hms.specialday</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Weekend Form View -->
-    <record id="weekend_view_form" model="ir.ui.view">
-      <field name="name">weekend.view.form</field>
+    <record id="hms_weekend_view_form" model="ir.ui.view">
+      <field name="name">hms.weekend.view.form</field>
       <field name="model">hms.weekend</field>
       <field name="arch" type="xml">
         <form string="Weekend" create="false" delete="false" no_create_edit="True" import="false">
@@ -1054,7 +1054,7 @@
     </record>
 
     <!-- action of weekend -->
-    <record id="weekend_action_window" model="ir.actions.act_window">
+    <record id="hms_weekend_action_window" model="ir.actions.act_window">
       <field name="name">Weekend</field>
       <field name="res_model">hms.weekend</field>
       <field name="view_mode">form</field>
@@ -1135,7 +1135,7 @@
     </record>
 
     <!-- Revenue Type Form View -->
-    <record id="revenue_type_view_form" model="ir.ui.view">
+    <record id="hms_revenuetype_view_form" model="ir.ui.view">
       <field name="name">hms.revenuetype.view.form</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
@@ -1154,7 +1154,7 @@
     </record>
 
     <!-- Revenue Type View List -->
-    <record id="revenue_type_view_list" model="ir.ui.view">
+    <record id="hms_revenuetype_view_list" model="ir.ui.view">
       <field name="name">hms.revenuetype.list</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
@@ -1169,7 +1169,7 @@
     </record>
 
     <!-- Revenue Type View Search-->
-    <record id="revenue_type_view_search" model="ir.ui.view">
+    <record id="hms_revenuetype_view_search" model="ir.ui.view">
       <field name="name">hms.revenuetype.search</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
@@ -1186,14 +1186,14 @@
     </record>
 
     <!-- Revenue Type Action -->
-    <record id="revenue_type_action_window" model="ir.actions.act_window">
+    <record id="hms_revenuetype_action_window" model="ir.actions.act_window">
       <field name="name">Revenue Type</field>
       <field name="res_model">hms.revenuetype</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Revenue Sub Group Form View -->
-    <record id="sub_group_view_form" model="ir.ui.view">
+    <record id="hms_subgroup_view_form" model="ir.ui.view">
       <field name="name">hms.subgroup.view.form</field>
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
@@ -1211,7 +1211,7 @@
     </record>
 
     <!-- Revenue Sub Group View List -->
-    <record id="sub_group_view_list" model="ir.ui.view">
+    <record id="hms_subgroup_view_list" model="ir.ui.view">
       <field name="name">hms.subgroup.list</field>
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
@@ -1223,7 +1223,7 @@
       </field>
     </record>
 
-    <record id="sub_group_view_search" model="ir.ui.view">
+    <record id="hms_subgroup_view_search" model="ir.ui.view">
       <field name="name">hms.subgroup.search</field>
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
@@ -1240,17 +1240,17 @@
     </record>
 
     <!-- Revenue Sub Group Action -->
-    <record id="sub_group_action_window" model="ir.actions.act_window">
+    <record id="hms_subgroup_action_window" model="ir.actions.act_window">
       <field name="name">Revenue Sub Group</field>
       <field name="res_model">hms.subgroup</field>
       <field name="view_mode">tree,form</field>
-      <field name="search_view_id" ref="sub_group_view_search"/>
+      <field name="search_view_id" ref="hms_subgroup_view_search"/>
       <field name="view_id" ref="sub_group_view_list"/>
     </record>
 
     <!-- Transaction Form View  -->
-    <record id="transaction_view_form" model="ir.ui.view">
-      <field name="name">transaction.view.form</field>
+    <record id="hms_transaction_view_form" model="ir.ui.view">
+      <field name="name">hms.transaction.view.form</field>
       <field name="model">hms.transaction</field>
       <field name="arch" type="xml">
         <form string="Transaction">
@@ -1285,8 +1285,8 @@
     </record>
 
     <!-- Transaction List View -->
-    <record id="transaction_view_list" model="ir.ui.view">
-      <field name="name">transaction.view.list</field>
+    <record id="hms_transaction_view_list" model="ir.ui.view">
+      <field name="name">hms.transaction.view.list</field>
       <field name="model">hms.transaction</field>
       <field name="arch" type="xml">
         <tree string="Transaction">
@@ -1305,7 +1305,7 @@
     </record>
 
 
-    <record id="transaction_view_search" model="ir.ui.view">
+    <record id="hms_transaction_view_search" model="ir.ui.view">
       <field name="name">hms.transaction.search</field>
       <field name="model">hms.transaction</field>
       <field name="arch" type="xml">
@@ -1325,16 +1325,16 @@
     </record>
 
     <!-- action of transaction -->
-    <record id="transaction_action_window" model="ir.actions.act_window">
+    <record id="hms_transaction_action_window" model="ir.actions.act_window">
       <field name="name">Transaction</field>
       <field name="res_model">hms.transaction</field>
       <field name="view_mode">tree,form</field>
-      <field name="search_view_id" ref="transaction_view_search"/>
-      <field name="view_id" ref="transaction_view_list"/>
+      <field name="search_view_id" ref="hms_transaction_view_search"/>
+      <field name="view_id" ref="hms_transaction_view_list"/>
     </record>
 
     <!-- Reservation Type Form View-->
-    <record id="rsvn_type_view_form" model="ir.ui.view">
+    <record id="hms_rsvntype_view_form" model="ir.ui.view">
       <field name="name">hms.rsvntype.view.form</field>
       <field name="model">hms.rsvntype</field>
       <field name="arch" type="xml">
@@ -1354,7 +1354,7 @@
     </record>
 
     <!-- Reservation Type List View -->
-    <record id="rsvn_type_view_list" model="ir.ui.view">
+    <record id="hms_rsvntype_view_list" model="ir.ui.view">
       <field name="name">hms.rsvntype.view.list</field>
       <field name="model">hms.rsvntype</field>
       <field name="arch" type="xml">
@@ -1366,14 +1366,14 @@
     </record>
 
     <!-- action of Reservation Type -->
-    <record id="rsvn_type_action_window" model="ir.actions.act_window">
+    <record id="hms_rsvntype_action_window" model="ir.actions.act_window">
       <field name="name">Reservation Type</field>
       <field name="res_model">hms.rsvntype</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Reservation Status Form View-->
-    <record id="rsvn_status_view_form" model="ir.ui.view">
+    <record id="hms_rsvnstatus_view_form" model="ir.ui.view">
       <field name="name">hms.rsvnstatus.view.form</field>
       <field name="model">hms.rsvnstatus</field>
       <field name="arch" type="xml">
@@ -1393,7 +1393,7 @@
       </field>
     </record>
     <!-- Reservation Status List View -->
-    <record id="rsvn_status_view_list" model="ir.ui.view">
+    <record id="hms_rsvnstatus_view_list" model="ir.ui.view">
       <field name="name">hms.rsvnstatus.view.list</field>
       <field name="model">hms.rsvnstatus</field>
       <field name="arch" type="xml">
@@ -1406,14 +1406,14 @@
     </record>
 
     <!-- action of Reservation Status -->
-    <record id="rsvn_status_action_window" model="ir.actions.act_window">
+    <record id="hms_rsvnstatus_action_window" model="ir.actions.act_window">
       <field name="name">Reservation Status</field>
       <field name="res_model">hms.rsvnstatus</field>
       <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Credit Limit Form View -->
-    <record id="credit_limit_view_form" model="ir.ui.view">
+    <record id="hms_creditlimit_view_form" model="ir.ui.view">
       <field name="name">hms.creditlimit.view.form</field>
       <field name="model">hms.creditlimit</field>
       <field name="arch" type="xml">
@@ -1436,7 +1436,7 @@
     </record>
 
     <!-- Credit Limit List View -->
-    <record id="credit_limit_view_list" model="ir.ui.view">
+    <record id="hms_creditlimit_view_list" model="ir.ui.view">
       <field name="name">hms.creditlimit.view.list</field>
       <field name="model">hms.creditlimit</field>
       <field name="arch" type="xml">
@@ -1450,7 +1450,7 @@
     </record>
 
     <!-- action of Credit Limit -->
-    <record id="credit_limit_action_window" model="ir.actions.act_window">
+    <record id="hms_creditlimit_action_window" model="ir.actions.act_window">
       <field name="name">Credit Limit</field>
       <field name="res_model">hms.creditlimit</field>
       <field name="view_mode">tree,form</field>
@@ -1564,18 +1564,17 @@
     <menuitem id="room_view_menu" name="Room View" parent="room_config" sequence="2" action="room_view_action_window"/>
     <menuitem id="room_facility_menu" name="Room Facility" parent="room_config" sequence="3" action="room_facility_action_window"/>
     <menuitem id="building_menu" name="Hotel Building" parent="room_config" sequence="4" action="building_action_window"/>
-    <menuitem id="room_location_menu" name="Room Location" parent="room_config" sequence="5" action="room_location_action_window"/>
+    <menuitem id="hms_roomlocation_menu" name="Room Location" parent="room_config" sequence="5" action="hms_roomlocation_action_window"/>
 
-    <menuitem id="revenue_type_menu" name="Revenue Type" parent="hms_menu_config" sequence="3" action="revenue_type_action_window"/>
-    <!-- <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hms_menu_config" sequence="3" action="sub_group_action_window"/> -->
+    <menuitem id="revenue_type_menu" name="Revenue Type" parent="hms_menu_config" sequence="3" action="hms_revenuetype_action_window"/>
 
     <menuitem id="market_config" name="Market Config" parent="hms_menu_config" sequence="4"/>
-    <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="market_segment_action_window"/>
-    <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="market_source_action_window"/>
+    <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="hms_marketsegment_action_window"/>
+    <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="hms_marketsource_action_window"/>
 
     <menuitem id="rsvn_type_set_menu" name="Reservation Type" parent="hms_menu_config" sequence="5"/>
-    <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="rsvn_type_action_window"/>
-    <menuitem id="rsvn_status_menu" name="Reservation Status" parent="rsvn_type_set_menu" sequence="2" action="rsvn_status_action_window"/>
+    <menuitem id="rsvn_type_menu" name="Reservation Type" parent="rsvn_type_set_menu" sequence="1" action="hms_rsvntype_action_window"/>
+    <menuitem id="rsvn_status_menu" name="Reservation Status" parent="rsvn_type_set_menu" sequence="2" action="hms_rsvnstatus_action_window"/>
 
   </data>
 </odoo>

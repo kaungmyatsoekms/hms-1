@@ -4,6 +4,7 @@ from odoo.exceptions import UserError
 
 class ReservationReportWizard(models.TransientModel):
     _name = 'hms.reservation_report_wizard'
+    _description = "Reservation Report"
 
     property_id = fields.Many2one('hms.property',
                                   string="Property",
@@ -50,6 +51,7 @@ class ReservationReportWizard(models.TransientModel):
 
 class ExpectedArrReportWizard(models.TransientModel):
     _name = 'hms.expected_arr_report_wizard'
+    _description = "Expected Arrival Report"
 
     property_id = fields.Many2one('hms.property',
                                   string="Property",

@@ -725,6 +725,7 @@ class ReservationLine(models.Model):
                                 domain="[('id', '=?', roomtype_ids)]",
                                 delegate=True,
                                 ondelete='cascade',
+                                required=True,
                                 index=True)
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype', domain="[('id', '=?', bedtype_ids)]" )
