@@ -1519,12 +1519,12 @@ class PropertyRoom(models.Model):
                                     string="Room Facility",
                                     required=True)
     ratecode_id = fields.Many2one('rate.code', string="Ratecode")
-    room_bedqty = fields.Integer(string="Number of Beds",
+    room_bedqty = fields.Integer(string=" Beds",
                                  required=True,
                                  size=2,
                                  default=1)
     room_size = fields.Char(string="Room Size")
-    room_extension = fields.Char(string="Room Extension")
+    room_extension = fields.Char(string="Extension")
     room_img = fields.Binary(string="Image", attachment=True, store=True)
     room_desc = fields.Text(string="Description")
     room_connect = fields.Char(string="Connecting Room")
@@ -1808,11 +1808,14 @@ class SubGroup(models.Model):
     _description = "Revenue Sub Group"
     _order = "property_id, sub_group"
 
-    property_id = fields.Many2one(
-        'hms.property',
-        string="Property",
-        required=True,
-        default=lambda self: self.env.user.property_id.id)
+    property_ids = fields.Many2many('hms.property',
+                                    related="user_id.property_id")
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  domain="[('id', '=?', property_ids)]")
+    user_id = fields.Many2one('res.users',
+                              string='Salesperson',
+                              default=lambda self: self.env.uid)
     revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
@@ -1832,6 +1835,22 @@ class SubGroup(models.Model):
             result.append((record.id, "({}) {}".format(record.sub_group,
                                                        record.sub_desc)))
         return result
+
+    @api.onchange('property_ids')
+    def default_get_property_id(self):
+        if self.property_ids:
+            if len(self.property_ids) >= 1:
+                self.property_id = self.property_ids[0]._origin.id
+        else:
+            return {
+                'warning': {
+                    'title':
+                    _('No Property Permission'),
+                    'message':
+                    _("Select Property in User Setting or you can't create reservation"
+                      )
+                }
+            }
 
     @api.constrains('sub_group')
     def _check_sub_group(self):

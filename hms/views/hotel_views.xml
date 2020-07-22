@@ -22,31 +22,25 @@
         <form string="Property">
           <header>
             <field name='is_property' invisible='1'/>
-            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <!-- <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button> -->
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <!-- <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button> -->
-            <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
@@ -71,6 +65,7 @@
                 <field name="roomtype_count" widget='statinfo'/>
               </button>
             </div>
+            <field name="system_date"/>
             <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
@@ -99,6 +94,8 @@
                   <field name="city_id" placeholder="City" class="o_address_city" options="{'no_open':True}"/>
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
+                  <field name="timezone"/>
+                  <field name="rating" widget="priority"/>
                 </div>
                 <label for="image" string="Image"/>
                 <div>
@@ -107,12 +104,9 @@
               </group>
               <group>
                 <newline/>
-                <field name="timezone"/>
-                <field name="system_date"/>
                 <field name="ci_time" widget="float_time"/>
                 <field name="co_time" widget="float_time"/>
                 <field name="night_audit" widget="radio"/>
-                <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
                 <field name="email" placeholder="example@company.com....."/>
@@ -860,9 +854,9 @@
                 </notebook>
               </group>
             </group>
-            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
+            <!-- <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
               <i class="fa fa-paint-brush"></i>
-            </button>
+            </button> -->
           </sheet>
           <!-- <footer> -->
           <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
@@ -1203,7 +1197,9 @@
         <form string="Transaction Group">
           <sheet>
             <group>
+              <field name="property_ids" invisible="1"/>
               <field name="property_id"/>
+              <field name="user_id" invisible="1"/>
               <field name="revtype_id"/>
               <field name="sub_group" placeholder="0 ~ 9"/>
               <field name="sub_desc" placeholder="Sub Group Revenue"/>
@@ -1219,7 +1215,9 @@
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
         <tree string="Sub Group">
+          <field name="property_ids" invisible="1"/>
           <field name="property_id"/>
+          <field name="user_id" invisible="1"/>
           <field name="sub_group"/>
           <field name="sub_desc"/>
         </tree>
