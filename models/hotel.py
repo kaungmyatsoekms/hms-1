@@ -142,9 +142,9 @@ class Property(models.Model):
     email = fields.Char(string='Email')
     website = fields.Char(string='Website')
     sociallink = fields.Char(string='Social Link')
-    roomqty = fields.Integer(string='Total Rooms', default=0, required=True)
+    roomqty = fields.Integer(string='Total Rooms', default=0, required=True, help="Total Rooms")
     dummy_rooms = fields.Integer(string="Dummy Room" ,readonly=True, store=True)
-    property_license = fields.Char(string='Property License')
+    property_license = fields.Char(string='Property License', help="Property License")
     rating = fields.Selection(AVAILABLE_STARS,
                               string='Rating',
                               index=True,

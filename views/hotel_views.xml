@@ -86,14 +86,14 @@
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
                 </div>
+                <field name="timezone"/>
                 <label for="image" string="Image"/>
                 <div>
                   <field name="image"/>
                 </div>
               </group>
              <group>
-             <newline/>
-                <field name="timezone"/>
+             <newline/>  
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
@@ -187,8 +187,12 @@
                 <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
               </page>
               <page string='Hotel License'>
-                <field name="roomqty"/>
-                <field name="property_license"/>
+                <group>
+                  <group>
+                    <field name="roomqty" style="width:50%%"/>
+                    <field name="property_license" style="width:50%%"/>
+                  </group>
+                </group>
               </page>
               <page string="Configuration">
                 <group>
