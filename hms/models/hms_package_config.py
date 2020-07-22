@@ -38,6 +38,17 @@ class Package(models.Model):
     _rec_name = 'package_name'
     _description = "Package"
 
+    # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -95,9 +106,13 @@ class Package(models.Model):
     valid_eod = fields.Boolean(string="Valid C/O EOD",
                                default=False,
                                track_visibility=True)
-    currency_id = fields.Char(string="Currency")
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  default=default_get_curency,
+                                  required=True,
+                                  track_visibility=True)
     posting_rythms = fields.Selection(POSTING_RYTHMS,
-                                      string='Posting Rythms',
+                                      string='Posting Rhythms',
                                       index=True,
                                       default=POSTING_RYTHMS[0][0])
     Calculation_method = fields.Selection(CALCUATION_METHODS,

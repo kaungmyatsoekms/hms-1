@@ -574,11 +574,11 @@ class Property(models.Model):
 
     def action_transaction(self):
         transactions = self.mapped('transaction_ids')
-        action = self.env.ref('hms.hms_transaction_action_window').read()[0]
+        action = self.env.ref('hms.transaction_action_window').read()[0]
         if len(transactions) >= 1:
             action['domain'] = [('id', 'in', transactions.ids)]
         elif len(transactions) == 0:
-            form_view = [(self.env.ref('hms.hms_transaction_view_form').id, 'form')
+            form_view = [(self.env.ref('hms.transaction_view_form').id, 'form')
                          ]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -597,11 +597,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
+        action = self.env.ref('hms.credit_limit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
+            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -2056,6 +2056,7 @@ class RsvnType(models.Model):
 
 #Reservation Status
 class RsvnStatus(models.Model):
+
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 

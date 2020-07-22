@@ -6,6 +6,7 @@ from odoo.tools import *
 import base64
 import datetime
 
+
 class HmsFormat(models.Model):
     _name = "hms.format"
     _description = "Property Formats"
@@ -101,7 +102,6 @@ class HmsFormat(models.Model):
     #             raise UserError(_("%s is already existed" % vals['name']))
     #     return super(HmsFormat, self).write(vals)
 
-    
     # def unlink(self):
     #     sequence_objs = self.env['ir.sequence']
     #     for rec in self:
@@ -109,6 +109,7 @@ class HmsFormat(models.Model):
     #     sequence_objs.unlink()
     #     res = super(HmsFormat,self).unlink()
     #     return res
+
 
 class HmsFormatDetail(models.Model):
     _name = "hms.format.detail"
@@ -146,14 +147,12 @@ class HmsFormatDetail(models.Model):
                                   default="")
     fix_value = fields.Char("Fixed Value", store=True)
     digit_value = fields.Integer("Digit Value", store=True)
-    dynamic_value = fields.Selection([('unit code', 'unit code'),
-                                      ('property code', 'property code'),
-                                      ('company type code','company type code'), 
-                                      ('pos code', 'pos code'),
-                                      ('floor code', 'floor code'), 
-                                      ('floor ref code', 'floor ref code')],
-                                    string="Dynamic Value",
-                                    store=True)
+    dynamic_value = fields.Selection(
+        [('unit code', 'unit code'), ('property code', 'property code'),
+         ('company type code', 'company type code'), ('pos code', 'pos code'),
+         ('floor code', 'floor code'), ('floor ref code', 'floor ref code')],
+        string="Dynamic Value",
+        store=True)
     datetime_value = fields.Selection([('MM', 'MM'), ('MMM', 'MMM'),
                                        ('YY', 'YY'), ('YYYY', 'YYYY')],
                                       string="Date Value",
@@ -177,6 +176,7 @@ class HmsFormatDetail(models.Model):
         })
         return res
 
+
 class Users(models.Model):
     _inherit = "res.users"
 
@@ -187,6 +187,7 @@ class Users(models.Model):
                                    "Property",
                                    store=True,
                                    track_visibility=True)
+
 
 class Company(models.Model):
     _inherit = "res.company"
@@ -239,6 +240,7 @@ class Company(models.Model):
                                          'Group Profile ID Format',
                                          default=_default_gprofile_id_format,
                                          track_visibility=True)
+
 
 class ColorAttribute(models.Model):
     _name = "hms.color.attribute"
@@ -328,15 +330,16 @@ class ResConfigSettings(models.TransientModel):
                                         'Guest Profile ID Format',
                                         related="company_id.profile_id_format",
                                         track_visibility=True)
-    cprofile_id_format = fields.Many2one('hms.format',
+    cprofile_id_format = fields.Many2one(
+        'hms.format',
         'Company Profile ID Format',
         related="company_id.cprofile_id_format",
         track_visibility=True)
-    gprofile_id_format = fields.Many2one('hms.format',
+    gprofile_id_format = fields.Many2one(
+        'hms.format',
         'Group Profile ID Format',
         related="company_id.gprofile_id_format",
         track_visibility=True)
-
 
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):
@@ -377,6 +380,3 @@ class ResConfigSettings(models.TransientModel):
     def onchange_gprofile_id_format(self):
         if self.gprofile_id_format:
             self.company_id.gprofile_id_format = self.gprofile_id_format
-
-
-
