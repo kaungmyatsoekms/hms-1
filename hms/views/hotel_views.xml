@@ -108,7 +108,7 @@
                 <field name="system_date"/>
                 <field name="ci_time" widget="float_time"/>
                 <field name="co_time" widget="float_time"/>
-                <field name="night_audit"/>
+                <field name="night_audit" widget="radio"/>
                 <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
