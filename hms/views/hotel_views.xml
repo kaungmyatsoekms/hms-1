@@ -506,7 +506,7 @@
 
     <!-- ===========Building Type Setup============-->
     <!-- Building Type View List -->
-    <record id="building_type_view_list" model="ir.ui.view">
+    <record id="hms_buildingtype_view_list" model="ir.ui.view">
       <field name="name">hms.buildingtype.view.list</field>
       <field name="model">hms.buildingtype</field>
       <field name="arch" type="xml">
