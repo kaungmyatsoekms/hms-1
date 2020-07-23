@@ -111,7 +111,7 @@
                                 </div>
                                 <field name="internal_notes" placeholder="Remarks"/>
                                 <field name="dummy_readonly" attrs="{'invisible': [('type','!=', 'group')]}"/>
-                                <field name="is_dummy" widget="boolean_toggle" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
+                                <field name="is_dummy" widget="boolean_button" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
                             </group>
                             <group>
                                 <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>

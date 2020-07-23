@@ -41,7 +41,6 @@ class RoomNoCopyWizard(models.TransientModel):
     facility_ids = fields.Many2many('hms.room.facility',
                                     string="Room Facility",
                                     related="propertyroom_id.facility_ids")
-    ratecode_id = fields.Many2one('rate.code',string="Ratecode",related="propertyroom_id.ratecode_id")
     room_bedqty = fields.Integer(string="Number of Beds",
                                  related="propertyroom_id.room_bedqty")
     room_size = fields.Char(string="Room Size",related="propertyroom_id.room_size")
@@ -64,7 +63,6 @@ class RoomNoCopyWizard(models.TransientModel):
             'building_id' : self.building_id.id,
             'roomlocation_id' : self.roomlocation_id.id,
             'facility_ids' : self.facility_ids,
-            'ratecode_id' : self.ratecode_id.id,
             'room_bedqty' : self.room_bedqty,
             'room_size' : self.room_size,
             'room_extension' : self.room_extension,

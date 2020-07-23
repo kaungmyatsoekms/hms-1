@@ -244,9 +244,6 @@ class Property(models.Model):
     weekend_id = fields.One2many('hms.weekend',
                                  'property_id',
                                  string="Weekends")
-    ratecode_ids = fields.One2many('rate.code',
-                                   'property_id',
-                                   string="Rate Code")
     ratecodeheader_ids = fields.One2many('hms.ratecode.header',
                                          'property_id',
                                          string="Rate Code")
@@ -597,11 +594,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.credit_limit_action_window').read()[0]
+        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
+            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -615,28 +612,6 @@ class Property(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         context = {
             'default_type': 'out_creditlimit',
-        }
-        return action
-
-    def action_ratecode(self):
-        rate_code = self.mapped('ratecode_ids')
-        action = self.env.ref('hms.rate_code_action_window').read()[0]
-        if len(rate_code) >= 1:
-            action['domain'] = [('id', 'in', rate_code.ids)]
-        elif len(rate_code) == 0:
-            form_view = [(self.env.ref('hms.rate_code_view_form').id, 'form')]
-            if 'views' in action:
-                action['views'] = form_view + [
-                    (state, view)
-                    for state, view in action['views'] if view != 'form'
-                ]
-            else:
-                action['views'] = form_view
-            action['res_id'] = rate_code.id
-        else:
-            action = {'type': 'ir.actions.act_window_close'}
-        context = {
-            'default_type': 'out_ratecode',
         }
         return action
 
@@ -1057,7 +1032,6 @@ class Property(models.Model):
         creditlimit_objs = self.env['hms.creditlimit']
         ratecode_header_objs = self.env['hms.ratecode.header']
         ratecode_detail_objs = self.env['hms.ratecode.details']
-        ratecode_objs = self.env['rate.code']
 
         for rec in self:
             if rec.gprofile_id_format:
@@ -1120,9 +1094,6 @@ class Property(models.Model):
                 ('property_id', '=', rec.id)
             ])
             ratecode_detail_objs.unlink()
-            ratecode_objs += self.env['rate.code'].search([('property_id', '=',
-                                                            rec.id)])
-            ratecode_objs.unlink()
 
         res = super(Property, self).unlink()
         return res
@@ -1361,7 +1332,6 @@ class RoomType(models.Model):
     color = fields.Integer('Color Index', default=0, size=1)
     fix_type = fields.Boolean(string="Fix Type", default=True)
     bed_type = fields.Many2many('hms.bedtype', string="Bed Type")
-    ratecode_id = fields.Char(string='Rate Code')
     totalroom = fields.Integer(string='Total Rooms',
                                compute='compute_totalroom')
     image = fields.Binary(string='Image', attachment=True, store=True)
@@ -1446,6 +1416,7 @@ class RoomFacility(models.Model):
     sequence = fields.Integer(default=1)
     amenity_ids = fields.Many2many('hms.room.amenity',
                                    string="Room Facility",
+                                   domain="[('facilitytype_id.id', '=?', facilitytype_id)]",
                                    required=True)
     facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string='Facility Type',
@@ -1457,6 +1428,7 @@ class RoomAmenitiy(models.Model):
     _name = "hms.room.amenity"
     _description = "Room Amenity"
 
+    facilitytype_id = fields.Many2one('hms.room.facility.type', string="Facility Type",required=True)
     name = fields.Char(string="Amenity Name", required=True)
     amenity_desc = fields.Text(string="Descripton")
 
@@ -1518,7 +1490,6 @@ class PropertyRoom(models.Model):
     facility_ids = fields.Many2many('hms.room.facility',
                                     string="Room Facility",
                                     required=True)
-    ratecode_id = fields.Many2one('rate.code', string="Ratecode")
     room_bedqty = fields.Integer(string="Number of Beds",
                                  required=True,
                                  size=2,
@@ -1888,9 +1859,6 @@ class Transaction(models.Model):
                               compute='_compute_transaction_root',
                               store=True)
     allowed_pkg = fields.Boolean(string="Allow Package?")
-    ratecode_ids = fields.One2many('rate.code',
-                                   'transcation_id',
-                                   string="Rate Code")
 
     _sql_constraints = [(
         'trans_code_unique', 'UNIQUE(property_id, trans_code)',
@@ -2056,7 +2024,6 @@ class RsvnType(models.Model):
 
 #Reservation Status
 class RsvnStatus(models.Model):
-
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 
@@ -2128,113 +2095,4 @@ class CreditLimit(models.Model):
     #             same_payment = rec
     #         if same_payment:
     #             self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
-
-
-#Rate Code
-class RateCode(models.Model):
-    _name = "rate.code"
-    _description = "Rate Code"
-
-    is_ratecode = fields.Boolean(string='Is ratecode',
-                                 compute='_compute_is_ratecode')
-    property_id = fields.Many2one('hms.property',
-                                  string="Property",
-                                  required=True,
-                                  readonly=True)
-    rate_code = fields.Char(string="Rate Code", size=10, required=True)
-    ratecode_name = fields.Char(string="Description", required=True)
-    roomtype_ids = fields.Many2many("hms.roomtype",
-                                    related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('hms.roomtype',
-                                  string="Room Type",
-                                  domain="[('id', '=?', roomtype_ids)]",
-                                  required=True)
-    transaction_ids = fields.One2many('hms.transaction',
-                                      related="property_id.transaction_ids")
-    transcation_id = fields.Many2one('hms.transaction',
-                                     domain="[('id', '=?', transaction_ids)]",
-                                     string="Transcation",
-                                     required=True)
-    ratecode_type = fields.Selection(AVAILABLE_RATETYPE,
-                                     string="Type",
-                                     default='D',
-                                     required=True)
-    start_date = fields.Date(string="Start Date", required=True)
-    end_date = fields.Date(string="End Date", required=True)
-    normal_price1 = fields.Float(string="Normal Price 1")
-    normal_price2 = fields.Float(string="Normal Price 2")
-    normal_price3 = fields.Float(string="Normal Price 3")
-    normal_price4 = fields.Float(string="Normal Price 4")
-    weekend_price1 = fields.Float(string="Weekend Price 1")
-    weekend_price2 = fields.Float(string="Weekend Price 2")
-    weekend_price3 = fields.Float(string="Weekend Price 3")
-    weekend_price4 = fields.Float(string="Weekend Price 4")
-    special_price1 = fields.Float(string="Special Price 1")
-    special_price2 = fields.Float(string="Special Price 2")
-    special_price3 = fields.Float(string="Special Price 3")
-    special_price4 = fields.Float(string="Special Price 4")
-    discount_percent = fields.Float(string="Discount Percentage", default=10.0)
-    discount_amount = fields.Float(string="Discount Amount", default=50.0)
-
-    def _compute_is_ratecode(self):
-        self.is_ratecode = True
-
-    @api.onchange('start_date', 'end_date')
-    @api.constrains('start_date', 'end_date')
-    def get_two_date_comp(self):
-        startdate = self.start_date
-        enddate = self.end_date
-        if startdate and enddate and startdate > enddate:
-            raise ValidationError("End Date cannot be set before Start Date.")
-
-    @api.onchange('rate_code', 'end_date')
-    def get_end_date(self):
-        same_ratecode_objs = self.env['rate.code'].search([
-            ('rate_code', '=', self.rate_code),
-            ('property_id.id', '=', self.property_id.id)
-        ])
-        tmp_end_date = date(1000, 1, 11)
-        same_ratecode = self.env['rate.code']
-        for rec in same_ratecode_objs:
-            if rec.end_date > tmp_end_date:
-                tmp_end_date = rec.end_date
-                same_ratecode = rec
-            if same_ratecode:
-                self.start_date = same_ratecode.end_date + timedelta(days=1)
-
-    # @api.onchange('rate_code','end_date')
-    # def get_end_date(self):
-    #     same_ratecode_objs = self.env['rate.code'].search([('rate_code','=',self.rate_code)])
-    #     tmp_end_date = datetime.date(1000, 1, 11)
-    #     same_ratecode = self.env['rate.code'] # This is Null Object assignment
-    #     for rec in same_ratecode_objs:
-    #         if rec.end_date > tmp_end_date:
-    #             tmp_end_date = rec.end_date
-    #             same_ratecode = rec
-    #         if same_ratecode:
-    #             self.start_date = same_ratecode.end_date + timedelta(days = 1)
-
-    def action_change_new_rate(self):
-        action = self.env.ref('hms.rate_code_action_window').read()[0]
-
-        return {
-            'name':
-            _('Change New Rate'),
-            'view_type':
-            'form',
-            'view_mode':
-            'form',
-            'view_id':
-            self.env.ref('hms.rate_code_view_form').id,
-            'res_model':
-            'rate.code',
-            'context':
-            "{'type':'out_ratecode','default_rate_code':'" + self.rate_code +
-            "','default_ratecode_name':'" + self.ratecode_name +
-            "','default_ratecode_type':'" + self.ratecode_type + "'}",
-            'type':
-            'ir.actions.act_window',
-            'target':
-            'new',
-        }
 

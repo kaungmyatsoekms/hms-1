@@ -474,7 +474,7 @@ class Partner(models.Model):
     country_id = fields.Many2one('res.country',
                                  string="Country",
                                  track_visibility=True)
-    ratecode_id = fields.Many2one('rate.code',
+    ratecode_id = fields.Many2one('hms.ratecode.header',
                                   "Rate Code",
                                   track_visibility=True)
     blacklist = fields.Boolean(default=False, track_visibility=True)
@@ -727,7 +727,7 @@ class Partner(models.Model):
         crm_type = self.env['hms.company.category'].search([('id', '=',
                                                              crm_type)])
 
-        if company_type == 'company' or company_type == 'guest':
+        if company_type == 'company' or company_type == 'guest' or company_type == 'group':
             pf_no = self.generate_profile_no(company_type, property_id,
                                              crm_type)
 
