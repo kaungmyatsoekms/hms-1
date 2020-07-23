@@ -2,5 +2,5 @@
 <!DOCTYPE xml>
 <odoo>
     <!--Report for hotel Property -->
-    <!-- <report id="property_reports" string="Property (PDF)" model="property.property" report_type="qweb-pdf" file="hms.report_property_property" name="hms.report_property_property" print_report_name="'Property - %s' % (object.name)" /> -->
+    <!-- <report id="property_reports" string="Property (PDF)" model="hms.property" report_type="qweb-pdf" file="hms.report_hms_property" name="hms.report_hms_property" print_report_name="'Property - %s' % (object.name)" /> -->
 </odoo>

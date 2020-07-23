@@ -34,8 +34,7 @@ RATE_ATTRIBUTE = [
 
 
 class Package(models.Model):
-    _name = "package.header"
-    _rec_name = 'package_name'
+    _name = "hms.package.header"
     _description = "Package"
 
     # Default Get Currency
@@ -56,7 +55,7 @@ class Package(models.Model):
     rate_separate_line = fields.Boolean(default=False)
     rate_combined_line = fields.Boolean(default=False)
     is_sell_separate = fields.Boolean(default=False)
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   required=True)
@@ -79,17 +78,17 @@ class Package(models.Model):
                               default=False,
                               track_visibility=True)
     transaction_id = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_profit = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Profit',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_loss = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Loss',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
@@ -134,6 +133,15 @@ class Package(models.Model):
         'package_code_unique', 'UNIQUE(property_id, package_code)',
         'Package code already exists with this name! Package code must be unique!'
     )]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({} {})".format(record.package_name,
+                                                record.start_date,
+                                                record.end_date)))
+        return result
 
     @api.depends('rate_separate_line', 'rate_combined_line',
                  'is_sell_separate')
@@ -181,7 +189,7 @@ class Package(models.Model):
 
 
 class PackageGroup(models.Model):
-    _name = "package.group"
+    _name = "hms.package.group"
     _rec_name = 'pkg_group_name'
     _description = "Package Group"
 
@@ -189,18 +197,29 @@ class PackageGroup(models.Model):
                             default=True,
                             track_visibility=True)
     sequence = fields.Integer(default=1)
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   required=True)
     pkg_group_code = fields.Char(string="Group Code", size=4, required=True)
     shortcut = fields.Char(string="ShortCut")
     pkg_group_name = fields.Char(string="Group Name", required=True)
-    package_ids = fields.Many2many('package.header',
-                                   string="Packages",
-                                   required=True)
+    package_ids = fields.Many2many(
+        'hms.package.header',
+        string="Packages",
+        required=True,
+        domain=
+        "[('property_id', '=?', property_id), ('is_sell_separate', '=', False)]"
+    )
 
     _sql_constraints = [(
         'pkg_group_code_unique', 'UNIQUE(property_id, pkg_group_code)',
         'Package group code already exists with this name! Package group code must be unique!'
     )]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.pkg_group_code,
+                                                       record.pkg_group_name)))
+        return result

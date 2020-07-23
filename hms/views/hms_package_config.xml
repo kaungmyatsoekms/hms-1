@@ -3,9 +3,9 @@
         <!-- Package Header Form View -->
         <record id="package_header_view_form" model="ir.ui.view">
             <field name="name">Package Header Form</field>
-            <field name="model">package.header</field>
+            <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
-                <form string="Package Header">
+                <form string="Package Header" import="false">
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -24,11 +24,11 @@
                                     <field name="start_date" style="width:50%%"/>
                                     <field name="end_date" style="width:50%%"/>
                                 </div>
-                                <field name="transaction_id"/>
+                                <field name="transaction_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="include_service"/>
                                 <field name="include_tax"/>
-                                <field name="package_profit"/>
-                                <field name="package_loss"/>
+                                <field name="package_profit" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="package_loss" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="currency_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="allowance"/>
                                 <field name="valid_eod"/>
@@ -56,9 +56,9 @@
         <!-- Package Header List View -->
         <record id="package_header_view_list" model="ir.ui.view">
             <field name="name">Package List</field>
-            <field name="model">package.header</field>
+            <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
-                <tree string="Packages">
+                <tree string="Packages" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="property_id"/>
                     <field name="package_code"/>
@@ -85,9 +85,9 @@
         <!-- Package Header Kanban View -->
         <record id="package_header_view_kanban" model="ir.ui.view">
             <field name="name">Package Kanban View</field>
-            <field name="model">package.header</field>
+            <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="sequence"/>
                     <field name="property_id"/>
                     <field name="package_code"/>
@@ -183,16 +183,16 @@
         <!-- action of Package Header -->
         <record id="package_header_action_window" model="ir.actions.act_window">
             <field name="name">Package</field>
-            <field name="res_model">package.header</field>
+            <field name="res_model">hms.package.header</field>
             <field name="view_mode">tree,kanban,form</field>
         </record>
 
         <!-- Package Group Form View -->
         <record id="package_group_view_form" model="ir.ui.view">
             <field name="name">Package Group Form</field>
-            <field name="model">package.group</field>
+            <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
-                <form string="Package Group">
+                <form string="Package Group" import="false">
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -203,7 +203,7 @@
                                 <field name="pkg_group_code"/>
                                 <field name="shortcut"/>
                                 <field name="pkg_group_name"/>
-                                <field name="package_ids" widget="many2many_tags"/>
+                                <field name="package_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>
                     </sheet>
@@ -214,9 +214,9 @@
         <!-- Package Group List View -->
         <record id="package_group_view_list" model="ir.ui.view">
             <field name="name">Package Group List</field>
-            <field name="model">package.group</field>
+            <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
-                <tree string="Package Groups">
+                <tree string="Package Groups" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="property_id"/>
                     <field name="pkg_group_code"/>
@@ -229,9 +229,9 @@
         <!-- Package Group Kanban View -->
         <record id="package_group_view_kanban" model="ir.ui.view">
             <field name="name">Package Group Kanban View</field>
-            <field name="model">package.group</field>
+            <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="sequence"/>
                     <field name="property_id"/>
                     <field name="pkg_group_code"/>
@@ -267,7 +267,7 @@
         <!-- action of Package Group -->
         <record id="package_group_action_window" model="ir.actions.act_window">
             <field name="name">Package Group</field>
-            <field name="res_model">package.group</field>
+            <field name="res_model">hms.package.group</field>
             <field name="view_mode">tree,kanban,form</field>
         </record>
     </data>

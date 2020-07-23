@@ -13,19 +13,22 @@ class HMSAllotment(models.Model):
     _description = "Allotment"
     _order = "name"
 
-    name=fields.Char("Allotment Name", required=True)
+    name = fields.Char("Allotment Name", required=True)
     description = fields.Char("Description", required=True)
-    property_id = fields.Many2one('property.property', track_visibility=True)
+    property_id = fields.Many2one('hms.property', track_visibility=True)
     cut_off = fields.Boolean(default=True, track_visibility=True)
     active = fields.Boolean(default=True, track_visibility=True)
-    allotment_line_ids = fields.One2many('hms.allotment.line','allotment_id','Allotment')
-    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),('close', "Close")],
-                        string='Status',
-                        readonly=True,
-                        copy=False,
-                        store=True,
-                        default='initial',
-                        track_visibility=True)
+    allotment_line_ids = fields.One2many('hms.allotment.line', 'allotment_id',
+                                         'Allotment')
+    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),
+                              ('close', "Close")],
+                             string='Status',
+                             readonly=True,
+                             copy=False,
+                             store=True,
+                             default='initial',
+                             track_visibility=True)
+
 
 class HMSAllotmentLine(models.Model):
     _name = 'hms.allotment.line'
@@ -33,13 +36,17 @@ class HMSAllotmentLine(models.Model):
     _description = "Allotment Line"
 
     allotment_id = fields.Many2one("hms.allotment",
-                                "Allotment Details",
-                                track_visibility=True)
-    property_id = fields.Many2one("property.property",             
-                                store=True,
-                                track_visibility=True)
-    roomtype_ids = fields.Many2many("room.type", related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('room.type', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
+                                   "Allotment Details",
+                                   track_visibility=True)
+    property_id = fields.Many2one("hms.property",
+                                  store=True,
+                                  track_visibility=True)
+    roomtype_ids = fields.Many2many("hms.roomtype",
+                                    related="property_id.roomtype_ids")
+    roomtype_id = fields.Many2one('hms.roomtype',
+                                  string="Room Type",
+                                  domain="[('id', '=?', roomtype_ids)]",
+                                  required=True)
     ratecode_id = fields.Many2one('rate.code', string="Rate Code")
     start_date = fields.Date(string="Start Date",
                              readonly=False,
@@ -59,16 +66,12 @@ class HMSAllotmentLine(models.Model):
     friday = fields.Integer(string="Fri")
     saturday = fields.Integer(string="Sat")
     sunday = fields.Integer(string="Sun")
-    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),('close', "Close")],
-                            related="allotment_id.state",
-                            string='Status',
-                            readonly=True,
-                            copy=False,
-                            store=True,
+    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),
+                              ('close', "Close")],
+                             related="allotment_id.state",
+                             string='Status',
+                             readonly=True,
+                             copy=False,
+                             store=True,
                              default=lambda *a: 'initial',
-                            track_visibility=True)
-    
-
-    
-    
-
+                             track_visibility=True)

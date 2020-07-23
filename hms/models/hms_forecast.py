@@ -10,12 +10,12 @@ _logger = logging.getLogger(__name__)
 
 #Availability
 class Availability(models.Model):
-    _name = "availability.availability"
+    _name = "hms.availability"
     _description = "Availability"
-    
-    active = fields.Boolean ('Active', default=True)
+
+    active = fields.Boolean('Active', default=True)
     color = fields.Integer(string='Color Index')
-    property_id = fields.Many2one('property.property', String="Property")
+    property_id = fields.Many2one('hms.property', String="Property")
     avail_date = fields.Date(string="Date")
     avail_booking = fields.Integer('Booking', default=0)
     avail_arrival = fields.Integer('Arr', store=True, default=0)
@@ -40,7 +40,7 @@ class Availability(models.Model):
                                    store=True)
     revpar = fields.Integer('REVPAR', default=0)
     adr = fields.Integer('ADR', default=0)
-    avail_roomtype_ids = fields.One2many('roomtype.available',
+    avail_roomtype_ids = fields.One2many('hms.roomtype.available',
                                          'availability_id',
                                          "Available Room Type")
     # reservation_line_ids = fields.One2many(
@@ -53,6 +53,13 @@ class Availability(models.Model):
         ('package_code_unique', 'UNIQUE(property_id, avail_date)',
          'Date already exists with this Property! Date must be unique!')
     ]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} (Total Available Rooms - {})".format(
+                record.avail_date, record.avail_tl_room)))
+        return result
 
     # Compute Total Available Room (Use)
     @api.depends('total_room', 'avail_occupancy', 'avail_block', 'avail_ooo')
@@ -121,19 +128,18 @@ class Availability(models.Model):
 
 # Room Type Available
 class RoomTypeAvailable(models.Model):
-    _name = "roomtype.available"
+    _name = "hms.roomtype.available"
     _description = "Room Type Available"
 
-    active = fields.Boolean ('Active', default=True)
+    active = fields.Boolean('Active', default=True)
     color = fields.Integer(string='Color Index')
-    availability_id = fields.Many2one('availability.availability')
-    property_id = fields.Many2one('property.property',
-                                  string="Property")
+    availability_id = fields.Many2one('hms.availability')
+    property_id = fields.Many2one('hms.property', string="Property")
     ravail_date = fields.Date('Date', required=True)
-    roomtype_ids = fields.Many2many('room.type',
+    roomtype_ids = fields.Many2many('hms.roomtype',
                                     related="property_id.roomtype_ids")
     ravail_rmty = fields.Many2one(
-        'room.type',
+        'hms.roomtype',
         string="Room Type",
         domain="[('id', '=?', roomtype_ids)]",
         required=True)  #, domain="[('id', '=?', roomtype_ids)]", required=True
@@ -149,18 +155,21 @@ class RoomTypeAvailable(models.Model):
     ravail_totalroom = fields.Integer('Available',
                                       compute='_compute_avail_room',
                                       store=True)
-    overbook_ids = fields.One2many('over.booking', 'rt_avail_id',
+    overbook_ids = fields.One2many('hms.overbooking', 'rt_avail_id',
                                    "Overbookings")
 
     def name_get(self):
         result = []
         for record in self:
-            result.append((record.id, "{}-{}".format(record.ravail_rmty.code,
-                                                       record.ravail_totalroom)))
+            result.append(
+                (record.id, "{}-{} ({})".format(record.ravail_rmty.code,
+                                                record.ravail_totalroom,
+                                                record.ravail_date)))
         return result
 
     # Compute Total Available Room (Use)
-    @api.depends('total_room', 'ravail_occupancy', 'ravail_block', 'ravail_ooo')
+    @api.depends('total_room', 'ravail_occupancy', 'ravail_block',
+                 'ravail_ooo')
     def _compute_avail_room(self):
         for record in self:
             unavail_room = record.ravail_occupancy + record.ravail_block + record.ravail_ooo

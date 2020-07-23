@@ -50,14 +50,14 @@
         <!-- Rules -->
 
         <record id="property_manager_rule" model="ir.rule">
-            <field name="model_id" ref="model_property_property" />
+            <field name="model_id" ref="model_hms_property" />
             <field name="name">Property Manager</field>
             <field name="domain_force">[(1,'=',1)]</field>
             <field name="groups" eval="[(4, ref('hms.group_property_manager'))]"/>
         </record>
 
         <record id="property_user_rule" model="ir.rule">
-            <field name="model_id" ref="model_property_property"/>
+            <field name="model_id" ref="model_hms_property"/>
             <field name="name">Property User</field>
             <field name="domain_force">[('id', 'in', [c.id for c in user.property_id])]</field>
             <field name="groups" eval="[(4, ref('hms.group_property_user'))]"/>

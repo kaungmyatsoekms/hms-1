@@ -40,7 +40,7 @@ odoo.define('hms.hotel_room_summary', function (require) {
             this.$el.find(".table_free").bind("click", function (event) {
                 self.do_action({
                     type: 'ir.actions.act_window',
-                    res_model: "quick.room.reservation",
+                    res_model: "hms.quick.room.reservation",
                     views: [[false, 'form']],
                     target: 'new',
                     context: { "property_id": $(this).attr("data"), 'date': $(this).attr("date"), 'default_rooms': 1 },

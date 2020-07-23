@@ -10,14 +10,14 @@ class TerminateRateCateWizard(models.TransientModel):
     _description = "Terminate"
 
     def get_rate_category_id(self):
-        rate_category_id = self.env['rate.categories'].browse(
+        rate_category_id = self.env['hms.rate.categories'].browse(
             self._context.get('active_id',[])
         )
         if rate_category_id:
             return rate_category_id
 
 
-    rate_category_id = fields.Many2one('rate.categories',string="Rate Code",default=get_rate_category_id,
+    rate_category_id = fields.Many2one('hms.rate.categories',string="Rate Code",default=get_rate_category_id,
                                      store=True, readonly=True)
     start_date = fields.Date(string="Start Date", required=True, related="rate_category_id.start_date")
     end_date = fields.Date(string="End Date", required=True)
@@ -25,7 +25,7 @@ class TerminateRateCateWizard(models.TransientModel):
 
     def action_terminate_wiz(self):
 
-        rate_category_id = self.env['rate.categories'].browse(
+        rate_category_id = self.env['hms.rate.categories'].browse(
             self._context.get('active_id'))
         
         if self.terminate_end_date:

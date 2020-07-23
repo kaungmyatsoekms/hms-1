@@ -16,13 +16,13 @@ AVAILABLE_RATETYPE = [
 
 # Rate Code Header
 class RateCodeHeader(models.Model):
-    _name = "ratecode.header"
+    _name = "hms.ratecode.header"
     _description = "Rate Code Header"
 
     header_create = fields.Boolean(default=True)
     is_ratecode = fields.Boolean(string='Is ratecode',
                                  compute='_compute_is_ratecode')
-    property_id = fields.Many2one('property.property',
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
                                   readonly=True)
@@ -36,15 +36,18 @@ class RateCodeHeader(models.Model):
                                      string="Type",
                                      default='D',
                                      required=True)
-    ratecode_details = fields.One2many('ratecode.details',
+    ratecode_details = fields.One2many('hms.ratecode.details',
                                        'ratehead_id',
                                        string="Rate Code Details")
-    rate_category_id = fields.Many2one('rate.categories',
+    rate_category_id = fields.Many2one('hms.rate.categories',
                                        string="Rate Categories",
                                        required=True)
-    pkg_group_ids = fields.One2many('package.group',
+    pkg_group_ids = fields.One2many('hms.package.group',
                                     related="property_id.packagegroup_ids")
-    pkg_group_id = fields.Many2one('package.group', string="Package")
+    pkg_group_id = fields.Many2one(
+        'hms.package.group',
+        string="Package",
+        domain="[('property_id', '=?', property_id)]")
 
     _sql_constraints = [(
         'rate_code_unique',
@@ -96,6 +99,8 @@ class RateCodeHeader(models.Model):
 
 # Rate Code Detail
 class RateCodeDetails(models.Model):
+    _name = "hms.ratecode.details"
+    _description = "Rate Code Details"
 
     # def default_get_start_date(self):
 
@@ -105,9 +110,6 @@ class RateCodeDetails(models.Model):
     #             return max_start_date
     #     else:
     #         return datetime.today()
-
-    _name = "ratecode.details"
-    _description = "Rate Code Details"
 
     # Default Get Currency
     def default_get_curency(self):
@@ -121,24 +123,26 @@ class RateCodeDetails(models.Model):
             return mmk_currency_id
 
     sequence = fields.Integer('Sequence', default=1)
-    ratehead_id = fields.Many2one('ratecode.header', string="Rate Code Header")
-    property_id = fields.Many2one('property.property',
+    ratehead_id = fields.Many2one('hms.ratecode.header',
+                                  string="Rate Code Header")
+    property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True)
     season_code = fields.Char(string="Season", size=10, required=True)
-    roomtype_ids = fields.Many2many("room.type",
+    roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2many('room.type',
+    roomtype_id = fields.Many2many('hms.roomtype',
                                    string="Room Type",
                                    store=True,
                                    domain="[('id', '=?', roomtype_ids)]",
                                    required=True)
+
     start_date = fields.Date(string="Start Date",
                              required=True,
                              default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
     transaction_id = fields.Many2one(
-        'transaction.transaction',
+        'hms.transaction',
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
@@ -213,7 +217,7 @@ class RateCodeDetails(models.Model):
     def get_start_date(self):
 
         tmp_end_date = date(1000, 1, 11)
-        prv_ratecode_details = self.env['ratecode.details']
+        prv_ratecode_details = self.env['hms.ratecode.details']
         for rec in self.ratehead_id.ratecode_details:
             if not self.start_date:
                 end_date = rec.end_date
@@ -245,10 +249,35 @@ class RateCodeDetails(models.Model):
                         _("Season Code date range must be within Rate Code date range"
                           ))
 
+    def action_copy_rate_detail(self):
+
+        start_date = self.end_date + timedelta(days=1)
+        return {
+            'name':
+            _('Copy'),
+            'view_type':
+            'form',
+            'view_mode':
+            'form',
+            'view_id':
+            self.env.ref('hms.ratecode_detail_view_form').id,
+            'res_model':
+            'hms.ratecode.details',
+            'context':
+            "{'type':'out_ratecode_details','default_rate_code':'" +
+            self.rate_code + "','default_ratecode_name':'" +
+            self.ratecode_name + "','default_ratecode_type':'" +
+            self.ratecode_type + "'}",
+            'type':
+            'ir.actions.act_window',
+            'target':
+            'new',
+        }
+
 
 # Rate Code Categories
 class RateCategories(models.Model):
-    _name = "rate.categories"
+    _name = "hms.rate.categories"
     _description = "Rate Categories"
     _order = 'sequence, code'
 
@@ -264,7 +293,7 @@ class RateCategories(models.Model):
                              required=True,
                              default=datetime.today())
     end_date = fields.Date(string="End Date")
-    rate_header_ids = fields.One2many('ratecode.head',
+    rate_header_ids = fields.One2many('hms.ratecode.head',
                                       'rate_category_id',
                                       string="Rate Codes",
                                       required=True)
@@ -283,10 +312,10 @@ class RateCategories(models.Model):
         return result
 
     def unlink(self):
-        ratecode_head_objs = self.env['ratecode.head']
+        ratecode_head_objs = self.env['hms.ratecode.head']
 
         for rec in self:
-            ratecode_head_objs += self.env['ratecode.head'].search([
+            ratecode_head_objs += self.env['hms.ratecode.head'].search([
                 ('rate_category_id', '=', rec.id)
             ])
             ratecode_head_objs.unlink()
@@ -297,7 +326,7 @@ class RateCategories(models.Model):
     @api.depends('rate_header_ids')
     def get_terminate_end_date(self):
         tmp_end_date = date(1000, 1, 11)
-        rate_header_obj = self.env['ratecode.head']
+        rate_header_obj = self.env['hms.ratecode.head']
         for rec in self.rate_header_ids:
             if rec.end_date and rec.end_date > tmp_end_date:
                 tmp_end_date = rec.end_date
@@ -321,7 +350,7 @@ class RateCategories(models.Model):
 
 # Rate Code Header for Rate Categories
 class RateCodeHead(models.Model):
-    _name = "ratecode.head"
+    _name = "hms.ratecode.head"
     _description = "Rate Code"
 
     head_create = fields.Boolean(default=True)
@@ -331,11 +360,20 @@ class RateCodeHead(models.Model):
                              required=True,
                              default=datetime.today())
     end_date = fields.Date(string="End Date", required=True)
-    rate_category_id = fields.Many2one('rate.categories',
+    rate_category_id = fields.Many2one('hms.rate.categories',
                                        string="Rate Categories")
-    property_ids = fields.Many2many("property.property",
+    property_ids = fields.Many2many("hms.property",
                                     store=True,
                                     track_visibility=True)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({} {})".format(record.rate_code,
+                                                record.start_date,
+                                                record.end_date)))
+        return result
 
     def _update_property_ratecodeheader(self, rate_category_id, property_id,
                                         start_date, end_date, rate_code,
@@ -359,7 +397,7 @@ class RateCodeHead(models.Model):
             property_id.update({'ratecodeheader_ids': vals})
 
         if create is False:
-            rate_category_objs = self.env['rate.categories'].search([
+            rate_category_objs = self.env['hms.rate.categories'].search([
                 ('id', '=', rate_category_id.id)
             ])
 
@@ -423,7 +461,7 @@ class RateCodeHead(models.Model):
             rate_code = self.rate_code
             ratecode_name = self.ratecode_name
             for property_id in properties:
-                ratecode_header_objs = self.env['ratecode.header'].search([
+                ratecode_header_objs = self.env['hms.ratecode.header'].search([
                     ('rate_category_id', '=', rate_category_id.id),
                     ('rate_code', '=', rate_code),
                     ('ratecode_name', '=', ratecode_name),
@@ -442,10 +480,10 @@ class RateCodeHead(models.Model):
         return res
 
     def unlink(self):
-        ratecode_header_objs = self.env['ratecode.header']
+        ratecode_header_objs = self.env['hms.ratecode.header']
 
         for rec in self:
-            ratecode_header_objs += self.env['ratecode.header'].search([
+            ratecode_header_objs += self.env['hms.ratecode.header'].search([
                 ('rate_code', '=', rec.rate_code),
                 ('ratecode_name', '=', rec.ratecode_name)
             ])
@@ -467,10 +505,10 @@ class RateCodeHead(models.Model):
 #     seasons = fields.Char(string="Description", required=True)
 #     start_date = fields.Date(string="Start Date", required=True)
 #     end_date = fields.Date(string="End Date", required=True)
-#     # property_ids = fields.Many2many("property.property",
+#     # property_ids = fields.Many2many("hms.property",
 #     #                                'property_id',
 #     #                                'season_id',
-#     #                                "property_property_rate_season_rel",
+#     #                                "hms_property_rate_season_rel",
 #     #                                "Property",
 #     #                                store=True,
 #     #                                track_visibility=True)

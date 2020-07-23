@@ -21,11 +21,11 @@ class HMSRsvnConfirmWizard(models.TransientModel):
     reservation_no = fields.Char("Reservation",
                                  related="reservation_id.confirm_no",
                                  store=True)
-    reservation_type = fields.Many2one('rsvn.type',
+    reservation_type = fields.Many2one('hms.rsvntype',
                                        "Reservation Type",
                                        readonly=True,
                                        default=1)
-    reservation_status = fields.Many2one('rsvn.status', "Reservation Status")
+    reservation_status = fields.Many2one('hms.rsvnstatus', "Reservation Status")
 
     def action_confirm_wiz(self):
         reservations = self.env['hms.reservation'].browse(
@@ -82,11 +82,11 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
     reservation_no = fields.Char("Reservation",
                                  related="reservation_line_id.confirm_no",
                                  store=True)
-    reservation_type = fields.Many2one('rsvn.type',
+    reservation_type = fields.Many2one('hms.rsvntype',
                                        "Reservation Type",
                                        readonly=True,
                                        default=1)
-    reservation_status = fields.Many2one('rsvn.status', "Reservation Status")
+    reservation_status = fields.Many2one('hms.rsvnstatus', "Reservation Status")
 
     def action_confirm_line_wiz(self):
         reservation_lines = self.env['hms.reservation.line'].browse(
