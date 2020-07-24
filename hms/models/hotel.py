@@ -1764,7 +1764,6 @@ class Weekend(models.Model):
 
 
 class Package(models.Model):
-
     _name = "hms.package"
     _rec_name = 'package_name'
     _description = "Package"
@@ -2127,7 +2126,6 @@ class RsvnType(models.Model):
 
 #Reservation Status
 class RsvnStatus(models.Model):
-
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 

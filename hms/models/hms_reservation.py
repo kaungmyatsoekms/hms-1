@@ -2526,6 +2526,19 @@ class RoomReservationSummary(models.Model):
     summary_header = fields.Text('Summary Header')
     room_summary = fields.Text('Room Summary')
 
+    @api.onchange('property_ids')
+    def default_get_property_id(self):
+        if self.property_ids:
+            if len(self.property_ids) >= 1:
+                self.property_id = self.property_ids[0]._origin.id
+        else:
+            return {
+                'warning': {
+                    'title': _('No Property Permission'),
+                    'message': _("Please Select Property in User Setting")
+                }
+            }
+
     @api.model
     def default_get(self, fields):
         """
