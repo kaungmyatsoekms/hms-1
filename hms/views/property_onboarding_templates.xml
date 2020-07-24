@@ -37,7 +37,7 @@
         </t>
     </template>
     <!-- PROPERTY FORM -->
-    <record id="hms_onboarding_property_form" model="ir.ui.view">
+    <!-- <record id="hms_onboarding_property_form" model="ir.ui.view">
         <field name="name">hms.property.onboarding.form</field>
         <field name="model">hms.property</field>
         <field name="inherit_id" ref="hms.property_view_form"/>
@@ -59,7 +59,7 @@
         <field name="view_mode">form</field>
         <field name="view_id" ref="hms_onboarding_property_form"/>
         <field name="target">new</field>
-    </record>
+    </record> -->
     <!-- BUILDING FORM -->
     <record id="hms_onboarding_building_form" model="ir.ui.view">
         <field name="name">hms.building.onboarding.form</field>

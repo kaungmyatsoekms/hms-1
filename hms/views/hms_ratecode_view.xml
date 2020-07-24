@@ -174,6 +174,7 @@
                     <field name="start_date"/>
                     <field name="end_date"/>
                     <field name="id"/>
+                    <field name="currency_id"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">
@@ -201,7 +202,7 @@
                                             <field name="end_date"/>
                                         </div>
                                         <div>
-                                            <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id}">
+                                            <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id,'default_currency_id':currency_id}">
                                                 <i class="fa fa-paint-brush"></i>
                                             </button>
                                         </div>

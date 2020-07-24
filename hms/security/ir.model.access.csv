@@ -27,7 +27,6 @@ access_hms_transaction_root,hms.transaction.root,model_hms_transaction_root,base
 access_hms_rsvntype,hms.rsvntype,model_hms_rsvntype,base.group_user,1,1,1,1
 access_hms_rsvnstatus,hms.rsvnstatus,model_hms_rsvnstatus,base.group_user,1,1,1,1
 access_hms_creditlimit,hms.creditlimit,model_hms_creditlimit,base.group_user,1,1,1,1
-access_rate_code,rate.code,model_rate_code,base.group_user,1,1,1,1
 access_hms_city,hms.city,model_hms_city,base.group_user,1,1,1,1
 access_hms_country,hms.country,model_hms_country,base.group_user,1,1,1,1
 access_hms_township,hms.township,model_hms_township,base.group_user,1,1,1,1

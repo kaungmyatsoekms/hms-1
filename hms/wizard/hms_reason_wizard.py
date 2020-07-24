@@ -50,7 +50,7 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'reason_id': self.reason_id,
                     'state': status,
                     'is_cancel': True,
-                    'room_no': room_no,
+                    'room_no' : room_no,
                 })
                 # res = {}
                 self.env['hms.cancel.rsvn'].create({
@@ -230,7 +230,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 'reason_id': self.reason_id,
                 'state': status,
                 'is_cancel': True,
-                'room_no': room_no,
+                'room_no' : room_no,
             })
         reservation_lines.copy_cancel_record()
         # Check All Reservation lines are same state, update main group to state

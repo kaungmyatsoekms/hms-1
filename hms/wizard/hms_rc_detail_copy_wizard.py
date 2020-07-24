@@ -29,6 +29,13 @@ class RatecodeDetailCopyWizard(models.TransientModel):
     start_date = fields.Date(string="Start Date",
                              required=True)
     end_date = fields.Date(string="End Date", required=True)
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        related="ratecode_detail_id.transaction_id")
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  required=True)
     normal_price1 = fields.Float(string="1 Adult")
     normal_price2 = fields.Float(string="+2 Adult")
     normal_price3 = fields.Float(string="+3 Adult")
@@ -67,6 +74,8 @@ class RatecodeDetailCopyWizard(models.TransientModel):
             'season_code': self.season_code,
             'start_date' : self.start_date,
             'end_date' : self.end_date,
+            'transaction_id': self.transaction_id.id,
+            'currency_id': self.currency_id.id,
             'roomtype_ids' : self.roomtype_ids,
             'roomtype_id' : self.roomtype_id,
             'normal_price1' : self.normal_price1,

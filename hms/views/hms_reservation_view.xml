@@ -449,7 +449,6 @@
             <field name="res_model">hms.room.reservation.summary</field>
             <field name="view_mode">form</field>
         </record>
-
         <!-- Form view of quick room reservation -->
         <record id="quick_room_reservation_form_view" model="ir.ui.view">
             <field name="name">hms.quick.room.reservation.form</field>
@@ -1357,6 +1356,8 @@
             <field name="res_model">hms.cancel.rsvn</field>
             <field name="view_mode">tree</field>
         </record>
+
+
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>

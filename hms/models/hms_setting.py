@@ -56,6 +56,7 @@ class Bank(models.Model):
         return result
 
 
+
 class HMSCity(models.Model):
     _name = "hms.city"
     _description = "City"
@@ -177,6 +178,7 @@ class Nationality(models.Model):
                 result.append((record.id, "{} ({})".format(record.name,
                                                         record.code)))
             return result
+
 
 
 class Passport(models.Model):
