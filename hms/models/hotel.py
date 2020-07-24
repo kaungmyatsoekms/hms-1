@@ -1832,11 +1832,14 @@ class SubGroup(models.Model):
     _description = "Revenue Sub Group"
     _order = "property_id, sub_group"
 
-    property_id = fields.Many2one(
-        'hms.property',
-        string="Property",
-        required=True,
-        default=lambda self: self.env.user.property_id.id)
+    property_ids = fields.Many2many('hms.property',
+                                    related="user_id.property_id")
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  domain="[('id', '=?', property_ids)]")
+    user_id = fields.Many2one('res.users',
+                              string='Salesperson',
+                              default=lambda self: self.env.uid)
     revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",

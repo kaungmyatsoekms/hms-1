@@ -1211,7 +1211,9 @@
         <form string="Transaction Group" import="false">
           <sheet>
             <group>
+              <field name="property_ids" invisible="1"/>
               <field name="property_id"/>
+              <field name="user_id" invisible="1"/>
               <field name="revtype_id"/>
               <field name="sub_group" placeholder="0 ~ 9"/>
               <field name="sub_desc" placeholder="Sub Group Revenue"/>
@@ -1227,7 +1229,9 @@
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
         <tree string="Sub Group" import="false">
+          <field name="property_ids" invisible="1"/>
           <field name="property_id"/>
+          <field name="user_id" invisible="1"/>
           <field name="sub_group"/>
           <field name="sub_desc"/>
         </tree>

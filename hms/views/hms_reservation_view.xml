@@ -826,10 +826,10 @@
             <field name="name">hms.reasontype.view.form</field>
             <field name="model">hms.reasontype</field>
             <field name="arch" type="xml">
-                <form string="Reason Type" import="false">
+                <form string="Reason Type" create="false" no_create_edit="True" delete="false" import="false">
                     <sheet>
                         <group>
-                            <field name="code"/>
+                            <field name="code" attrs="{'readonly': ['|',('code', '=', 'CXL'),('code', '=', 'DRS')]}"/>
                             <field name="name"/>
                             <field name="reason_ids" context="{'default_type_id' : id}"/>
                         </group>
@@ -843,7 +843,7 @@
             <field name="name">reason.type.view.list</field>
             <field name="model">hms.reasontype</field>
             <field name="arch" type="xml">
-                <tree string="Reason Type" import="false">
+                <tree string="Reason Type" create="false" delete="false" import="false">
                     <field name="code"/>
                     <field name="name"/>
                     <field name="reason_ids"/>
