@@ -6,7 +6,7 @@
             <field name="name">hms.color.attribute.view.tree</field>
             <field name="model">hms.color.attribute</field>
             <field name="arch" type="xml">
-                <tree string="Variant Values">
+                <tree string="Variant Values" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
                     <field name="create_variant"/>
@@ -19,7 +19,7 @@
             <field name="name">hms.color.attribute.view.form</field>
             <field name="model">hms.color.attribute</field>
             <field name="arch" type="xml">
-                <form string="State Attribute">
+                <form string="State Attribute" import="false">
                     <sheet>
                         <group name="main_fields" class="o_label_nowrap">
                             <label for="name" string="Attribute Name"/>

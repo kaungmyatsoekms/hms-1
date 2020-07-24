@@ -69,6 +69,7 @@ AVAILABLE_PERCENTAGE = [
     ('100', '100 %'),
 ]
 
+
 class Property(models.Model):
     _name = "hms.property"
     _inherit = ['mail.thread']
@@ -100,8 +101,8 @@ class Property(models.Model):
         # Default Get Building
 
     def default_get_building(self):
-        return self.env['hms.building'].search([('building_name', '=',
-                                                      'ZZZ')]).ids
+        return self.env['hms.building'].search([('building_name', '=', 'ZZZ')
+                                                ]).ids
 
     def default_get_roomtype(self):
         return self.env['hms.roomtype'].search([('code', '=', 'HFO')]).ids
@@ -195,18 +196,22 @@ class Property(models.Model):
         string="State of the property onboarding panel",
         default='not_done')
 
-    contact_ids = fields.Many2many('res.partner',
-                                   'hms_property_contact_rel',
-                                   'property_id',
-                                   'partner_id',
-                                   string='Contacts',
-                                   track_visibility=True,
-                                   domain="[('company_type', '=', 'person')]")
+    contact_ids = fields.Many2many(
+        'res.partner',
+        'hms_property_contact_rel',
+        'property_id',
+        'partner_id',
+        string='Contacts',
+        track_visibility=True,
+        domain=
+        "[('is_company', '=', False), ('is_group', '=', False), ('is_guest', '=', False)]"
+    )
     bankinfo_ids = fields.One2many('res.bank',
                                    'property_id',
                                    string="Bank Info")
     comments = fields.Text(string='Notes')
-    roomtype_ids = fields.Many2many('hms.roomtype', default=default_get_roomtype)
+    roomtype_ids = fields.Many2many('hms.roomtype',
+                                    default=default_get_roomtype)
     building_ids = fields.Many2many('hms.building',
                                     default=default_get_building)
     market_ids = fields.Many2many('hms.marketsegment', string="Market Segment")
@@ -345,59 +350,64 @@ class Property(models.Model):
         avail_objs = self.env['hms.availability'].search([
             ('property_id', '=', self.id),
             ('avail_date', '<', datetime.today())
-            ])
+        ])
 
         for avail_obj in avail_objs:
-                avail_obj.update({'active': False})
-                rt_avail_objs = self.env['hms.roomtype.available'].search([('property_id', '=', self.id),('ravail_date', '<=', datetime.today()),('availability_id', '=',avail_obj.id)])
+            avail_obj.update({'active': False})
+            rt_avail_objs = self.env['hms.roomtype.available'].search([
+                ('property_id', '=', self.id),
+                ('ravail_date', '<=', datetime.today()),
+                ('availability_id', '=', avail_obj.id)
+            ])
 
-                new_avail_obj = self.env['hms.availability'].create({
-                'property_id' : avail_obj.property_id.id,
-                'avail_date' : avail_obj.avail_date + timedelta(days= self.availability),
-                'total_room' : self.room_count})
+            new_avail_obj = self.env['hms.availability'].create({
+                'property_id':
+                avail_obj.property_id.id,
+                'avail_date':
+                avail_obj.avail_date + timedelta(days=self.availability),
+                'total_room':
+                self.room_count
+            })
 
-                for rt_avail_obj in rt_avail_objs:
-                    rt_avail_obj.update({'active': False})
-                    vals = []
-                    vals.append((0, 0, {
-                        'availability_id': new_avail_obj.id,
-                        'property_id': new_avail_obj.property_id.id,
-                        'ravail_date': new_avail_obj.avail_date,
-                        'ravail_rmty': rt_avail_obj.ravail_rmty.id,
-                        'color': rt_avail_obj.color,
-                    }))
-                    new_avail_obj.update({'avail_roomtype_ids': vals})
+            for rt_avail_obj in rt_avail_objs:
+                rt_avail_obj.update({'active': False})
+                vals = []
+                vals.append((0, 0, {
+                    'availability_id': new_avail_obj.id,
+                    'property_id': new_avail_obj.property_id.id,
+                    'ravail_date': new_avail_obj.avail_date,
+                    'ravail_rmty': rt_avail_obj.ravail_rmty.id,
+                    'color': rt_avail_obj.color,
+                }))
+                new_avail_obj.update({'avail_roomtype_ids': vals})
 
         # For Removing Reservation and Reservation Line Update
         out_date_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('property_id', '=', self.id),
-            ('arrival', '<', datetime.today()),
-             ('active', '=', True),
-             '|', ('state', '=', 'booking'),('state', '=', 'reservation')
+            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            ('active', '=', True), '|', ('state', '=', 'booking'),
+            ('state', '=', 'reservation')
         ])
         for rsvn_line in out_date_rsvn_lines:
             rsvn_line.update({'active': False})
 
         out_date_reservations = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id),
-            ('arrival', '<', datetime.today())
+            ('property_id', '=', self.id), ('arrival', '<', datetime.today())
         ])
         for rsvn in out_date_reservations:
             if len(rsvn.reservation_line_ids) == 0:
                 rsvn.update({'active': False})
 
         # For No Show Reservation and Reservation Line Update
-            # Reservation Line
+        # Reservation Line
         no_show_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('property_id', '=', self.id),
-            ('arrival', '<', datetime.today()),
-            ('state', '=','confirm')])
+            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            ('state', '=', 'confirm')
+        ])
         for no_show_rsvn_line in no_show_rsvn_lines:
             no_show_rsvn_line.update({'is_no_show': True})
             # Reservation
         no_show_rsvns = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id),
-            ('arrival', '<', datetime.today())
+            ('property_id', '=', self.id), ('arrival', '<', datetime.today())
         ])
         for no_show_rsvn in no_show_rsvns:
             no_show_line_count = 0
@@ -408,18 +418,16 @@ class Property(models.Model):
                 no_show_rsvn.update({'is_no_show': True})
 
         # For removing No Show Reservation and Reservatin Line
-            # Reservation Lines
+        # Reservation Lines
         ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('property_id' , '=', self.id),
-            ('is_no_show', '=', True),
+            ('property_id', '=', self.id), ('is_no_show', '=', True),
             ('departure', '<', datetime.today())
         ])
         for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
             ex_noshow_rsvn_line.update({'active': False})
             # Reservation
         ex_noshow_rsvns = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id),
-            ('is_no_show', '=', True),
+            ('property_id', '=', self.id), ('is_no_show', '=', True),
             ('departure', '<', datetime.today())
         ])
         for ex_noshow_rsvn in ex_noshow_rsvns:
@@ -768,8 +776,8 @@ class Property(models.Model):
 
     @api.depends('propertyroom_ids')
     def _compute_room_count(self):
-        property_rooms = self.env['hms.property.room'].search([('property_id', '=',
-                                                            self.id)])
+        property_rooms = self.env['hms.property.room'].search([('property_id',
+                                                                '=', self.id)])
         room_count = 0
         for rec in property_rooms:
             if rec.roomtype_id.code[0] != 'H':
@@ -811,9 +819,12 @@ class Property(models.Model):
         if property_rooms:
             total_rooms = len(property_rooms)
             self.env['hms.property.roomtype'].create({
-                'property_id': property_id,
-                'roomtype_id': roomtype_id,
-                'total_rooms': total_rooms,
+                'property_id':
+                property_id,
+                'roomtype_id':
+                roomtype_id,
+                'total_rooms':
+                total_rooms,
             })
         else:
             self.env['hms.property.roomtype'].create({
@@ -888,7 +899,7 @@ class Property(models.Model):
         # _logger.info(values)
         res = super(Property, self).create(values)
         res.create_sequence(res)
-        
+
         if res.roomtype_ids:
             for rec in res.roomtype_ids:
                 property_rooms = self.env['hms.property.room'].search([
@@ -926,10 +937,11 @@ class Property(models.Model):
                     for avail_obj in avail_objs:
                         for roomtype in room_types:
                             vals = []
-                            property_rooms = self.env['hms.property.room'].search([
-                                ('property_id', '=', res.id),
-                                ('roomtype_id', '=', roomtype.id)
-                            ])
+                            property_rooms = self.env[
+                                'hms.property.room'].search([
+                                    ('property_id', '=', res.id),
+                                    ('roomtype_id', '=', roomtype.id)
+                                ])
                             total_rooms = len(property_rooms)
                             vals.append((0, 0, {
                                 'ravail_rmty': roomtype.id,
@@ -943,20 +955,27 @@ class Property(models.Model):
         if res.dummy_rooms:
             room_no = 9001
             for record in range(res.dummy_rooms):
-                roomtype_id = self.env['hms.roomtype'].search([('code', '=ilike',
-                                                             'H%')])
-                building_id = self.env['hms.building'].search([('id', '=',
-                                                                     1)])
-                location_id = self.env['hms.roomlocation'].search([('id', '=', 1)
-                                                                ])
+                roomtype_id = self.env['hms.roomtype'].search([
+                    ('code', '=ilike', 'H%')
+                ])
+                building_id = self.env['hms.building'].search([('id', '=', 1)])
+                location_id = self.env['hms.roomlocation'].search([('id', '=',
+                                                                    1)])
                 self.env['hms.property.room'].create({
-                    'room_no' : room_no,
-                    'property_id': res.id,
-                    'roomtype_id': roomtype_id.id,
-                    'building_id' : building_id.id,
-                    'roomlocation_id' : location_id.id,
-                    'room_bedqty' : 1,
-                    'is_hfo' : True,
+                    'room_no':
+                    room_no,
+                    'property_id':
+                    res.id,
+                    'roomtype_id':
+                    roomtype_id.id,
+                    'building_id':
+                    building_id.id,
+                    'roomlocation_id':
+                    location_id.id,
+                    'room_bedqty':
+                    1,
+                    'is_hfo':
+                    True,
                 })
                 room_no += 1
 
@@ -967,15 +986,16 @@ class Property(models.Model):
         res = super(Property, self).write(values)
 
         if 'code' in values.keys():
-            same_code_objs = self.env['ir.sequence'].search([('code', '=', self.code + self.gprofile_id_format.code)])
+            same_code_objs = self.env['ir.sequence'].search([
+                ('code', '=', self.code + self.gprofile_id_format.code)
+            ])
             if not same_code_objs:
                 self.create_sequence(self)
-
 
         if 'roomtype_ids' in values.keys(
         ) or 'propertyroom_ids' in values.keys():
             hfo_roomtype = self.env['hms.roomtype'].search([('code', '=ilike',
-                                                          'H%')])
+                                                             'H%')])
             roomtypes = list(set(self.roomtype_ids) - set(hfo_roomtype))
 
             for rec in roomtypes:
@@ -1092,17 +1112,18 @@ class Property(models.Model):
                 ('property_id', '=', rec.id)
             ])
             property_room_objs.unlink()
-            special_day_objs += self.env['hms.specialday'].search([('property_id',
-                                                                 '=', rec.id)])
+            special_day_objs += self.env['hms.specialday'].search([
+                ('property_id', '=', rec.id)
+            ])
             special_day_objs.unlink()
             weekend_objs += self.env['hms.weekend'].search([('property_id',
-                                                                 '=', rec.id)])
+                                                             '=', rec.id)])
             weekend_objs.unlink()
             package_objs += self.env['hms.package'].search([('property_id',
-                                                                 '=', rec.id)])
+                                                             '=', rec.id)])
             package_objs.unlink()
-            subgroup_objs += self.env['hms.subgroup'].search([('property_id', '=',
-                                                            rec.id)])
+            subgroup_objs += self.env['hms.subgroup'].search([('property_id',
+                                                               '=', rec.id)])
             subgroup_objs.unlink()
             transaction_objs += self.env['hms.transaction'].search([
                 ('property_id', '=', rec.id)
@@ -1134,7 +1155,7 @@ class Property(models.Model):
         property_objs = self.env['hms.property'].search([])
         for record in property_objs:
             if record.is_manual is False:
-            
+
                 avail_objs = self.env['hms.availability'].search([
                     ('property_id', '=', record.id),
                     ('avail_date', '<=', datetime.today())
@@ -1149,9 +1170,14 @@ class Property(models.Model):
                     ])
 
                     new_avail_objs = self.env['hms.availability'].create({
-                    'property_id' : avail_obj.property_id.id,
-                    'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
-                    'total_room' : record.room_count})
+                        'property_id':
+                        avail_obj.property_id.id,
+                        'avail_date':
+                        avail_obj.avail_date +
+                        timedelta(days=record.availability),
+                        'total_room':
+                        record.room_count
+                    })
 
                     for new_avail_obj in new_avail_objs:
 
@@ -1159,14 +1185,19 @@ class Property(models.Model):
                             rt_avail_obj.update({'active': False})
                             vals = []
                             vals.append((0, 0, {
-                                'availability_id': new_avail_obj.id,
-                                'property_id': new_avail_obj.property_id.id,
-                                'ravail_date': new_avail_obj.avail_date,
-                                'ravail_rmty': rt_avail_obj.ravail_rmty.id,
-                                'color': rt_avail_obj.color,
+                                'availability_id':
+                                new_avail_obj.id,
+                                'property_id':
+                                new_avail_obj.property_id.id,
+                                'ravail_date':
+                                new_avail_obj.avail_date,
+                                'ravail_rmty':
+                                rt_avail_obj.ravail_rmty.id,
+                                'color':
+                                rt_avail_obj.color,
                             }))
                             new_avail_obj.update({'avail_roomtype_ids': vals})
-    
+
     #Scheduled Update System Date
     @api.model
     def update_system_date(self):
@@ -1174,6 +1205,7 @@ class Property(models.Model):
         for record in property_objs:
             if record.is_manual is False:
                 record.system_date = datetime.today()
+
 
 class Property_roomtype(models.Model):
     _name = "hms.property.roomtype"
@@ -1200,6 +1232,14 @@ class Property_roomtype(models.Model):
         'property_room_type_unique', 'UNIQUE(property_id,roomtype_id)',
         'Property Room Type already exists! Property Room Type name must be unique!'
     )]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({})".format(record.property_id.code,
+                                             record.roomtype_id.code)))
+        return result
 
 
 class Building(models.Model):
@@ -1263,7 +1303,7 @@ class Building(models.Model):
     #             raise UserError(_("Location number must less than building capacity."))
     #     return super(Building, self).create(values)
 
-    @api.constrains('location_ids','building_capacity')
+    @api.constrains('location_ids', 'building_capacity')
     def _check_capacity(self):
         for record in self:
             if len(record.location_ids) > record.building_capacity:
@@ -1390,9 +1430,8 @@ class RoomType(models.Model):
         for rec in self:
             property_id = self._context.get('property_id')
             if property_id:
-                property_obj = self.env['hms.property'].search([
-                    ('id', '=', property_id)
-                ])
+                property_obj = self.env['hms.property'].search([('id', '=',
+                                                                 property_id)])
                 room_objs_per_type = property_obj.propertyroom_ids.filtered(
                     lambda x: x.roomtype_id.id == rec.id)
                 room_count = len(room_objs_per_type)
@@ -1437,10 +1476,19 @@ class RoomView(models.Model):
         'Room view already exists with this name! Room view name must be unique!'
     )]
 
+    @api.model
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.name,
+                                                       record.roomview_desc)))
+        return result
+
 
 class RoomFacility(models.Model):
     _name = "hms.room.facility"
     _description = "Room Facility"
+    _rec_name = "facilitytype_id"
     _order = 'facilitytype_id'
 
     sequence = fields.Integer(default=1)
@@ -1487,7 +1535,7 @@ class PropertyRoom(models.Model):
     _description = "Property Room"
     _group = 'roomlocation_id'
 
-    is_hfo = fields.Boolean(default = False)
+    is_hfo = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     zip_type = fields.Boolean(string="Zip?", default=False)
     is_roomtype_fix = fields.Boolean(string="Fixed Type?",
@@ -1519,12 +1567,12 @@ class PropertyRoom(models.Model):
                                     string="Room Facility",
                                     required=True)
     ratecode_id = fields.Many2one('rate.code', string="Ratecode")
-    room_bedqty = fields.Integer(string=" Beds",
+    room_bedqty = fields.Integer(string="Number of Beds",
                                  required=True,
                                  size=2,
                                  default=1)
     room_size = fields.Char(string="Room Size")
-    room_extension = fields.Char(string="Extension")
+    room_extension = fields.Char(string="Room Extension")
     room_img = fields.Binary(string="Image", attachment=True, store=True)
     room_desc = fields.Text(string="Description")
     room_connect = fields.Char(string="Connecting Room")
@@ -1540,7 +1588,8 @@ class PropertyRoom(models.Model):
                               size=2,
                               default='CL',
                               invisible=True)
-    bedtype_ids = fields.Many2many('hms.bedtype', related="roomtype_id.bed_type")
+    bedtype_ids = fields.Many2many('hms.bedtype',
+                                   related="roomtype_id.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
                                  domain="[('id', '=?', bedtype_ids)]")
     no_of_pax = fields.Integer(string="Allow Pax", default=2)
@@ -1589,7 +1638,6 @@ class PropertyRoom(models.Model):
                     location_list.append(location.id)
                 domain = {'roomlocation_id': [('id', 'in', location_list)]}
                 return {'domain': domain}
-
 
     @api.onchange('roomtype_id')
     def check_is_hfo(self):
@@ -1675,7 +1723,6 @@ class MarketSource(models.Model):
 class SpecialDay(models.Model):
     _name = "hms.specialday"
     _description = "Special Day"
-    _rec_name = 'special_date'
 
     property_id = fields.Many2one('hms.property',
                                   string="Property",
@@ -1683,6 +1730,13 @@ class SpecialDay(models.Model):
                                   readonly=True)
     special_date = fields.Date(string="Special Date", required=True)
     special_desc = fields.Char(string="Description")
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.special_date,
+                                                       record.special_desc)))
+        return result
 
 
 class Weekend(models.Model):
@@ -1700,6 +1754,13 @@ class Weekend(models.Model):
     friday = fields.Boolean(string="Friday", default=True)
     saturday = fields.Boolean(string="Saturday", default=True)
     sunday = fields.Boolean(string="Sunday")
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} Weekend".format(record.property_id.code)))
+        return result
 
 
 class Package(models.Model):
@@ -1723,6 +1784,13 @@ class Package(models.Model):
         'Package code already exists with this name! Package code must be unique!'
     )]
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.package_code,
+                                                       record.package_name)))
+        return result
+
 
 class RevenueType(models.Model):
     _name = "hms.revenuetype"
@@ -1738,8 +1806,7 @@ class RevenueType(models.Model):
     subgroup_ids = fields.One2many('hms.subgroup',
                                    'revtype_id',
                                    string="Sub Group")
-    transaction_id = fields.Many2one('hms.transaction',
-                                     'trans_revtype')
+    transaction_id = fields.Many2one('hms.transaction', 'trans_revtype')
 
     _sql_constraints = [(
         'rev_code_unique', 'UNIQUE(rev_code)',
@@ -1808,14 +1875,11 @@ class SubGroup(models.Model):
     _description = "Revenue Sub Group"
     _order = "property_id, sub_group"
 
-    property_ids = fields.Many2many('hms.property',
-                                    related="user_id.property_id")
-    property_id = fields.Many2one('hms.property',
-                                  string="Property",
-                                  domain="[('id', '=?', property_ids)]")
-    user_id = fields.Many2one('res.users',
-                              string='Salesperson',
-                              default=lambda self: self.env.uid)
+    property_id = fields.Many2one(
+        'hms.property',
+        string="Property",
+        required=True,
+        default=lambda self: self.env.user.property_id.id)
     revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
@@ -1835,22 +1899,6 @@ class SubGroup(models.Model):
             result.append((record.id, "({}) {}".format(record.sub_group,
                                                        record.sub_desc)))
         return result
-
-    @api.onchange('property_ids')
-    def default_get_property_id(self):
-        if self.property_ids:
-            if len(self.property_ids) >= 1:
-                self.property_id = self.property_ids[0]._origin.id
-        else:
-            return {
-                'warning': {
-                    'title':
-                    _('No Property Permission'),
-                    'message':
-                    _("Select Property in User Setting or you can't create reservation"
-                      )
-                }
-            }
 
     @api.constrains('sub_group')
     def _check_sub_group(self):
@@ -2027,9 +2075,13 @@ class TransactionRoot(models.Model):
     _description = 'Transaction codes first 2 digits'
     _auto = False
 
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  readonly=True)
     name = fields.Char()
     revname = fields.Char()
-    parent_id = fields.Many2one('hms.transaction.root', string="Superior Level")
+    parent_id = fields.Many2one('hms.transaction.root',
+                                string="Superior Level")
     group = fields.Many2one('hms.subgroup')
 
     def init(self):
@@ -2110,6 +2162,15 @@ class CreditLimit(models.Model):
     crd_enddate = fields.Date(string="End Date",
                               required=True)  #compute="get_end_date",
     crd_limit = fields.Float(string="Credit Limit")
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({}-{})".format(record.crd_limit,
+                                                record.crd_startdate,
+                                                record.crd_enddate)))
+        return result
 
     @api.onchange('crd_startdate', 'crd_enddate')
     @api.constrains('crd_startdate', 'crd_enddate')
@@ -2198,6 +2259,13 @@ class RateCode(models.Model):
     def _compute_is_ratecode(self):
         self.is_ratecode = True
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.rate_code,
+                                                       record.ratecode_name)))
+        return result
+
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
     def get_two_date_comp(self):
@@ -2256,4 +2324,3 @@ class RateCode(models.Model):
             'target':
             'new',
         }
-

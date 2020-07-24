@@ -201,10 +201,28 @@ class Reservation(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            if record.guest_id:
-                result.append((record.id, "{}".format(record.guest_id.name)))
+            if record.is_group is False:
+                if record.company_id:
+                    if record.guest_id:
+                        result.append(
+                            (record.id,
+                             "{} ({})".format(record.company_id.name,
+                                              record.guest_id.name)))
+                    else:
+                        result.append(
+                            (record.id, "{}".format(record.company_id.name)))
+                else:
+                    result.append(
+                        (record.id, "{}".format(record.guest_id.name)))
             else:
-                result.append((record.id, "{}".format(record.group_id.name)))
+                if record.group_id:
+                    result.append(
+                        (record.id,
+                         "{} ({})".format(record.company_id.name,
+                                          record.group_id.group_name)))
+                else:
+                    result.append(
+                        (record.id, "{}".format(record.company_id.name)))
         return result
 
     def _compute_rsvn_rooms(self):
@@ -254,6 +272,106 @@ class Reservation(models.Model):
             if record.state == 'checkin':
                 tmp = tmp + record.rooms
         self.checkin_room_count = tmp
+
+    def action_rsvn_room_count(self):
+        reservation_lines = self.reservation_line_ids.filtered(
+            lambda x: x.state == "reservation" and x.room_type.code[0] != 'H')
+        action = self.env.ref('hms.reservation_line_action_window').read()[0]
+        if len(reservation_lines) > 1:
+            action['domain'] = [('id', 'in', reservation_lines.ids)]
+        elif len(reservation_lines) == 1:
+            form_view = [(self.env.ref('hms.reservation_line_view_form').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = reservation_lines.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_type': 'out_reservation_line',
+        }
+        return action
+
+    def action_confirm_room_count(self):
+        reservation_lines = self.reservation_line_ids.filtered(
+            lambda x: x.state == "confirm" and x.room_type.code[0] != 'H')
+        action = self.env.ref('hms.reservation_line_action_window').read()[0]
+        if len(reservation_lines) > 1:
+            action['domain'] = [('id', 'in', reservation_lines.ids)]
+        elif len(reservation_lines) == 1:
+            form_view = [(self.env.ref('hms.reservation_line_view_form').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = reservation_lines.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_type': 'out_reservation_line',
+        }
+        return action
+
+    def action_cancel_room_count(self):
+        reservation_lines = self.reservation_line_ids.filtered(
+            lambda x: x.state == "cancel" and x.room_type.code[0] != 'H')
+        action = self.env.ref('hms.reservation_line_action_window').read()[0]
+        if len(reservation_lines) > 1:
+            action['domain'] = [('id', 'in', reservation_lines.ids)]
+        elif len(reservation_lines) == 1:
+            form_view = [(self.env.ref('hms.reservation_line_view_form').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = reservation_lines.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_type': 'out_reservation_line',
+        }
+        return action
+
+    def action_checkin_room_count(self):
+        reservation_lines = self.reservation_line_ids.filtered(
+            lambda x: x.state == "checkin" and x.room_type.code[0] != 'H')
+        action = self.env.ref('hms.reservation_line_action_window').read()[0]
+        if len(reservation_lines) > 1:
+            action['domain'] = [('id', 'in', reservation_lines.ids)]
+        elif len(reservation_lines) == 1:
+            form_view = [(self.env.ref('hms.reservation_line_view_form').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = reservation_lines.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_type': 'out_reservation_line',
+        }
+        return action
 
     def set_kanban_color(self):
         for record in self:
@@ -807,7 +925,8 @@ class ReservationLine(models.Model):
     additional_pkg_ids = fields.Many2many(
         'hms.package.header',
         string="Additional Pkg",
-        domain="[('is_sell_separate', '=', True)]")
+        domain=
+        "[('property_id', '=?', property_id),('is_sell_separate', '=', True)]")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett",
                              help="Rate Nett",
@@ -848,6 +967,13 @@ class ReservationLine(models.Model):
     arrive_reason_id = fields.Char("Arrive Reason")
     room_transaction_line_ids = fields.One2many(
         'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} - {}".format(record.room_type.name,
+                                                       record.rooms)))
+        return result
 
     # Compute Room Rate based on Pax
     def _check_rate(self, check_date, pax, rate, property_id):
@@ -1154,14 +1280,6 @@ class ReservationLine(models.Model):
                 self.extrabed,
                 'extrabed_amount':
                 self.extrabed_amount,
-                'extrabed_bf':
-                self.extrabed_bf,
-                'extrapax':
-                self.extrapax,
-                'extrapax_amount':
-                self.extrapax_amount,
-                'extrapax_bf':
-                self.extrapax_bf,
                 'child_bfpax':
                 self.child_bfpax,
                 'child_bf':
@@ -1654,7 +1772,7 @@ class ReservationLine(models.Model):
         total_amount_include = 0.0
         total_room_rate = 0.0
         check_pkg = ''
-        for pkg in res.package_id.package_ids:
+        for pkg in package_ids:
             check_pkg = pkg.rate_attribute
             posted_dates = res.get_posting_date(res, pkg)
             if transaction_date in posted_dates:
@@ -1778,7 +1896,6 @@ class ReservationLine(models.Model):
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, res.package_id.package_ids)
-
             day_count += 1
 
     def update_additional_packages(self, reservation_line_id, delete, pkg):
@@ -2361,11 +2478,6 @@ class CancelReservation(models.Model):
     extrabed = fields.Integer("Extra Bed")
     extrabed_amount = fields.Float("Number of Extra Bed",
                                    related="ratecode_id.extra_bed")
-    extrabed_bf = fields.Float("Extra Bed Breakfast")
-    extrapax = fields.Integer("Extra Pax")
-    extrapax_amount = fields.Float("Number of Extra Pax")
-    extrapax_bf = fields.Float("Extra Pax Breakfast",
-                               related="ratecode_id.adult_bf")
     child_bfpax = fields.Integer("Child BF-Pax")
     child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon")
@@ -2396,10 +2508,16 @@ class RoomReservationSummary(models.Model):
     _name = 'hms.room.reservation.summary'
     _description = 'Room reservation summary'
 
-    property_id = fields.Many2one(
-        'hms.property',
-        string="Property",
-        default=lambda self: self.env.user.property_id.id)
+    # property_id = fields.Many2one(
+    #     'hms.property',
+    #     string="Property",
+    #     default=lambda self: self.env.user.property_id.id)
+    user_id = fields.Many2one('res.users', default=lambda self: self.env.uid)
+    property_ids = fields.Many2many('hms.property',
+                                    related="user_id.property_id")
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  domain="[('id', '=?', property_ids)]")
     name = fields.Char('Reservation Summary',
                        default='Reservations Summary',
                        invisible=True)

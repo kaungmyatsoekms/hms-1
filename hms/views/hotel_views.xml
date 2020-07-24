@@ -11,7 +11,6 @@
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
 
-
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -19,34 +18,37 @@
       <field name="model">hms.property</field>
       <field name="priority" eval="1"/>
       <field name="arch" type="xml">
-        <form string="Property">
+        <form string="Property" import="false">
           <header>
             <field name='is_property' invisible='1'/>
-            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
+            <!-- <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+              <i class="fa fa-paint-brush"></i>
+            </button> -->
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <!-- <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
-            </button>
+            </button> -->
             <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': [('is_manual', '=', False)]}">
+            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
           </header>
@@ -65,14 +67,12 @@
                 <field name="roomtype_count" widget='statinfo'/>
               </button>
             </div>
-            <field name="system_date"/>
             <separator colspan='1' string="Property"/>
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
               <h3>
                 <field name="name" placeholder="Hotel Name" style="width:73%%"/>
               </h3>
-              <!-- s -->
               <h4>
                 <field name="code" style="width:73%%"/>
               </h4>
@@ -94,8 +94,6 @@
                   <field name="city_id" placeholder="City" class="o_address_city" options="{'no_open':True}"/>
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
-                  <field name="timezone"/>
-                  <field name="rating" widget="priority"/>
                 </div>
                 <label for="image" string="Image"/>
                 <div>
@@ -104,9 +102,12 @@
               </group>
               <group>
                 <newline/>
+                <field name="timezone"/>
+                <field name="system_date"/>
                 <field name="ci_time" widget="float_time"/>
                 <field name="co_time" widget="float_time"/>
                 <field name="night_audit" widget="radio"/>
+                <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
                 <field name="email" placeholder="example@company.com....."/>
@@ -151,7 +152,7 @@
               <page string='Room Type'>
                 <h2> Room Type</h2>
                 <field name="roomtype_ids" context="{'property_id':active_id}">
-                  <tree string="Room Type List" limit='10'>
+                  <tree string="Room Type List" limit='10' >
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
                     <field name="fix_type"/>
@@ -187,7 +188,7 @@
               <page string='Market Segment'>
                 <h2>Market Segment</h2>
                 <field name="market_ids">
-                  <tree string="Market Segment" limit='10'>
+                  <tree string="Market Segment" limit='10' >
                     <field name="sequence" widget="handle"/>
                     <field name="market_code" />
                     <field name="market_name" />
@@ -253,7 +254,7 @@
       <field name="name">property.view.list</field>
       <field name="model">hms.property</field>
       <field name="arch" type="xml">
-        <tree string="Property">
+        <tree string="Property" import="false">
           <field name="name"/>
           <field name="code"/>
           <field name="timezone"/>
@@ -274,7 +275,7 @@
       <field name="name">property.view.kanban</field>
       <field name="model">hms.property</field>
       <field name="arch" type="xml">
-        <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban">
+        <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" import="false">
           <field name="id"/>
           <field name="logo"/>
           <field name="hotelgroup_id"/>
@@ -411,7 +412,7 @@
       </field>
     </record> -->
 
-    <!-- Kanban View of Property -->
+    <!-- Search View of Property -->
     <record model="ir.ui.view" id="view_pms_properites_filter">
       <field name="name">Properties Filter</field>
       <field name="model">hms.property</field>
@@ -446,7 +447,7 @@
       <field name="name">building.view.form</field>
       <field name="model">hms.building</field>
       <field name="arch" type="xml">
-        <form string="Building">
+        <form string="Building" import="false">
           <sheet>
             <h2>Hotel Building</h2>
             <br></br>
@@ -484,7 +485,7 @@
       <field name="name">building.view.list</field>
       <field name="model">hms.building</field>
       <field name="arch" type="xml">
-        <tree string="Building">
+        <tree string="Building" import="false">
           <field name="sequence" widget="handle"/>
           <field name="building_name"/>
           <field name="building_type"/>
@@ -507,7 +508,7 @@
       <field name="name">hms.buildingtype.view.list</field>
       <field name="model">hms.buildingtype</field>
       <field name="arch" type="xml">
-        <tree string="State" editable="bottom">
+        <tree string="Building Type" import="false">
           <field name="building_type"/>
           <field name="buildingtype_desc"/>
         </tree>
@@ -519,7 +520,7 @@
       <field name="name">hms.buildingtype.view.form</field>
       <field name="model">hms.buildingtype</field>
       <field name="arch" type="xml">
-        <form string="Building Type">
+        <form string="Building Type" import="false">
           <sheet>
             <group>
               <field name="building_type" placeholder="Eg. BLD....."/>
@@ -530,7 +531,7 @@
       </field>
     </record>
 
-    <!-- Action of Room Type-->
+    <!-- Action of Building Type-->
     <record id="action_country_state" model="ir.actions.act_window">
       <field name="name">Fed. States</field>
       <field name="type">ir.actions.act_window</field>
@@ -545,7 +546,7 @@
       <field name="name">hms.roomlocation.view.form</field>
       <field name="model">hms.roomlocation</field>
       <field name="arch" type="xml">
-        <form string="Room Location">
+        <form string="Room Location" import="false">
           <sheet>
             <h2>Room Location</h2>
             <br></br>
@@ -563,7 +564,7 @@
       <field name="name">hms.roomlocation.view.list</field>
       <field name="model">hms.roomlocation</field>
       <field name="arch" type="xml">
-        <tree string="Room Location">
+        <tree string="Room Location" import="false">
           <field name="sequence" widget="handle"/>
           <field name="location_code"/>
           <field name="location_name"/>
@@ -584,7 +585,7 @@
       <field name="name">hms.roomtype.view.form</field>
       <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
-        <form string="Room Type">
+        <form string="Room Type" import="false">
           <sheet>
             <field name="active" invisible="1"/>
             <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -615,7 +616,7 @@
       <field name="name">hms.roomtype.view.list</field>
       <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
-        <tree string="Room Type List">
+        <tree string="Room Type List" import="false">
           <field name="sequence" widget="handle"/>
           <field name="code"/>
           <field name="name" />
@@ -632,7 +633,7 @@
       <field name="name">hms.roomtype.view.kanban</field>
       <field name="model">hms.roomtype</field>
       <field name="arch" type="xml">
-        <kanban>
+        <kanban import="false">
           <field name="color" />
           <field name="id"/>
           <field name="code"/>
@@ -700,7 +701,7 @@
       <field name="name">hms.roomview.view.form</field>
       <field name="model">hms.roomview</field>
       <field name="arch" type="xml">
-        <form string="Room View">
+        <form string="Room View" import="false">
           <sheet>
             <h2>Room View Setup</h2>
             <br></br>
@@ -712,6 +713,19 @@
         </form>
       </field>
     </record>
+
+    <!-- Room View List View -->
+    <record id="room_view_view_list" model="ir.ui.view">
+      <field name="name">hms.roomview.view.list</field>
+      <field name="model">hms.roomview</field>
+      <field name="arch" type="xml">
+        <tree string="Room View" import="false">
+          <field name="name"/>
+          <field name="roomview_desc"/>
+        </tree>
+      </field>
+    </record>
+
     <!-- action of room view setup -->
     <record id="room_view_action_window" model="ir.actions.act_window">
       <field name="name">Room View</field>
@@ -725,7 +739,7 @@
       <field name="name">hms.room.facility.view.form</field>
       <field name="model">hms.room.facility</field>
       <field name="arch" type="xml">
-        <form string="Room Facility">
+        <form string="Room Facility" import="false">
           <sheet>
             <h2>Room Facility</h2>
             <br></br>
@@ -744,11 +758,11 @@
       <field name="name">hms.room.facility.view.tree</field>
       <field name="model">hms.room.facility</field>
       <field name="arch" type="xml">
-        <tree string="Room Facility">
+        <tree string="Room Facility" import="false">
           <field name="sequence" widget="handle"/>
           <field name="facilitytype_id"/>
-          <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags"/>
-          <field name="facility_desc" placeholder="Eg. Aircon....."/>
+          <field name="amenity_ids" widget="many2many_tags"/>
+          <field name="facility_desc"/>
         </tree>
       </field>
     </record>
@@ -765,7 +779,7 @@
       <field name="name">hms.room.facility.type.view.form</field>
       <field name="model">hms.room.facility.type</field>
       <field name="arch" type="xml">
-        <form string="Room Facility">
+        <form string="Room Facility" import="false">
           <sheet>
             <h2>Facility Type</h2>
             <br></br>
@@ -783,7 +797,7 @@
       <field name="name">hms.room.facility.type.view.tree</field>
       <field name="model">hms.room.facility.type</field>
       <field name="arch" type="xml">
-        <tree string="Facility Type">
+        <tree string="Facility Type" import="false">
           <field name="facility_type"/>
           <field name="facilitytype_desc"/>
         </tree>
@@ -796,7 +810,7 @@
       <field name="name">hms.property.hms.roomview.form</field>
       <field name="model">hms.property.room</field>
       <field name="arch" type="xml">
-        <form string="Property Room">
+        <form string="Property Room" import="false">
           <sheet>
             <h2>Property Room</h2>
             <br></br>
@@ -854,9 +868,9 @@
                 </notebook>
               </group>
             </group>
-            <!-- <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
+            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
               <i class="fa fa-paint-brush"></i>
-            </button> -->
+            </button>
           </sheet>
           <!-- <footer> -->
           <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
@@ -873,7 +887,7 @@
       <field name="name">hms.property.hms.roomview.list</field>
       <field name="model">hms.property.room</field>
       <field name="arch" type="xml">
-        <tree string="Room Setup">
+        <tree string="Room Setup" import="false">
           <field name="sequence" widget="handle"/>
           <field name="is_propertyroom" invisible='1'/>
           <field name="property_id" optional="hide"/>
@@ -907,7 +921,7 @@
       <field name="name">hms.marketsegment.view.form</field>
       <field name="model">hms.marketsegment</field>
       <field name="arch" type="xml">
-        <form string="Market Segment">
+        <form string="Market Segment" import="false">
           <sheet>
             <h2>Market Segment</h2>
             <br></br>
@@ -927,7 +941,7 @@
       <field name="name">hms.marketsegment.view.tree</field>
       <field name="model">hms.marketsegment</field>
       <field name="arch" type="xml">
-        <tree string="Market Segment">
+        <tree string="Market Segment" import="false">
           <field name="sequence" widget="handle"/>
           <field name="market_code" />
           <field name="market_name" />
@@ -949,7 +963,7 @@
       <field name="name">hms.marketsource.view.form</field>
       <field name="model">hms.marketsource</field>
       <field name="arch" type="xml">
-        <form string="Market Source">
+        <form string="Market Source" import="false">
           <sheet>
             <h2>Market Source</h2>
             <br></br>
@@ -967,7 +981,7 @@
       <field name="name">hms.marketsource.view.tree</field>
       <field name="model">hms.marketsource</field>
       <field name="arch" type="xml">
-        <tree string="Market Source">
+        <tree string="Market Source" import="false">
           <field name="sequence" widget="handle"/>
           <field name="source_code" />
           <field name="source_desc" />
@@ -987,7 +1001,7 @@
       <field name="name">hms.specialday.view.form</field>
       <field name="model">hms.specialday</field>
       <field name="arch" type="xml">
-        <form string="Special Day">
+        <form string="Special Day" import="false">
           <sheet>
             <h2>Special Day</h2>
             <br></br>
@@ -1012,9 +1026,9 @@
       <field name="name">hms.specialday.view.tree</field>
       <field name="model">hms.specialday</field>
       <field name="arch" type="xml">
-        <tree string="Special Days">
-          <field name="special_date" />
-          <field name="special_desc" />
+        <tree string="Special Days" import="false">
+          <field name="special_date"/>
+          <field name="special_desc"/>
         </tree>
       </field>
     </record>
@@ -1063,7 +1077,7 @@
       <field name="name">package.view.form</field>
       <field name="model">hms.package</field>
       <field name="arch" type="xml">
-        <form string="Package">
+        <form string="Package" import="false">
           <sheet>
             <h2>Package</h2>
             <br></br>
@@ -1087,7 +1101,7 @@
       <field name="name">package.view.list</field>
       <field name="model">hms.package</field>
       <field name="arch" type="xml">
-        <tree string="Package">
+        <tree string="Package" import="false">
           <field name="property_id"/>
           <field name="package_code"/>
           <field name="package_name"/>
@@ -1100,7 +1114,7 @@
       <field name="name">package.view.kanban</field>
       <field name="model">hms.package</field>
       <field name="arch" type="xml">
-        <kanban>
+        <kanban import="false">
           <field name="id"/>
           <field name="property_id"/>
           <field name="package_code"/>
@@ -1136,7 +1150,7 @@
       <field name="name">hms.revenuetype.view.form</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
-        <form string="Revenue Type">
+        <form string="Revenue Type" import="false">
           <sheet>
             <group>
               <field name="rev_type"/>
@@ -1155,7 +1169,7 @@
       <field name="name">hms.revenuetype.list</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
-        <tree string="Revenue Type">
+        <tree string="Revenue Type" import="false">
           <field name="rev_code" string="Code"/>
           <field name="rev_type" string ="Revenue"/>
           <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
@@ -1194,12 +1208,10 @@
       <field name="name">hms.subgroup.view.form</field>
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
-        <form string="Transaction Group">
+        <form string="Transaction Group" import="false">
           <sheet>
             <group>
-              <field name="property_ids" invisible="1"/>
               <field name="property_id"/>
-              <field name="user_id" invisible="1"/>
               <field name="revtype_id"/>
               <field name="sub_group" placeholder="0 ~ 9"/>
               <field name="sub_desc" placeholder="Sub Group Revenue"/>
@@ -1214,10 +1226,8 @@
       <field name="name">hms.subgroup.list</field>
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
-        <tree string="Sub Group">
-          <field name="property_ids" invisible="1"/>
+        <tree string="Sub Group" import="false">
           <field name="property_id"/>
-          <field name="user_id" invisible="1"/>
           <field name="sub_group"/>
           <field name="sub_desc"/>
         </tree>
@@ -1254,7 +1264,7 @@
       <field name="name">transaction.view.form</field>
       <field name="model">hms.transaction</field>
       <field name="arch" type="xml">
-        <form string="Transaction">
+        <form string="Transaction" import="false">
           <sheet>
             <h2>Transaction</h2>
             <group>
@@ -1290,7 +1300,7 @@
       <field name="name">transaction.view.list</field>
       <field name="model">hms.transaction</field>
       <field name="arch" type="xml">
-        <tree string="Transaction">
+        <tree string="Transaction" import="false">
           <field name="trans_code" string="Code"/>
           <field name="trans_name" string="Description"/>
           <field name="trans_unitprice" string="Price"/>
@@ -1304,7 +1314,6 @@
         </tree>
       </field>
     </record>
-
 
     <record id="transaction_view_search" model="ir.ui.view">
       <field name="name">hms.transaction.search</field>
@@ -1339,7 +1348,7 @@
       <field name="name">hms.rsvntype.view.form</field>
       <field name="model">hms.rsvntype</field>
       <field name="arch" type="xml">
-        <form string="Reservation Type">
+        <form string="Reservation Type" import="false">
           <sheet>
             <h2>Reservation Type</h2>
             <br></br>
@@ -1359,7 +1368,7 @@
       <field name="name">hms.rsvntype.view.list</field>
       <field name="model">hms.rsvntype</field>
       <field name="arch" type="xml">
-        <tree string="Reservation Type">
+        <tree string="Reservation Type" import="false">
           <field name="rsvn_name"/>
           <field name="rsvn_options"/>
         </tree>
@@ -1378,7 +1387,7 @@
       <field name="name">hms.rsvnstatus.view.form</field>
       <field name="model">hms.rsvnstatus</field>
       <field name="arch" type="xml">
-        <form string="Reservation Type">
+        <form string="Reservation Type" import="false">
           <sheet>
             <h2>Reservation Type</h2>
             <br></br>
@@ -1393,12 +1402,13 @@
         </form>
       </field>
     </record>
+
     <!-- Reservation Status List View -->
     <record id="rsvn_status_view_list" model="ir.ui.view">
       <field name="name">hms.rsvnstatus.view.list</field>
       <field name="model">hms.rsvnstatus</field>
       <field name="arch" type="xml">
-        <tree string="Reservation Type">
+        <tree string="Reservation Type" import="false">
           <field name="rsvn_code"/>
           <field name="rsvn_status"/>
           <field name="rsvntype_id"/>
@@ -1418,7 +1428,7 @@
       <field name="name">hms.creditlimit.view.form</field>
       <field name="model">hms.creditlimit</field>
       <field name="arch" type="xml">
-        <form string="Credit Limit">
+        <form string="Credit Limit" import="false">
           <sheet>
             <h2>Credit Limit</h2>
             <br></br>
@@ -1441,7 +1451,7 @@
       <field name="name">hms.creditlimit.view.list</field>
       <field name="model">hms.creditlimit</field>
       <field name="arch" type="xml">
-        <tree string="Credit Limit">
+        <tree string="Credit Limit" import="false">
           <field name="payment_type"/>
           <field name="crd_startdate"/>
           <field name="crd_enddate"/>
@@ -1462,7 +1472,7 @@
       <field name="name">rate.code.view.form</field>
       <field name="model">rate.code</field>
       <field name="arch" type="xml">
-        <form string="Rate Code">
+        <form string="Rate Code" import="false">
           <sheet>
             <h2>Rate Code</h2>
             <br></br>
@@ -1525,7 +1535,7 @@
       <field name="name">rate.code.view.list</field>
       <field name="model">rate.code</field>
       <field name="arch" type="xml">
-        <tree string="Rate Code">
+        <tree string="Rate Code" import="false">
           <field name="rate_code"/>
           <field name="ratecode_name"/>
           <field name="roomtype_id"/>

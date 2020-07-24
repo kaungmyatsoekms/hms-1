@@ -44,7 +44,10 @@ class RateCodeHeader(models.Model):
                                        required=True)
     pkg_group_ids = fields.One2many('hms.package.group',
                                     related="property_id.packagegroup_ids")
-    pkg_group_id = fields.Many2one('hms.package.group', string="Package")
+    pkg_group_id = fields.Many2one(
+        'hms.package.group',
+        string="Package",
+        domain="[('property_id', '=?', property_id)]")
 
     _sql_constraints = [(
         'rate_code_unique',
@@ -96,6 +99,8 @@ class RateCodeHeader(models.Model):
 
 # Rate Code Detail
 class RateCodeDetails(models.Model):
+    _name = "hms.ratecode.details"
+    _description = "Rate Code Details"
 
     # def default_get_start_date(self):
 
@@ -105,9 +110,6 @@ class RateCodeDetails(models.Model):
     #             return max_start_date
     #     else:
     #         return datetime.today()
-
-    _name = "hms.ratecode.details"
-    _description = "Rate Code Details"
 
     # Default Get Currency
     def default_get_curency(self):
@@ -363,6 +365,15 @@ class RateCodeHead(models.Model):
     property_ids = fields.Many2many("hms.property",
                                     store=True,
                                     track_visibility=True)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({} {})".format(record.rate_code,
+                                                record.start_date,
+                                                record.end_date)))
+        return result
 
     def _update_property_ratecodeheader(self, rate_category_id, property_id,
                                         start_date, end_date, rate_code,

@@ -5,7 +5,7 @@
             <field name="name">Package Header Form</field>
             <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
-                <form string="Package Header">
+                <form string="Package Header" import="false">
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -27,8 +27,8 @@
                                 <field name="transaction_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="include_service"/>
                                 <field name="include_tax"/>
-                                <field name="package_profit"/>
-                                <field name="package_loss"/>
+                                <field name="package_profit" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="package_loss" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="currency_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="allowance"/>
                                 <field name="valid_eod"/>
@@ -58,7 +58,7 @@
             <field name="name">Package List</field>
             <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
-                <tree string="Packages">
+                <tree string="Packages" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="property_id"/>
                     <field name="package_code"/>
@@ -87,7 +87,7 @@
             <field name="name">Package Kanban View</field>
             <field name="model">hms.package.header</field>
             <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="sequence"/>
                     <field name="property_id"/>
                     <field name="package_code"/>
@@ -192,7 +192,7 @@
             <field name="name">Package Group Form</field>
             <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
-                <form string="Package Group">
+                <form string="Package Group" import="false">
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -203,7 +203,7 @@
                                 <field name="pkg_group_code"/>
                                 <field name="shortcut"/>
                                 <field name="pkg_group_name"/>
-                                <field name="package_ids" widget="many2many_tags"/>
+                                <field name="package_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>
                     </sheet>
@@ -216,7 +216,7 @@
             <field name="name">Package Group List</field>
             <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
-                <tree string="Package Groups">
+                <tree string="Package Groups" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="property_id"/>
                     <field name="pkg_group_code"/>
@@ -231,7 +231,7 @@
             <field name="name">Package Group Kanban View</field>
             <field name="model">hms.package.group</field>
             <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="sequence"/>
                     <field name="property_id"/>
                     <field name="pkg_group_code"/>
