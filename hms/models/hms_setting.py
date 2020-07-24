@@ -46,13 +46,13 @@ class Bank(models.Model):
 
     _sql_constraints = [('name_unique', 'unique(name)',
                          'Your name is exiting in the database.')]
-
+    
     def name_get(self):
         result = []
         for record in self:
             result.append(
                 (record.id, "{} ({})({})".format(record.name, record.branch,
-                                                 record.bic)))
+                                                record.bic)))
         return result
 
 
@@ -75,7 +75,7 @@ class HMSCity(models.Model):
         result = []
         for record in self:
             result.append((record.id, "{} ({})".format(record.name,
-                                                       record.code)))
+                                                        record.code)))
         return result
 
 
@@ -98,7 +98,7 @@ class HMSTownship(models.Model):
         result = []
         for record in self:
             result.append((record.id, "{} ({})".format(record.name,
-                                                       record.code)))
+                                                        record.code)))
         return result
 
 
@@ -171,12 +171,12 @@ class Nationality(models.Model):
         return models.lazy_name_get(
             self.browse(state_ids).with_user(name_get_uid))
 
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "{} ({})".format(record.name,
-                                                       record.code)))
-        return result
+        def name_get(self):
+            result = []
+            for record in self:
+                result.append((record.id, "{} ({})".format(record.name,
+                                                        record.code)))
+            return result
 
 
 class Passport(models.Model):
@@ -205,11 +205,11 @@ class Passport(models.Model):
                          'Your passport is exiting in the database.')]
 
     def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "{} ({})".format(record.profile_id.name,
-                                                       record.passport)))
-        return result
+            result = []
+            for record in self:
+                result.append((record.id, "{} ({})".format(record.profile_id.name,
+                                                        record.passport)))
+            return result
 
     # Activate the latest passport
     @api.constrains('active')
@@ -772,7 +772,7 @@ class Partner(models.Model):
         crm_type = self.env['hms.company.category'].search([('id', '=',
                                                              crm_type)])
 
-        if company_type == 'company' or company_type == 'guest':
+        if company_type == 'company' or company_type == 'guest' or company_type == "group":
             pf_no = self.generate_profile_no(company_type, property_id,
                                              crm_type)
 
