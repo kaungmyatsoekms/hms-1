@@ -1896,7 +1896,7 @@ class ReservationLine(models.Model):
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, res.package_id.package_ids)
-                
+                        
             day_count += 1
 
     def update_additional_packages(self, reservation_line_id, delete, pkg):
@@ -2509,10 +2509,16 @@ class RoomReservationSummary(models.Model):
     _name = 'hms.room.reservation.summary'
     _description = 'Room reservation summary'
 
-    property_id = fields.Many2one(
-        'hms.property',
-        string="Property",
-        default=lambda self: self.env.user.property_id.id)
+    # property_id = fields.Many2one(
+    #     'hms.property',
+    #     string="Property",
+    #     default=lambda self: self.env.user.property_id.id)
+    user_id = fields.Many2one('res.users', default=lambda self: self.env.uid)
+    property_ids = fields.Many2many('hms.property',
+                                    related="user_id.property_id")
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  domain="[('id', '=?', property_ids)]")
     name = fields.Char('Reservation Summary',
                        default='Reservations Summary',
                        invisible=True)
