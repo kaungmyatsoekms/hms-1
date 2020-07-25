@@ -109,12 +109,12 @@
                                     <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="internal_notes" placeholder="Remarks"/>
-                                <field name="dummy_readonly" attrs="{'invisible': [('type','!=', 'group')]}"/>
+                                <field name="dummy_readonly" invisible="1"/>
                                 <field name="is_dummy" widget="boolean_toggle" options="{'no_quick_edit': True}" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
                             </group>
                             <group>
-                                <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <field name="group_id" options="{'no_quick_create': True}" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
@@ -1360,7 +1360,7 @@
 
         
 
-        <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
+        <menuitem id="reason_type_menu" name="Reason Type" parent="market_config" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
 
         <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />

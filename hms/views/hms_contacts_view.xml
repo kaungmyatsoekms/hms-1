@@ -309,8 +309,8 @@
             <field name="view_id" ref="view_partner_contact_form"/>
         </record>
 
-        <menuitem id="contact_menu_root_config" name="CRM" parent="hms_menu_config" sequence="2"/>
-        <menuitem id="contact_person_menu_root" name="Contacts" parent="contact_menu_root_config" action="base.action_partner_form" sequence="100"/>
+        <!-- <menuitem id="contact_menu_root_config" name="CRM" parent="hms_menu_config" sequence="2"/>
+        <menuitem id="contact_person_menu_root" name="Contacts" parent="contact_menu_root_config" action="base.action_partner_form" sequence="100"/> -->
 
     </data>
 </odoo>

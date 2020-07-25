@@ -1,0 +1,19 @@
+24/7/20
+pkg shorcut placeholder & string name
+pkg group shorcut placeholder & string name
+transaction default_property_id for subgroup
+rate create
+rate detials copy button edit remove related to season code
+close create at guest form
+
+Need to check
+	all many2one fields is close quick create
+1. close revenue type create=false, no_create_edit=True, edit =true, delete=false
+2. market segment new boolean for is_csv and readonly is_csv is true
+3. market group new boolean for is_csv and readonly is_csv is true
+4. reservation type close (create,edit,delete,no_create_edit) remove menu item
+5. currency form close(create/edit/delete,no_create_edit)
+6. room type is readonly after select from property.
+7. room no code is readonly after create reservation.
+8. room no room view quickcreate close creat & edit also
+9. wrong posting rythms on reservation details

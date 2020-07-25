@@ -601,11 +601,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
+        action = self.env.ref('hms.credit_limit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
+            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -1859,6 +1859,22 @@ class SubGroup(models.Model):
             result.append((record.id, "({}) {}".format(record.sub_group,
                                                        record.sub_desc)))
         return result
+
+    @api.onchange('property_ids')
+    def default_get_property_id(self):
+        if self.property_ids:
+            if len(self.property_ids) >= 1:
+                self.property_id = self.property_ids[0]._origin.id
+        else:
+            return {
+                'warning': {
+                    'title':
+                    _('No Property Permission'),
+                    'message':
+                    _("Select Property in User Setting or you can't create reservation"
+                      )
+                }
+            }
 
     @api.constrains('sub_group')
     def _check_sub_group(self):
