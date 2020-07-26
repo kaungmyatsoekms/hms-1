@@ -1273,8 +1273,8 @@
                 <field name="trans_ptype" attrs="{'invisible': [('revtype_name', '!=', 'Payment')],'required': [('revtype_name', '=', 'Payment')]}"/>
                 <field name="revsub_active" invisible="1"/>
                 <field name="subgroup_ids" invisible="1"/>
-                <field name="subgroup_id" context="{'default_property_id': property_id}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
-                <field name="subgroup_name"/>
+                <field name="subgroup_id" context="{'default_property_id': property_id,'default_revtype_id':revtype_id}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
+                <field name="subgroup_name" force_save="1"/>
                 <!-- attrs="{'invisible': [('revsub_active', '=', True)]}"-->
                 <field name="trans_code" placeholder="Eg. 1001....."/>
                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>

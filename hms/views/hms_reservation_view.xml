@@ -41,7 +41,7 @@
             <field name="name">reservation.view.form</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <form name="Reservation" import="false">
+                <form name="Reservation" no_quick_create="True" import="false">
                     <header>
                         <field name="is_reservation" invisible="1"/>
                         <field name="is_arrival_today" invisible="1"/>
@@ -60,8 +60,10 @@
                         <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
                         <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|',('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
@@ -484,7 +486,7 @@
             <field name="name">reservation.line.view.form</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <form string="Reservation Details" import="false">
+                <form string="Reservation Details" quick_create="false" create="false" import="false">
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
@@ -613,8 +615,10 @@
                                         <field name="package_ids" invisible="1"/>
                                         <field name="package_id"/>
                                         <field name="rate" />
+                                        <field name="currency_id"/>
                                         <field name="total_room" />
-                                        <field name="total_amount" sum="Total"/>
+                                        <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
+                                        <!-- <field name="price_subtotal"/> -->
                                         <field name="ref"/>
                                     </tree>
                                 </field>
@@ -674,7 +678,7 @@
             <field name="name">reservation.line.view.list</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <tree string="Reservation Details" import="false" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                <tree string="Reservation Details" create="false" import="false" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="property_id" optional="show"/>
                     <field name="is_roomtype_fix" invisible="1"/>
                     <field name="sequence" widget="handle"/>
@@ -713,7 +717,7 @@
             <field name="name">reservation.line.view.kanban</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state" class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
+                <kanban default_group_by="state" quick_create="false" create="false" class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="color"/>
                     <field name="state"/>
                     <field name="sequence"/>

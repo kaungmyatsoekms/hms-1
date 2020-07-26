@@ -37,6 +37,8 @@ class HMSTransactionChargeLine(models.Model):
                                           default=get_reservation_line_id)
     rate = fields.Float("Rate", store=True)
     total_amount = fields.Float("Total")
+    price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True,
+        currency_field='always_set_currency_id')
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
@@ -50,6 +52,14 @@ class HMSTransactionChargeLine(models.Model):
                                       index=True,
                                       default=RATE_ATTRIBUTE[0][0])
     ref = fields.Char(string="Reference")
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  required=True,
+                                  track_visibility=True)
+    always_set_currency_id = fields.Many2one('res.currency', string='Foreign Currency',
+        compute='_compute_always_set_currency_id',
+        help="Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one.")
+
 
     def name_get(self):
         result = []
@@ -58,6 +68,13 @@ class HMSTransactionChargeLine(models.Model):
                            "{} ({})".format(record.transaction_date,
                                             record.transaction_id.trans_name)))
         return result
+        
+    # Compute Currency
+    @api.depends('currency_id')
+    def _compute_always_set_currency_id(self):
+        for line in self:
+            line.always_set_currency_id = line.currency_id or line.company_currency_id
+
 
     @api.onchange('package_id')
     def onchange_rate(self):

@@ -119,7 +119,7 @@ class Package(models.Model):
                                           string='Calculation Method',
                                           index=True,
                                           default=CALCUATION_METHODS[0][0])
-    Fix_price = fields.Float('Price')
+    Fix_price = fields.Float('Price',  digits='Fix Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,

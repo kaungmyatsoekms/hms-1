@@ -829,8 +829,8 @@ class ReservationLine(models.Model):
         ('cancel', 'Cancel'),
         ('checkin', 'Checkin'),
     ],
-                             default=get_state,
-                             store=True)
+        default=get_state,
+        store=True)
     # default=lambda *a: 'booking')
     market_ids = fields.Many2many('hms.marketsegment',
                                   related="property_id.market_ids")
@@ -1697,6 +1697,7 @@ class ReservationLine(models.Model):
                            reservation_line_id, rate, total_amount, active,
                            package_id, transaction_date, total_room, delete,
                            rate_attribute):
+        currency = reservation_line_id.ratecode_id.currency_id
         vals = []
         vals.append((0, 0, {
             'property_id': property_id.id,
@@ -1711,6 +1712,7 @@ class ReservationLine(models.Model):
             'delete': delete,
             'rate_attribute': rate_attribute,
             'ref': 'AUTO',
+            'currency_id':currency.id,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 

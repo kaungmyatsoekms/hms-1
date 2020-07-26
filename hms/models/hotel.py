@@ -1903,9 +1903,9 @@ class Transaction(models.Model):
     subgroup_ids = fields.One2many('hms.subgroup',
                                    related="property_id.subgroup_ids")
     subgroup_id = fields.Many2one('hms.subgroup',
-                                  domain="[('id', '=?', subgroup_ids)]",
+                                  domain="[('id', '=?', subgroup_ids),('revtype_id','=',revtype_id)]",
                                   string="Sub Group")
-    subgroup_name = fields.Char(string="Group Name", readonly=True)
+    subgroup_name = fields.Char(string="Group Name", readonly=True, store=True)
     trans_code = fields.Char(string="Transaction Code",
                              size=4,
                              required=True,
@@ -2063,6 +2063,7 @@ class TransactionRoot(models.Model):
             CREATE OR REPLACE VIEW %s AS (
             SELECT DISTINCT ASCII(trans_code) * 1000 + ASCII(SUBSTRING(trans_code,2,1)) AS id,
                    LEFT(trans_code,2) AS name,
+                   property_id as property_id,
                    subgroup_name as revname,
                    ASCII(trans_code) AS parent_id,
                    subgroup_id as group
@@ -2070,17 +2071,18 @@ class TransactionRoot(models.Model):
             UNION ALL
             SELECT DISTINCT ASCII(trans_code) AS id,
                    LEFT(trans_code,1) AS name,
+                   property_id as property_id,
                    revtype_name as revname,
                    NULL::int AS parent_id,
                    subgroup_id as group
             FROM hms_transaction WHERE trans_code IS NOT NULL
             )''' % (self._table, ))
 
-    # def name_get(self):
-    #     result = []
-    #     for record in self:
-    #         result.append((record.id, "({}) {}".format(record.revname, record.name)))
-    #     return result
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.revname, record.name)))
+        return result
 
 
 # Reservation Type
