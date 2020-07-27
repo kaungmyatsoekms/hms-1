@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Report Wizard for Reservation List -->
+        <!-- Report Wizard for Reservation List -->
     <record id="reservation_report_wiz" model="ir.ui.view">
         <field name="name">Reservation List</field>
         <field name="model">hms.reservation_report_wizard</field>
@@ -40,6 +40,7 @@
                 </group>
                 <footer>
                     <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
+                    <button name="get_report_excel" string="Get Excel" class="btn-primary" type="object" icon="fa-bars"/>
                     <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
                 </footer>
             </form>

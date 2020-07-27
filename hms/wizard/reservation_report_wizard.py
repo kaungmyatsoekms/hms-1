@@ -1,5 +1,16 @@
-from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo import models, fields, api, _
+import tempfile
+from odoo.tools.misc import xlwt
+import io
+import base64
+from odoo.http import request
+from odoo.tools import date_utils
+from odoo.exceptions import UserError, ValidationError
+import json
+try:
+    from odoo.tools.misc import xlsxwriter
+except ImportError:
+    import xlsxwriter
 
 
 class ReservationReportWizard(models.TransientModel):
@@ -73,20 +84,72 @@ class ExpectedArrReportWizard(models.TransientModel):
         return self.env.ref('hms.expected_arrival_report').report_action(
             self, data=data)
 
-    # @api.depends('is_group')
-    # def _compute_type(self):
-    #     for partner in self:
-    #         if partner.is_group or self._context.get(
-    #                 'default_type') == 'group':
-    #             partner.type = 'group'
-    #             partner.is_group = True
-    #         else:
-    #             partner.type = 'individual'
+    def get_report_excel(self):
+        data = {
+            'ids': self.ids,
+            'model': 'hms.reservation.line',
+            'form': self.read(['property_id', 'arr_date', 'type_'])[0]
+        }
 
-    # def _write_type(self):
-    #     for partner in self:
-    #         partner.is_group = partner.type == 'group'
+        return {
+            'type': 'ir_actions_xlsx_download',
+            'data': {'model': 'wizard.hms.expected_arr_report_wizard',
+                     'options': json.dumps(data, default=date_utils.json_default),
+                     'output_format': 'xlsx',
+                     'report_name': 'Expected Arrival Report',
+                     }
+        }
 
-    # @api.onchange('type')
-    # def onchange_type(self):
-    #     self.is_group = (self.type == 'group')
+    def get_xlsx_report(self, data, response):
+        output=io.BytesIO() 
+        filename= 'Expected Arrival Report ' + str(self.property_id.name) + '.xls'
+        workbook = xlwt.Workbook()
+
+        worksheet = workbook.add_sheet('Expected Arrival Report')
+        font = xlwt.Font()
+        font.bold = True
+        for_left = xlwt.easyxf("font: bold 1, color black; borders: top double, bottom double, left double, right double; align: horiz left")
+        for_left_not_bold = xlwt.easyxf("font: color black; align: horiz left")
+        for_center_bold = xlwt.easyxf("font: bold 1, color black; align: horiz center")
+        GREEN_TABLE_HEADER = xlwt.easyxf(
+            'font: bold 1, name Tahoma, height 250;'
+            'align: vertical center, horizontal center, wrap on;'
+            'borders: top double, bottom double, left double, right double;'
+            )
+        style = xlwt.easyxf('font:height 400, bold True, name Arial; align: horiz center, vert center;borders: top medium,right medium,bottom medium,left medium')
+
+        alignment = xlwt.Alignment()  # Create Alignment
+        alignment.horz = xlwt.Alignment.HORZ_RIGHT
+        style = xlwt.easyxf('align: wrap yes')
+        style.num_format_str = '0.00'
+
+        worksheet.row(0).height = 320
+        worksheet.col(0).width = 4000
+        worksheet.col(1).width = 4000
+        borders = xlwt.Borders()
+        borders.bottom = xlwt.Borders.MEDIUM
+        border_style = xlwt.XFStyle()  # Create Style
+        border_style.borders = borders
+
+        report_title = 'Expected Arrival Report ' + str(self.property_id.name)
+
+        worksheet.write_merge(0,1,0,2,report_title,GREEN_TABLE_HEADER)
+        row = 2
+        reservation_line_objs = self.env['hms.reservation.line'].search([
+            ('property_id', '=', self.property_id.id),
+            ('arrival', '=', self.arr_date),
+            ('reservation_id.type','=',self.type_),
+            ])
+        worksheet.write(row, 0, 'Name' or '',for_left)
+        worksheet.write(row, 1, 'Arr Date' or '',for_left)
+        for obj in reservation_line_objs:
+            row +=1
+            # sheet = workbook.add_worksheet('Expected Arrival')
+            worksheet.write(row,0,obj.property_id.name,for_left_not_bold)
+            worksheet.write(row,1,obj.arrival,for_left_not_bold)
+
+        workbook.close()
+        output.seek(0)
+        response.stream.write(output.read())
+        output.close()
+

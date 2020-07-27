@@ -85,6 +85,7 @@
         'wizard/hms_rersvn_wizard_view.xml',
         'views/hms_reservation_view.xml',
         'views/room_summ_view.xml',
+        'views/action_manager.xml',
         'data/hms.reasontype.csv',
         'data/hms.reason.csv',
         'views/hms_managment_report.xml',
