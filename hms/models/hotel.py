@@ -2068,7 +2068,6 @@ class TransactionRoot(models.Model):
             SELECT DISTINCT ASCII(trans_code) * 1000 + ASCII(SUBSTRING(trans_code,2,1)) AS id,
                    property_id As property_id,
                    LEFT(trans_code,2) AS name,
-                   property_id as property_id,
                    subgroup_name as revname,
                    ASCII(trans_code) AS parent_id,
                    subgroup_id as group
@@ -2077,7 +2076,6 @@ class TransactionRoot(models.Model):
             SELECT DISTINCT ASCII(trans_code) AS id,
                    property_id As property_id,
                    LEFT(trans_code,1) AS name,
-                   property_id as property_id,
                    revtype_name as revname,
                    NULL::int AS parent_id,
                    subgroup_id as group
