@@ -601,11 +601,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
+        action = self.env.ref('hms.credit_limit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
+            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -1458,7 +1458,9 @@ class RoomFacility(models.Model):
     _rec_name = "facilitytype_id"
     _order = 'facilitytype_id'
 
-    propertyroom_id = fields.Many2one("hms.property.room", string="Property Room", readonly=True)
+    propertyroom_id = fields.Many2one("hms.property.room",
+                                      string="Property Room",
+                                      readonly=True)
     sequence = fields.Integer(default=1)
     amenity_ids = fields.Many2many(
         'hms.room.amenity',
@@ -1537,9 +1539,9 @@ class PropertyRoom(models.Model):
                                       string="Location",
                                       required=True)
     facility_ids = fields.One2many('hms.room.facility',
-                                    'propertyroom_id',
-                                    string="Room Facility",
-                                    required=True)
+                                   'propertyroom_id',
+                                   string="Room Facility",
+                                   required=True)
     room_bedqty = fields.Integer(string="Number of Beds",
                                  required=True,
                                  size=2,

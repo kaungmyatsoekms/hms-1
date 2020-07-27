@@ -37,7 +37,7 @@
                           <field name="property_id" readonly="1"/>
                           <field name="allotment_id" invisible="1"/>
                           <field name="roomtype_ids" invisible="1"/>
-                          <field name="roomtype_id"/>
+                          <field name="roomtype_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                           <field name="cut_off_days"/>
                           <field name="start_date" attrs="{'readonly': [('state','in', ['open'])]}"/>
                           <field name="end_date" attrs="{'readonly': [('state','in', ['open'])]}"/>
@@ -140,10 +140,10 @@
           <sheet>
             <div class="oe_title">
               <h3>
-                <field name="property_id"/>
-                <field name="allotment_id"/>
+                <field name="property_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                <field name="allotment_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id" placeholder="Room Type"/>
+                <field name="roomtype_id" placeholder="Room Type" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
               </h3>
             </div>
             <group>

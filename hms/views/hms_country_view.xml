@@ -4,7 +4,7 @@
       <field name="name">Country Form</field>
       <field name="model">hms.country</field>
       <field name="arch" type="xml">
-        <form import="false">
+        <form create="false" edit="false" delete="false" import="false">
           <sheet>
             <div class="oe_button_box" name="button_box">
               <button type="object" class="oe_stat_button" icon="fa-archive">
@@ -31,7 +31,7 @@
       <field name="name">Country list</field>
       <field name="model">hms.country</field>
       <field name="arch" type="xml">
-        <tree import="false">
+        <tree create="false" edit="false" delete="false" import="false">
           <field name="code"/>
           <field name="name"/>
         </tree>
@@ -56,6 +56,20 @@
       <field name="view_id" ref="view_country_tree"/>
     </record>
 
+    <!-- res.country form view extension -->
+    <record id="view_country_form_extension" model="ir.ui.view">
+      <field name="name">res.country.form</field>
+      <field name="model">res.country</field>
+      <field name="inherit_id" ref="base.view_country_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="/form" position="attributes">
+          <attribute name="create">false</attribute>
+          <attribute name="edit">false</attribute>
+          <attribute name="delete">false</attribute>
+          <attribute name="import">false</attribute>
+        </xpath>
+      </field>
+    </record>
     <!-- res.country tree view extension -->
     <record id="view_country_tree_extension" model="ir.ui.view">
       <field name="name">res.country.tree</field>
@@ -63,6 +77,9 @@
       <field name="inherit_id" ref="base.view_country_tree"/>
       <field name="arch" type="xml">
         <xpath expr="/tree" position="attributes">
+          <attribute name="create">false</attribute>
+          <attribute name="edit">false</attribute>
+          <attribute name="delete">false</attribute>
           <attribute name="import">false</attribute>
         </xpath>
       </field>

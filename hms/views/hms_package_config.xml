@@ -17,19 +17,19 @@
                         <group>
                             <group>
                                 <field name="package_code" default_focus="1" placeholder="Package Code"/>
-                                <field name="shortcut" placeholder="Package Name"/>
-                                <field name="package_name" placeholder="Description"/>
+                                <field name="package_name" placeholder="Package Name"/>
+                                <field name="shortcut" placeholder="Description"/>
                                 <label for="start_date" string="Package Period"/>
                                 <div>
                                     <field name="start_date" style="width:50%%"/>
                                     <field name="end_date" style="width:50%%"/>
                                 </div>
-                                <field name="transaction_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="transaction_id" options="{'no_create': True, 'no_create_edit':True, 'no_quick_create': True, 'no_open':True}"/>
                                 <field name="include_service"/>
                                 <field name="include_tax"/>
-                                <field name="package_profit" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                <field name="package_loss" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                <field name="currency_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="package_profit" options="{'no_create': True, 'no_create_edit':True, 'no_quick_create': True, 'no_open':True}"/>
+                                <field name="package_loss" options="{'no_create': True, 'no_create_edit':True, 'no_quick_create': True, 'no_open':True}"/>
+                                <field name="currency_id" options="{'no_create': True, 'no_create_edit':True, 'no_quick_create': True, 'no_open':True}"/>
                                 <field name="allowance"/>
                                 <field name="valid_eod"/>
                             </group>
@@ -201,9 +201,9 @@
                         <group>
                             <group>
                                 <field name="pkg_group_code" placeholder="Group Code"/>
-                                <field name="shortcut" placeholder="Group Name"/>
-                                <field name="pkg_group_name" placeholder="Description"/>
-                                <field name="package_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="pkg_group_name" placeholder="Group Name"/>
+                                <field name="shortcut" placeholder="Description"/>
+                                <field name="package_ids" widget="many2many_tags" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>
                     </sheet>

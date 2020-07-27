@@ -99,16 +99,16 @@
                         <group>
                             <group>
                                 <field name="property_ids" invisible="1"/>
-                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="is_company" invisible="1"/>
                                 <field name="is_group" invisible="1"/>
-                                <field name="company_id" attrs="{'required': [('type','=', 'group')]}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
-                                <field name="sales_id" placeholder="Sales Person" required="1" context="{'default_company_type' :'person','default_is_from_hms': True }"/>
-                                <field name="contact_id" placeholder="Contact Person" required="1" context="{'default_company_type' : 'person','default_is_from_hms': True }"/>
+                                <field name="company_id" attrs="{'required': [('type','=', 'group')]}" options="{'no_quick_create':True}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
+                                <field name="sales_id" placeholder="Sales Person" required="1" options="{'no_quick_create':True, 'no_open':True}" context="{'default_company_type' :'person','default_is_from_hms': True }"/>
+                                <field name="contact_id" placeholder="Contact Person" required="1" options="{'no_quick_create':True, 'no_open':True}" context="{'default_company_type' : 'person','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
-                                    <field name="reservation_type" style="width:50%%" placeholder="Type" force_save="1" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                    <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="reservation_type" style="width:50%%" placeholder="Type" force_save="1" options="{'no_quick_create':True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1" options="{'no_quick_create':True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="internal_notes" placeholder="Remarks"/>
                                 <field name="dummy_readonly" invisible="1"/>
@@ -140,9 +140,9 @@
                                 <label for="market" string="Market/Source"/>
                                 <div class="o_address_format">
                                     <field name="market_ids" invisible="1"/>
-                                    <field name="market" style="width:50%%" placeholder="Market" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="market" style="width:50%%" placeholder="Market" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                     <!-- <label for="source" string=" " style="width: 3em"/> -->
-                                    <field name="source" style="width:50%%" placeholder="Source" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="source" style="width:50%%" placeholder="Source" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="reason_id" string="Cancellation Reason" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
                             </group>
@@ -198,22 +198,22 @@
                                         <field name="is_no_show" invisible="1"/>
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
-                                        <field name="room_no" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
-                                        <field name="guest_id" />
+                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|', ('rooms', '!=', 1), ('state', 'not in', ('confirm', 'checkin'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                        <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }" options="{'no_quick_create': True}"/>
                                         <field name="arrival"/>
-                                        <field name="departure" />
+                                        <field name="departure"/>
                                         <field name="nights" string="Nights"/>
                                         <field name="roomtype_ids" invisible="1"/>
-                                        <field name="room_type" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                        <field name="room_type" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                         <field name="rooms"/>
                                         <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
                                         <field name="child"/>
-                                        <field name="ratehead_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="ratecode_id" string="Rate Code" invisible="1"/>
-                                        <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="ratehead_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="ratecode_id" string="Rate Code" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" invisible="1"/>
+                                        <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="market_ids" invisible="1"/>
@@ -424,7 +424,7 @@
                         <field name="user_id" readonly="1"/>
                         <div class="oe_title">
                             <field name="property_ids" invisible="1"/>
-                            <field name="property_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                            <field name="property_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                         </div>
                         <group colspan="4" col="4">
                             <div>
@@ -462,7 +462,7 @@
                         <separator string="Quick Reservation" colspan="4"/>
                         <field name="market_ids" invisible="1"/>
                         <group colspan="4" col="4">
-                            <field name="property_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                            <field name="property_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             <field name="rooms"/>
                             <field name="check_in"/>
                             <field name="check_out"/>
@@ -502,7 +502,7 @@
                         <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', ('system_date', '!=', 'arrival'), ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
+                        <button string="Check In" name="%(action_checkin_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', '|',  ('is_arrival_today', '=', False), ('state', '!=', 'confirm'), ('rooms', '!=', 1), ('room_no', '=', False), ('ratehead_id', '=', False), ('ratecode_id', '=', False)]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}">
@@ -513,7 +513,7 @@
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
-                            <field name="property_id"/>
+                            <field name="property_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             <field name="reservation_id" invisible="1"/>
                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1>
@@ -525,15 +525,15 @@
                         <field name="madeondate"/>
                         <group>
                             <group name="">
-                                <field name="company_id" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
-                                <field name="group_id" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <field name="company_id" options="{'no_quick_create': True, 'no_open': True}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
+                                <field name="group_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="guest_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
-                                    <field name="reservation_type" style="width:50%%" placeholder="Type" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                    <field name="reservation_status" style="width:50%%" placeholder="Status" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="reservation_type" style="width:50%%" placeholder="Type" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="reservation_status" style="width:50%%" placeholder="Status" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
-                                <field name="system_date" />
+                                <field name="system_date"/>
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
                                     <field name="arrival" style="width:35%%" attrs="{'readonly': [('state', '=', 'checkin')]}"/>
@@ -552,11 +552,11 @@
                                 <div class="address_Format">
                                     <field name="nights" string="Nights" style="width:20%%; text-align:centre"/>
                                     <field name="roomtype_ids" invisible="1"/>
-                                    <field name="room_type" placeholder="Room Type" style="width:20%%" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                    <field name="room_type" placeholder="Room Type" style="width:20%%" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                     <field name="bedtype_ids" invisible="1"/>
                                     <field name="bedtype_id" placeholder="Bed Type" style="width:20%%" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                     <field name="rooms" placeholder="Rooms" style="width:20%%"/>
-                                    <field name="room_no" placeholder="Room No" style="width:20%%" attrs="{'invisible': [('rooms', '!=', 1),('state','!=','confirm')], 'readonly' : [('state', '=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                    <field name="room_no" placeholder="Room No" style="width:20%%" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible': ['|', ('rooms', '!=', 1),('state', '!=', 'confirm'),('state', '!=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <label for="pax" string="Pax / Child"/>
                                 <div class="address_format">
@@ -571,18 +571,18 @@
                                 <label for="market" string="Market / Source"/>
                                 <div class="address_format">
                                     <field name="market_ids" invisible="1"/>
-                                    <field name="market" placeholder="Market" style="width: 50%%" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                    <field name="source" placeholder="Source" style="width: 50%%" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="market" placeholder="Market" style="width: 50%%" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="source" placeholder="Source" style="width: 50%%" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="reason_id" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
                             </group>
                             <group>
-                                <field name="ratehead_id" string="Rate Code Header" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                <field name="ratecode_id" string="Rate Code" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="ratehead_id" string="Rate Code Header" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="ratecode_id" string="Rate Code" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="ratecode_ids" invisible="1" domain="[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&amp;',('start_date','&lt;=',arrival),('end_date', '&gt;=', arrival),'&amp;',('start_date','&lt;=',departure),('end_date', '&gt;=', departure)]"/>
                                 <field name="allotment_id" placeholder="Allotment"/>
-                                <field name="package_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <div class="o_address_format">
                                     <field name="room_rate" style="width:33%%"/>
@@ -611,11 +611,11 @@
                                     <tree editable="bottom">
                                         <field name="property_id" invisible="1"/>
                                         <field name="transaction_date"/>
-                                        <field name="transaction_id"/>
+                                        <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
-                                        <field name="package_id"/>
+                                        <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="rate" />
-                                        <field name="currency_id"/>
+                                        <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="total_room" />
                                         <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
                                         <!-- <field name="price_subtotal"/> -->

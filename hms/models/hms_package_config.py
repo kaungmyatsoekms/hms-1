@@ -61,8 +61,8 @@ class Package(models.Model):
                                   readonly=True,
                                   required=True)
     package_code = fields.Char(string="Package Code", size=4, required=True)
-    shortcut = fields.Char(string="Package Name",required=True)
-    package_name = fields.Text(string="Description" )
+    package_name = fields.Char(string="Package Name", required=True)
+    shortcut = fields.Text(string="Description")
     start_date = fields.Date(string="Start Date",
                              required=True,
                              help="Start of Package")
@@ -119,7 +119,7 @@ class Package(models.Model):
                                           string='Calculation Method',
                                           index=True,
                                           default=CALCUATION_METHODS[0][0])
-    Fix_price = fields.Float('Price',  digits='Fix Price')
+    Fix_price = fields.Float('Price', digits='Fix Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
@@ -202,8 +202,8 @@ class PackageGroup(models.Model):
                                   readonly=True,
                                   required=True)
     pkg_group_code = fields.Char(string="Group Code", size=4, required=True)
-    shortcut = fields.Char(string="Group Name" , required=True)
-    pkg_group_name = fields.Text(string="Description")
+    pkg_group_name = fields.Char(string="Group Name", required=True)
+    shortcut = fields.Text(string="Description")
     package_ids = fields.Many2many(
         'hms.package.header',
         string="Packages",

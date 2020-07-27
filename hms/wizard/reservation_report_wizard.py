@@ -93,7 +93,7 @@ class ExpectedArrReportWizard(models.TransientModel):
 
         return {
             'type': 'ir_actions_xlsx_download',
-            'data': {'model': 'wizard.hms.expected_arr_report_wizard',
+            'data': {'model': 'hms.expected_arr_report_wizard',
                      'options': json.dumps(data, default=date_utils.json_default),
                      'output_format': 'xlsx',
                      'report_name': 'Expected Arrival Report',

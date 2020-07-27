@@ -10,7 +10,7 @@
                         <separator colspan="1" string="Availability"/>
                         <div class="oe_title">
                             <h3>
-                                <field name="property_id"/>
+                                <field name="property_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </h3>
                         </div>
                         <group>
@@ -162,7 +162,7 @@
                         <separator colspan="1" string="Room Type Available"/>
                         <div class="oe_title">
                             <h3>
-                                <field name="property_id"/>
+                                <field name="property_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </h3>
                             <field name="availability_id" invisible="1"/>
                         </div>
@@ -170,7 +170,7 @@
                             <group>
                                 <field name="ravail_date"/>
                                 <field name="roomtype_ids" invisible="1"/>
-                                <field name="ravail_rmty"/>
+                                <field name="ravail_rmty" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="total_room" string="Total Rooms"/>
                                 <field name="ravail_booking" string="Booking"/>
                                 <field name="ravail_unconfirm" string="Unconfirmed"/>
