@@ -743,6 +743,7 @@
             <h2>Room Facility</h2>
             <br></br>
             <group>
+              <field name="propertyroom_id"/>
               <field name="facilitytype_id"/>
               <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags" />
               <field name="facility_desc" placeholder="Eg. Aircon....."/>
@@ -1472,7 +1473,6 @@
     <menuitem id="room_config" name="Room Config" parent="hms_menu_config" sequence="2"/>
     <menuitem id="room_type_menu" name="Room Type" parent="room_config" sequence="1" action="room_type_action_window"/>
     <menuitem id="room_view_menu" name="Room View" parent="room_config" sequence="2" action="room_view_action_window"/>
-    <menuitem id="room_facility_menu" name="Room Facility" parent="room_config" sequence="3" action="room_facility_action_window"/>
     <menuitem id="building_menu" name="Hotel Building" parent="room_config" sequence="4" action="building_action_window"/>
     <menuitem id="room_location_menu" name="Room Location" parent="room_config" sequence="5" action="room_location_action_window"/>
 

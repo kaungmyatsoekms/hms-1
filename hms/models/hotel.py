@@ -1447,6 +1447,7 @@ class RoomFacility(models.Model):
     _rec_name = "facilitytype_id"
     _order = 'facilitytype_id'
 
+    propertyroom_id = fields.Many2one("hms.property.room", string="Property Room", readonly=True)
     sequence = fields.Integer(default=1)
     amenity_ids = fields.Many2many(
         'hms.room.amenity',
@@ -1524,7 +1525,8 @@ class PropertyRoom(models.Model):
     roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       required=True)
-    facility_ids = fields.Many2many('hms.room.facility',
+    facility_ids = fields.One2many('hms.room.facility',
+                                    'propertyroom_id',
                                     string="Room Facility",
                                     required=True)
     room_bedqty = fields.Integer(string="Number of Beds",

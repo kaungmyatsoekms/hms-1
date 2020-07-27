@@ -54,6 +54,7 @@
         'data/hms.room.facility.type.csv',
         'data/hms.room.amenity.csv',
         'data/hms.roomtype.csv',
+        'data/hms.roomview.csv',
         'views/hms_forecast_view.xml',
         'views/hms_bank_view.xml',
         'views/hms_format_view.xml',

@@ -76,6 +76,14 @@ class HMSTransactionChargeLine(models.Model):
             line.always_set_currency_id = line.currency_id or line.company_currency_id
 
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id,
+                           "{} ({})".format(record.transaction_date,
+                                            record.transaction_id.trans_name)))
+        return result
+
     @api.onchange('package_id')
     def onchange_rate(self):
         for rec in self:
