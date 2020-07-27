@@ -601,11 +601,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.credit_limit_action_window').read()[0]
+        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
+            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -1448,10 +1448,11 @@ class RoomFacility(models.Model):
     _order = 'facilitytype_id'
 
     sequence = fields.Integer(default=1)
-    amenity_ids = fields.Many2many('hms.room.amenity',
-                                   string="Room Facility",
-                                   domain="[('facilitytype_id.id', '=?', facilitytype_id)]",
-                                   required=True)
+    amenity_ids = fields.Many2many(
+        'hms.room.amenity',
+        string="Room Facility",
+        domain="[('facilitytype_id.id', '=?', facilitytype_id)]",
+        required=True)
     facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string='Facility Type',
                                       required=True)
@@ -1462,7 +1463,9 @@ class RoomAmenitiy(models.Model):
     _name = "hms.room.amenity"
     _description = "Room Amenity"
 
-    facilitytype_id = fields.Many2one('hms.room.facility.type', string="Facility Type",required=True)
+    facilitytype_id = fields.Many2one('hms.room.facility.type',
+                                      string="Facility Type",
+                                      required=True)
     name = fields.Char(string="Amenity Name", required=True)
     amenity_desc = fields.Text(string="Descripton")
 
@@ -1868,11 +1871,9 @@ class SubGroup(models.Model):
         else:
             return {
                 'warning': {
-                    'title':
-                    _('No Property Permission'),
+                    'title': _('No Property Permission'),
                     'message':
-                    _("Select Property in User Setting or you can't create reservation"
-                      )
+                    _("Please Select Property in User Setting First!")
                 }
             }
 
@@ -1902,9 +1903,10 @@ class Transaction(models.Model):
     trans_ptype = fields.Selection(AVAILABLE_PAY, string="Pay Type")
     subgroup_ids = fields.One2many('hms.subgroup',
                                    related="property_id.subgroup_ids")
-    subgroup_id = fields.Many2one('hms.subgroup',
-                                  domain="[('id', '=?', subgroup_ids),('revtype_id','=',revtype_id)]",
-                                  string="Sub Group")
+    subgroup_id = fields.Many2one(
+        'hms.subgroup',
+        domain="[('id', '=?', subgroup_ids), ('revtype_id', '=', revtype_id)]",
+        string="Sub Group")
     subgroup_name = fields.Char(string="Group Name", readonly=True, store=True)
     trans_code = fields.Char(string="Transaction Code",
                              size=4,
@@ -2062,6 +2064,7 @@ class TransactionRoot(models.Model):
         self.env.cr.execute('''
             CREATE OR REPLACE VIEW %s AS (
             SELECT DISTINCT ASCII(trans_code) * 1000 + ASCII(SUBSTRING(trans_code,2,1)) AS id,
+                   property_id As property_id,
                    LEFT(trans_code,2) AS name,
                    property_id as property_id,
                    subgroup_name as revname,
@@ -2070,6 +2073,7 @@ class TransactionRoot(models.Model):
             FROM hms_transaction WHERE trans_code IS NOT NULL
             UNION ALL
             SELECT DISTINCT ASCII(trans_code) AS id,
+                   property_id As property_id,
                    LEFT(trans_code,1) AS name,
                    property_id as property_id,
                    revtype_name as revname,
@@ -2081,7 +2085,8 @@ class TransactionRoot(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            result.append((record.id, "({}) {}".format(record.revname, record.name)))
+            result.append((record.id, "({}) {}".format(record.name,
+                                                       record.revname)))
         return result
 
 
@@ -2182,4 +2187,3 @@ class CreditLimit(models.Model):
     #             same_payment = rec
     #         if same_payment:
     #             self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
-

@@ -666,7 +666,7 @@
                   <div class="oe_kanban_content">
                     <div class="oe_kanban_project_list">
                       <div class="o_kanban_image">
-                        <img alt="" t-att-src="kanban_image('hms.roomtype', 'image')"/>
+                        <img t-att-src="kanban_image('hms.roomtype','image',record.id.raw_value)" alt="image"/>
                       </div>
                       <div class="oe_kanban_details">
                         <field name="code"/>
