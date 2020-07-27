@@ -516,14 +516,14 @@ class Reservation(models.Model):
             rec.nights = int(days)
 
     # Create HFO Room
-    def create_hfo_room(self, reservation_id, confirm_no, property_id,
+    def create_hfo_room(self, state, reservation_id, confirm_no, property_id,
                         company_id, group_id, guest_id, roomtype_id, arrival,
                         departure, nights, market, source, reservation_type,
                         reservation_status, arrival_flight, arrival_flighttime,
                         dep_flight, dep_flighttime, eta, etd):
         vals = []
         vals.append((0, 0, {
-            'state': 'booking',
+            'state': state,
             'reservation_id': reservation_id.id,
             'confirm_no': confirm_no,
             'property_id': property_id,
@@ -603,7 +603,7 @@ class Reservation(models.Model):
             res = super(Reservation, self).create(values)
             if res.is_dummy is True:
                 res.create_hfo_room(
-                    res, res.confirm_no, res.property_id.id, res.company_id.id,
+                    res.state, res, res.confirm_no, res.property_id.id, res.company_id.id,
                     res.group_id.id, res.guest_id.id, res.roomtype_id.id,
                     res.arrival, res.departure, res.nights, res.market.id,
                     res.source.id, res.reservation_type.id,
@@ -620,7 +620,7 @@ class Reservation(models.Model):
         if 'is_dummy' in values.keys():
             if dummy is True:
                 self.create_hfo_room(
-                    self, self.confirm_no, self.property_id.id,
+                    self.state, self, self.confirm_no, self.property_id.id,
                     self.company_id.id, self.group_id.id, self.guest_id.id,
                     self.roomtype_id.id, self.arrival, self.departure,
                     self.nights, self.market.id, self.source.id,
@@ -1896,6 +1896,7 @@ class ReservationLine(models.Model):
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, res.package_id.package_ids)
+                        
             day_count += 1
 
     def update_additional_packages(self, reservation_line_id, delete, pkg):
@@ -2525,19 +2526,6 @@ class RoomReservationSummary(models.Model):
     date_to = fields.Date('Date To')
     summary_header = fields.Text('Summary Header')
     room_summary = fields.Text('Room Summary')
-
-    @api.onchange('property_ids')
-    def default_get_property_id(self):
-        if self.property_ids:
-            if len(self.property_ids) >= 1:
-                self.property_id = self.property_ids[0]._origin.id
-        else:
-            return {
-                'warning': {
-                    'title': _('No Property Permission'),
-                    'message': _("Please Select Property in User Setting")
-                }
-            }
 
     @api.model
     def default_get(self, fields):

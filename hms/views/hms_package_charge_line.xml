@@ -1,6 +1,5 @@
 <odoo>
   <data>
-    <!-- Package Charge Line Form View-->
     <record model="ir.ui.view" id="view_appli_charge_type_form">
       <field name="name">Package Charge Details Form</field>
       <field name="model">hms.package.charge.line</field>
@@ -55,7 +54,7 @@
       </field>
     </record>
 
-    <!-- Package Charge Line List View-->
+    <!-- Package Chare Line List View-->
     <record model="ir.ui.view" id="view_appli_charge_type_tree">
       <field name="name">Applicable Charge Type list</field>
       <field name="model">hms.package.charge.line</field>

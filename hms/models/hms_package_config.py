@@ -35,6 +35,7 @@ RATE_ATTRIBUTE = [
 
 class Package(models.Model):
     _name = "hms.package.header"
+    _rec_name = 'package_name'
     _description = "Package"
 
     # Default Get Currency

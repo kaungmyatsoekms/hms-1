@@ -21,34 +21,31 @@
         <form string="Property" import="false">
           <header>
             <field name='is_property' invisible='1'/>
-            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <!-- <button string="Package" name="action_package" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button> -->
             <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
             <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <!-- <button string="Rate Code" name="action_ratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
-            </button> -->
+            </button>
             <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
           </header>
@@ -238,13 +235,17 @@
                 <field name="comments" placeholder="Internal notes..."/>
               </page>
             </notebook>
-          </sheet>
-          <footer>
             <div class="oe_chatter">
               <field name="message_follower_ids" widget="mail_followers"/>
               <field name="message_ids" widget="mail_thread"/>
             </div>
-          </footer>
+          </sheet>
+          <!-- <footer>
+            <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+            </div>
+          </footer> -->
         </form>
       </field>
     </record>
@@ -598,7 +599,6 @@
                 <field name="color" required="True"/>
                 <field name="fix_type" widget="boolean_toggle"/>
                 <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}" widget="many2many_tags"/>
-                <field name="ratecode_id"/>
                 <field name="totalroom" invisible='1'/>
                 <field name="roomtype_desc"/>
               </group>
@@ -623,7 +623,6 @@
           <field name="fix_type"/>
           <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
           <field name="roomtype_desc"/>
-          <field name="ratecode_id"/>
         </tree>
       </field>
     </record>
@@ -667,7 +666,7 @@
                   <div class="oe_kanban_content">
                     <div class="oe_kanban_project_list">
                       <div class="o_kanban_image">
-                        <img alt="" t-att-src="kanban_image('hms.roomtype', 'image')"/>
+                        <img t-att-src="kanban_image('hms.roomtype','image',record.id.raw_value)" alt="image"/>
                       </div>
                       <div class="oe_kanban_details">
                         <field name="code"/>
@@ -745,7 +744,7 @@
             <br></br>
             <group>
               <field name="facilitytype_id"/>
-              <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags"/>
+              <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags" />
               <field name="facility_desc" placeholder="Eg. Aircon....."/>
             </group>
           </sheet>
@@ -822,12 +821,12 @@
                 <field name="property_id"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
                 <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id"/>
+                <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                 <field name="bedtype_ids" invisible="1"/>
                 <field name="is_roomtype_fix" invisible="1"/>
                 <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                 <field name="building_ids" invisible="1"/>
-                <field name="building_id" />
+                <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                 <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                 <field name="room_bedqty"/>
                 <field name="no_of_pax"/>
@@ -837,7 +836,6 @@
                 <field name="room_extension" placeholder="Eg. 101... "/>
                 <field name="roomview_ids" widget="many2many_tags"/>
                 <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
-                <field name="ratecode_id"/>
                 <field name="room_desc" placeholder="Eg. Special Remark"/>
               </group>
               <group>
@@ -868,9 +866,6 @@
                 </notebook>
               </group>
             </group>
-            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_hfo', '=', True)]}" context="{'default_property_id' : id}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
           </sheet>
           <!-- <footer> -->
           <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
@@ -900,7 +895,6 @@
           <field name="room_extension" optional="show"/>
           <field name="roomview_ids" optional="hide"/>
           <field name="facility_ids" optional="hide"/>
-          <field name="ratecode_id" optional="hide"/>
           <field name="room_size" optional="hide"/>
           <field name="room_desc" optional="hide"/>
           <field name="room_img" optional="hide"/>
@@ -1211,7 +1205,9 @@
         <form string="Transaction Group" import="false">
           <sheet>
             <group>
-              <field name="property_id"/>
+              <field name="property_ids" invisible="1"/>
+              <field name="property_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+              <field name="user_id" invisible="1"/>
               <field name="revtype_id"/>
               <field name="sub_group" placeholder="0 ~ 9"/>
               <field name="sub_desc" placeholder="Sub Group Revenue"/>
@@ -1227,7 +1223,9 @@
       <field name="model">hms.subgroup</field>
       <field name="arch" type="xml">
         <tree string="Sub Group" import="false">
+          <field name="property_ids" invisible="1"/>
           <field name="property_id"/>
+          <field name="user_id" invisible="1"/>
           <field name="sub_group"/>
           <field name="sub_desc"/>
         </tree>
@@ -1275,8 +1273,8 @@
                 <field name="trans_ptype" attrs="{'invisible': [('revtype_name', '!=', 'Payment')],'required': [('revtype_name', '=', 'Payment')]}"/>
                 <field name="revsub_active" invisible="1"/>
                 <field name="subgroup_ids" invisible="1"/>
-                <field name="subgroup_id" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
-                <field name="subgroup_name"/>
+                <field name="subgroup_id" context="{'default_property_id': property_id}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
+                <field name="subgroup_name" force_save="1"/>
                 <!-- attrs="{'invisible': [('revsub_active', '=', True)]}"-->
                 <field name="trans_code" placeholder="Eg. 1001....."/>
                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>
@@ -1464,105 +1462,6 @@
     <record id="credit_limit_action_window" model="ir.actions.act_window">
       <field name="name">Credit Limit</field>
       <field name="res_model">hms.creditlimit</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-
-    <!-- Rate Code Form View -->
-    <record id="rate_code_view_form" model="ir.ui.view">
-      <field name="name">rate.code.view.form</field>
-      <field name="model">rate.code</field>
-      <field name="arch" type="xml">
-        <form string="Rate Code" import="false">
-          <sheet>
-            <h2>Rate Code</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name='is_ratecode' invisible='1'/>
-                <field name="property_id"/>
-                <field name="rate_code"/>
-                <field name="ratecode_name"/>
-              </group>
-              <group>
-              </group>
-              <group>
-                <field name="transaction_ids" invisible="1"/>
-                <field name="transcation_id"/>
-                <field name="ratecode_type"/>
-                <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" />
-                <!-- <label for="start_date" string="Start Date"/> -->
-                <field name="start_date"/>
-                <!-- <label for="end_date" string="End Date"/> -->
-                <field name="end_date" />
-              </group>
-              <group>
-                <label for="normal_price1" string="Normal"/>
-                <div class="o_address_format">
-                  <field name="normal_price1" style="width:25%%"/>
-                  <field name="normal_price2" style="width:25%%"/>
-                  <field name="normal_price3" style="width:25%%"/>
-                  <field name="normal_price4" style="width:25%%"/>
-                </div>
-                <label for="weekend_price1" string="Weekend"/>
-                <div class="o_address_format">
-                  <field name="weekend_price1" style="width:25%%"/>
-                  <field name="weekend_price2" style="width:25%%"/>
-                  <field name="weekend_price3" style="width:25%%"/>
-                  <field name="weekend_price4" style="width:25%%"/>
-                </div>
-                <label for="special_price1" string="Special Day"/>
-                <div class="o_address_format">
-                  <field name="special_price1" style="width:25%%"/>
-                  <field name="special_price2" style="width:25%%"/>
-                  <field name="special_price3" style="width:25%%"/>
-                  <field name="special_price4" style="width:25%%"/>
-                </div>
-                <field name="discount_percent"/>
-                <field name="discount_amount"/>
-                <button string="Change New Rate" name="action_change_new_rate" type="object" context="{'default_property_id' : id,'default_roomtype_id' : active_id,'default_transcation_id' : active_id}" class="btn btn-primary" attrs="{'invisible': [('is_ratecode', '=', False)]}">
-                  <i class="fa fa-paint-brush"></i>
-                </button>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Rate Code List View -->
-    <record id="rate_code_view_list" model="ir.ui.view">
-      <field name="name">rate.code.view.list</field>
-      <field name="model">rate.code</field>
-      <field name="arch" type="xml">
-        <tree string="Rate Code" import="false">
-          <field name="rate_code"/>
-          <field name="ratecode_name"/>
-          <field name="roomtype_id"/>
-          <field name="transcation_id"/>
-          <field name="ratecode_type"/>
-          <field name="start_date"/>
-          <field name="end_date"/>
-          <field name="normal_price1" optional="hide"/>
-          <field name="normal_price2" optional="hide"/>
-          <field name="normal_price3" optional="hide"/>
-          <field name="normal_price4" optional="hide"/>
-          <field name="weekend_price1" optional="hide"/>
-          <field name="weekend_price2" optional="hide"/>
-          <field name="weekend_price3" optional="hide"/>
-          <field name="weekend_price4" optional="hide"/>
-          <field name="special_price1" optional="hide"/>
-          <field name="special_price2" optional="hide"/>
-          <field name="special_price3" optional="hide"/>
-          <field name="special_price4" optional="hide"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- action of Rate Code -->
-    <record id="rate_code_action_window" model="ir.actions.act_window">
-      <field name="name">Rate Code</field>
-      <field name="res_model">rate.code</field>
       <field name="view_mode">tree,form</field>
     </record>
 

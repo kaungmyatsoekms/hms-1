@@ -43,21 +43,12 @@ class HMSPackageChargeLine(models.Model):
 
     name = fields.Char("Name", required=True, track_visibility=True)
     property_id = fields.Many2one('hms.property', string="Property")
-    transaction_id = fields.Many2one(
-        'hms.transaction',
-        string='Transaction',
-        domain="[('property_id', '=?', property_id)]")
-    package_id = fields.Many2one('hms.package',
-                                 string="Package",
-                                 track_visibility=True)
-    charge_type_id = fields.Many2one("hms.charge_types",
-                                     'Main Charge Type',
-                                     required=True,
-                                     track_visibility=True)
-    calculate_method_ids = fields.Many2many(
-        'hms.calculation.method',
-        "Calculation Method",
-        related="charge_type_id.calculate_method_ids")
+    transaction_id = fields.Many2one('hms.transaction',
+                                     string='Transaction',
+                                     domain="[('property_id', '=?', property_id)]")
+    package_id = fields.Many2one('hms.package',string="Package",track_visibility=True)
+    charge_type_id = fields.Many2one("hms.charge_types",'Main Charge Type', required=True, track_visibility=True)
+    calculate_method_ids = fields.Many2many( 'hms.calculation.method', "Calculation Method", related="charge_type_id.calculate_method_ids")
     calculation_method_id = fields.Many2one('hms.calculation.method',
                                             "Calculation Method",
                                             track_visibility=True,

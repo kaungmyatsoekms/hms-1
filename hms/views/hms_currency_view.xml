@@ -31,7 +31,6 @@
         </form>
       </field>
     </record>
-
     <!-- Currency List View-->
     <record model="ir.ui.view" id="view_currency_tree">
       <field name="name">Currency list</field>

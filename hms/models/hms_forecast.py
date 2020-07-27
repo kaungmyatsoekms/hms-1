@@ -134,7 +134,8 @@ class RoomTypeAvailable(models.Model):
     active = fields.Boolean('Active', default=True)
     color = fields.Integer(string='Color Index')
     availability_id = fields.Many2one('hms.availability')
-    property_id = fields.Many2one('hms.property', string="Property")
+    property_id = fields.Many2one('hms.property',
+                                  string="Property")
     ravail_date = fields.Date('Date', required=True)
     roomtype_ids = fields.Many2many('hms.roomtype',
                                     related="property_id.roomtype_ids")
