@@ -1,17 +1,17 @@
-id,rsvntype_id,rsvn_code,rsvn_status
-1,Confirmed,ALT,Allotment
-2,Confirmed,BLD,Block Definite
-3,Confirmed,BLT,Block Tentative
-4,Confirmed,COM,Complementary
-5,Confirmed,DEF,Definite
-6,Confirmed,GCO,Guarantee By Company
-7,Confirmed,GTC,Guarantee By Credit Card
-8,Confirmed,GTM,Guarantee By Email
-9,Confirmed,GTP,Guarantee By Deposit
-10,Confirmed,GTR,Guarantee By Letter
-11,Confirmed,GTV,Guarantee By Voucher 
-12,Confirmed,HSE,Hoouse Use
-13,Unconfirmed,NGT,Non Guarantee
-14,Confirmed,NOF,Non Refund
-15,Unconfirmed,TEN,Tentative
-16,Unconfirmed,WTL,Waiting List
+id,rsvntype_id,rsvn_code,rsvn_status,is_csv
+1,Confirmed,ALT,Allotment,True
+2,Confirmed,BLD,Block Definite,True
+3,Confirmed,BLT,Block Tentative,True
+4,Confirmed,COM,Complementary,True
+5,Confirmed,DEF,Definite,True
+6,Confirmed,GCO,Guarantee By Company,True
+7,Confirmed,GTC,Guarantee By Credit Card,True
+8,Confirmed,GTM,Guarantee By Email,True
+9,Confirmed,GTP,Guarantee By Deposit,True
+10,Confirmed,GTR,Guarantee By Letter,True
+11,Confirmed,GTV,Guarantee By Voucher,True
+12,Confirmed,HSE,Hoouse Use,True
+13,Unconfirmed,NGT,Non Guarantee,True
+14,Confirmed,NOF,Non Refund,True
+15,Unconfirmed,TEN,Tentative,True
+16,Unconfirmed,WTL,Waiting List,True

@@ -454,11 +454,11 @@
             <br></br>
             <group>
               <group>
-                <field name="building_name" placeholder="Eg. Story Building (or) Villa" />
-                <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}'/>
-                <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities"/>
-                <field name="building_location"/>
-                <field name="building_desc"/>
+                <field name="building_name" placeholder="Eg. Story Building (or) Villa" attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}' attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities" attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="building_location" attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="building_desc" attrs="{'readonly': [('id', '=', 1)]}"/>
               </group>
               <group>
                 <field name="building_img" widget="image" colspan="6"/>
@@ -524,8 +524,9 @@
         <form string="Building Type" import="false">
           <sheet>
             <group>
-              <field name="building_type" placeholder="Eg. BLD....."/>
-              <field name="buildingtype_desc" placeholder="Eg. Building Type....."/>
+              <field name="is_csv" invisible="1"/>
+              <field name="building_type" placeholder="Eg. BLD....." attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+              <field name="buildingtype_desc" placeholder="Eg. Building Type....." attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
             </group>
           </sheet>
         </form>
@@ -552,8 +553,8 @@
             <h2>Room Location</h2>
             <br></br>
             <group>
-              <field name="location_code" placeholder="Eg. 1F" style="width:40%%"/>
-              <field name="location_name" placeholder="Eg. 1st Floor" style="width:40%%"/>
+              <field name="location_code" placeholder="Eg. 1F" style="width:40%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+              <field name="location_name" placeholder="Eg. 1st Floor" style="width:40%%" attrs="{'readonly': [('id', '=', 1)]}"/>
             </group>
           </sheet>
         </form>
@@ -594,13 +595,14 @@
             <br></br>
             <group>
               <group>
-                <field name="code" placeholder="Eg. DLX....."/>
-                <field name="name" placeholder="Eg. Deluxe....."/>
-                <field name="color" required="True"/>
-                <field name="fix_type" widget="boolean_toggle"/>
-                <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)]}" widget="many2many_tags"/>
+                <field name="is_used" invisible="1"/>
+                <field name="code" placeholder="Eg. DLX....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                <field name="name" placeholder="Eg. Deluxe....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                <field name="color" required="True" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                <field name="fix_type" widget="boolean_toggle" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)], 'readonly': ['|',('is_used','=',True),('id', '=', 1)]}" widget="many2many_tags"/>
                 <field name="totalroom" invisible='1'/>
-                <field name="roomtype_desc"/>
+                <field name="roomtype_desc" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
               </group>
               <group>
                 <field name="image" widget="image"/>
@@ -911,6 +913,44 @@
       <field name="view_mode">tree,form</field>
     </record>
 
+    <!-- Market Group Form View -->
+    <record id="market_group_view_form" model="ir.ui.view">
+      <field name="name">hms.marketgroup.view.form</field>
+      <field name="model">hms.marketgroup</field>
+      <field name="arch" type="xml">
+        <form string="Market Group" import="false">
+          <sheet>
+            <h2>Market Group</h2>
+            <br></br>
+            <group>
+              <field name="is_csv" invisible="1"/>
+              <field name="group_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="group_name" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Bed Type Form View -->
+    <record id="bed_type_view_form" model="ir.ui.view">
+      <field name="name">hms.bedtype.view.form</field>
+      <field name="model">hms.bedtype</field>
+      <field name="arch" type="xml">
+        <form string="Bed Type" import="false">
+          <sheet>
+            <h2>Bed Type</h2>
+            <br></br>
+            <group>
+              <field name="is_csv" invisible="1"/>
+              <field name="name" placeholder="Eg. Single" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="no_of_bed" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
     <!-- Market Segment Setup Form View -->
     <record id="market_segment_view_form" model="ir.ui.view">
       <field name="name">hms.marketsegment.view.form</field>
@@ -921,10 +961,11 @@
             <h2>Market Segment</h2>
             <br></br>
             <group>
-              <field name="market_code" placeholder="Eg. CMP..."/>
-              <field name="market_name" placeholder="Eg. Complimentry..."/>
-              <field name="group_id"/>
-              <field name="options"/>
+              <field name="is_csv" invisible="1"/>
+              <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
             </group>
           </sheet>
         </form>
@@ -963,8 +1004,9 @@
             <h2>Market Source</h2>
             <br></br>
             <group>
-              <field name="source_code" placeholder="Eg. PH...."/>
-              <field name="source_desc" placeholder="Eg. Phone....."/>
+              <field name="is_csv" invisible="1"/>
+              <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
             </group>
           </sheet>
         </form>
@@ -1353,8 +1395,9 @@
             <br></br>
             <group>
               <group>
-                <field name="rsvn_name" placeholder="Eg. Confirmed (or) Unconfirmed....."/>
-                <field name="rsvn_options"/>
+                <field name="is_csv" invisible="1"/>
+                <field name="rsvn_name" placeholder="Eg. Confirmed (or) Unconfirmed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                <field name="rsvn_options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
               </group>
             </group>
           </sheet>
@@ -1392,8 +1435,9 @@
             <br></br>
             <group>
               <group>
-                <field name="rsvn_code" placeholder="Eg. CMG....."/>
-                <field name="rsvn_status" placeholder="Eg. Company Granteed....."/>
+                <field name="is_csv" invisible="1"/>
+                <field name="rsvn_code" placeholder="Eg. CMG....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                <field name="rsvn_status" placeholder="Eg. Company Granteed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
                 <field name="rsvntype_id"/>
               </group>
             </group>

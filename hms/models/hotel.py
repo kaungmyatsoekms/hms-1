@@ -1273,6 +1273,7 @@ class BuildingType(models.Model):
     _name = "hms.buildingtype"
     _description = "Building Type"
 
+    is_csv = fields.Boolean(default=False)
     building_type = fields.Char(string='Building Type', required=True)
     buildingtype_desc = fields.Char(string='Description', required=True)
 
@@ -1340,6 +1341,7 @@ class BedType(models.Model):
     _name = "hms.bedtype"
     _description = "Bed Type"
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char(string="Bed Type Name")
     no_of_bed = fields.Integer(string="No.of Beds")
 
@@ -1349,6 +1351,7 @@ class RoomType(models.Model):
     _description = "Room Type"
     _rec_name = "code"
 
+    is_used = fields.Boolean(default=False, string="Is Used?", compute='check_is_used')
     sequence = fields.Integer(default=1)
     active = fields.Boolean(string="Active",
                             default=True,
@@ -1368,6 +1371,14 @@ class RoomType(models.Model):
         'code_unique', 'UNIQUE(code)',
         'Room code already exists with this name! Room code name must be unique!'
     )]
+
+    @api.depends('code')
+    def check_is_used(self):
+        used_property = self.env['hms.property'].search([('roomtype_ids', '=?', self.id)])
+        if used_property:
+            self.is_used = True
+        else :
+            self.is_used = False
 
     @api.onchange('code')
     def onchange_code(self):
@@ -1609,11 +1620,19 @@ class PropertyRoom(models.Model):
                     record.is_hfo = True
 
 
+    @api.onchange('roomtype_id')
+    def clear_bed_type(self):
+        bedtype = self.env['hms.bedtype']
+        if self.roomtype_id.fix_type is True:
+            self.bedtype_id = bedtype
+
+
 class MarketSegment(models.Model):
     _name = "hms.marketsegment"
     _description = "Maret Segment"
     _order = 'group_id'
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     market_code = fields.Char(string="Market Code", size=3, required=True)
     market_name = fields.Char(string="Market Name", required=True)
@@ -1645,6 +1664,7 @@ class MarketGroup(models.Model):
     _name = "hms.marketgroup"
     _description = "Market Group"
 
+    is_csv = fields.Boolean(default=False)
     group_code = fields.Char(string="Group Code",
                              help='Eg. COR.....',
                              size=3,
@@ -1665,6 +1685,7 @@ class MarketSource(models.Model):
     _name = "hms.marketsource"
     _description = "Market Source"
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     source_code = fields.Char(string="Source Code", size=3, required=True)
     source_desc = fields.Char(string="Description")
@@ -2096,6 +2117,7 @@ class RsvnType(models.Model):
     _description = "Reservation Type"
     _rec_name = "rsvn_name"
 
+    is_csv = fields.Boolean(default=False)
     rsvn_name = fields.Char(string="Reservation Type", size=30, required=True)
     rsvn_options = fields.Selection([
         ('CF', 'Confirmed'),
@@ -2110,6 +2132,7 @@ class RsvnStatus(models.Model):
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 
+    is_csv = fields.Boolean(default=False)
     rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
     rsvn_status = fields.Char(string="Description", required=True)
     rsvntype_id = fields.Many2one('hms.rsvntype',
