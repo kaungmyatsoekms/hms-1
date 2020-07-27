@@ -1,12 +1,11 @@
 <odoo>
     <data>
-
         <!-- Reservation View List-->
         <record id="reservation_view_list" model="ir.ui.view">
             <field name="name">reservation.view.list</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <tree string="Reservation" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                <tree string="Reservation" import="false" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible='1'/>
                     <field name="is_no_show" optional="show"/>
@@ -42,7 +41,7 @@
             <field name="name">reservation.view.form</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <form name="Reservation">
+                <form name="Reservation" import="false">
                     <header>
                         <field name="is_reservation" invisible="1"/>
                         <field name="is_arrival_today" invisible="1"/>
@@ -69,16 +68,16 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button class="oe_stat_button" icon="fa-calendar" name=" " type="object">
+                            <button class="oe_stat_button" icon="fa-calendar" name="action_rsvn_room_count" type="object">
                                 <field name="rsvn_room_count" widget='statinfo'/>
                             </button>
-                            <button class="oe_stat_button" icon="fa-check-square" name=" " type="object">
+                            <button class="oe_stat_button" icon="fa-check-square" name="action_confirm_room_count" type="object">
                                 <field name="confirm_room_count" widget='statinfo'/>
                             </button>
-                            <button class="oe_stat_button" icon="fa-times" name=" " type="object">
+                            <button class="oe_stat_button" icon="fa-times" name="action_cancel_room_count" type="object">
                                 <field name="cancel_room_count" widget='statinfo'/>
                             </button>
-                            <button class="oe_stat_button" icon="fa-map-marker" name=" " type="object">
+                            <button class="oe_stat_button" icon="fa-map-marker" name="action_checkin_room_count" type="object">
                                 <field name="checkin_room_count" widget='statinfo'/>
                             </button>
                         </div>
@@ -106,12 +105,12 @@
                                 <field name="contact_id" placeholder="Contact Person" required="1" context="{'default_company_type' : 'person','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
-                                    <field name="reservation_type" style="width:50%%" placeholder="Type" force_save="1"/>
-                                    <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1"/>
+                                    <field name="reservation_type" style="width:50%%" placeholder="Type" force_save="1" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="internal_notes" placeholder="Remarks"/>
                                 <field name="dummy_readonly" attrs="{'invisible': [('type','!=', 'group')]}"/>
-                                <field name="is_dummy" widget="boolean_button" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
+                                <field name="is_dummy" widget="boolean_toggle" options="{'no_quick_edit': True}" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
                             </group>
                             <group>
                                 <field name="group_id" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
@@ -139,9 +138,9 @@
                                 <label for="market" string="Market/Source"/>
                                 <div class="o_address_format">
                                     <field name="market_ids" invisible="1"/>
-                                    <field name="market" style="width:50%%" placeholder="Market"/>
+                                    <field name="market" style="width:50%%" placeholder="Market" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                     <!-- <label for="source" string=" " style="width: 3em"/> -->
-                                    <field name="source" style="width:50%%" placeholder="Source"/>
+                                    <field name="source" style="width:50%%" placeholder="Source" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="reason_id" string="Cancellation Reason" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
                             </group>
@@ -210,9 +209,9 @@
                                         <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
                                         <field name="child"/>
-                                        <field name="ratehead_id"/>
+                                        <field name="ratehead_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="ratecode_id" string="Rate Code" invisible="1"/>
-                                        <field name="additional_pkg_ids" widget='many2many_tags'/>
+                                        <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="market_ids" invisible="1"/>
@@ -246,7 +245,7 @@
             <field name="name">reservation.view.kanban</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state" class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                <kanban default_group_by="state" class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="color"/>
                     <field name="state"/>
                     <field name="sequence"/>
@@ -415,20 +414,22 @@
             <field name="name">hms.room.reservation.summary.form</field>
             <field name="model">hms.room.reservation.summary</field>
             <field name="arch" type="xml">
-                <form string="Reservation Summary">
+                <form string="Reservation Summary" import="false">
                     <header>
-                        <separator string="Room Reservation Summary" colspan="4" />
+                        <separator string="Room Reservation Summary" colspan="4"/>
                     </header>
                     <sheet>
+                        <field name="user_id" readonly="1"/>
                         <div class="oe_title">
-                            <field name="property_id"/>
+                            <field name="property_ids" invisible="1"/>
+                            <field name="property_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                         </div>
                         <group colspan="4" col="4">
                             <div>
-                                <label for="date_from" string="Summary Period" />
-                                <field name="date_from" class="oe_inline" />
+                                <label for="date_from" string="Summary Period"/>
+                                <field name="date_from" class="oe_inline"/>
                                 to
-                                <field name="date_to" class="oe_inline" />
+                                <field name="date_to" class="oe_inline"/>
                             </div>
                         </group>
                         <notebook>
@@ -448,28 +449,29 @@
             <field name="res_model">hms.room.reservation.summary</field>
             <field name="view_mode">form</field>
         </record>
+
         <!-- Form view of quick room reservation -->
         <record id="quick_room_reservation_form_view" model="ir.ui.view">
             <field name="name">hms.quick.room.reservation.form</field>
             <field name="model">hms.quick.room.reservation</field>
             <field name="arch" type="xml">
-                <form string="Quick Reservation">
+                <form string="Quick Reservation" import="false">
                     <sheet>
-                        <separator string="Quick Reservation" colspan="4" />
+                        <separator string="Quick Reservation" colspan="4"/>
                         <field name="market_ids" invisible="1"/>
                         <group colspan="4" col="4">
-                            <field name="property_id" />
-                            <field name="rooms" />
-                            <field name="check_in" />
-                            <field name="check_out" />
+                            <field name="property_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                            <field name="rooms"/>
+                            <field name="check_in"/>
+                            <field name="check_out"/>
                             <field name="market"/>
                             <field name="source"/>
                         </group>
                     </sheet>
                     <footer>
                         <group colspan="2" col="2">
-                            <button string="Save" name="room_reserve" type="object" class="btn-primary" />
-                            <button string="Cancel" special="cancel" class="btn-primary" />
+                            <button string="Save" name="room_reserve" type="object" class="btn-primary"/>
+                            <button string="Cancel" special="cancel" class="btn-primary"/>
                         </group>
                     </footer>
                 </form>
@@ -482,7 +484,7 @@
             <field name="name">reservation.line.view.form</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <form string="Reservation Details">
+                <form string="Reservation Details" import="false">
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
@@ -526,8 +528,8 @@
                                 <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
-                                    <field name="reservation_type" style="width:50%%" placeholder="Type"/>
-                                    <field name="reservation_status" style="width:50%%" placeholder="Status"/>
+                                    <field name="reservation_type" style="width:50%%" placeholder="Type" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="reservation_status" style="width:50%%" placeholder="Status" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="system_date" />
                                 <label for="arrival" string="Arrival"/>
@@ -567,18 +569,18 @@
                                 <label for="market" string="Market / Source"/>
                                 <div class="address_format">
                                     <field name="market_ids" invisible="1"/>
-                                    <field name="market" placeholder="Market" style="width: 50%%"/>
-                                    <field name="source" placeholder="Source" style="width: 50%%"/>
+                                    <field name="market" placeholder="Market" style="width: 50%%" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="source" placeholder="Source" style="width: 50%%" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <field name="reason_id" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
                             </group>
                             <group>
-                                <field name="ratehead_id" string="Rate Code Header"/>
-                                <field name="ratecode_id" string="Rate Code"/>
+                                <field name="ratehead_id" string="Rate Code Header" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="ratecode_id" string="Rate Code" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="ratecode_ids" invisible="1" domain="[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&amp;',('start_date','&lt;=',arrival),('end_date', '&gt;=', arrival),'&amp;',('start_date','&lt;=',departure),('end_date', '&gt;=', departure)]"/>
                                 <field name="allotment_id" placeholder="Allotment"/>
-                                <field name="package_id"/>
-                                <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}"/>
+                                <field name="package_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <div class="o_address_format">
                                     <field name="room_rate" style="width:33%%"/>
@@ -672,7 +674,7 @@
             <field name="name">reservation.line.view.list</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <tree string="Reservation Details" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                <tree string="Reservation Details" import="false" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="property_id" optional="show"/>
                     <field name="is_roomtype_fix" invisible="1"/>
                     <field name="sequence" widget="handle"/>
@@ -711,7 +713,7 @@
             <field name="name">reservation.line.view.kanban</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state" class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban">
+                <kanban default_group_by="state" class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" import="false">
                     <field name="color"/>
                     <field name="state"/>
                     <field name="sequence"/>
@@ -825,10 +827,10 @@
             <field name="name">hms.reasontype.view.form</field>
             <field name="model">hms.reasontype</field>
             <field name="arch" type="xml">
-                <form string="Reason Type">
+                <form string="Reason Type" create="false" no_create_edit="True" delete="false" import="false">
                     <sheet>
                         <group>
-                            <field name="code"/>
+                            <field name="code" attrs="{'readonly': ['|',('code', '=', 'CXL'),('code', '=', 'DRS')]}"/>
                             <field name="name"/>
                             <field name="reason_ids" context="{'default_type_id' : id}"/>
                         </group>
@@ -842,7 +844,7 @@
             <field name="name">reason.type.view.list</field>
             <field name="model">hms.reasontype</field>
             <field name="arch" type="xml">
-                <tree string="Reason Type">
+                <tree string="Reason Type" create="false" delete="false" import="false">
                     <field name="code"/>
                     <field name="name"/>
                     <field name="reason_ids"/>
@@ -862,7 +864,7 @@
             <field name="name">hms.reason.view.form</field>
             <field name="model">hms.reason</field>
             <field name="arch" type="xml">
-                <form string="Reason Type">
+                <form string="Reason Type" import="false">
                     <sheet>
                         <group>
                             <field name="type_id" attrs="{'readonly': ['|',('type_id','=',1),('type_id','=',2)]}" />
@@ -879,7 +881,7 @@
             <field name="name">reason.view.list</field>
             <field name="model">hms.reason</field>
             <field name="arch" type="xml">
-                <tree string="Reason">
+                <tree string="Reason" import="false">
                     <field name="type_id"/>
                     <field name="code"/>
                     <field name="name"/>
@@ -1095,7 +1097,7 @@
             <field name="name">group.cancel.view.list</field>
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
-                <tree string="Group Cancel List" create="false" edit="false">
+                <tree string="Group Cancel List" create="false" import="false" edit="false" delete="false">
                     <field name="confirm_no"/>
                     <field name="company_id"/>
                     <field name="group_id"/>
@@ -1308,7 +1310,7 @@
             <field name="name">line.cancel.view.list</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
-                <tree string="Group Cancel List" create="false" edit="false">
+                <tree string="Group Cancel List" create="false" import="false" edit="false" delete="false">
                     <field name="confirm_no"/>
                     <field name="reservation_id"/>
                     <field name="company_id"/>
@@ -1337,7 +1339,7 @@
             <field name="name">cancel.record.view.list</field>
             <field name="model">hms.cancel.rsvn</field>
             <field name="arch" type="xml">
-                <tree string="Cancel Records" create="false" edit="false" delete="false">
+                <tree string="Cancel Records" create="false" edit="false" import="false" delete="false">
                     <field name="is_full_cancel"/>
                     <field name="is_partial_cancel"/>
                     <field name="group_id"/>
@@ -1356,7 +1358,7 @@
             <field name="view_mode">tree</field>
         </record>
 
-
+        
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="rsvn_type_set_menu" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>

@@ -135,6 +135,15 @@ class Package(models.Model):
         'Package code already exists with this name! Package code must be unique!'
     )]
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({} {})".format(record.package_name,
+                                                record.start_date,
+                                                record.end_date)))
+        return result
+
     @api.depends('rate_separate_line', 'rate_combined_line',
                  'is_sell_separate')
     def _compute_attribute_type(self):
@@ -196,11 +205,22 @@ class PackageGroup(models.Model):
     pkg_group_code = fields.Char(string="Group Code", size=4, required=True)
     shortcut = fields.Char(string="ShortCut")
     pkg_group_name = fields.Char(string="Group Name", required=True)
-    package_ids = fields.Many2many('hms.package.header',
-                                   string="Packages",
-                                   required=True)
+    package_ids = fields.Many2many(
+        'hms.package.header',
+        string="Packages",
+        required=True,
+        domain=
+        "[('property_id', '=?', property_id), ('is_sell_separate', '=', False)]"
+    )
 
     _sql_constraints = [(
         'pkg_group_code_unique', 'UNIQUE(property_id, pkg_group_code)',
         'Package group code already exists with this name! Package group code must be unique!'
     )]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.pkg_group_code,
+                                                       record.pkg_group_name)))
+        return result

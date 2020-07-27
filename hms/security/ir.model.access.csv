@@ -1,5 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hms_property,hms.property,model_hms_property,base.group_user,1,1,1,1
+access_property_user,hms.property,model_hms_property,hms.group_property_user,1,1,0,0
+access_property_manager,hms.property,model_hms_property,hms.group_property_manager,1,1,1,1
 access_hms_format,hms.format,model_hms_format,base.group_user,1,1,1,1
 access_hms_format_detail,hms.format.detail,model_hms_format_detail,base.group_user,1,1,1,1
 access_hms_building,hms.building,model_hms_building,base.group_user,1,1,1,1

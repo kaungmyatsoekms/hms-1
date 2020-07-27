@@ -46,6 +46,15 @@ class Bank(models.Model):
 
     _sql_constraints = [('name_unique', 'unique(name)',
                          'Your name is exiting in the database.')]
+    
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({})({})".format(record.name, record.branch,
+                                                record.bic)))
+        return result
+
 
 
 class HMSCity(models.Model):
@@ -59,8 +68,16 @@ class HMSCity(models.Model):
                                track_visibility=True)
     name = fields.Char("City Name", required=True, track_visibility=True)
     code = fields.Char("City Code", required=True, track_visibility=True)
+
     _sql_constraints = [('code_unique', 'unique(code)',
                          'City Code is already existed.')]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.name,
+                                                        record.code)))
+        return result
 
 
 class HMSTownship(models.Model):
@@ -78,6 +95,13 @@ class HMSTownship(models.Model):
     _sql_constraints = [('code_unique', 'unique(code)',
                          'Township Code is already existed.')]
 
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.name,
+                                                        record.code)))
+        return result
+
 
 class HMSCountry(models.Model):
     _name = "hms.country"
@@ -90,6 +114,13 @@ class HMSCountry(models.Model):
                        track_visibility=True)
     _sql_constraints = [('code_unique', 'unique(code)',
                          'Country Code is already existed.')]
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.name,
+                                                       record.code)))
+        return result
 
 
 class Nationality(models.Model):
@@ -141,12 +172,13 @@ class Nationality(models.Model):
         return models.lazy_name_get(
             self.browse(state_ids).with_user(name_get_uid))
 
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append((record.id, "{} ({})".format(record.code,
-                                                       record.name)))
-        return result
+        def name_get(self):
+            result = []
+            for record in self:
+                result.append((record.id, "{} ({})".format(record.name,
+                                                        record.code)))
+            return result
+
 
 
 class Passport(models.Model):
@@ -173,6 +205,13 @@ class Passport(models.Model):
 
     _sql_constraints = [('passport_unique', 'UNIQUE(passport)',
                          'Your passport is exiting in the database.')]
+
+    def name_get(self):
+            result = []
+            for record in self:
+                result.append((record.id, "{} ({})".format(record.profile_id.name,
+                                                        record.passport)))
+            return result
 
     # Activate the latest passport
     @api.constrains('active')
@@ -213,6 +252,14 @@ class Contract(models.Model):
     end_date = fields.Date(string="End Date", required=True)
     note = fields.Text(string="Internal Note")
     file = fields.Binary(string="File")
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({}-{})".format(record.name, record.start_date,
+                                                record.end_date)))
+        return result
 
     @api.onchange('start_date', 'end_date')
     @api.constrains('start_date', 'end_date')
@@ -338,7 +385,7 @@ class Company(models.Model):
             'street': partner.street,
             'street2': partner.street2,
             'township': partner.township,
-            'city': partner.city_id,
+            'city': partner.city,
             'zip': partner.zip,
             'state_id': partner.state_id,
             'country_id': partner.country_id,
@@ -410,7 +457,7 @@ class Partner(models.Model):
     #             property_id = self.env.user.property_id[0]
     #         return property_id or 1
 
-    city_id = fields.Many2one("hms.city", "City Name", track_visibility=True)
+    city = fields.Many2one("hms.city", "City Name", track_visibility=True)
     company_type = fields.Selection(string='Company Type',
                                     selection=[('guest', 'Guest'),
                                                ('person', 'Contact'),
@@ -727,7 +774,7 @@ class Partner(models.Model):
         crm_type = self.env['hms.company.category'].search([('id', '=',
                                                              crm_type)])
 
-        if company_type == 'company' or company_type == 'guest' or company_type == 'group':
+        if company_type == 'company' or company_type == 'guest' or company_type == "group":
             pf_no = self.generate_profile_no(company_type, property_id,
                                              crm_type)
 

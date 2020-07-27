@@ -13,19 +13,22 @@ class HMSAllotment(models.Model):
     _description = "Allotment"
     _order = "name"
 
-    name=fields.Char("Allotment Name", required=True)
+    name = fields.Char("Allotment Name", required=True)
     description = fields.Char("Description", required=True)
     property_id = fields.Many2one('hms.property', track_visibility=True)
     cut_off = fields.Boolean(default=True, track_visibility=True)
     active = fields.Boolean(default=True, track_visibility=True)
-    allotment_line_ids = fields.One2many('hms.allotment.line','allotment_id','Allotment')
-    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),('close', "Close")],
-                        string='Status',
-                        readonly=True,
-                        copy=False,
-                        store=True,
-                        default='initial',
-                        track_visibility=True)
+    allotment_line_ids = fields.One2many('hms.allotment.line', 'allotment_id',
+                                         'Allotment')
+    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),
+                              ('close', "Close")],
+                             string='Status',
+                             readonly=True,
+                             copy=False,
+                             store=True,
+                             default='initial',
+                             track_visibility=True)
+
 
 class HMSAllotmentLine(models.Model):
     _name = 'hms.allotment.line'
@@ -59,16 +62,12 @@ class HMSAllotmentLine(models.Model):
     friday = fields.Integer(string="Fri")
     saturday = fields.Integer(string="Sat")
     sunday = fields.Integer(string="Sun")
-    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),('close', "Close")],
-                            related="allotment_id.state",
-                            string='Status',
-                            readonly=True,
-                            copy=False,
-                            store=True,
+    state = fields.Selection([('initial', 'Initial'), ('open', "Open"),
+                              ('close', "Close")],
+                             related="allotment_id.state",
+                             string='Status',
+                             readonly=True,
+                             copy=False,
+                             store=True,
                              default=lambda *a: 'initial',
-                            track_visibility=True)
-    
-
-    
-    
-
+                             track_visibility=True)
