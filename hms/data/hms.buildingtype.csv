@@ -1,4 +1,4 @@
-id,building_type,buildingtype_desc
-1,HFO,HFO building
-2,BLD,Building
-3,BGL,Bangalow
+id,building_type,buildingtype_desc,is_csv
+1,HFO,HFO building,True
+2,BLD,Building,True
+3,BGL,Bangalow,True

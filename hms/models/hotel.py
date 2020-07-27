@@ -1273,6 +1273,7 @@ class BuildingType(models.Model):
     _name = "hms.buildingtype"
     _description = "Building Type"
 
+    is_csv = fields.Boolean(default=False)
     building_type = fields.Char(string='Building Type', required=True)
     buildingtype_desc = fields.Char(string='Description', required=True)
 
@@ -1340,6 +1341,7 @@ class BedType(models.Model):
     _name = "hms.bedtype"
     _description = "Bed Type"
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char(string="Bed Type Name")
     no_of_bed = fields.Integer(string="No.of Beds")
 
@@ -1349,6 +1351,7 @@ class RoomType(models.Model):
     _description = "Room Type"
     _rec_name = "code"
 
+    is_used = fields.Boolean(default=False, string="Is Used?", compute='check_is_used')
     sequence = fields.Integer(default=1)
     active = fields.Boolean(string="Active",
                             default=True,
@@ -1368,6 +1371,14 @@ class RoomType(models.Model):
         'code_unique', 'UNIQUE(code)',
         'Room code already exists with this name! Room code name must be unique!'
     )]
+
+    @api.depends('code')
+    def check_is_used(self):
+        used_property = self.env['hms.property'].search([('roomtype_ids', '=?', self.id)])
+        if used_property:
+            self.is_used = True
+        else :
+            self.is_used = False
 
     @api.onchange('code')
     def onchange_code(self):
@@ -1449,10 +1460,11 @@ class RoomFacility(models.Model):
 
     propertyroom_id = fields.Many2one("hms.property.room", string="Property Room", readonly=True)
     sequence = fields.Integer(default=1)
-    amenity_ids = fields.Many2many('hms.room.amenity',
-                                   string="Room Facility",
-                                   domain="[('facilitytype_id.id', '=?', facilitytype_id)]",
-                                   required=True)
+    amenity_ids = fields.Many2many(
+        'hms.room.amenity',
+        string="Room Facility",
+        domain="[('facilitytype_id.id', '=?', facilitytype_id)]",
+        required=True)
     facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string='Facility Type',
                                       required=True)
@@ -1463,7 +1475,9 @@ class RoomAmenitiy(models.Model):
     _name = "hms.room.amenity"
     _description = "Room Amenity"
 
-    facilitytype_id = fields.Many2one('hms.room.facility.type', string="Facility Type",required=True)
+    facilitytype_id = fields.Many2one('hms.room.facility.type',
+                                      string="Facility Type",
+                                      required=True)
     name = fields.Char(string="Amenity Name", required=True)
     amenity_desc = fields.Text(string="Descripton")
 
@@ -1606,11 +1620,19 @@ class PropertyRoom(models.Model):
                     record.is_hfo = True
 
 
+    @api.onchange('roomtype_id')
+    def clear_bed_type(self):
+        bedtype = self.env['hms.bedtype']
+        if self.roomtype_id.fix_type is True:
+            self.bedtype_id = bedtype
+
+
 class MarketSegment(models.Model):
     _name = "hms.marketsegment"
     _description = "Maret Segment"
     _order = 'group_id'
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     market_code = fields.Char(string="Market Code", size=3, required=True)
     market_name = fields.Char(string="Market Name", required=True)
@@ -1642,6 +1664,7 @@ class MarketGroup(models.Model):
     _name = "hms.marketgroup"
     _description = "Market Group"
 
+    is_csv = fields.Boolean(default=False)
     group_code = fields.Char(string="Group Code",
                              help='Eg. COR.....',
                              size=3,
@@ -1662,6 +1685,7 @@ class MarketSource(models.Model):
     _name = "hms.marketsource"
     _description = "Market Source"
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     source_code = fields.Char(string="Source Code", size=3, required=True)
     source_desc = fields.Char(string="Description")
@@ -1862,6 +1886,20 @@ class SubGroup(models.Model):
                                                        record.sub_desc)))
         return result
 
+    @api.onchange('property_ids')
+    def default_get_property_id(self):
+        if self.property_ids:
+            if len(self.property_ids) >= 1:
+                self.property_id = self.property_ids[0]._origin.id
+        else:
+            return {
+                'warning': {
+                    'title': _('No Property Permission'),
+                    'message':
+                    _("Please Select Property in User Setting First!")
+                }
+            }
+
     @api.constrains('sub_group')
     def _check_sub_group(self):
         for record in self:
@@ -1888,10 +1926,11 @@ class Transaction(models.Model):
     trans_ptype = fields.Selection(AVAILABLE_PAY, string="Pay Type")
     subgroup_ids = fields.One2many('hms.subgroup',
                                    related="property_id.subgroup_ids")
-    subgroup_id = fields.Many2one('hms.subgroup',
-                                  domain="[('id', '=?', subgroup_ids)]",
-                                  string="Sub Group")
-    subgroup_name = fields.Char(string="Group Name", readonly=True)
+    subgroup_id = fields.Many2one(
+        'hms.subgroup',
+        domain="[('id', '=?', subgroup_ids), ('revtype_id', '=', revtype_id)]",
+        string="Sub Group")
+    subgroup_name = fields.Char(string="Group Name", readonly=True, store=True)
     trans_code = fields.Char(string="Transaction Code",
                              size=4,
                              required=True,
@@ -2048,6 +2087,7 @@ class TransactionRoot(models.Model):
         self.env.cr.execute('''
             CREATE OR REPLACE VIEW %s AS (
             SELECT DISTINCT ASCII(trans_code) * 1000 + ASCII(SUBSTRING(trans_code,2,1)) AS id,
+                   property_id As property_id,
                    LEFT(trans_code,2) AS name,
                    subgroup_name as revname,
                    ASCII(trans_code) AS parent_id,
@@ -2055,6 +2095,7 @@ class TransactionRoot(models.Model):
             FROM hms_transaction WHERE trans_code IS NOT NULL
             UNION ALL
             SELECT DISTINCT ASCII(trans_code) AS id,
+                   property_id As property_id,
                    LEFT(trans_code,1) AS name,
                    revtype_name as revname,
                    NULL::int AS parent_id,
@@ -2062,11 +2103,12 @@ class TransactionRoot(models.Model):
             FROM hms_transaction WHERE trans_code IS NOT NULL
             )''' % (self._table, ))
 
-    # def name_get(self):
-    #     result = []
-    #     for record in self:
-    #         result.append((record.id, "({}) {}".format(record.revname, record.name)))
-    #     return result
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "({}) {}".format(record.name,
+                                                       record.revname)))
+        return result
 
 
 # Reservation Type
@@ -2075,6 +2117,7 @@ class RsvnType(models.Model):
     _description = "Reservation Type"
     _rec_name = "rsvn_name"
 
+    is_csv = fields.Boolean(default=False)
     rsvn_name = fields.Char(string="Reservation Type", size=30, required=True)
     rsvn_options = fields.Selection([
         ('CF', 'Confirmed'),
@@ -2089,6 +2132,7 @@ class RsvnStatus(models.Model):
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 
+    is_csv = fields.Boolean(default=False)
     rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
     rsvn_status = fields.Char(string="Description", required=True)
     rsvntype_id = fields.Many2one('hms.rsvntype',
@@ -2166,4 +2210,3 @@ class CreditLimit(models.Model):
     #             same_payment = rec
     #         if same_payment:
     #             self.crd_startdate = same_payment.crd_enddate + timedelta(days = 1)
-

@@ -1,7 +1,7 @@
 import datetime
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError
-from datetime import datetime, timedelta
+from datetime import datetime,date, timedelta
 from dateutil.relativedelta import relativedelta
 
 
@@ -20,7 +20,7 @@ class RatecodeDetailCopyWizard(models.TransientModel):
     ratehead_id = fields.Many2one('hms.ratecode.header',related="ratecode_detail_id.ratehead_id")
     property_id = fields.Many2one('hms.property',
                                   readonly=True)
-    season_code = fields.Char(string="Season",related="ratecode_detail_id.season_code")
+    season_code = fields.Char(string="Season")
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="ratecode_detail_id.roomtype_ids")
     roomtype_id = fields.Many2many('hms.roomtype',
@@ -60,8 +60,25 @@ class RatecodeDetailCopyWizard(models.TransientModel):
 
     @api.onchange('old_end_date')
     def get_end_date(self):
-        if self.old_end_date:
-            self.start_date = self.old_end_date + timedelta(days=1)
+        # if self.old_end_date:
+        #     self.start_date = self.old_end_date + timedelta(days=1)
+
+        ratecode_detail_id = self.env['hms.ratecode.details'].browse(
+            self._context.get('active_id'))
+        tmp_end_date = date(1000, 1, 11)
+        prv_ratecode_details = self.env['hms.ratecode.details']
+
+        for detail in ratecode_detail_id.ratehead_id.ratecode_details:
+            for roomtype in self.roomtype_id:
+                if roomtype._origin.id in detail.roomtype_id.ids:
+                    if detail.end_date > tmp_end_date:
+                        tmp_end_date = detail.end_date
+                        prv_ratecode_details = detail
+        if prv_ratecode_details:
+            self.start_date = prv_ratecode_details.end_date + timedelta(days=1)
+        elif not prv_ratecode_details:
+            self.start_date = datetime.today()
+
 
     def action_rc_detail_copy_wiz(self):
         ratecode_detail_id = self.env['hms.ratecode.details'].browse(

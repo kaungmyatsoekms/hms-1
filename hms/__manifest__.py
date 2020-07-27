@@ -22,7 +22,7 @@
     'category':
     'Test',
     'version':
-    '0.1',
+    '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
         'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',

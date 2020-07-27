@@ -70,7 +70,7 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <menuitem id="ratecode_menu_root_config" name="Rate Config" parent="hms_menu_config" sequence="3"/>
+        <menuitem id="ratecode_menu_root_config" name="Rate Code" parent="hms_menu_config" sequence="3"/>
         <menuitem id="rate_categories_config" name="Rate Categories" parent="ratecode_menu_root_config" action="rate_categories_action_window" sequence="1"/>
     </data>
 </odoo>

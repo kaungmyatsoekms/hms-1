@@ -14,6 +14,7 @@ class HMSReason(models.Model):
     _name = "hms.reason"
     _description = "Reason"
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char(string="Name", required=True)
     code = fields.Char(string="Code", required=True)
     type_id = fields.Many2one('hms.reasontype',
@@ -25,6 +26,7 @@ class HMSReasonType(models.Model):
     _name = "hms.reasontype"
     _description = "Reason Type"
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char(string="Name", required=True)
     code = fields.Char(string="Code", size=3, required=True)
     reason_ids = fields.One2many('hms.reason',
@@ -521,7 +523,22 @@ class Reservation(models.Model):
                         departure, nights, market, source, reservation_type,
                         reservation_status, arrival_flight, arrival_flighttime,
                         dep_flight, dep_flighttime, eta, etd):
+        
+        
         vals = []
+        total_hfo_room = self.env['hms.property.room'].search([
+            ('property_id', '=', property_id),
+            ('roomtype_id.code', '=ilike','H%')
+        ]).ids
+        occ_hfo_room = self.env['hms.reservation.line'].search([
+                        ('property_id', '=', property_id),
+                        ('room_type.code', '=ilike','H%'),
+                    ]).room_no.ids
+        avail_room = list(set(total_hfo_room)-set(occ_hfo_room))
+        room_no = 0
+        if avail_room:
+            room_no = avail_room[0]
+
         vals.append((0, 0, {
             'state': state,
             'reservation_id': reservation_id.id,
@@ -531,6 +548,7 @@ class Reservation(models.Model):
             'group_id': group_id,
             'guest_id': guest_id,
             'room_type': roomtype_id,
+            'room_no': room_no,
             'arrival': arrival,
             'departure': departure,
             'nights': nights,
@@ -829,8 +847,8 @@ class ReservationLine(models.Model):
         ('cancel', 'Cancel'),
         ('checkin', 'Checkin'),
     ],
-                             default=get_state,
-                             store=True)
+        default=get_state,
+        store=True)
     # default=lambda *a: 'booking')
     market_ids = fields.Many2many('hms.marketsegment',
                                   related="property_id.market_ids")
@@ -1697,6 +1715,7 @@ class ReservationLine(models.Model):
                            reservation_line_id, rate, total_amount, active,
                            package_id, transaction_date, total_room, delete,
                            rate_attribute):
+        currency = reservation_line_id.ratecode_id.currency_id
         vals = []
         vals.append((0, 0, {
             'property_id': property_id.id,
@@ -1711,6 +1730,7 @@ class ReservationLine(models.Model):
             'delete': delete,
             'rate_attribute': rate_attribute,
             'ref': 'AUTO',
+            'currency_id':currency.id,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 
@@ -2364,6 +2384,11 @@ class ReservationLine(models.Model):
         for rsvn in out_date_reservations:
             rsvn.update({'active': False})
 
+    @api.onchange('room_type')
+    def clear_bed_type(self):
+        bedtype = self.env['hms.bedtype']
+        if self.room_type.fix_type is True:
+            self.bedtype_id = bedtype
 
 # Cancel Reservation
 class CancelReservation(models.Model):
