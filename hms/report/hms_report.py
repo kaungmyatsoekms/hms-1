@@ -7,11 +7,11 @@ from odoo import api, fields, models
 
 
 # class PropertyReport(models.AbstractModel):
-#     _name = 'report.property.property'
+#     _name = 'report.hms.property'
 
 #     def get_data(self, name):
 #         data_property = []
-#         property_obj = self.env['property.property']
+#         property_obj = self.env['hms.property']
 #         act_domain = [('name', '=',name)]
 #         tids = property_obj.search(act_domain)
 #         for data in tids:
@@ -30,7 +30,7 @@ from odoo import api, fields, models
 #             data = {}
 #         if not docids:
 #             docids = data['form'].get('docids')
-#         property_profile = self.env['property.property'].browse(docids)
+#         property_profile = self.env['hms.property'].browse(docids)
 #         name = data['form'].get('name')
 #         return {
 #             'doc_ids': docids,

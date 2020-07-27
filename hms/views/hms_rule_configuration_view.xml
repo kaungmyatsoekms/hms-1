@@ -1,5 +1,5 @@
 <odoo>
-  <data>  
+  <data>
     <record id="res_rule_view_form" model="ir.ui.view">
       <field name="name">res.config.settings.view.form</field>
       <field name="model">res.config.settings</field>
@@ -33,7 +33,7 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16">
-                      <field name="building_code_len"  style="width: 100%;" />
+                      <field name="building_code_len" style="width: 100%;" />
                     </div>
                   </div>
                 </div>
@@ -47,7 +47,7 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16">
-                      <field name="location_code_len"  style="width: 100%;" />
+                      <field name="location_code_len" style="width: 100%;" />
                     </div>
                   </div>
                 </div>
@@ -61,7 +61,7 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16">
-                      <field name="roomtype_code_len"  style="width: 100%;" />
+                      <field name="roomtype_code_len" style="width: 100%;" />
                     </div>
                   </div>
                 </div>
@@ -75,9 +75,8 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16 ">
-                      <field name="confirm_id_format"  style="width: 100%;" />
-                      <field name="company_id"
-                      invisible="1"/>
+                      <field name="confirm_id_format" style="width: 100%;" />
+                      <field name="company_id" invisible="1"/>
                     </div>
                   </div>
                 </div>
@@ -91,9 +90,8 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16 ">
-                      <field name="cancellation_id_format"  style="width: 100%;"/>
-                      <field name="company_id"
-                      invisible="1"/>
+                      <field name="cancellation_id_format" style="width: 100%;"/>
+                      <field name="company_id" invisible="1"/>
                     </div>
                   </div>
                 </div>
@@ -107,9 +105,8 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16 ">
-                      <field name="profile_id_format"  style="width: 100%;" />
-                      <field name="company_id"
-                      invisible="1"/>
+                      <field name="profile_id_format" style="width: 100%;" />
+                      <field name="company_id" invisible="1"/>
                     </div>
                   </div>
                 </div>
@@ -123,9 +120,8 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16 ">
-                      <field name="cprofile_id_format"  style="width: 100%;" />
-                      <field name="company_id"
-                      invisible="1"/>
+                      <field name="cprofile_id_format" style="width: 100%;" />
+                      <field name="company_id" invisible="1"/>
                     </div>
                   </div>
                 </div>
@@ -139,9 +135,8 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16 ">
-                      <field name="gprofile_id_format"  style="width: 100%;" />
-                      <field name="company_id"
-                      invisible="1"/>
+                      <field name="gprofile_id_format" style="width: 100%;" />
+                      <field name="company_id" invisible="1"/>
                     </div>
                   </div>
                 </div>
@@ -155,9 +150,8 @@
                   </div>
                   <div class="content-group">
                     <div class="mt16 ">
-                      <field name="share_id_format"  style="width: 100%;" />
-                      <field name="company_id"
-                      invisible="1"/>
+                      <field name="share_id_format" style="width: 100%;" />
+                      <field name="company_id" invisible="1"/>
                     </div>
                   </div>
                 </div>
@@ -176,10 +170,6 @@
       <field name="target">inline</field>
       <field name="context">{'module' : 'HMS'}</field>
     </record>
-    <menuitem id="menu_property_general_settings"
-        name="Settings"
-        parent="hms_menu_setting"
-        sequence="0"
-        action="action_property_config_settings"/>
+    <menuitem id="menu_property_general_settings" name="Settings" parent="hms_menu_setting" sequence="0" action="action_property_config_settings"/>
   </data>
 </odoo>

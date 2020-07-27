@@ -5,7 +5,7 @@
             <field name="name">hms.nationality.view.form</field>
             <field name="model">hms.nationality</field>
             <field name="arch" type="xml">
-                <form string="Guest Nationality">
+                <form string="Guest Nationality" import="false">
                     <sheet>
                         <h2>Nationality</h2>
                         <br></br>
@@ -22,7 +22,7 @@
             <field name="name">hms.nationality.view.list</field>
             <field name="model">hms.nationality</field>
             <field name="arch" type="xml">
-                <tree string="Guest Nationality">
+                <tree string="Guest Nationality" import="false">
                     <field name="code"/>
                     <field name="name"/>
                 </tree>
@@ -40,20 +40,20 @@
             <field name="name">hms.passport.view.form</field>
             <field name="model">hms.passport</field>
             <field name="arch" type="xml">
-                <form string="Guest Passport">
+                <form string="Guest Passport" import="false">
                     <sheet>
                         <h2>Guest Passport</h2>
                         <br></br>
                         <group>
                             <group>
-                                <field name="active" widget="boolean_toggle"/>
+                                <field name="active" invisible="1"/>
                                 <field name="profile_id"/>
                                 <field name="passport"/>
-                                    <field name="issue_date" />
-                                    <field name="expire_date"/>
-                                    <field name="country_id"/>
-                                    <field name="nationality"/>
-                                    <field name="note" string="Notes" placeholder="Internal Notes..."/>
+                                <field name="issue_date" />
+                                <field name="expire_date"/>
+                                <field name="country_id"/>
+                                <field name="nationality"/>
+                                <field name="note" string="Notes" placeholder="Internal Notes..."/>
                             </group>
                             <group>
                                 <label for="image1" string="Image"/>
@@ -62,7 +62,6 @@
                                     <field name="image2" widget="image" class="float-left oe_avatar"/>
                                     <field name="image3" widget="image" class="float-left oe_avatar"/>
                                     <field name="image4" widget="image" class="float-left oe_avatar"/>
-                                    <field name="active" invisible="1"/>
                                 </div>
                                 <!-- <field name="image1" string="Image" widget="many2many_binary"/> -->
                             </group>
@@ -76,7 +75,7 @@
             <field name="name">hms.passport.view.list</field>
             <field name="model">hms.passport</field>
             <field name="arch" type="xml">
-                <tree string="Guest Passport">
+                <tree string="Guest Passport" import="false">
                     <field name="active"/>
                     <field name="passport"/>
                     <field name="issue_date"/>
@@ -96,7 +95,7 @@
             <field name="name">hms.contract.view.form</field>
             <field name="model">hms.contract</field>
             <field name="arch" type="xml">
-                <form string="Contract">
+                <form string="Contract" import="false">
                     <sheet>
                         <h2>Contract</h2>
                         <br></br>
@@ -117,7 +116,7 @@
             <field name="name">hms.contract.view.list</field>
             <field name="model">hms.contract</field>
             <field name="arch" type="xml">
-                <tree string="Contract">
+                <tree string="Contract" import="false">
                     <field name="profile_id"/>
                     <field name="name"/>
                     <field name="start_date"/>
@@ -132,13 +131,13 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <menuitem  id="natioanlity_menu" name="Nationality" parent="country_menu_root" action="hms_nationality_action_window" sequence="20"/>
-        <menuitem id="guest_profile_menu" name="Guest Profile" parent="hms_menu_setting" sequence="6"/>
-            <!-- <menuitem id="guest_country_menu" name="Guest Country" parent="guest_profile_menu" sequence="2" action="hms_country_action_window"/>
+        <menuitem id="natioanlity_menu" name="Nationality" parent="country_menu_root" action="hms_nationality_action_window" sequence="20"/>
+        <menuitem id="guest_profile_menu" name="Guest Profile" parent="hms_menu_config" sequence="6"/>
+        <!-- <menuitem id="guest_country_menu" name="Guest Country" parent="guest_profile_menu" sequence="2" action="hms_country_action_window"/>
             <menuitem id="guest_nationality_menu" name="Guest Nationality" parent="guest_profile_menu" sequence="3" action="hms_nationality_action_window"/> -->
-            <menuitem id="guest_passport_menu" name="Guest Passport" parent="guest_profile_menu" sequence="4" action="hms_passport_action_window"/>
-      
-        <menuitem id="contract_menu" name="Contract" parent="hms_menu_setting" sequence="7" action="hms_contract_action_window"/>
+        <menuitem id="guest_passport_menu" name="Guest Passport" parent="guest_profile_menu" sequence="4" action="hms_passport_action_window"/>
+
+        <menuitem id="contract_menu" name="Contract" parent="guest_profile_menu" sequence="7" action="hms_contract_action_window"/>
 
     </data>
 </odoo>

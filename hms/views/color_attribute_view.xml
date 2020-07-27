@@ -3,10 +3,10 @@
     <data>
         <!-- Rsvn State Attribute Tree View -->
         <record id="color_attribute_view_tree" model="ir.ui.view">
-            <field name="name">color.attribute.view.tree</field>
-            <field name="model">color.attribute</field>
+            <field name="name">hms.color.attribute.view.tree</field>
+            <field name="model">hms.color.attribute</field>
             <field name="arch" type="xml">
-                <tree string="Variant Values">
+                <tree string="Variant Values" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
                     <field name="create_variant"/>
@@ -16,10 +16,10 @@
 
         <!-- Rsvn State Attribute Form View -->
         <record id="color_attribute_view_form" model="ir.ui.view">
-            <field name="name">color.attribute.view.form</field>
-            <field name="model">color.attribute</field>
+            <field name="name">hms.color.attribute.view.form</field>
+            <field name="model">hms.color.attribute</field>
             <field name="arch" type="xml">
-                <form string="State Attribute">
+                <form string="State Attribute" import="false">
                     <sheet>
                         <group name="main_fields" class="o_label_nowrap">
                             <label for="name" string="Attribute Name"/>
@@ -45,7 +45,7 @@
         <record id="color_attribute_action" model="ir.actions.act_window">
             <field name="name">Attributes</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">color.attribute</field>
+            <field name="res_model">hms.color.attribute</field>
             <field name="view_mode">tree,form</field>
         </record>
 

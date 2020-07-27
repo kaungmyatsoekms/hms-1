@@ -21,11 +21,11 @@ class HMSRersvnWizard(models.TransientModel):
     reservation_no = fields.Char("Reservation",
                                  related="reservation_id.confirm_no",
                                  store=True)
-    reservation_type = fields.Many2one('rsvn.type',
+    reservation_type = fields.Many2one('hms.rsvntype',
                                        "Reservation Type",
                                        required=True,
                                        default=1)
-    reservation_status = fields.Many2one('rsvn.status',
+    reservation_status = fields.Many2one('hms.rsvnstatus',
                                          "Reservation Status",
                                          required=True)
 
@@ -53,7 +53,7 @@ class HMSRersvnWizard(models.TransientModel):
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
                     'state': state,
-                    'active': True,
+                    'is_cancel': False,
                 })
         reservations.write({
             'reservation_type': self.reservation_type,
@@ -84,11 +84,11 @@ class HMSRersvnLineWizard(models.TransientModel):
     reservation_no = fields.Char("Reservation",
                                  related="reservation_line_id.confirm_no",
                                  store=True)
-    reservation_type = fields.Many2one('rsvn.type',
+    reservation_type = fields.Many2one('hms.rsvntype',
                                        "Reservation Type",
                                        required=True,
                                        default=1)
-    reservation_status = fields.Many2one('rsvn.status',
+    reservation_status = fields.Many2one('hms.rsvnstatus',
                                          "Reservation Status",
                                          required=True)
 
@@ -115,7 +115,7 @@ class HMSRersvnLineWizard(models.TransientModel):
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
                     'state': state,
-                    'active': False,
+                    'is_cancel': False,
                 })
         # 1st time changes cancel to confirm or reservation
         if (reservation_lines.reservation_id.state == 'cancel'):

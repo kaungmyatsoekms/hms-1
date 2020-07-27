@@ -1,6 +1,7 @@
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
 
+
 # Calculation Method
 class HMSCalculationMethod(models.Model):
     _name = "hms.calculation.method"
@@ -10,6 +11,7 @@ class HMSCalculationMethod(models.Model):
     ordinal_no = fields.Integer("Order No")
     name = fields.Char("Name")
     active = fields.Boolean("Active")
+
 
 # Charge Type
 class HMSChargeTypes(models.Model):
@@ -39,13 +41,12 @@ class HMSPackageChargeLine(models.Model):
     _description = "Package Charge Line"
     _inherit = ['mail.thread']
 
-    
     name = fields.Char("Name", required=True, track_visibility=True)
-    property_id = fields.Many2one('property.property', string="Property")
-    transaction_id = fields.Many2one('transaction.transaction',
+    property_id = fields.Many2one('hms.property', string="Property")
+    transaction_id = fields.Many2one('hms.transaction',
                                      string='Transaction',
                                      domain="[('property_id', '=?', property_id)]")
-    package_id = fields.Many2one('package.package',string="Package",track_visibility=True)
+    package_id = fields.Many2one('hms.package',string="Package",track_visibility=True)
     charge_type_id = fields.Many2one("hms.charge_types",'Main Charge Type', required=True, track_visibility=True)
     calculate_method_ids = fields.Many2many( 'hms.calculation.method', "Calculation Method", related="charge_type_id.calculate_method_ids")
     calculation_method_id = fields.Many2one('hms.calculation.method',
@@ -54,28 +55,32 @@ class HMSPackageChargeLine(models.Model):
                                             readonly=False,
                                             required=True,
                                             store=True)
-    is_apply_service = fields.Boolean ('Apply Service',track_visibility=True, related='transaction_id.trans_svc')                                        
+    is_apply_service = fields.Boolean('Apply Service',
+                                      track_visibility=True,
+                                      related='transaction_id.trans_svc')
     service = fields.Float("Tax", track_visibility=True)
-    is_apply_tax = fields.Boolean('Apply Tax', track_visibility=True, related='transaction_id.trans_tax')
+    is_apply_tax = fields.Boolean('Apply Tax',
+                                  track_visibility=True,
+                                  related='transaction_id.trans_tax')
     tax = fields.Float("Tax", track_visibility=True)
     billing_type = fields.Selection([('daily', 'Daily'),
-                                    ('partial', 'Partially'),
-                                    ('monthly', 'Monthly')],
+                                     ('partial', 'Partially'),
+                                     ('monthly', 'Monthly')],
                                     "Billing Type",
                                     required=True,
                                     default='daily',
                                     track_visibility=True)
     active = fields.Boolean(default=True)
-#     unit_charge_line = fields.One2many("hms.unit.charge.line",
-#                                        "applicable_charge_id",
-#                                        "Unit Charge Line")
+    #     unit_charge_line = fields.One2many("hms.unit.charge.line",
+    #                                        "applicable_charge_id",
+    #                                        "Unit Charge Line")
     use_formula = fields.Boolean("Use Formula")
     rate = fields.Float("Rate")
-#     source_type_id = fields.Many2one("pms.utilities.source.type",
-#                                      "Source Type")
-#     is_meter = fields.Boolean("IsMeter",
-#                               default=False,
-#                               compute="compute_ismeter")
+    #     source_type_id = fields.Many2one("pms.utilities.source.type",
+    #                                      "Source Type")
+    #     is_meter = fields.Boolean("IsMeter",
+    #                               default=False,
+    #                               compute="compute_ismeter")
     _sql_constraints = [('name_uniq', 'unique (name)',
                          _("Name is exiting in the chrage applicable."))]
 
@@ -92,6 +97,7 @@ class HMSPackageChargeLine(models.Model):
     #     else:
     #         return {'domain': {'calculation_method_id': []}}
 
+
 #     @api.depends('calculation_method_id')
 #     def compute_ismeter(self):
 #         for rec in self:
@@ -101,12 +107,12 @@ class HMSPackageChargeLine(models.Model):
 #                 else:
 #                     rec.is_meter = False
 
-    # @api.model
-    # def create(self, values):
-    #     charge_type_id = self.search([('name', '=', values['name'])])
-    #     if charge_type_id:
-    #         raise UserError(_("%s is already existed" % values['name']))
-    #     return super(PMSApplicableChargeType, self).create(values)
+# @api.model
+# def create(self, values):
+#     charge_type_id = self.search([('name', '=', values['name'])])
+#     if charge_type_id:
+#         raise UserError(_("%s is already existed" % values['name']))
+#     return super(PMSApplicableChargeType, self).create(values)
 
 #     # @api.multi
 #     # def write(self, vals):
@@ -116,7 +122,6 @@ class HMSPackageChargeLine(models.Model):
 #     #             if charge_type_id:
 #     #                 raise UserError(_("%s is already existed" % vals['name']))
 #     #     return super(PMSApplicableChargeType, self).write(vals)
-
 
 # class PMSUnitChargeLine(models.Model):
 #     _name = "pms.unit.charge.line"
