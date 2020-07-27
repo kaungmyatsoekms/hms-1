@@ -5,7 +5,7 @@
             <field name="name">hms.nationality.view.form</field>
             <field name="model">hms.nationality</field>
             <field name="arch" type="xml">
-                <form string="Guest Nationality" import="false">
+                <form string="Guest Nationality" create="false" edit="false" delete="false" import="false">
                     <sheet>
                         <h2>Nationality</h2>
                         <br></br>
@@ -22,7 +22,7 @@
             <field name="name">hms.nationality.view.list</field>
             <field name="model">hms.nationality</field>
             <field name="arch" type="xml">
-                <tree string="Guest Nationality" import="false">
+                <tree string="Guest Nationality" create="false" edit="false" delete="false" import="false">
                     <field name="code"/>
                     <field name="name"/>
                 </tree>
@@ -47,12 +47,12 @@
                         <group>
                             <group>
                                 <field name="active" invisible="1"/>
-                                <field name="profile_id"/>
+                                <field name="profile_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
                                 <field name="passport"/>
                                 <field name="issue_date" />
                                 <field name="expire_date"/>
-                                <field name="country_id"/>
-                                <field name="nationality"/>
+                                <field name="country_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                                <field name="nationality" options="{'no_quick_create': True, 'no_open': True}"/>
                                 <field name="note" string="Notes" placeholder="Internal Notes..."/>
                             </group>
                             <group>
@@ -100,7 +100,7 @@
                         <h2>Contract</h2>
                         <br></br>
                         <group>
-                            <field name="profile_id"/>
+                            <field name="profile_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
                             <field name="name"/>
                             <field name="start_date"/>
                             <field name="end_date"/>
@@ -132,12 +132,12 @@
         </record>
 
         <menuitem id="natioanlity_menu" name="Nationality" parent="country_menu_root" action="hms_nationality_action_window" sequence="20"/>
-        <menuitem id="guest_profile_menu" name="Guest Profile" parent="hms_menu_setting" sequence="6"/>
+        <menuitem id="guest_profile_menu" name="Guest Profile" parent="hms_menu_config" sequence="6"/>
         <!-- <menuitem id="guest_country_menu" name="Guest Country" parent="guest_profile_menu" sequence="2" action="hms_country_action_window"/>
             <menuitem id="guest_nationality_menu" name="Guest Nationality" parent="guest_profile_menu" sequence="3" action="hms_nationality_action_window"/> -->
         <menuitem id="guest_passport_menu" name="Guest Passport" parent="guest_profile_menu" sequence="4" action="hms_passport_action_window"/>
 
-        <menuitem id="contract_menu" name="Contract" parent="hms_menu_setting" sequence="7" action="hms_contract_action_window"/>
+        <menuitem id="contract_menu" name="Contract" parent="guest_profile_menu" sequence="7" action="hms_contract_action_window"/>
 
     </data>
 </odoo>

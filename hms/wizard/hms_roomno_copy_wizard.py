@@ -38,7 +38,7 @@ class RoomNoCopyWizard(models.TransientModel):
     roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       related="propertyroom_id.roomlocation_id")
-    facility_ids = fields.Many2many('hms.room.facility',
+    facility_ids = fields.One2many('hms.room.facility',
                                     string="Room Facility",
                                     related="propertyroom_id.facility_ids")
     room_bedqty = fields.Integer(string="Number of Beds",
@@ -50,8 +50,14 @@ class RoomNoCopyWizard(models.TransientModel):
     room_connect = fields.Char(string="Connecting Room",related="propertyroom_id.room_connect")
 
     def action_roomno_copy_wiz(self):
-        property_rooms = self.env['hms.property.room'].browse(
-            self._context.get('active_id'))
+
+        facility = []
+        for rec in self.facility_ids:
+            facility.append((0,0,{
+                'facilitytype_id' : rec.facilitytype_id.id,
+                'amenity_ids' : rec.amenity_ids,
+                'facility_desc' : rec.facility_desc,
+            }))
 
         vals = []
         vals.append((0,0,{
@@ -62,7 +68,7 @@ class RoomNoCopyWizard(models.TransientModel):
             'roomview_ids' : self.roomview_ids,
             'building_id' : self.building_id.id,
             'roomlocation_id' : self.roomlocation_id.id,
-            'facility_ids' : self.facility_ids,
+            'facility_ids' : facility,
             'room_bedqty' : self.room_bedqty,
             'room_size' : self.room_size,
             'room_extension' : self.room_extension,
@@ -82,7 +88,6 @@ class RoomNoCopyWizard(models.TransientModel):
             'context':"{'type':'out_propertyroom'}",
             'type': 'ir.actions.client',
             'tag': 'reload',
-            # 'target':'new',
         }
 
         # return {

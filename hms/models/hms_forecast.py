@@ -163,9 +163,8 @@ class RoomTypeAvailable(models.Model):
         result = []
         for record in self:
             result.append(
-                (record.id, "{}-{} ({})".format(record.ravail_rmty.code,
-                                                record.ravail_totalroom,
-                                                record.ravail_date)))
+                (record.id, "{}-{}".format(record.ravail_rmty.code,
+                                                record.ravail_totalroom)))
         return result
 
     # Compute Total Available Room (Use)

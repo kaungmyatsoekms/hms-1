@@ -22,7 +22,7 @@
     'category':
     'Test',
     'version':
-    '0.1',
+    '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
         'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
@@ -54,6 +54,7 @@
         'data/hms.room.facility.type.csv',
         'data/hms.room.amenity.csv',
         'data/hms.roomtype.csv',
+        'data/hms.roomview.csv',
         'views/hms_forecast_view.xml',
         'views/hms_bank_view.xml',
         'views/hms_format_view.xml',
@@ -82,6 +83,7 @@
         'wizard/hms_unconfirm_wizard_view.xml',
         'wizard/hms_reason_wizard_view.xml',
         'wizard/hms_rersvn_wizard_view.xml',
+        'wizard/hms_checkin_wizard_view.xml',
         'views/hms_reservation_view.xml',
         'views/room_summ_view.xml',
         'data/hms.reasontype.csv',

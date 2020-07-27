@@ -35,7 +35,7 @@ RATE_ATTRIBUTE = [
 
 class Package(models.Model):
     _name = "hms.package.header"
-    _rec_name = 'package_name'
+    _rec_name = 'shortcut'
     _description = "Package"
 
     # Default Get Currency
@@ -61,8 +61,8 @@ class Package(models.Model):
                                   readonly=True,
                                   required=True)
     package_code = fields.Char(string="Package Code", size=4, required=True)
-    shortcut = fields.Char(string="ShortCut")
     package_name = fields.Char(string="Package Name", required=True)
+    shortcut = fields.Text(string="Description")
     start_date = fields.Date(string="Start Date",
                              required=True,
                              help="Start of Package")
@@ -119,7 +119,7 @@ class Package(models.Model):
                                           string='Calculation Method',
                                           index=True,
                                           default=CALCUATION_METHODS[0][0])
-    Fix_price = fields.Float('Price')
+    Fix_price = fields.Float('Price', digits='Fix Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
@@ -139,7 +139,7 @@ class Package(models.Model):
         result = []
         for record in self:
             result.append(
-                (record.id, "{} ({} {})".format(record.package_name,
+                (record.id, "{} ({} {})".format(record.shortcut,
                                                 record.start_date,
                                                 record.end_date)))
         return result
@@ -191,7 +191,6 @@ class Package(models.Model):
 
 class PackageGroup(models.Model):
     _name = "hms.package.group"
-    _rec_name = 'pkg_group_name'
     _description = "Package Group"
 
     active = fields.Boolean(string="Active",
@@ -203,8 +202,8 @@ class PackageGroup(models.Model):
                                   readonly=True,
                                   required=True)
     pkg_group_code = fields.Char(string="Group Code", size=4, required=True)
-    shortcut = fields.Char(string="ShortCut")
     pkg_group_name = fields.Char(string="Group Name", required=True)
+    shortcut = fields.Text(string="Description")
     package_ids = fields.Many2many(
         'hms.package.header',
         string="Packages",
@@ -222,5 +221,5 @@ class PackageGroup(models.Model):
         result = []
         for record in self:
             result.append((record.id, "{} ({})".format(record.pkg_group_code,
-                                                       record.pkg_group_name)))
+                                                       record.shortcut)))
         return result

@@ -11,7 +11,7 @@
                         <field name="property_id" class="oe_avatar"/>
                         <group>
                             <group>
-                                <field name="rate_category_id" style="width:50%%"/>
+                                <field name="rate_category_id" style="width:50%%" options="{'no_quick_create': True, 'no_open': True}"/>
                                 <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:50%%"/>
                                 <field name="ratecode_name" placeholder="Description" style="width:50%%"/>
                                 <field name="is_ratecode" invisible='1'/>
@@ -22,7 +22,7 @@
                                 <field name="ratecode_type" style="width:50%%"/>
                             </group>
                             <group>
-                                <field name="pkg_group_id" style="width:50%%" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="pkg_group_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>
                         <notebook>
@@ -70,7 +70,7 @@
                             <field name="roomtype_ids" invisible='1'/>
                             <label for="roomtype_id" string=" " style="width:1.5%%"/>
                             <label for="roomtype_id" string="RoomType" style="width:10%%"/>
-                            <field name="roomtype_id" style="width:20%%" widget="many2many_tags"/>
+                            <field name="roomtype_id" style="width:20%%" widget="many2many_tags" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                             <field name="property_id" class="oe_avatar"/>
                         </div>
                         <div class="o_address_format">
@@ -82,44 +82,44 @@
                         </div>
                         <div class="o_address_format">
                             <label for="transaction_id" string="Transaction" style="width:10%%"/>
-                            <field name="transaction_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" style="width:20%%"/>
+                            <field name="transaction_id" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}" style="width:20%%"/>
                             <label for="currency_id" string=" " style="width:1.5%%"/>
                             <label for="currency_id" string="Currency" style="width:10%%"/>
-                            <field name="currency_id" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" style="width:20%%"/>
+                            <field name="currency_id" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}" style="width:20%%"/>
                         </div>
                         <separator string="Rate Code Details" colspan="4"/>
                         <group colspan="3" col="3">
                             <group string="Normal">
-                                <field name="normal_price1"/>
-                                <field name="normal_price2"/>
-                                <field name="normal_price3"/>
-                                <field name="normal_price4"/>
-                                <field name="normal_extra"/>
+                                <field name="normal_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="normal_price2" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="normal_price3" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="normal_price4" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="normal_extra" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                             </group>
                             <group string="Weekend">
-                                <field name="weekend_price1"/>
-                                <field name="weekend_price2"/>
-                                <field name="weekend_price3"/>
-                                <field name="weekend_price4"/>
-                                <field name="weekend_extra"/>
+                                <field name="weekend_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="weekend_price2" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="weekend_price3" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="weekend_price4" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="weekend_extra" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                             </group>
                             <group string="Special">
-                                <field name="special_price1"/>
-                                <field name="special_price2"/>
-                                <field name="special_price3"/>
-                                <field name="special_price4"/>
-                                <field name="special_extra"/>
+                                <field name="special_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="special_price2" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="special_price3" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="special_price4" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="special_extra" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                             </group>
                         </group>
                         <group colspan="3" col="3">
                             <group>
-                                <field name="extra_bed"/>
+                                <field name="extra_bed" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                             </group>
                             <group>
-                                <field name="adult_bf"/>
+                                <field name="adult_bf" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                             </group>
                             <group>
-                                <field name="child_bf"/>
+                                <field name="child_bf" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                             </group>
                         </group>
                     </sheet>

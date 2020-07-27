@@ -11,7 +11,7 @@
                 </xpath>
                 <page name="access_rights" position="inside">
                     <group string="Property">
-                        <field name="property_id" widget="many2many_tags" options="{'no_create': False, 'no_create_edit':False, 'no_open':False}"/>
+                        <field name="property_id" widget="many2many_tags" options="{'no_create': False, 'no_quick_create': True, 'no_create_edit': False, 'no_open': False}"/>
                     </group>
                 </page>
             </field>
