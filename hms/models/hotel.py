@@ -129,7 +129,7 @@ class Property(models.Model):
                               track_visibility=True,
                               domain="[('state_id', '=?', state_id)]", help='City')
     state_id = fields.Many2one('res.country.state', string='State', help="State")
-    zip = fields.Char(change_default=True)
+    zip = fields.Char(change_default=True, help='Zip Code')
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   default=default_get_curency,
@@ -169,7 +169,7 @@ class Property(models.Model):
         "render date and time values: your computer's timezone.")
     system_date = fields.Date(string="System Date",
                               default=date.today(),
-                              track_visibility=True)
+                              track_visibility=True, help='System Date')
     ci_time = fields.Float(string="Check-In", help='Check-In')
     co_time = fields.Float(string="Check-Out", help='Check-Out')
     night_audit = fields.Selection([('auto', "Auto"), ('manual', "Manual")],
@@ -203,65 +203,65 @@ class Property(models.Model):
         string='Contacts',
         track_visibility=True,
         domain=
-        "[('is_company', '=', False), ('is_group', '=', False), ('is_guest', '=', False)]", help='Contact'
+        "[('is_company', '=', False), ('is_group', '=', False), ('is_guest', '=', False)]"
     )
     bankinfo_ids = fields.One2many('res.bank',
                                    'property_id',
-                                   string="Bank Info", help='Bank Info')
+                                   string="Bank Info")
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('hms.roomtype',
-                                    default=default_get_roomtype, help='Room Type')
+                                    default=default_get_roomtype)
     building_ids = fields.Many2many('hms.building',
-                                    default=default_get_building, help='Building')
-    market_ids = fields.Many2many('hms.marketsegment', string="Market Segment", help='Matket Segment')
+                                    default=default_get_building)
+    market_ids = fields.Many2many('hms.marketsegment', string="Market Segment")
     propertyroom_ids = fields.One2many('hms.property.room',
                                        'property_id',
-                                       string="Property Room", help='Property Room')
+                                       string="Property Room")
     building_count = fields.Integer("Building",
-                                    compute='_compute_building_count', help='Building')
+                                    compute='_compute_building_count')
     room_count = fields.Integer("Room",
                                 compute='_compute_room_count',
                                 store=True, help='Room')
     roomtype_count = fields.Integer("Room Type",
-                                    compute='_compute_roomtype_count', help='Room Type' )
+                                    compute='_compute_roomtype_count')
     package_ids = fields.One2many('hms.package',
                                   'property_id',
-                                  string="Package", help='Package')
+                                  string="Package")
     packageheader_ids = fields.One2many('hms.package.header',
                                         'property_id',
-                                        string="Package", help='Package Header')
+                                        string="Package")
     packagegroup_ids = fields.One2many('hms.package.group',
                                        'property_id',
-                                       string="Package Group", help='Package Group')
+                                       string="Package Group")
     subgroup_ids = fields.One2many('hms.subgroup',
                                    'property_id',
-                                   string="Sub Group", help='Sub Group')
+                                   string="Sub Group")
     transaction_ids = fields.One2many('hms.transaction',
                                       'property_id',
-                                      string="Transaction", help='Transaction')
+                                      string="Transaction")
     creditlimit_ids = fields.One2many('hms.creditlimit',
                                       'property_id',
-                                      string="Credit Limit", help='Creadit Limit')
+                                      string="Credit Limit")
     specialday_ids = fields.One2many('hms.specialday',
                                      'property_id',
-                                     string="Special Days", help='Special Days')
+                                     string="Special Days")
     weekend_id = fields.One2many('hms.weekend',
                                  'property_id',
-                                 string="Weekends", help='Weekends')
+                                 string="Weekends")
     ratecodeheader_ids = fields.One2many('hms.ratecode.header',
                                          'property_id',
-                                         string="Rate Code", help='Rate Code')
+                                         string="Rate Code")
     allotment_ids = fields.One2many('hms.allotment.line',
                                     'property_id',
-                                    string="Allotment", help='Allotment')
+                                    string="Allotment")
     proomtype_ids = fields.One2many('hms.property.roomtype',
                                     'property_id',
-                                    string="Property Room Type", help='Property Room Type')
+                                    string="Property Room Type")
     package_line_ids = fields.One2many('hms.package.charge.line',
                                        'property_id',
-                                       string="Packages_line", help='Package Line')
-    check_in_time = fields.Float(string="Check-In Time", help="Check-In Time")
-    check_out_time = fields.Float(string="Check-Out Time", help='Check-Out Time')
+                                       string="Packages_line")
+    check_in_time = fields.Float(string="Check-In Time")
+    check_out_time = fields.Float(string="Check-Out Time")
     availability = fields.Integer(default=365, string="Availability", help='Avaliability')
     reservation_line_ids = fields.One2many('hms.reservation.line',
                                            'property_id',
