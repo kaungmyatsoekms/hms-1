@@ -4,7 +4,7 @@
       <field name="name">Currency Form</field>
       <field name="model">hms.currency</field>
       <field name="arch" type="xml">
-        <form import="false">
+        <form create="false" edit="false" delete="false" import="false">
           <sheet>
             <div class="oe_button_box" name="button_box">
               <button name="action_status" type="object" class="oe_stat_button" icon="fa-archive">
@@ -36,7 +36,7 @@
       <field name="name">Currency list</field>
       <field name="model">hms.currency</field>
       <field name="arch" type="xml">
-        <tree import="false">
+        <tree create="false" edit="false" delete="false" import="false">
           <field name="name"/>
           <field name="symbol"/>
           <field name="status"/>
@@ -63,6 +63,20 @@
       <field name="view_id" ref="view_currency_tree"/>
     </record>
 
+    <!-- res.currency form view extension -->
+    <record id="view_currency_form_extension" model="ir.ui.view">
+      <field name="name">res.currency.form</field>
+      <field name="model">res.currency</field>
+      <field name="inherit_id" ref="base.view_currency_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="/form" position="attributes">
+          <attribute name="create">false</attribute>
+          <attribute name="edit">false</attribute>
+          <attribute name="delete">false</attribute>
+          <attribute name="import">false</attribute>
+        </xpath>
+      </field>
+    </record>
     <!-- res.currency tree view extension -->
     <record id="view_currency_tree_extension" model="ir.ui.view">
       <field name="name">res.currency.tree</field>
@@ -70,6 +84,9 @@
       <field name="inherit_id" ref="base.view_currency_tree"/>
       <field name="arch" type="xml">
         <xpath expr="/tree" position="attributes">
+          <attribute name="create">false</attribute>
+          <attribute name="edit">false</attribute>
+          <attribute name="delete">false</attribute>
           <attribute name="import">false</attribute>
         </xpath>
       </field>
@@ -82,6 +99,9 @@
       <field name="inherit_id" ref="base.view_currency_kanban"/>
       <field name="arch" type="xml">
         <xpath expr="/kanban" position="attributes">
+          <attribute name="create">false</attribute>
+          <attribute name="edit">false</attribute>
+          <attribute name="delete">false</attribute>
           <attribute name="import">false</attribute>
         </xpath>
       </field>

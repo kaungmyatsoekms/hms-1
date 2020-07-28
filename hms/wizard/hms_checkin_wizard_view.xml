@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_checkin_line_wiz" model="ir.ui.view">
+        <field name="name">Check-In Information</field>
+        <field name="model">hms.rsvn_checkin_line_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Check-In Information">
+                <p style="font-weight:bold;">
+                    Enter the Required Information to Check-In
+                </p>
+                <group>
+                    <group>
+                        <field name="reservation_line_id" invisible="1"/>
+                        <field name="reservation_no" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="guest_name" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True}"/>
+                        <field name="group_name" options="{'no_quick_create': True}" context="{'default_company_type' : 'group','default_is_from_hms': True}"/>
+                        <field name="pax"/>
+                        <field name="child"/>
+                        <!-- <field name="room_no"/> -->
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_checkin_line_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_checkin_line_wiz" model="ir.actions.act_window">
+        <field name="name">Check-In Information</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hms.rsvn_checkin_line_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'active_id':active_id}</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -74,23 +74,23 @@
                 <field name="code" style="width:73%%"/>
               </h4>
               <h4>
-                <field name="hotelgroup_id" style="width:76%%"/>
+                <field name="hotelgroup_id" style="width:76%%" options="{'no_quick_create': True}"/>
               </h4>
             </div>
             <newline/>
             <group>
               <separator colspan='4' string="Property Information" />
               <group>
-                <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" />
+                <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
                 <label for="address1" string="Address"/>
                 <div class="o_address_format">
                   <field name="address1" placeholder="Street..." class="o_address_street"/>
                   <field name="address2" placeholder="Street 2..." class="o_address_street"/>
-                  <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                  <field name="state_id" class="o_address_state" placeholder="State" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                  <field name="city_id" placeholder="City" class="o_address_city" options="{'no_open':True}"/>
+                  <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                  <field name="state_id" class="o_address_state" placeholder="State" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                  <field name="city_id" placeholder="City" class="o_address_city" options="{'no_quick_create':True, 'no_open':True}"/>
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
-                  <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
+                  <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create':True, 'no_open':True}"/>
                 </div>
                 <label for="image" string="Image"/>
                 <div>
@@ -130,8 +130,8 @@
             </group>
             <notebook colspan="5">
               <page string='Contact Information' autofocus="autofocus">
-                <!-- <field name="contact_ids" context="{'default_company_type' : 'preson','default_is_from_hms':True }" mode="kanban"/> -->
-                <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/>
+                <field name="contact_ids" context="{'default_company_type': 'preson', 'default_is_from_hms': True }" mode="kanban"/>
+                <!-- <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/> -->
               </page>
               <page string='Buildings (or) Zone'>
                 <div>
@@ -290,6 +290,8 @@
           <field name="rating"/>
           <field name="timezone"/>
           <field name="system_date"/>
+          <field name="is_property"/>
+          <field name="is_manual"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
@@ -363,6 +365,9 @@
                   <div t-if="record.rating.raw_value">
                     <field name="rating" widget='priority'/>
                   </div>
+                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                    <i class="fa fa-moon-o"></i>
+                  </button>
                 </div>
               </div>
             </t>
@@ -707,8 +712,9 @@
             <h2>Room View Setup</h2>
             <br></br>
             <group>
-              <field name="name" placeholder="Eg. MTV....."/>
-              <field name="roomview_desc" placeholder="Eg. Mountain View"/>
+              <field name="is_csv" invisible="1"/>
+              <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}"/>
             </group>
           </sheet>
         </form>
@@ -745,9 +751,9 @@
             <h2>Room Facility</h2>
             <br></br>
             <group>
-              <field name="propertyroom_id"/>
-              <field name="facilitytype_id"/>
-              <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags" />
+              <field name="propertyroom_id" options="{'no_create':True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+              <field name="facilitytype_id" options="{'no_quick_create':True, 'no_open':True}"/>
+              <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags" options="{'no_quick_create':True, 'no_open':True}"/>
               <field name="facility_desc" placeholder="Eg. Aircon....."/>
             </group>
           </sheet>
@@ -786,6 +792,7 @@
             <h2>Facility Type</h2>
             <br></br>
             <group>
+              <field name="is_csv" invisible="1"/>
               <field name="facility_type" placeholder="Eg. ENT..... "/>
               <field name="facilitytype_desc" placeholder="Eg. Entertainments...."/>
             </group>
@@ -806,6 +813,26 @@
       </field>
     </record>
 
+    <!-- Room Amenity Setup Form View -->
+    <record id="room_amenity_view_form" model="ir.ui.view">
+      <field name="name">hms.room.amenity.view.form</field>
+      <field name="model">hms.room.amenity</field>
+      <field name="arch" type="xml">
+        <form string="Room Amenity" import="false">
+          <sheet>
+            <h2>Room Amenity Setup</h2>
+            <br></br>
+            <group>
+              <field name="is_csv" invisible="1"/>
+              <field name="facilitytype_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="name" placeholder="Eg. AC" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="amenity_desc" placeholder="Eg. Air-Con" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
     <!-- ========== Hotel Room Setup ========== -->
     <!-- Hotel Room Setup Form View -->
     <record id="property_room_view_form" model="ir.ui.view">
@@ -821,23 +848,23 @@
               <group>
                 <field name="is_hfo" invisible="1"/>
                 <field name="is_propertyroom" invisible='1'/>
-                <field name="property_id"/>
+                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="room_no" placeholder="Eg. 101..."/>
                 <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="bedtype_ids" invisible="1"/>
                 <field name="is_roomtype_fix" invisible="1"/>
-                <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="building_ids" invisible="1"/>
-                <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
-                <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="room_bedqty"/>
                 <field name="no_of_pax"/>
                 <field name="zip_type" widget="boolean_toggle"/>
               </group>
               <group>
                 <field name="room_extension" placeholder="Eg. 101... "/>
-                <field name="roomview_ids" widget="many2many_tags"/>
+                <field name="roomview_ids" widget="many2many_tags" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
                 <field name="room_desc" placeholder="Eg. Special Remark"/>
               </group>
@@ -964,7 +991,7 @@
               <field name="is_csv" invisible="1"/>
               <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
               <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}"/>
               <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
             </group>
           </sheet>
@@ -1043,7 +1070,7 @@
             <h2>Special Day</h2>
             <br></br>
             <group>
-              <field name="property_id"/>
+              <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
               <label for="special_date" string="Date"/>
               <div>
                 <field name="special_date" placeholder="Eg. Water Festival Date....."/>
@@ -1087,7 +1114,7 @@
             <h2>Define Weekends</h2>
             <br></br>
             <group>
-              <field name="property_id"/>
+              <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
               <field name="monday" widget="boolean_toggle"/>
               <field name="tuesday" widget="boolean_toggle"/>
               <field name="wednesday" widget="boolean_toggle" />
@@ -1187,7 +1214,7 @@
       <field name="name">hms.revenuetype.view.form</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
-        <form string="Revenue Type" import="false">
+        <form string="Revenue Type" create="false" edit="true" import="false" delete="false">
           <sheet>
             <group>
               <field name="rev_type"/>
@@ -1206,7 +1233,7 @@
       <field name="name">hms.revenuetype.list</field>
       <field name="model">hms.revenuetype</field>
       <field name="arch" type="xml">
-        <tree string="Revenue Type" import="false">
+        <tree string="Revenue Type" create="false" edit="true" import="false" delete="false">
           <field name="rev_code" string="Code"/>
           <field name="rev_type" string ="Revenue"/>
           <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
@@ -1249,9 +1276,9 @@
           <sheet>
             <group>
               <field name="property_ids" invisible="1"/>
-              <field name="property_id" options='{"no_open": True, "no_create": True, "no_edit_create": True}'/>
+              <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create": True, "no_edit_create": True}'/>
               <field name="user_id" invisible="1"/>
-              <field name="revtype_id"/>
+              <field name="revtype_id" options='{"no_open": True, "no_quick_create": True, "no_create": True, "no_edit_create": True}'/>
               <field name="sub_group" placeholder="0 ~ 9"/>
               <field name="sub_desc" placeholder="Sub Group Revenue"/>
             </group>
@@ -1310,13 +1337,13 @@
             <h2>Transaction</h2>
             <group>
               <group>
-                <field name="property_id" />
-                <field name="revtype_id"/>
+                <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
+                <field name="revtype_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
                 <field name="revtype_name" invisible="1"/>
                 <field name="trans_ptype" attrs="{'invisible': [('revtype_name', '!=', 'Payment')],'required': [('revtype_name', '=', 'Payment')]}"/>
                 <field name="revsub_active" invisible="1"/>
                 <field name="subgroup_ids" invisible="1"/>
-                <field name="subgroup_id" context="{'default_property_id': property_id,'default_revtype_id':revtype_id}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
+                <field name="subgroup_id" context="{'default_property_id': property_id,'default_revtype_id':revtype_id}" options="{'no_quick_create': True, 'no_open': True}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
                 <field name="subgroup_name" force_save="1"/>
                 <!-- attrs="{'invisible': [('revsub_active', '=', True)]}"-->
                 <field name="trans_code" placeholder="Eg. 1001....."/>
@@ -1389,7 +1416,7 @@
       <field name="name">hms.rsvntype.view.form</field>
       <field name="model">hms.rsvntype</field>
       <field name="arch" type="xml">
-        <form string="Reservation Type" import="false">
+        <form string="Reservation Type" create="false" edit="false" delete="false" import="false">
           <sheet>
             <h2>Reservation Type</h2>
             <br></br>
@@ -1410,7 +1437,7 @@
       <field name="name">hms.rsvntype.view.list</field>
       <field name="model">hms.rsvntype</field>
       <field name="arch" type="xml">
-        <tree string="Reservation Type" import="false">
+        <tree string="Reservation Type" create="false" edit="false" delete="false" import="false">
           <field name="rsvn_name"/>
           <field name="rsvn_options"/>
         </tree>
@@ -1438,7 +1465,7 @@
                 <field name="is_csv" invisible="1"/>
                 <field name="rsvn_code" placeholder="Eg. CMG....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
                 <field name="rsvn_status" placeholder="Eg. Company Granteed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-                <field name="rsvntype_id"/>
+                <field name="rsvntype_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
               </group>
             </group>
           </sheet>
@@ -1477,7 +1504,7 @@
             <br></br>
             <group>
               <group>
-                <field name="property_id"/>
+                <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
                 <field name="payment_type"/>
                 <field name="crd_startdate"/>
                 <field name="crd_enddate"/>

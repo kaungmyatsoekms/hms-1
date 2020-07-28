@@ -8,6 +8,7 @@ class HMSCalculationMethod(models.Model):
     _description = "Calculation Method"
     _order = 'ordinal_no,name'
 
+    is_csv = fields.Boolean(default=False)
     ordinal_no = fields.Integer("Order No")
     name = fields.Char("Name")
     active = fields.Boolean("Active")

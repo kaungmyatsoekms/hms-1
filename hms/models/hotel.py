@@ -601,11 +601,11 @@ class Property(models.Model):
 
     def action_creditlimit(self):
         credit_limit = self.mapped('creditlimit_ids')
-        action = self.env.ref('hms.hms_creditlimit_action_window').read()[0]
+        action = self.env.ref('hms.credit_limit_action_window').read()[0]
         if len(credit_limit) >= 1:
             action['domain'] = [('id', 'in', credit_limit.ids)]
         elif len(credit_limit) == 0:
-            form_view = [(self.env.ref('hms.hms_creditlimit_view_form').id,
+            form_view = [(self.env.ref('hms.credit_limit_view_form').id,
                           'form')]
             if 'views' in action:
                 action['views'] = form_view + [
@@ -1227,39 +1227,6 @@ class Building(models.Model):
          'Building name already exists! Building name must be unique!')
     ]
 
-    # def get_name(self,cr, uid, ids, context=None):
-    #     if context is None:
-    #         context = {}
-    #     if isinstance(ids, (int, long)):
-    #         ids = [ids]
-
-    #     res = []
-    #     for record in self.browse(cr, uid, ids, context=context):
-    #         name = record.building_name
-    #         res.append(record.id, name)
-    #     return res
-
-    # @api.model
-    # def name_get(self):
-    #     result = []
-    #     for record in self:
-    #         result.append((record.id, "{}".format(record.building_name)))
-    #     return result
-
-    # @api.depends('building_capacity','location_ids')
-    # def _room_location_count(self):
-
-    #         return len(locations)
-
-    # @api.model
-    # def create(self, values):
-    #     locations = values['location_ids']
-    #     building_capacity = values['building_capacity']
-    #     if values['location_ids'][0][2]:
-    #         if len(values['location_ids'][0][2]) > building_capacity:
-    #             raise UserError(_("Location number must less than building capacity."))
-    #     return super(Building, self).create(values)
-
     @api.constrains('location_ids','building_capacity')
     def _check_capacity(self):
         for record in self:
@@ -1316,7 +1283,6 @@ class RoomLocation(models.Model):
         'Location code already exists with this name! Location code must be unique!'
     )]
 
-    @api.model
     def name_get(self):
         result = []
         for record in self:
@@ -1374,11 +1340,12 @@ class RoomType(models.Model):
 
     @api.depends('code')
     def check_is_used(self):
-        used_property = self.env['hms.property'].search([('roomtype_ids', '=?', self.id)])
-        if used_property:
-            self.is_used = True
-        else :
-            self.is_used = False
+        for rec in self:
+            used_property = self.env['hms.property'].search([('roomtype_ids', '=?', rec.id)])
+            if used_property:
+                rec.is_used = True
+            else :
+                rec.is_used = False
 
     @api.onchange('code')
     def onchange_code(self):
@@ -1435,6 +1402,7 @@ class RoomView(models.Model):
     _name = "hms.roomview"
     _description = "Room View"
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char(string='Room View', required=True)
     roomview_desc = fields.Text(string='Description')
 
@@ -1443,7 +1411,6 @@ class RoomView(models.Model):
         'Room view already exists with this name! Room view name must be unique!'
     )]
 
-    @api.model
     def name_get(self):
         result = []
         for record in self:
@@ -1458,7 +1425,9 @@ class RoomFacility(models.Model):
     _rec_name = "facilitytype_id"
     _order = 'facilitytype_id'
 
-    propertyroom_id = fields.Many2one("hms.property.room", string="Property Room", readonly=True)
+    propertyroom_id = fields.Many2one("hms.property.room",
+                                      string="Property Room",
+                                      readonly=True)
     sequence = fields.Integer(default=1)
     amenity_ids = fields.Many2many(
         'hms.room.amenity',
@@ -1475,6 +1444,7 @@ class RoomAmenitiy(models.Model):
     _name = "hms.room.amenity"
     _description = "Room Amenity"
 
+    is_csv = fields.Boolean(default=False)
     facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string="Facility Type",
                                       required=True)
@@ -1486,6 +1456,7 @@ class RoomFacilityType(models.Model):
     _name = "hms.room.facility.type"
     _description = "Room Facility Type"
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     facility_type = fields.Char(string="Room Facility Type ",
                                 help='Eg. Entertainments.....',
@@ -1537,9 +1508,9 @@ class PropertyRoom(models.Model):
                                       string="Location",
                                       required=True)
     facility_ids = fields.One2many('hms.room.facility',
-                                    'propertyroom_id',
-                                    string="Room Facility",
-                                    required=True)
+                                   'propertyroom_id',
+                                   string="Room Facility",
+                                   required=True)
     room_bedqty = fields.Integer(string="Number of Beds",
                                  required=True,
                                  size=2,

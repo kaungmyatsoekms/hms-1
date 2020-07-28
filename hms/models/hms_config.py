@@ -294,6 +294,7 @@ class ReservationFields(models.Model):
     _name = "hms.reservation.fields"
     _description = "Reservation Fields"
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char("Name", required=True)
     code = fields.Char("Code")
     active = fields.Boolean(default=True)

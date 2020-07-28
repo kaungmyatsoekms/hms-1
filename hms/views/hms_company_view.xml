@@ -16,17 +16,17 @@
             </div>
             <group>
               <group>
-                <field name="company_channel_type" placeholder="Company Type"/>
+                <field name="company_channel_type" placeholder="Company Type" options="{'no_quick_create': True, 'no_open': True}"/>
                 <field name="partner_id" string="Contact" readonly="1" required="0" groups="base.group_no_one"/>
                 <label for="street" string="Address"/>
                 <div class="o_address_format">
                   <field name="street" placeholder="Street..." class="o_address_street"/>
                   <field name="street2" placeholder="Street 2..." class="o_address_street"/>
-                  <field name="city" placeholder="City" class="o_address_city" options='{"no_open": True}'/>
-                  <field name="state_id" class="o_address_state" placeholder="State" options='{"no_open": True}'/>
+                  <field name="city" placeholder="City" class="o_address_city" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                  <field name="state_id" class="o_address_state" placeholder="State" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
-                  <field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True}'/>
-                  <field name="township" placeholder="Township" class="o_address_country" options="{'no_open':True}"/>
+                  <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                  <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
                 </div>
               </group>
               <group>
@@ -35,7 +35,7 @@
                 <field name="website" string="Website" widget="url" placeholder="e.g. https://www.odoo.com"/>
                 <field name="vat"/>
                 <field name="company_registry"/>
-                <field name="currency_id" options="{'no_create': True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
+                <field name="currency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
               </group>
             </group>
             <notebook>
