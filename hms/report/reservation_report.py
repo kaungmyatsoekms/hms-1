@@ -6,16 +6,14 @@ from dateutil.relativedelta import relativedelta
 from dateutil import parser
 from odoo import api, fields, models
 
-
 class ReservationReport(models.AbstractModel):
-    """
-        Abstract Model specially for report template.
-        _name = Use prefix `report.` along with `module_name.report_name`
-    """
+    """Abstract Model specially for report template.
+        _name = Use prefix `report.` along with `module_name.report_name`"""
     _name = 'report.hms.report_reservation_qweb'
     _description = 'Reservation Report'
 
     def get_reservation_list(self, property_id, date_start, date_end):
+        print('-- get reservation List --')
         reservation_line_obj = self.env['hms.reservation.line'].search([
             ('property_id', '=', property_id[0]),
             ('arrival', '>=', date_start), ('departure', '<=', date_end)
@@ -24,6 +22,7 @@ class ReservationReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        print ('-- reservationreport _value --')
         self.model = self.env.context.get('active_model')
         if data is None:
             data = {}
@@ -46,8 +45,9 @@ class ReservationReport(models.AbstractModel):
         rm_act = self.with_context(data['form'].get('used_context', {}))
         get_reservation_list = rm_act.get_reservation_list(
             property_id, date_start, date_end)
-
         # Change Date Format to D/M/Y after all processes are done
+        print('--- >')
+        print(get_reservation_list)
         date_start = datetime.strptime(date_start,
                                        '%Y-%m-%d').strftime('%d/%m/%Y')
         date_end = datetime.strptime(date_end, '%Y-%m-%d').strftime('%d/%m/%Y')
@@ -81,6 +81,7 @@ class ExpectedArrivalReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        print ('-- expectedArribal value -- ')
         self.model = self.env.context.get('active_model')
         if data is None:
             data = {}
@@ -119,37 +120,38 @@ class ExpectedArrivalReport(models.AbstractModel):
         }
 
 
-# class PropertyReport(models.AbstractModel):
-#     _name = 'report.hms.property'
+class PropertyReport(models.AbstractModel):
+    _name = 'report.hms.property'
 
-#     def get_data(self, name):
-#         data_property = []
-#         property_obj = self.env['hms.property']
-#         act_domain = [('name', '=',name)]
-#         tids = property_obj.search(act_domain)
-#         for data in tids:
-#             data_property.append({
-#                 'name': data.name,
-#                 'code': data.code,
-#                 'room_count': data.room_count,
-#                 'roomtype_count': data.roomtype_count,
-#             })
-#         return data_property
+    def get_data(self, name):
+        data_property = []
+        property_obj = self.env['hms.property']
+        act_domain = [('name', '=',name)]
+        tids = property_obj.search(act_domain)
+        for data in tids:
+            data_property.append({
+                'name': data.name,
+                'code': data.code,
+                'room_count': data.room_count,
+                'roomtype_count': data.roomtype_count,
+            })
+        return data_property
 
-#     @api.model
-#     def get_report_values(self, docids, data):
-#         self.model = self.env.context.get('active_model')
-#         if data is None:
-#             data = {}
-#         if not docids:
-#             docids = data['form'].get('docids')
-#         property_profile = self.env['hms.property'].browse(docids)
-#         name = data['form'].get('name')
-#         return {
-#             'doc_ids': docids,
-#             'doc_model': self.model,
-#             'data': data['form'],
-#             'docs': property_profile,
-#             'time': time,
-#             'property_data': self.get_data(name)
-#         }
+    @api.model
+    def get_report_values(self, docids, data):
+        print ('-- propetyReport value --')
+        self.model = self.env.context.get('active_model')
+        if data is None:
+            data = {}
+        if not docids:
+            docids = data['form'].get('docids')
+        property_profile = self.env['hms.property'].browse(docids)
+        name = data['form'].get('name')
+        return {
+            'doc_ids': docids,
+            'doc_model': self.model,
+            'data': data['form'],
+            'docs': property_profile,
+            'time': time,
+            'property_data': self.get_data(name)
+        }

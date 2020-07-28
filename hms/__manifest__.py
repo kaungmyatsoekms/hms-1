@@ -25,12 +25,10 @@
     '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
-        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'base', 'contacts', 'uom', 'account', 'mail',
         'point_of_sale', 'web', 'website', 'web_one2many_kanban'
     ],
-    "external_dependencies": {
-        "python": ["graphene"]
-    },
+    
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     'css': ['static/src/css/room_kanban.css'],
     'qweb': ['static/src/xml/hotel_room_summary.xml'],
