@@ -1,0 +1,13 @@
+id,group_code,group_name,is_csv
+1,AIR,Airline,True
+2,COR,Coporate,True
+3,EMB,Embassy,True
+4,FOC,Free of charge,True
+5,GOV,Government,True
+6,HFO,House Folio,True
+7,ING,International Non Gov organisation,True
+8,LSG,Long Stay Guest,True
+9,NGO ,Non Gov Organisation,True
+10,TAL,Travel Agent,True
+11,UN,United Nations,True
+12,WLK,Walk In,True

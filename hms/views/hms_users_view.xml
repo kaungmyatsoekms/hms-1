@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <!-- res.users form view extension -->
+        <record id="view_users_form_extension" model="ir.ui.view">
+            <field name="name">res.users.form</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="/form" position="attributes">
+                    <attribute name="import">false</attribute>
+                </xpath>
+                <page name="access_rights" position="inside">
+                    <group string="Property">
+                        <field name="property_id" widget="many2many_tags" options="{'no_create': False, 'no_quick_create': True, 'no_create_edit': False, 'no_open': False}"/>
+                    </group>
+                </page>
+            </field>
+        </record>
+
+        <!-- res.users tree view extension -->
+        <record id="view_users_tree_extension" model="ir.ui.view">
+            <field name="name">res.users.tree</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="/tree" position="attributes">
+                    <attribute name="import">false</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- res.users kanban view extension -->
+        <record id="view_res_users_kanban_extension" model="ir.ui.view">
+            <field name="name">res.users.kanban</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_res_users_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="/kanban" position="attributes">
+                    <attribute name="import">false</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

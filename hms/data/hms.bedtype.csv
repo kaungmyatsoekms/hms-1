@@ -1,0 +1,5 @@
+id,name,no_of_bed,is_csv
+1,Single,1,True
+2,Double,1,True
+3,Twin,2,True
+4,Queen,1,True

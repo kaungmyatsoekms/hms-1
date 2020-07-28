@@ -1,0 +1,29 @@
+id,name,code,type_id,is_csv
+1,Allotment Over Cut - Off Date,AOC,Cencellation Reason,True
+2,Better Rates Elsewhere,BRE,Cencellation Reason,True
+3,Call from Company,CAC,Cencellation Reason,True
+4,Double Booking,DBL,Cencellation Reason,True
+5,Deposit/ Guarantee too Restrivtive,DPS,Cencellation Reason,True
+6,Change Destination/ Change Schedule,DSC,Cencellation Reason,True
+7,Extend Stay,EXT,Cencellation Reason,True
+8,Flight Cancellation,FLX,Cencellation Reason,True
+9,Rate too High/Requested Rate not Accepted,HPR,Cencellation Reason,True
+10,Meeting Cancel,MEX,Cencellation Reason,True
+11,Does not Materialise,NMZ,Cencellation Reason,True
+12,Non Guarantee/ Time Release,NON,Cencellation Reason,True
+13,NO Reason Given,NRS,Cencellation Reason,True
+14,Others,OTH,Cencellation Reason,True
+15,Hotel Overbooked,OVB,Cencellation Reason,True
+16,Political Reason,POL,Cencellation Reason,True
+17,Reduction in Rooms,RDU,Cencellation Reason,True
+18,Sickness,SIC,Cencellation Reason,True
+19,Visa not Available,VSA,Cencellation Reason,True
+20,Weather Condition,WET,Cencellation Reason,True
+21,Bad Pervious Experience,BPE,Discount Reason,True
+22,Complaint,CPL,Discount Reason,True
+23,Last Minute Special,LMR,Discount Reason,True
+24,Length of Stay,LOS,Discount Reason,True
+25,Top Management Request,MGM,Discount Reason,True
+26,Promotion,PRO,Discount Reason,True
+27,Requested Room Type not Available,RNA,Discount Reason,True
+28,Special Partnerships,SPT,Discount Reason,True

@@ -1,0 +1,17 @@
+id,market_code,market_name,group_id,options,is_csv
+1,AIR,Airline,1,O,True
+2,COR,Coporate,2,O,True
+3,EMB,Embassy,3,O,True
+4,COM,Complementary,4,C,True
+5,HSE,House Use,4,H,True
+6,GOV,Government,5,O,True
+7,HFO,House Folio,6,O,True
+8,ING,Internal Non Gov Organisation,7,O,True
+9,LSG,Long Stay Guest,8,O,True
+10,NGO,Non Gov Organisation,9,O,True
+11,OTA,Online Travel Agent,10,O,True
+12,TAL ,Travel Agent Local,10,O,True
+13,TAO,Travel Agent Oversea,10,O,True
+14,UN,United Nations,11,O,True
+15,WIF,Walk In Foreigner,12,W,True
+16,WIL,Walk In Local,12,W,True
