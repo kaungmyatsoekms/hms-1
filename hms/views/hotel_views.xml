@@ -68,13 +68,13 @@
             <field name="logo" widget="image" class="oe_avatar"/>
             <div class="oe_title">
               <h3>
-                <field name="name" placeholder="Hotel Name" style="width:73%%"/>
+                <field name="name" placeholder="Hotel Name" style="width:50%%"/>
               </h3>
               <h4>
-                <field name="code" style="width:73%%"/>
+                <field name="code" style="width:50%%"/>
               </h4>
               <h4>
-                <field name="hotelgroup_id" style="width:76%%" options="{'no_quick_create': True}"/>
+                <field name="hotelgroup_id" style="width:50%%" options="{'no_quick_create': True}"/>
               </h4>
             </div>
             <newline/>
