@@ -97,7 +97,7 @@
                         <!-- Room Rmty Rm  Ad Ch GuestName BookRef VIP Arr.Date Flight Time Dep.Date  Flight Time Company F/O Remark/ Billing -->
                         <tr t-foreach="get_expected_arrival" t-as="info">
                             <td style="width:5%; solid lightgray;">
-                                <span t-field="info.room_no.room_no"/>
+                                <span t-field="info.room_no.room_no"/>`
                             </td>
                             <td style="width:3%; solid lightgray;">
                                 <span t-field="info.room_type.code"/>
