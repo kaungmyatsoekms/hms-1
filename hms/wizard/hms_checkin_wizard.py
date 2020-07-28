@@ -5,6 +5,13 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
+class HMSCheckinMessageWizard(models.TransientModel):
+    _name = "hms.checkin_message_wizard"
+    _description = "Required Info Message Box to Check-In"
+
+    text = fields.Text()
+
+
 class HMSRsvnCheckinLineWizard(models.TransientModel):
     _name = "hms.rsvn_checkin_line_wizard"
     _description = "Check-In Wizard"
@@ -29,13 +36,16 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
                                  domain="[('is_group','=',True)]")
     pax = fields.Integer(string="Pax")
     child = fields.Integer(string="Child")
-    room_no = fields.Many2one("hms.property.room", string="Room No")
+    nationality_id = fields.Many2one('hms.nationality', string="Nationality")
 
-    # ratehead_id = fields.Many2one(
-    #     'hms.ratecode.header',
-    #     domain=
-    #     "[('property_id', '=', reservation_line_id.property_id.id), ('start_date', '<=', reservation_line_id.arrival), ('end_date', '>=', reservation_line_id.departure)]"
-    # )
+    @api.onchange('guest_name')
+    def onchange_guest_nationality(self):
+        for rec in self:
+            if rec.guest_name:
+                if rec.guest_name.nationality_id:
+                    rec.nationality_id = rec.guest_name.nationality_id
+                else:
+                    rec.nationality_id = False
 
     def action_checkin_line_wiz(self):
         reservation_lines = self.env['hms.reservation.line'].browse(
@@ -47,5 +57,8 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
                 'group_id': self.group_name,
                 'pax': self.pax,
                 'child': self.child,
-                'room_no': self.room_no,
+                'nationality_id': self.nationality_id,
             })
+        reservation_lines.reservation_id.write({
+            'state': 'checkin',
+        })

@@ -450,11 +450,34 @@ class Reservation(models.Model):
             rec.write({'state': status})
 
     def checkin_status(self):
-        self.write({'state': 'checkin'})
         for rec in self:
-            val = self.env['hms.rsvntype'].search([('rsvn_name', '=',
-                                                    'Confirmed')])
-            self.reservation_type = val
+            flag = 0
+            if rec.reservation_line_ids:
+                for r in rec.reservation_line_ids:
+                    if r.state == 'confirm' and r.is_arrival_today is True and r.guest_id and r.nationality_id and r.rooms == 1 and r.room_type and r.room_no and r.pax >= 1 and r.ratehead_id and r.ratecode_id:
+                        r.write({'state': 'checkin'})
+                        self.write({'state': 'checkin'})
+                        val = self.env['hms.rsvntype'].search([
+                            ('rsvn_name', '=', 'Confirmed')
+                        ])
+                        self.reservation_type = val
+                    else:
+                        flag += 1
+                if flag > 0:
+                    text = """Sorry! Rooms with Missing Required Information Cannot Check-In. \nYou must fill the required information first."""
+                    # query = 'delete from hms.checkin_message_wizard'
+                    # self.env.cr.execute(query)
+                    value = self.env['hms.checkin_message_wizard'].sudo(
+                    ).create({'text': text})
+                    return {
+                        'type': 'ir.actions.act_window',
+                        'name': 'Message',
+                        'res_model': 'hms.checkin_message_wizard',
+                        'view_type': 'form',
+                        'view_mode': 'form',
+                        'target': 'new',
+                        'res_id': value.id
+                    }
 
     @api.onchange('reservation_type')
     def onchange_state(self):
@@ -603,10 +626,10 @@ class Reservation(models.Model):
             res = super(Reservation, self).create(values)
             if res.is_dummy is True:
                 res.create_hfo_room(
-                    res.state, res, res.confirm_no, res.property_id.id, res.company_id.id,
-                    res.group_id.id, res.guest_id.id, res.roomtype_id.id,
-                    res.arrival, res.departure, res.nights, res.market.id,
-                    res.source.id, res.reservation_type.id,
+                    res.state, res, res.confirm_no, res.property_id.id,
+                    res.company_id.id, res.group_id.id, res.guest_id.id,
+                    res.roomtype_id.id, res.arrival, res.departure, res.nights,
+                    res.market.id, res.source.id, res.reservation_type.id,
                     res.reservation_status.id, res.arrival_flight,
                     res.arrival_flighttime, res.dep_flight, res.dep_flighttime,
                     res.eta, res.etd)
@@ -811,6 +834,8 @@ class ReservationLine(models.Model):
     guest_id = fields.Many2one('res.partner',
                                string="Guest Name",
                                domain="[('is_guest','=',True)]")
+    nationality_id = fields.Many2one('hms.nationality',
+                                     string="Guest Nationality")
     is_arrival_today = fields.Boolean(string="Is Arrival Today",
                                       compute='_compute_is_arrival_today')
     reservation_id = fields.Many2one('hms.reservation', string="Reservation")
@@ -829,8 +854,8 @@ class ReservationLine(models.Model):
         ('cancel', 'Cancel'),
         ('checkin', 'Checkin'),
     ],
-        default=get_state,
-        store=True)
+                             default=get_state,
+                             store=True)
     # default=lambda *a: 'booking')
     market_ids = fields.Many2many('hms.marketsegment',
                                   related="property_id.market_ids")
@@ -1079,7 +1104,7 @@ class ReservationLine(models.Model):
             rec.rate_nett = rec.room_rate + total_amount
 
     # Get default rate code based on ratehead_id
-    @api.onchange('ratehead_id', 'ratecode_id')
+    @api.onchange('ratehead_id')
     def onchange_ratecode_id(self):
         for rec in self:
             if rec.ratehead_id:
@@ -1088,6 +1113,20 @@ class ReservationLine(models.Model):
                             r.start_date) and (rec.arrival <= r.end_date) and (
                                 rec.room_type._origin.id in r.roomtype_id.ids):
                         rec.ratecode_id = r
+
+    # Get Guest's Nationality from Contact
+    @api.onchange('guest_id')
+    def onchange_guest_nationality(self):
+        for rec in self:
+            if rec.guest_id:
+                if rec.guest_id.nationality_id:
+                    rec.nationality_id = rec.guest_id.nationality_id
+                else:
+                    rec.nationality_id = False
+
+    # For Cancel Check-In Button
+    def action_cancel_checkin(self):
+        self.write({'state': 'confirm'})
 
     def set_kanban_color(self):
         for record in self:
@@ -1712,7 +1751,7 @@ class ReservationLine(models.Model):
             'delete': delete,
             'rate_attribute': rate_attribute,
             'ref': 'AUTO',
-            'currency_id':currency.id,
+            'currency_id': currency.id,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 
@@ -1898,7 +1937,7 @@ class ReservationLine(models.Model):
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, res.package_id.package_ids)
-                        
+
             day_count += 1
 
     def update_additional_packages(self, reservation_line_id, delete, pkg):
