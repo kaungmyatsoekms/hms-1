@@ -131,6 +131,32 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+        <!-- Excel Report Download Wizard Form View-->
+        <record id="view_hms_excel_form_extended" model="ir.ui.view">
+            <field name="name">hms.excel.extended.form</field>
+            <field name="model">hms.excel.extended</field>
+            <field name="arch" type="xml">
+                <form string="Excel Report file">
+                    <group>
+                        <field name="excel_file" readonly="1" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button string="Cancel" class="btn-secondary" icon="fa-close" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Excel Report Download Wizard Action View-->
+        <record id="action_hms_excel_form" model="ir.actions.act_window">
+            <field name="name">Reports Excel</field>
+            <field name="view_id" ref="view_hms_excel_form_extended"/>
+            <field name="view_mode">form</field>
+            <field name="res_model">hms.excel.extended</field>
+            <field name="target">new</field>
+        </record>
+
         <menuitem id="natioanlity_menu" name="Nationality" parent="country_menu_root" action="hms_nationality_action_window" sequence="20"/>
         <menuitem id="guest_profile_menu" name="Guest Profile" parent="hms_menu_config" sequence="6"/>
         <!-- <menuitem id="guest_country_menu" name="Guest Country" parent="guest_profile_menu" sequence="2" action="hms_country_action_window"/>

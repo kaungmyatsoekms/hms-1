@@ -39,8 +39,8 @@
                     <field name="type_"/>
                 </group>
                 <footer>
-                    <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
-                    <button name="get_report_excel" string="Get Excel" class="btn-primary" type="object" icon="fa-bars"/>
+                    <button name="get_report" string="PDF" class="btn-primary" type="object" icon="fa-bars"/>
+                    <button name="get_report_excel" string="Excel" class="btn-primary" type="object" icon="fa-bars"/>
                     <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
                 </footer>
             </form>
