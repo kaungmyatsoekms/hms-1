@@ -63,6 +63,40 @@
             <field name="view_id" ref="view_charge_type_tree"/>
         </record>
 
+        <!-- Calculation Method View Form -->
+        <record id="calculation_method_view_form" model="ir.ui.view">
+            <field name="name">hms.calculation.method.view.form</field>
+            <field name="model">hms.calculation.method</field>
+            <field name="arch" type="xml">
+                <form string="Calculation Method" import="false">
+                    <sheet>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="name" attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+                            <field name="ordinal_no" attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Reservation Field View Form -->
+        <record id="reservation_field_view_form" model="ir.ui.view">
+            <field name="name">hms.reservation.fields.view.form</field>
+            <field name="model">hms.reservation.fields</field>
+            <field name="arch" type="xml">
+                <form string="Reservation Field" import="false">
+                    <sheet>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="name" attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+                            <field name="code" attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <menuitem id="charge_type_menu_sub" name="Charge Type" parent="hms_menu_setting" action="action_charge_type_all" sequence="10"/>
     </data>
 </odoo>

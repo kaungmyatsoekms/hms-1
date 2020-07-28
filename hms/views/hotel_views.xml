@@ -290,6 +290,8 @@
           <field name="rating"/>
           <field name="timezone"/>
           <field name="system_date"/>
+          <field name="is_property"/>
+          <field name="is_manual"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
@@ -363,6 +365,9 @@
                   <div t-if="record.rating.raw_value">
                     <field name="rating" widget='priority'/>
                   </div>
+                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                    <i class="fa fa-moon-o"></i>
+                  </button>
                 </div>
               </div>
             </t>
@@ -707,8 +712,9 @@
             <h2>Room View Setup</h2>
             <br></br>
             <group>
-              <field name="name" placeholder="Eg. MTV....."/>
-              <field name="roomview_desc" placeholder="Eg. Mountain View"/>
+              <field name="is_csv" invisible="1"/>
+              <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}"/>
             </group>
           </sheet>
         </form>
@@ -786,6 +792,7 @@
             <h2>Facility Type</h2>
             <br></br>
             <group>
+              <field name="is_csv" invisible="1"/>
               <field name="facility_type" placeholder="Eg. ENT..... "/>
               <field name="facilitytype_desc" placeholder="Eg. Entertainments...."/>
             </group>
@@ -803,6 +810,26 @@
           <field name="facility_type"/>
           <field name="facilitytype_desc"/>
         </tree>
+      </field>
+    </record>
+
+    <!-- Room Amenity Setup Form View -->
+    <record id="room_amenity_view_form" model="ir.ui.view">
+      <field name="name">hms.room.amenity.view.form</field>
+      <field name="model">hms.room.amenity</field>
+      <field name="arch" type="xml">
+        <form string="Room Amenity" import="false">
+          <sheet>
+            <h2>Room Amenity Setup</h2>
+            <br></br>
+            <group>
+              <field name="is_csv" invisible="1"/>
+              <field name="facilitytype_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="name" placeholder="Eg. AC" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="amenity_desc" placeholder="Eg. Air-Con" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+            </group>
+          </sheet>
+        </form>
       </field>
     </record>
 
