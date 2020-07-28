@@ -455,14 +455,19 @@ class Reservation(models.Model):
             if rec.reservation_line_ids:
                 for r in rec.reservation_line_ids:
                     if r.state == 'confirm' and r.is_arrival_today is True and r.guest_id and r.nationality_id and r.rooms == 1 and r.room_type and r.room_no and r.pax >= 1 and r.ratehead_id and r.ratecode_id:
-                        r.write({'state': 'checkin'})
+                        citime = datetime.strptime(str(datetime.now()),
+                                                   "%Y-%m-%d %H:%M:%S.%f")
+                        r.write({
+                            'state': 'checkin',
+                            'citime': citime,
+                        })
                         rec.write({'state': 'checkin'})
                     else:
                         flag += 1
                 # Update HFO room state to checkin
                 hfo_room = self.env['hms.reservation.line'].search([
                     ('reservation_id', '=', rec.id),
-                    ('room_type.code', 'ilike', 'H%')
+                    ('room_type', '=ilike', 'H%')
                 ])
                 if hfo_room and rec.state == 'checkin':
                     hfo_room.write({'state': 'checkin'})
@@ -1127,14 +1132,23 @@ class ReservationLine(models.Model):
                 else:
                     rec.nationality_id = False
 
-    # Get Check-In time from system when state is checkin
-    # def _compute_checkin_time(self):
-    #     for rec in self:
-    #         if rec.state
-
     # For Cancel Check-In Button
     def action_cancel_checkin(self):
         self.write({'state': 'confirm'})
+        count = 0
+        for rec in self:
+            for record in rec.reservation_id.reservation_line_ids:
+                if record.state == 'checkin':
+                    if record.room_type.code[0] != 'H':
+                        count += 1
+            if count == 0:
+                rec.reservation_id.write({'state': 'confirm'})
+                hfo_reservation = self.env['hms.reservation.line'].search([
+                    ('reservation_id', '=', rec.reservation_id.id),
+                    ('room_type', '=ilike', 'H%')
+                ])
+                if hfo_reservation:
+                    hfo_reservation.write({'state': 'confirm'})
 
     def set_kanban_color(self):
         for record in self:

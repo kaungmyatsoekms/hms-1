@@ -124,17 +124,19 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                     rec = rec + 1
 
         if rec > 0:
-            reservation_lines.reservation_id.write({
-                'state':
-                'confirm',
-                'reservation_type':
-                reservation_lines.reservation_type,
-                'reservation_status':
-                reservation_lines.reservation_status,
-            })
-            hfo_reservation = self.env['hms.reservation.line'].search([
-                ('reservation_id', '=', reservation_lines.reservation_id.id),
-                ('room_type', '=ilike', 'H%')
-            ])
-            if hfo_reservation:
-                hfo_reservation.write({'state': 'confirm'})
+            if reservation_lines.reservation_id.state != 'checkin':
+                reservation_lines.reservation_id.write({
+                    'state':
+                    'confirm',
+                    'reservation_type':
+                    reservation_lines.reservation_type,
+                    'reservation_status':
+                    reservation_lines.reservation_status,
+                })
+                hfo_reservation = self.env['hms.reservation.line'].search([
+                    ('reservation_id', '=',
+                     reservation_lines.reservation_id.id),
+                    ('room_type', '=ilike', 'H%')
+                ])
+                if hfo_reservation:
+                    hfo_reservation.write({'state': 'confirm'})
