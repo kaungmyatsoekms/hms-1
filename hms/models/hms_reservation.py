@@ -456,15 +456,18 @@ class Reservation(models.Model):
                 for r in rec.reservation_line_ids:
                     if r.state == 'confirm' and r.is_arrival_today is True and r.guest_id and r.nationality_id and r.rooms == 1 and r.room_type and r.room_no and r.pax >= 1 and r.ratehead_id and r.ratecode_id:
                         r.write({'state': 'checkin'})
-                        self.write({'state': 'checkin'})
-                        val = self.env['hms.rsvntype'].search([
-                            ('rsvn_name', '=', 'Confirmed')
-                        ])
-                        self.reservation_type = val
+                        rec.write({'state': 'checkin'})
                     else:
                         flag += 1
+                # Update HFO room state to checkin
+                hfo_room = self.env['hms.reservation.line'].search([
+                    ('reservation_id', '=', rec.id),
+                    ('room_type.code', 'ilike', 'H%')
+                ])
+                if hfo_room and rec.state == 'checkin':
+                    hfo_room.write({'state': 'checkin'})
                 if flag > 0:
-                    text = """Sorry! Rooms with Missing Required Information Cannot Check-In. \nYou must fill the required information first."""
+                    text = """Sorry! Rooms with Missing Required Information Cannot Check-In. You must fill the required information first."""
                     # query = 'delete from hms.checkin_message_wizard'
                     # self.env.cr.execute(query)
                     value = self.env['hms.checkin_message_wizard'].sudo(
@@ -1123,6 +1126,11 @@ class ReservationLine(models.Model):
                     rec.nationality_id = rec.guest_id.nationality_id
                 else:
                     rec.nationality_id = False
+
+    # Get Check-In time from system when state is checkin
+    # def _compute_checkin_time(self):
+    #     for rec in self:
+    #         if rec.state
 
     # For Cancel Check-In Button
     def action_cancel_checkin(self):

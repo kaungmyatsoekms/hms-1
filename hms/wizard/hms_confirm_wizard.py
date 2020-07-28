@@ -25,15 +25,16 @@ class HMSRsvnConfirmWizard(models.TransientModel):
                                        "Reservation Type",
                                        readonly=True,
                                        default=1)
-    reservation_status = fields.Many2one('hms.rsvnstatus', "Reservation Status")
+    reservation_status = fields.Many2one('hms.rsvnstatus',
+                                         "Reservation Status")
 
     def action_confirm_wiz(self):
         reservations = self.env['hms.reservation'].browse(
             self._context.get('active_id', []))
-        
+
         # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=',reservations.id),('room_type.code', '=', 'HFO')])
         # no_hfo_reservation = list(set(reservations.reservation_line_ids)- set(hfo_reservation))
-        
+
         for d in reservations.reservation_line_ids:
             if d.state == 'reservation':
                 #Update Availability
@@ -44,22 +45,26 @@ class HMSRsvnConfirmWizard(models.TransientModel):
                 room_type = d.room_type.id
                 rooms = d.rooms
                 reduce = True
-                status ='confirm'
-                d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
+                status = 'confirm'
+                d._state_update_forecast(state, property_id, arrival,
+                                         departure, room_type, rooms, reduce,
+                                         status)
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
                     'state': status,
                 })
-            
-                
+
         # Update Reservation
         reservations.write({
             'reservation_type': self.reservation_type,
             'reservation_status': self.reservation_status,
             'state': 'confirm',
         })
-        hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservations.id),('room_type', '=ilike', 'H%')])
+        hfo_reservation = self.env['hms.reservation.line'].search([
+            ('reservation_id', '=', reservations.id),
+            ('room_type', '=ilike', 'H%')
+        ])
         if hfo_reservation:
             hfo_reservation.write({'state': 'confirm'})
         # reservations.confirm_status()
@@ -86,7 +91,8 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                                        "Reservation Type",
                                        readonly=True,
                                        default=1)
-    reservation_status = fields.Many2one('hms.rsvnstatus', "Reservation Status")
+    reservation_status = fields.Many2one('hms.rsvnstatus',
+                                         "Reservation Status")
 
     def action_confirm_line_wiz(self):
         reservation_lines = self.env['hms.reservation.line'].browse(
@@ -101,8 +107,10 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                 room_type = d.room_type.id
                 rooms = d.rooms
                 reduce = True
-                status ='confirm'
-                d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
+                status = 'confirm'
+                d._state_update_forecast(state, property_id, arrival,
+                                         departure, room_type, rooms, reduce,
+                                         status)
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
@@ -124,7 +132,9 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                 'reservation_status':
                 reservation_lines.reservation_status,
             })
-            hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+            hfo_reservation = self.env['hms.reservation.line'].search([
+                ('reservation_id', '=', reservation_lines.reservation_id.id),
+                ('room_type', '=ilike', 'H%')
+            ])
             if hfo_reservation:
                 hfo_reservation.write({'state': 'confirm'})
-
