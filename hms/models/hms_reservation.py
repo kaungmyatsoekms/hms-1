@@ -1319,8 +1319,6 @@ class ReservationLine(models.Model):
                 self.updown_amt,
                 'updown_pc':
                 self.updown_pc,
-                'package_id':
-                self.package_id.id,
                 'allotment_id':
                 self.allotment_id,
                 'rate_nett':
@@ -2526,7 +2524,7 @@ class CancelReservation(models.Model):
     room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
     updown_amt = fields.Float("Updown Amount")
     updown_pc = fields.Float("Updown PC")
-    package_id = fields.Many2one('hms.package', string="Package")
+    # package_id = fields.Many2one('hms.package', string="Package")
     allotment_id = fields.Char(string="Allotment")
     rate_nett = fields.Float(string="Rate Nett")
     fo_remark = fields.Char(string="F.O Remark")
