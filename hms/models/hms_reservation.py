@@ -14,23 +14,27 @@ class HMSReason(models.Model):
     _name = "hms.reason"
     _description = "Reason"
 
-    name = fields.Char(string="Name", required=True)
-    code = fields.Char(string="Code", required=True)
+    is_csv = fields.Boolean(default=False)
+    name = fields.Char(string="Name", required=True, help='Name')
+    code = fields.Char(string="Code", required=True, help='Code')
     type_id = fields.Many2one('hms.reasontype',
                               string="Reason Type",
-                              required=True)
+                              required=True,
+                              help='Reaso Type')
 
 
 class HMSReasonType(models.Model):
     _name = "hms.reasontype"
     _description = "Reason Type"
 
-    name = fields.Char(string="Name", required=True)
-    code = fields.Char(string="Code", size=3, required=True)
+    is_csv = fields.Boolean(default=False)
+    name = fields.Char(string="Name", required=True, help='Name')
+    code = fields.Char(string="Code", size=3, required=True, help='Code')
     reason_ids = fields.One2many('hms.reason',
                                  'type_id',
                                  string="Reason",
-                                 required=True)
+                                 required=True,
+                                 help='Reason')
 
 
 #Department
@@ -38,7 +42,9 @@ class Department(models.Model):
     _name = "hms.department"
     _description = "Department"
 
-    name = fields.Char(string="Department Name", required=True)
+    name = fields.Char(string="Department Name",
+                       required=True,
+                       help='Department Name')
 
 
 #Special Request
@@ -47,10 +53,11 @@ class SpecialRequest(models.Model):
     _description = "Special Request"
 
     reservationline_id = fields.Many2one('hms.reservation.line',
-                                         string="Reservation Line")
-    department_id = fields.Char("Department")
-    date = fields.Date("Date")
-    name = fields.Char("Name")
+                                         string="Reservation Line",
+                                         help='Reservation Line')
+    department_id = fields.Char("Department", help='Department')
+    date = fields.Date("Date", help='Date')
+    name = fields.Char("Name", help='Name')
 
 
 # Reservation
@@ -62,7 +69,9 @@ class Reservation(models.Model):
 
     is_no_show = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
-    color = fields.Integer(string='Color Index', compute="set_kanban_color")
+    color = fields.Integer(string='Color Index',
+                           compute="set_kanban_color",
+                           help='Colour Index')
     active = fields.Boolean('Active', default=True, track_visibility=True)
     is_dummy = fields.Boolean(string="Dummy Room?",
                               default=False,
@@ -87,76 +96,99 @@ class Reservation(models.Model):
                                     related="user_id.property_id")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  domain="[('id', '=?', property_ids)]")
+                                  domain="[('id', '=?', property_ids)]",
+                                  help='Property')
     user_id = fields.Many2one('res.users',
                               string='Salesperson',
-                              default=lambda self: self.env.uid)
+                              default=lambda self: self.env.uid,
+                              help='Salesperson')
     date_order = fields.Datetime('Date Ordered',
                                  readonly=True,
                                  required=True,
                                  index=True,
-                                 default=(lambda *a: time.strftime(dt)))
+                                 default=(lambda *a: time.strftime(dt)),
+                                 help='Date Ordered')
     type = fields.Selection(string='Type',
                             selection=[('individual', 'Individual'),
                                        ('group', 'Group')],
                             compute='_compute_type',
                             inverse='_write_type',
-                            track_visibility=True)
+                            track_visibility=True,
+                            help='Type')
     is_company = fields.Boolean(string='Is a Company', default=False)
     is_group = fields.Boolean(string="Is a Group", default=False)
     company_id = fields.Many2one(
         'res.partner',
         string="Company",
-        domain="['&',('profile_no','!=',''),('is_company','=',True)]")
+        domain="['&',('profile_no','!=',''),('is_company','=',True)]",
+        help='Comapany')
     group_id = fields.Many2one('res.partner',
                                string="Group",
-                               domain="[('is_group','=',True)]")
+                               domain="[('is_group','=',True)]",
+                               help='Group')
     guest_id = fields.Many2one('res.partner',
                                string="Guest",
-                               domain="[('is_guest','=',True)]")
+                               domain="[('is_guest','=',True)]",
+                               help='Guest')
     roomtype_id = fields.Many2one('hms.roomtype', default=1)
     arrival = fields.Date(string="Arrival Date",
                           default=datetime.today(),
-                          required=True)
+                          required=True,
+                          help='Arrival Date')
     departure = fields.Date(
         string="Departure Date",
         default=lambda *a:
         (datetime.now() + timedelta(days=(1))).strftime('%Y-%m-%d'),
-        required=True)
-    nights = fields.Integer(string="Nights")
-    rooms = fields.Integer(string="Number of Rooms", default=1, required=True)
+        required=True,
+        help='Departure Date')
+    nights = fields.Integer(string="Nights", help='Nights')
+    rooms = fields.Integer(string="Number of Rooms",
+                           default=1,
+                           required=True,
+                           help='Number of Rooms')
     market_ids = fields.Many2many('hms.marketsegment',
                                   related="property_id.market_ids")
     market = fields.Many2one('hms.marketsegment',
                              string="Market",
                              domain="[('id', '=?', market_ids)]",
-                             required=True)
+                             required=True,
+                             help='Market')
     source = fields.Many2one('hms.marketsource',
                              string="Market Source",
-                             required=True)
+                             required=True,
+                             help='Market Source')
     sales_id = fields.Many2one('res.users',
                                string="Sales",
-                               default=lambda self: self.env.uid)
+                               default=lambda self: self.env.uid,
+                               help='Sales')
     contact_id = fields.Many2one(
         'res.partner',
         domain=
         "[('company_type', '=','person'),('is_guest','!=',True),('is_group','!=',True),('is_company','!=',True)]",
-        string="Contact")
+        string="Contact",
+        help='Contact')
     reservation_type = fields.Many2one('hms.rsvntype',
                                        string="Reservation Type",
                                        readonly=True,
                                        default=2,
-                                       store=True)
+                                       store=True,
+                                       help='Reservation Type')
     reservation_status = fields.Many2one(
         'hms.rsvnstatus',
         string="Reservation Status",
         domain="[('rsvntype_id', '=', reservation_type)]",
         required=True,
-        store=True)
-    arrival_flight = fields.Char(string="Arrival Flight", size=10)
-    arrival_flighttime = fields.Float(string="AR-Flight Time")
-    dep_flight = fields.Char(string="Departure Flight")
-    dep_flighttime = fields.Float(string="DEP-Flight Time")
+        store=True,
+        help='Reservation Language')
+    arrival_flight = fields.Char(string="Arrival Flight",
+                                 size=10,
+                                 help='Arrival Flight')
+    arrival_flighttime = fields.Float(string="AR-Flight Time",
+                                      help='Arrival Flight Time')
+    dep_flight = fields.Char(string="Departure Flight",
+                             help='Departure Flight')
+    dep_flighttime = fields.Float(string="DEP-Flight Time",
+                                  help='Departure Flight Time')
     eta = fields.Float(string="ETA", help="ETA")
     etd = fields.Float(string="ETD", help="ETD")
     reservation_line_ids = fields.One2many(
@@ -166,11 +198,15 @@ class Reservation(models.Model):
         track_visibility=True,
         readonly=False,
         states={'cancel': [('readonly', True)]})
-    confirm_no = fields.Char(string="Confirm Number", readonly=True)
+    confirm_no = fields.Char(string="Confirm Number",
+                             readonly=True,
+                             help='Confirm Number')
     reason_id = fields.Many2one('hms.reason',
                                 string="Reason",
-                                domain="[('type_id.code', '=', 'CXL')]")
-    internal_notes = fields.Text(string="Internal Notes")
+                                domain="[('type_id.code', '=', 'CXL')]",
+                                help='Reason')
+    internal_notes = fields.Text(string="Internal Notes",
+                                 help='Internal Notes')
 
     #Fields for statinfo
     rsvn_room_count = fields.Integer(string="Reservation",
@@ -552,7 +588,21 @@ class Reservation(models.Model):
                         departure, nights, market, source, reservation_type,
                         reservation_status, arrival_flight, arrival_flighttime,
                         dep_flight, dep_flighttime, eta, etd):
+
         vals = []
+        total_hfo_room = self.env['hms.property.room'].search([
+            ('property_id', '=', property_id),
+            ('roomtype_id.code', '=ilike', 'H%')
+        ]).ids
+        occ_hfo_room = self.env['hms.reservation.line'].search([
+            ('property_id', '=', property_id),
+            ('room_type.code', '=ilike', 'H%'),
+        ]).room_no.ids
+        avail_room = list(set(total_hfo_room) - set(occ_hfo_room))
+        room_no = 0
+        if avail_room:
+            room_no = avail_room[0]
+
         vals.append((0, 0, {
             'state': state,
             'reservation_id': reservation_id.id,
@@ -562,6 +612,7 @@ class Reservation(models.Model):
             'group_id': group_id,
             'guest_id': guest_id,
             'room_type': roomtype_id,
+            'room_no': room_no,
             'arrival': arrival,
             'departure': departure,
             'nights': nights,
@@ -824,37 +875,47 @@ class ReservationLine(models.Model):
                                      readonly=False,
                                      related="room_type.fix_type")
     sequence = fields.Integer(default=1)
-    color = fields.Integer(string='Color Index', compute="set_kanban_color")
+    color = fields.Integer(string='Color Index',
+                           compute="set_kanban_color",
+                           help='Colour Index')
     ispartial = fields.Boolean('Partial', default=True)
     active = fields.Boolean('Active', default=True, track_visibility=True)
     cancel_rsvn_ids = fields.One2many('hms.cancel.rsvn',
                                       'reservation_line_id',
-                                      string="Cancel Reservation")
+                                      string="Cancel Reservation",
+                                      help='Cancel Reservation')
     company_id = fields.Many2one(
         'res.partner',
         string="Company",
         domain="['&',('profile_no','!=',''),('is_company','=',True)]",
-        related='reservation_id.company_id')
+        related='reservation_id.company_id',
+        help='Company')
     group_id = fields.Many2one('res.partner',
                                string="Group",
                                domain="[('is_group','=',True)]",
-                               related='reservation_id.group_id')
+                               related='reservation_id.group_id',
+                               help='Group')
     guest_id = fields.Many2one('res.partner',
                                string="Guest Name",
-                               domain="[('is_guest','=',True)]")
+                               domain="[('is_guest','=',True)]",
+                               help="GuestName")
     nationality_id = fields.Many2one('hms.nationality',
                                      string="Guest Nationality")
     is_arrival_today = fields.Boolean(string="Is Arrival Today",
                                       compute='_compute_is_arrival_today')
-    reservation_id = fields.Many2one('hms.reservation', string="Reservation")
+    reservation_id = fields.Many2one('hms.reservation',
+                                     string="Reservation",
+                                     help='Resrevation')
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
                                   related='reservation_id.property_id',
-                                  store=True)
+                                  store=True,
+                                  help='Property')
     confirm_no = fields.Char(string="Confirm No.",
                              readonly=True,
-                             related='reservation_id.confirm_no')
+                             related='reservation_id.confirm_no',
+                             help='Confirm No.')
     state = fields.Selection([
         ('booking', 'Booking'),
         ('reservation', 'Reservation'),
@@ -869,27 +930,36 @@ class ReservationLine(models.Model):
                                   related="property_id.market_ids")
     market = fields.Many2one('hms.marketsegment',
                              string="Market",
-                             domain="[('id', '=?', market_ids)]")
-    source = fields.Many2one('hms.marketsource', string="Source")
+                             domain="[('id', '=?', market_ids)]",
+                             help='Market')
+    source = fields.Many2one('hms.marketsource',
+                             string="Source",
+                             help='Source')
     reservation_type = fields.Many2one('hms.rsvntype',
                                        "Reservation Type",
                                        default=get_rsvn_type,
                                        readonly=True,
-                                       store=True)
+                                       store=True,
+                                       help='Reseravtion Type')
     reservation_status = fields.Many2one(
         'hms.rsvnstatus',
         "Reservation Status",
         domain="[('rsvntype_id', '=', reservation_type)]",
         default=get_rsvn_status,
-        store=True)
-    arrival_flight = fields.Char("Arrival Flight")
-    arrival_flighttime = fields.Float("AR_Flight Time")
-    dep_flight = fields.Char("Departure Flight")
-    dep_flighttime = fields.Float("DEP_Flight Time")
-    eta = fields.Float("ETA")
-    etd = fields.Float("ETD")
+        store=True,
+        help='Reservation Status')
+    arrival_flight = fields.Char("Arrival Flight", help='Arrival Flight')
+    arrival_flighttime = fields.Float("AR_Flight Time",
+                                      help='Arival Flight Time')
+    dep_flight = fields.Char("Departure Flight", help='Departure Flight')
+    dep_flighttime = fields.Float("DEP_Flight Time",
+                                  help='Departure Flight Time')
+    eta = fields.Float("ETA", help='ETA')
+    etd = fields.Float("ETD", help='ETD')
 
-    room_no = fields.Many2one('hms.property.room', string="Room No")
+    room_no = fields.Many2one('hms.property.room',
+                              string="Room No",
+                              help='Room No')
     roomtype_ids = fields.Many2many('hms.roomtype',
                                     related="property_id.roomtype_ids")
     room_type = fields.Many2one('hms.roomtype',
@@ -897,30 +967,37 @@ class ReservationLine(models.Model):
                                 domain="[('id', '=?', roomtype_ids)]",
                                 delegate=True,
                                 ondelete='cascade',
-                                index=True)
+                                index=True,
+                                help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
-                                 domain="[('id', '=?', bedtype_ids)]")
-    system_date = fields.Date("System Date", related="property_id.system_date")
+                                 domain="[('id', '=?', bedtype_ids)]",
+                                 help='Bed Type')
+    system_date = fields.Date("System Date",
+                              related="property_id.system_date",
+                              help='System Date')
     arrival = fields.Date("Arrival",
                           default=get_arrival,
                           readonly=False,
                           required=True,
                           store=True,
-                          track_visibility=True)
+                          track_visibility=True,
+                          help='Arrival')
     departure = fields.Date("Departure",
                             default=get_departure,
                             readonly=False,
                             required=True,
                             store=True,
-                            track_visibility=True)
-    nights = fields.Integer(string="Nights", default=get_nights)
-    rooms = fields.Integer("Rooms")
+                            track_visibility=True,
+                            help='Departure')
+    nights = fields.Integer(string="Nights", default=get_nights, help='Nights')
+    rooms = fields.Integer("Rooms", help='Rooms')
     avail_room_ids = fields.Many2many('hms.property.room',
                                       string="Room Nos",
-                                      compute='get_avail_room_ids')
-    pax = fields.Integer("Pax", default=1)
-    child = fields.Integer("Child")
+                                      compute='get_avail_room_ids',
+                                      help='Room Nos')
+    pax = fields.Integer("Pax", default=1, help='Pax')
+    child = fields.Integer("Child", help='Child')
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         domain=
@@ -943,40 +1020,50 @@ class ReservationLine(models.Model):
     room_rate = fields.Float("Room Rate",
                              compute='_compute_room_rate',
                              help="Included Rate")
-    updown_amt = fields.Float("Updown Amount")
-    updown_pc = fields.Float("Updown PC")
+    updown_amt = fields.Float("Updown Amount", help='Updown Amount')
+    updown_pc = fields.Float("Updown PC", help='Updown Percentage')
     reason_id = fields.Many2one('hms.reason',
                                 string="Reason",
-                                domain="[('type_id', '=', 1)]")
+                                domain="[('type_id', '=', 1)]",
+                                help='Reason')
     discount_reason_id = fields.Many2one('hms.reason',
                                          string="Discount Reason",
-                                         domain="[('type_id', '=', 2)]")
+                                         domain="[('type_id', '=', 2)]",
+                                         help='Discount Reason')
     package_id = fields.Many2one(
         'hms.package.group',
         related="ratecode_id.ratehead_id.pkg_group_id",
-        string="Package")
+        string="Package",
+        help='Package')
     additional_pkg_ids = fields.Many2many(
         'hms.package.header',
         string="Additional Pkg",
         domain=
-        "[('property_id', '=?', property_id),('is_sell_separate', '=', True)]")
-    allotment_id = fields.Char(string="Allotment")
+        "[('property_id', '=?', property_id),('is_sell_separate', '=', True)]",
+        help='Additional Package')
+    allotment_id = fields.Char(string="Allotment", help='Allotment')
     rate_nett = fields.Float(string="Rate Nett",
                              help="Rate Nett",
                              compute="_compute_rate_nett")
-    fo_remark = fields.Char(string="F.O Remark")
-    hk_remark = fields.Char(string="H.K Remark")
-    cashier_remark = fields.Char(string="Cashier Remark")
-    general_remark = fields.Char(string="General Remark")
+    fo_remark = fields.Char(string="F.O Remark", help='F.O Remark')
+    hk_remark = fields.Char(string="H.K Remark", help='H.K Remark')
+    cashier_remark = fields.Char(string="Cashier Remark",
+                                 help='Cashier Remark')
+    general_remark = fields.Char(string="General Remark",
+                                 help='General Reamrk')
     specialrequest_id = fields.One2many('hms.special.request',
                                         'reservationline_id',
-                                        string="Special Request")
+                                        string="Special Request",
+                                        help='Special Request')
     reservation_user_id = fields.Many2one('res.users',
                                           string="User",
-                                          related='reservation_id.user_id')
-    madeondate = fields.Datetime("Date", related='reservation_id.date_order')
-    citime = fields.Datetime("Check-In Time")
-    cotime = fields.Datetime("Check-Out Time")
+                                          related='reservation_id.user_id',
+                                          help='User')
+    madeondate = fields.Datetime("Date",
+                                 related='reservation_id.date_order',
+                                 help='Date')
+    citime = fields.Datetime("Check-In Time", help='Check-In Time')
+    cotime = fields.Datetime("Check-Out Time", help='Check-Out Time')
 
     extrabed = fields.Integer("Extra Bed", help="No. of Extra Bed")
     extrabed_amount = fields.Float("Extra Bed Amount",
@@ -988,18 +1075,22 @@ class ReservationLine(models.Model):
                             related="ratecode_id.child_bf")
     extra_addon = fields.Float("Extra Addon", help="Extra Amount")
 
-    pickup = fields.Datetime("Pick Up Time")
-    dropoff = fields.Datetime("Drop Off Time")
-    arrival_trp = fields.Char("Arrive Transport")
-    arrival_from = fields.Char("Arrive From")
-    departure_trp = fields.Char("Departure Transport")
-    departure_from = fields.Char("Departure From")
-    visa_type = fields.Char("Visa Type")
-    visa_issue = fields.Date("Visa Issue Date")
-    visa_expire = fields.Date("Visa Expired Date")
-    arrive_reason_id = fields.Char("Arrive Reason")
+    pickup = fields.Datetime("Pick Up Time", help='Pick Up Time')
+    dropoff = fields.Datetime("Drop Off Time", help='Drop Off Time')
+    arrival_trp = fields.Char("Arrive Transport", help='Arrive Transport')
+    arrival_from = fields.Char("Arrive From", help='Arrive From')
+    departure_trp = fields.Char("Departure Transport",
+                                help='Departure Transport')
+    departure_from = fields.Char("Departure From", help='Departure From')
+    visa_type = fields.Char("Visa Type", help='Visa Type')
+    visa_issue = fields.Date("Visa Issue Date", help='Visa Issue Date')
+    visa_expire = fields.Date("Visa Expired Date", help='Visa Expired Date')
+    arrive_reason_id = fields.Char("Arrive Reason", help='Arrive Reason')
     room_transaction_line_ids = fields.One2many(
-        'hms.room.transaction.charge.line', 'reservation_line_id', "Charges")
+        'hms.room.transaction.charge.line',
+        'reservation_line_id',
+        "Charges",
+        help='Charges')
 
     def name_get(self):
         result = []
@@ -2425,6 +2516,12 @@ class ReservationLine(models.Model):
         for rsvn in out_date_reservations:
             rsvn.update({'active': False})
 
+    @api.onchange('room_type')
+    def clear_bed_type(self):
+        bedtype = self.env['hms.bedtype']
+        if self.room_type.fix_type is True:
+            self.bedtype_id = bedtype
+
 
 # Cancel Reservation
 class CancelReservation(models.Model):
@@ -2439,11 +2536,14 @@ class CancelReservation(models.Model):
     is_group = fields.Boolean(string="Is a Group", default=False)
     sales_id = fields.Many2one('res.partner',
                                string="Sales",
-                               domain="[('company_type', '=','person')]")
+                               domain="[('company_type', '=','person')]",
+                               help='Sales')
     contact_id = fields.Many2one('res.partner',
                                  domain="[('company_type', '=','person')]",
-                                 string="Contact")
-    internal_notes = fields.Text(string="Internal Notes")
+                                 string="Contact",
+                                 help='Contact')
+    internal_notes = fields.Text(string="Internal Notes",
+                                 help='Internal Notes')
     # Common fields in both reservation & reservation line
     state = fields.Selection([
         ('booking', 'Booking'),
@@ -2458,59 +2558,87 @@ class CancelReservation(models.Model):
     property_id = fields.Many2one(
         'hms.property',
         string="Property",
-        default=lambda self: self.env.user.property_id.id)
+        default=lambda self: self.env.user.property_id.id,
+        help='Property')
     user_id = fields.Many2one('res.users',
                               string='Salesperson',
-                              default=lambda self: self.env.user.id)
+                              default=lambda self: self.env.user.id,
+                              help='Salesperson')
     date_order = fields.Datetime('Date Ordered',
                                  readonly=True,
                                  index=True,
-                                 default=(lambda *a: time.strftime(dt)))
+                                 default=(lambda *a: time.strftime(dt)),
+                                 help='Date Ordered')
     company_id = fields.Many2one(
         'res.partner',
         string="Company",
-        domain="['&',('profile_no','!=',''),('is_company','=',True)]")
+        domain="['&',('profile_no','!=',''),('is_company','=',True)]",
+        help='Company')
     group_id = fields.Many2one('res.partner',
                                string="Group",
-                               domain="[('is_group','=',True)]")
+                               domain="[('is_group','=',True)]",
+                               help='Group')
     guest_id = fields.Many2one('res.partner',
                                string="Guest",
-                               domain="[('is_guest','=',True)]")
-    arrival = fields.Date(string="Arrival Date", default=datetime.today())
+                               domain="[('is_guest','=',True)]",
+                               help='Guest')
+    arrival = fields.Date(string="Arrival Date",
+                          default=datetime.today(),
+                          help='Arrival Date')
     departure = fields.Date(
         string="Departure Date",
         default=lambda *a:
-        (datetime.now() + timedelta(days=(1))).strftime('%Y-%m-%d'))
-    nights = fields.Integer(string="Nights")
-    no_ofrooms = fields.Integer(string="Number of Rooms")
+        (datetime.now() + timedelta(days=(1))).strftime('%Y-%m-%d'),
+        help='Departure Date')
+    nights = fields.Integer(string="Nights", help='Nights')
+    no_ofrooms = fields.Integer(string="Number of Rooms",
+                                help='Number of Rooms')
     market = fields.Many2one('hms.marketsegment',
                              string="Market",
-                             domain="[('id', '=?', market_ids)]")
-    source = fields.Many2one('hms.marketsource', string="Market Source")
+                             domain="[('id', '=?', market_ids)]",
+                             help='Market')
+    source = fields.Many2one('hms.marketsource',
+                             string="Market Source",
+                             help='Market Source')
     reservation_type = fields.Many2one('hms.rsvntype',
                                        string="Reservation Type",
-                                       default=2)
+                                       default=2,
+                                       help='Reservation Type')
     reservation_status = fields.Many2one('hms.rsvnstatus',
-                                         string="Reservation Status")
-    arrival_flight = fields.Char(string="Arrival Flight", size=10)
-    arrival_flighttime = fields.Float(string="AR-Flight Time")
-    dep_flight = fields.Char(string="Departure Flight")
-    dep_flighttime = fields.Float(string="DEP-Flight Time")
-    eta = fields.Float(string="ETA")
-    etd = fields.Float(string="ETD")
-    reason_id = fields.Many2one('hms.reason', string="Reason")
+                                         string="Reservation Status",
+                                         help='Reservation Status')
+    arrival_flight = fields.Char(string="Arrival Flight",
+                                 size=10,
+                                 help='Arrival Flight')
+    arrival_flighttime = fields.Float(string="AR-Flight Time",
+                                      help='Arrival Flight Time')
+    dep_flight = fields.Char(string="Departure Flight",
+                             help='Departure Flight')
+    dep_flighttime = fields.Float(string="DEP-Flight Time",
+                                  help='Departure Flight Time')
+    eta = fields.Float(string="ETA", help='ETA')
+    etd = fields.Float(string="ETD", help='ETD')
+    reason_id = fields.Many2one('hms.reason', string="Reason", help='Reason')
     reservation_line_id = fields.Many2one('hms.reservation.line',
-                                          string="Reservation Details")
-    confirm_no = fields.Char(string="Confirm Number", readonly=True)
+                                          string="Reservation Details",
+                                          help='Reservation Details')
+    confirm_no = fields.Char(string="Confirm Number",
+                             readonly=True,
+                             help='Confirm No')
 
     # Fields from Reservation Line
-    reservation_id = fields.Many2one('hms.reservation', string="Reservation")
-    room_no = fields.Many2one('hms.property.room', string="Room No")
+    reservation_id = fields.Many2one('hms.reservation',
+                                     string="Reservation",
+                                     help='Reseravtion')
+    room_no = fields.Many2one('hms.property.room',
+                              string="Room No",
+                              help='Room No')
     room_type = fields.Many2one('hms.roomtype',
                                 string="Room Type",
-                                domain="[('id', '=?', roomtype_ids)]")
-    pax = fields.Integer("Pax", default=1)
-    child = fields.Integer("Child")
+                                domain="[('id', '=?', roomtype_ids)]",
+                                help='Room Type')
+    pax = fields.Integer("Pax", default=1, help='Pax')
+    child = fields.Integer("Child", help='Child')
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         domain=
@@ -2521,48 +2649,66 @@ class CancelReservation(models.Model):
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
     )
-    room_rate = fields.Float("Room Rate", compute='_compute_room_rate')
-    updown_amt = fields.Float("Updown Amount")
-    updown_pc = fields.Float("Updown PC")
-    # package_id = fields.Many2one('hms.package', string="Package")
-    allotment_id = fields.Char(string="Allotment")
-    rate_nett = fields.Float(string="Rate Nett")
-    fo_remark = fields.Char(string="F.O Remark")
-    hk_remark = fields.Char(string="H.K Remark")
-    cashier_remark = fields.Char(string="Cashier Remark")
-    general_remark = fields.Char(string="General Remark")
+    room_rate = fields.Float("Room Rate",
+                             compute='_compute_room_rate',
+                             help='Room Rate')
+    updown_amt = fields.Float("Updown Amount", help='Updown Amount')
+    updown_pc = fields.Float("Updown PC", help='Updown Percentage')
+    package_id = fields.Many2one(
+        'hms.package.group',
+        related="ratecode_id.ratehead_id.pkg_group_id",
+        string="Package")
+    additional_pkg_ids = fields.Many2many(
+        'hms.package.header',
+        string="Additional Pkg",
+        domain=
+        "[('property_id', '=?', property_id),('is_sell_separate', '=', True)]")
+    allotment_id = fields.Char(string="Allotment", help='Allotment')
+    rate_nett = fields.Float(string="Rate Nett", help='Rate Nett')
+    fo_remark = fields.Char(string="F.O Remark", help='F.O Remark')
+    hk_remark = fields.Char(string="H.K Remark", help='H.K Remark')
+    cashier_remark = fields.Char(string="Cashier Remark",
+                                 help='Cashier Remark')
+    general_remark = fields.Char(string="General Remark",
+                                 help='General Remark')
     # specialrequest_id = fields.One2many('hms.special.request',
     #                                     'reservationline_id',
     #                                     string="Special Request")
-    citime = fields.Datetime("Check-In Time")
-    cotime = fields.Datetime("Check-Out Time")
+    citime = fields.Datetime("Check-In Time", help='Check-In Time')
+    cotime = fields.Datetime("Check-Out Time", help='Check-Out Time')
 
-    extrabed = fields.Integer("Extra Bed")
+    extrabed = fields.Integer("Extra Bed", help='Extra Bed')
     extrabed_amount = fields.Float("Number of Extra Bed",
-                                   related="ratecode_id.extra_bed")
-    child_bfpax = fields.Integer("Child BF-Pax")
-    child_bf = fields.Float("Child Breakfast", related="ratecode_id.child_bf")
-    extra_addon = fields.Float("Extra Addon")
+                                   related="ratecode_id.extra_bed",
+                                   help='Number of Extra Bed')
+    child_bfpax = fields.Integer("Child BF-Pax", help='Child Breakfast Pax')
+    child_bf = fields.Float("Child Breakfast",
+                            related="ratecode_id.child_bf",
+                            help='Child Breakfast')
+    extra_addon = fields.Float("Extra Addon", help='Extra Addon')
 
-    pickup = fields.Datetime("Pick Up Time")
-    dropoff = fields.Datetime("Drop Off Time")
-    arrival_trp = fields.Char("Arrive Transport")
-    arrival_from = fields.Char("Arrive From")
-    departure_trp = fields.Char("Departure Transport")
-    departure_from = fields.Char("Departure From")
-    visa_type = fields.Char("Visa Type")
-    visa_issue = fields.Date("Visa Issue Date")
-    visa_expire = fields.Date("Visa Expired Date")
-    arrive_reason_id = fields.Char("Arrive Reason")
+    pickup = fields.Datetime("Pick Up Time", help='Pick Up Time')
+    dropoff = fields.Datetime("Drop Off Time", help='Drop off Time')
+    arrival_trp = fields.Char("Arrive Transport", help='Arrive Transport')
+    arrival_from = fields.Char("Arrive From", help='Arrive From')
+    departure_trp = fields.Char("Departure Transport",
+                                help='Departure Transport')
+    departure_from = fields.Char("Departure From", help='Departure From')
+    visa_type = fields.Char("Visa Type", help='Visa Type')
+    visa_issue = fields.Date("Visa Issue Date", help='Visa Issue Date')
+    visa_expire = fields.Date("Visa Expired Date", help='Visa Expired Date')
+    arrive_reason_id = fields.Char("Arrive Reason", help='Arrive Reason')
 
     # New Fields
     cancel_user_id = fields.Many2one('res.users',
                                      string='Salesperson',
-                                     default=lambda self: self.env.user.id)
+                                     default=lambda self: self.env.user.id,
+                                     help='Salesperson')
     cancel_datetime = fields.Datetime('Date Ordered',
                                       readonly=True,
                                       index=True,
-                                      default=(lambda *a: time.strftime(dt)))
+                                      default=(lambda *a: time.strftime(dt)),
+                                      help='Date Ordered')
 
 
 # Room Reservation Summary
@@ -2739,19 +2885,24 @@ class QuickRoomReservation(models.TransientModel):
     _name = 'hms.quick.room.reservation'
     _description = 'Quick Room Reservation'
 
-    property_id = fields.Many2one('hms.property', 'Hotel', required=True)
-    check_in = fields.Date('Check In', required=True)
-    check_out = fields.Date('Check Out', required=True)
-    rooms = fields.Integer('Rooms', required=True)
+    property_id = fields.Many2one('hms.property',
+                                  'Hotel',
+                                  required=True,
+                                  help='Hotel')
+    check_in = fields.Date('Check In', required=True, help='Check In')
+    check_out = fields.Date('Check Out', required=True, help='Check Out')
+    rooms = fields.Integer('Rooms', required=True, help='Rooms')
     market_ids = fields.Many2many('hms.marketsegment',
                                   related="property_id.market_ids")
     market = fields.Many2one('hms.marketsegment',
                              string="Market",
                              domain="[('id', '=?', market_ids)]",
-                             required=True)
+                             required=True,
+                             help='Market')
     source = fields.Many2one('hms.marketsource',
                              string="Source",
-                             required=True)
+                             required=True,
+                             help='Source')
     # roomtype_id = fields.Many2one('hms.roomtype', 'Room Type', required=True)
     # room_id = fields.Many2one('hms.property.room', 'Room', required=True)
     # adults = fields.Integer('Adults', size=64)
@@ -2818,7 +2969,8 @@ class OverBooking(models.Model):
 
     reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
     rt_avail_id = fields.Many2one('hms.roomtype.available',
-                                  string="Room Type Available")
-    property_id = fields.Many2one("hms.property", 'Property')
-    overbook_date = fields.Date(string="Date")
-    overbook_rooms = fields.Integer(string="Rooms")
+                                  string="Room Type Available",
+                                  help='Room Type Available')
+    property_id = fields.Many2one("hms.property", 'Property', help='Property')
+    overbook_date = fields.Date(string="Date", help='Date')
+    overbook_rooms = fields.Integer(string="Rooms", help='Rooms')

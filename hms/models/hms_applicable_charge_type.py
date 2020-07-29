@@ -8,6 +8,7 @@ class HMSCalculationMethod(models.Model):
     _description = "Calculation Method"
     _order = 'ordinal_no,name'
 
+    is_csv = fields.Boolean(default=False)
     ordinal_no = fields.Integer("Order No")
     name = fields.Char("Name")
     active = fields.Boolean("Active")
@@ -19,6 +20,7 @@ class HMSChargeTypes(models.Model):
     _description = "Charge Types"
     _order = 'ordinal_no,name'
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char("Charge Type", required=True, track_visibility=True)
     ordinal_no = fields.Integer("Ordinal No", required=True)
     calculate_method_ids = fields.Many2many("hms.calculation.method",

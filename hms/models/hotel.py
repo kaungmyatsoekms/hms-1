@@ -69,7 +69,6 @@ AVAILABLE_PERCENTAGE = [
     ('100', '100 %'),
 ]
 
-
 class Property(models.Model):
     _name = "hms.property"
     _inherit = ['mail.thread']
@@ -108,56 +107,56 @@ class Property(models.Model):
         return self.env['hms.roomtype'].search([('code', '=', 'HFO')]).ids
 
     is_property = fields.Boolean(string='Is Property',
-                                 compute='_compute_is_property')
+                                 compute='_compute_is_property', help='Is Property')
     hotelgroup_id = fields.Many2one('res.company',
                                     string='Parent Company',
-                                    required=True)
+                                    required=True, help='Parent Company')
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
-    name = fields.Char(required=True, string='Hotel Name', index=True)
-    code = fields.Char(string='Property ID', required=True)
-    address1 = fields.Char(string='Address 1')
-    address2 = fields.Char(string='Address 2')
+    name = fields.Char(required=True, string='Hotel Name', index=True, help='Hotel Name')
+    code = fields.Char(string='Property ID', required=True, help="Property ID")
+    address1 = fields.Char(string='Address 1', help='Address 1')
+    address2 = fields.Char(string='Address 2', help='Address 2')
     township = fields.Many2one("hms.township",
                                string='Township',
                                ondelete='restrict',
                                track_visibility=True,
-                               domain="[('city_id', '=?', city_id)]")
+                               domain="[('city_id', '=?', city_id)]", help='Township')
     city_id = fields.Many2one("hms.city",
                               string='City',
                               ondelete='restrict',
                               track_visibility=True,
-                              domain="[('state_id', '=?', state_id)]")
-    state_id = fields.Many2one('res.country.state', string='State')
+                              domain="[('state_id', '=?', state_id)]", help='City')
+    state_id = fields.Many2one('res.country.state', string='State', help="State")
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   default=default_get_curency,
                                   readonly=False,
-                                  track_visibility=True)
+                                  track_visibility=True, help='Currency')
     country_id = fields.Many2one('res.country',
                                  string='Country',
                                  readonly=False,
                                  requried=True,
                                  track_visibility=True,
-                                 ondelete='restrict')
-    phone = fields.Char(string='Phone')
-    fax = fields.Char(string='Fax')
-    email = fields.Char(string='Email')
-    website = fields.Char(string='Website')
-    sociallink = fields.Char(string='Social Link')
-    roomqty = fields.Integer(string='Total Rooms', default=0, required=True)
+                                 ondelete='restrict', help='Country')
+    phone = fields.Char(string='Phone', help='Phone')
+    fax = fields.Char(string='Fax', help='Fax')
+    email = fields.Char(string='Email', help='Email')
+    website = fields.Char(string='Website', help='Website')
+    sociallink = fields.Char(string='Social Link', help='Social Link')
+    roomqty = fields.Integer(string='Total Rooms', default=0, required=True, help='Total Rooms')
     dummy_rooms = fields.Integer(string="Dummy Room",
                                  readonly=True,
-                                 store=True)
-    property_license = fields.Char(string='Property License')
+                                 store=True, help='Dummy Room')
+    property_license = fields.Char(string='Property License', help='Property License')
     rating = fields.Selection(AVAILABLE_STARS,
                               string='Rating',
                               index=True,
                               default=AVAILABLE_STARS[0][0])
-    logo = fields.Binary(string='Logo', attachment=True, store=True)
-    image = fields.Binary(string='Image', attachment=True, store=True)
+    logo = fields.Binary(string='Logo', attachment=True, store=True, help='Logo')
+    image = fields.Binary(string='Image', attachment=True, store=True, help='Image')
     timezone = fields.Selection(
         _tz_get,
         string='Timezone',
@@ -171,12 +170,12 @@ class Property(models.Model):
     system_date = fields.Date(string="System Date",
                               default=date.today(),
                               track_visibility=True)
-    ci_time = fields.Float(string="Check-In")
-    co_time = fields.Float(string="Check-Out")
+    ci_time = fields.Float(string="Check-In", help='Check-In')
+    co_time = fields.Float(string="Check-Out", help='Check-Out')
     night_audit = fields.Selection([('auto', "Auto"), ('manual', "Manual")],
                                    string="Night Audit",
                                    compute='_compute_night_audit',
-                                   inverse='_write_night_audit')
+                                   inverse='_write_night_audit', help='Night Audit')
     is_manual = fields.Boolean(default=False)
 
     # state for property onboarding panel
@@ -204,75 +203,75 @@ class Property(models.Model):
         string='Contacts',
         track_visibility=True,
         domain=
-        "[('is_company', '=', False), ('is_group', '=', False), ('is_guest', '=', False)]"
+        "[('is_company', '=', False), ('is_group', '=', False), ('is_guest', '=', False)]", help='Contact'
     )
     bankinfo_ids = fields.One2many('res.bank',
                                    'property_id',
-                                   string="Bank Info")
+                                   string="Bank Info", help='Bank Info')
     comments = fields.Text(string='Notes')
     roomtype_ids = fields.Many2many('hms.roomtype',
-                                    default=default_get_roomtype)
+                                    default=default_get_roomtype, help='Room Type')
     building_ids = fields.Many2many('hms.building',
-                                    default=default_get_building)
-    market_ids = fields.Many2many('hms.marketsegment', string="Market Segment")
+                                    default=default_get_building, help='Building')
+    market_ids = fields.Many2many('hms.marketsegment', string="Market Segment", help='Matket Segment')
     propertyroom_ids = fields.One2many('hms.property.room',
                                        'property_id',
-                                       string="Property Room")
+                                       string="Property Room", help='Property Room')
     building_count = fields.Integer("Building",
-                                    compute='_compute_building_count')
+                                    compute='_compute_building_count', help='Building')
     room_count = fields.Integer("Room",
                                 compute='_compute_room_count',
-                                store=True)
+                                store=True, help='Room')
     roomtype_count = fields.Integer("Room Type",
-                                    compute='_compute_roomtype_count')
+                                    compute='_compute_roomtype_count', help='Room Type' )
     package_ids = fields.One2many('hms.package',
                                   'property_id',
-                                  string="Package")
+                                  string="Package", help='Package')
     packageheader_ids = fields.One2many('hms.package.header',
                                         'property_id',
-                                        string="Package")
+                                        string="Package", help='Package Header')
     packagegroup_ids = fields.One2many('hms.package.group',
                                        'property_id',
-                                       string="Package Group")
+                                       string="Package Group", help='Package Group')
     subgroup_ids = fields.One2many('hms.subgroup',
                                    'property_id',
-                                   string="Sub Group")
+                                   string="Sub Group", help='Sub Group')
     transaction_ids = fields.One2many('hms.transaction',
                                       'property_id',
-                                      string="Transaction")
+                                      string="Transaction", help='Transaction')
     creditlimit_ids = fields.One2many('hms.creditlimit',
                                       'property_id',
-                                      string="Credit Limit")
+                                      string="Credit Limit", help='Creadit Limit')
     specialday_ids = fields.One2many('hms.specialday',
                                      'property_id',
-                                     string="Special Days")
+                                     string="Special Days", help='Special Days')
     weekend_id = fields.One2many('hms.weekend',
                                  'property_id',
-                                 string="Weekends")
+                                 string="Weekends", help='Weekends')
     ratecodeheader_ids = fields.One2many('hms.ratecode.header',
                                          'property_id',
-                                         string="Rate Code")
+                                         string="Rate Code", help='Rate Code')
     allotment_ids = fields.One2many('hms.allotment.line',
                                     'property_id',
-                                    string="Allotment")
+                                    string="Allotment", help='Allotment')
     proomtype_ids = fields.One2many('hms.property.roomtype',
                                     'property_id',
-                                    string="Property Room Type")
+                                    string="Property Room Type", help='Property Room Type')
     package_line_ids = fields.One2many('hms.package.charge.line',
                                        'property_id',
-                                       string="Packages_line")
-    check_in_time = fields.Float(string="Check-In Time")
-    check_out_time = fields.Float(string="Check-Out Time")
-    availability = fields.Integer(default=365, string="Availability")
+                                       string="Packages_line", help='Package Line')
+    check_in_time = fields.Float(string="Check-In Time", help="Check-In Time")
+    check_out_time = fields.Float(string="Check-Out Time", help='Check-Out Time')
+    availability = fields.Integer(default=365, string="Availability", help='Avaliability')
     reservation_line_ids = fields.One2many('hms.reservation.line',
                                            'property_id',
-                                           string="Reservation lines")
+                                           string="Reservation lines", help='Reseravtion Line')
     high_occupancy = fields.Selection(AVAILABLE_PERCENTAGE,
                                       string="High Occupancy",
-                                      default='70')
+                                      default='70', help='High Occupancy')
     low_occupancy = fields.Selection(AVAILABLE_PERCENTAGE,
                                      string="Low Occupancy",
-                                     default='20')
+                                     default='20', help='High Ocupancy')
 
     property_code_len = fields.Integer(
         "Property Code Length",
@@ -1139,14 +1138,9 @@ class Property(models.Model):
                     ])
 
                     new_avail_objs = self.env['hms.availability'].create({
-                        'property_id':
-                        avail_obj.property_id.id,
-                        'avail_date':
-                        avail_obj.avail_date +
-                        timedelta(days=record.availability),
-                        'total_room':
-                        record.room_count
-                    })
+                    'property_id' : avail_obj.property_id.id,
+                    'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
+                    'total_room' : record.room_count})
 
                     for new_avail_obj in new_avail_objs:
 
@@ -1154,19 +1148,14 @@ class Property(models.Model):
                             rt_avail_obj.update({'active': False})
                             vals = []
                             vals.append((0, 0, {
-                                'availability_id':
-                                new_avail_obj.id,
-                                'property_id':
-                                new_avail_obj.property_id.id,
-                                'ravail_date':
-                                new_avail_obj.avail_date,
-                                'ravail_rmty':
-                                rt_avail_obj.ravail_rmty.id,
-                                'color':
-                                rt_avail_obj.color,
+                                'availability_id': new_avail_obj.id,
+                                'property_id': new_avail_obj.property_id.id,
+                                'ravail_date': new_avail_obj.avail_date,
+                                'ravail_rmty': rt_avail_obj.ravail_rmty.id,
+                                'color': rt_avail_obj.color,
                             }))
                             new_avail_obj.update({'avail_roomtype_ids': vals})
-
+    
     #Scheduled Update System Date
     @api.model
     def update_system_date(self):
@@ -1174,7 +1163,6 @@ class Property(models.Model):
         for record in property_objs:
             if record.is_manual is False:
                 record.system_date = datetime.today()
-
 
 class Property_roomtype(models.Model):
     _name = "hms.property.roomtype"
@@ -1188,14 +1176,14 @@ class Property_roomtype(models.Model):
 
     property_id = fields.Many2one("hms.property",
                                   default=get_property_id,
-                                  store=True)
+                                  store=True, help='Property')
     roomtype_ids = fields.Many2many("hms.roomtype",
-                                    related="property_id.roomtype_ids")
+                                    related="property_id.roomtype_ids", help='Room Type')
     roomtype_id = fields.Many2one('hms.roomtype',
                                   string="Room Type",
                                   domain="[('id', '=?', roomtype_ids)]",
-                                  required=True)
-    total_rooms = fields.Integer(string='Total Rooms')
+                                  required=True, help='Room Type')
+    total_rooms = fields.Integer(string='Total Rooms', help='Total Rooms')
 
     _sql_constraints = [(
         'property_room_type_unique', 'UNIQUE(property_id,roomtype_id)',
@@ -1217,21 +1205,21 @@ class Building(models.Model):
     _rec_name = 'building_name'
 
     sequence = fields.Integer(default=1)
-    building_name = fields.Char(string='Building Name', required=True)
+    building_name = fields.Char(string='Building Name', required=True, help='Building Name')
     building_type = fields.Many2one('hms.buildingtype',
                                     string='Building Type',
-                                    required=True)
-    building_location = fields.Char(string='Location')
+                                    required=True, help='Building Type')
+    building_location = fields.Char(string='Location', help='Location')
     building_img = fields.Binary(string='Building Image',
                                  attachment=True,
-                                 store=True)
-    building_desc = fields.Text(string='Description')
+                                 store=True, help='Building Image')
+    building_desc = fields.Text(string='Description', help='Description')
     building_capacity = fields.Integer(string='Capacity',
                                        default=1,
-                                       required=True)
+                                       required=True, help='Capacity')
     location_ids = fields.Many2many('hms.roomlocation',
                                     string="Room Location",
-                                    required=True)
+                                    required=True, help='Room Location')
     # location_number = fields.Integer("Location Number", compute="_room_location_count", readonly=True)
 
     _sql_constraints = [
@@ -1239,40 +1227,7 @@ class Building(models.Model):
          'Building name already exists! Building name must be unique!')
     ]
 
-    # def get_name(self,cr, uid, ids, context=None):
-    #     if context is None:
-    #         context = {}
-    #     if isinstance(ids, (int, long)):
-    #         ids = [ids]
-
-    #     res = []
-    #     for record in self.browse(cr, uid, ids, context=context):
-    #         name = record.building_name
-    #         res.append(record.id, name)
-    #     return res
-
-    # @api.model
-    # def name_get(self):
-    #     result = []
-    #     for record in self:
-    #         result.append((record.id, "{}".format(record.building_name)))
-    #     return result
-
-    # @api.depends('building_capacity','location_ids')
-    # def _room_location_count(self):
-
-    #         return len(locations)
-
-    # @api.model
-    # def create(self, values):
-    #     locations = values['location_ids']
-    #     building_capacity = values['building_capacity']
-    #     if values['location_ids'][0][2]:
-    #         if len(values['location_ids'][0][2]) > building_capacity:
-    #             raise UserError(_("Location number must less than building capacity."))
-    #     return super(Building, self).create(values)
-
-    @api.constrains('location_ids', 'building_capacity')
+    @api.constrains('location_ids','building_capacity')
     def _check_capacity(self):
         for record in self:
             if len(record.location_ids) > record.building_capacity:
@@ -1285,8 +1240,9 @@ class BuildingType(models.Model):
     _name = "hms.buildingtype"
     _description = "Building Type"
 
-    building_type = fields.Char(string='Building Type', required=True)
-    buildingtype_desc = fields.Char(string='Description', required=True)
+    is_csv = fields.Boolean(default=False)
+    building_type = fields.Char(string='Building Type', required=True, help='Building Type')
+    buildingtype_desc = fields.Char(string='Description', required=True, help='Description')
 
     _sql_constraints = [(
         'building_type_unique', 'UNIQUE(building_type)',
@@ -1319,15 +1275,14 @@ class RoomLocation(models.Model):
     _description = "Room Location"
 
     sequence = fields.Integer(default=1)
-    location_code = fields.Char(string='Code', size=3, required=True)
-    location_name = fields.Char(string='Name', required=True)
+    location_code = fields.Char(string='Code', size=3, required=True, help='Code')
+    location_name = fields.Char(string='Name', required=True, help='Name')
 
     _sql_constraints = [(
         'location_code_unique', 'UNIQUE(location_code)',
         'Location code already exists with this name! Location code must be unique!'
     )]
 
-    @api.model
     def name_get(self):
         result = []
         for record in self:
@@ -1352,8 +1307,9 @@ class BedType(models.Model):
     _name = "hms.bedtype"
     _description = "Bed Type"
 
-    name = fields.Char(string="Bed Type Name")
-    no_of_bed = fields.Integer(string="No.of Beds")
+    is_csv = fields.Boolean(default=False)
+    name = fields.Char(string="Bed Type Name", help='Bed Type Name')
+    no_of_bed = fields.Integer(string="No.of Beds", help='No. of Beds')
 
 
 class RoomType(models.Model):
@@ -1361,25 +1317,35 @@ class RoomType(models.Model):
     _description = "Room Type"
     _rec_name = "code"
 
+    is_used = fields.Boolean(default=False, string="Is Used?", compute='check_is_used')
     sequence = fields.Integer(default=1)
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
-    code = fields.Char(string='Code', size=50, required=True)
-    name = fields.Char(string='Room Type', required=True)
-    color = fields.Integer('Color Index', default=0, size=1)
-    fix_type = fields.Boolean(string="Fix Type", default=True)
-    bed_type = fields.Many2many('hms.bedtype', string="Bed Type")
+    code = fields.Char(string='Code', size=50, required=True, help='Code')
+    name = fields.Char(string='Room Type', required=True, help='Room Type')
+    color = fields.Integer('Color Index', default=0, size=1, help='Colour Index')
+    fix_type = fields.Boolean(string="Fix Type", default=True, help='Fix Type')
+    bed_type = fields.Many2many('hms.bedtype', string="Bed Type", help='Bed Type')
     totalroom = fields.Integer(string='Total Rooms',
-                               compute='compute_totalroom')
-    image = fields.Binary(string='Image', attachment=True, store=True)
-    roomtype_desc = fields.Text(string='Description')
-    rate_id = fields.Many2one('hms.ratecode.details', 'Rate Details')
+                               compute='compute_totalroom', help='Total Rooms')
+    image = fields.Binary(string='Image', attachment=True, store=True, help='Image')
+    roomtype_desc = fields.Text(string='Description', help='Description')
+    rate_id = fields.Many2one('hms.ratecode.details', 'Rate Details', help='Rate Detials')
 
     _sql_constraints = [(
         'code_unique', 'UNIQUE(code)',
         'Room code already exists with this name! Room code name must be unique!'
     )]
+
+    @api.depends('code')
+    def check_is_used(self):
+        for rec in self:
+            used_property = self.env['hms.property'].search([('roomtype_ids', '=?', rec.id)])
+            if used_property:
+                rec.is_used = True
+            else :
+                rec.is_used = False
 
     @api.onchange('code')
     def onchange_code(self):
@@ -1436,15 +1402,15 @@ class RoomView(models.Model):
     _name = "hms.roomview"
     _description = "Room View"
 
-    name = fields.Char(string='Room View', required=True)
-    roomview_desc = fields.Text(string='Description')
+    is_csv = fields.Boolean(default=False)
+    name = fields.Char(string='Room View', required=True, help='Room View')
+    roomview_desc = fields.Text(string='Description', help='Description')
 
     _sql_constraints = [(
         'name_unique', 'UNIQUE(name)',
         'Room view already exists with this name! Room view name must be unique!'
     )]
 
-    @api.model
     def name_get(self):
         result = []
         for record in self:
@@ -1461,7 +1427,7 @@ class RoomFacility(models.Model):
 
     propertyroom_id = fields.Many2one("hms.property.room",
                                       string="Property Room",
-                                      readonly=True)
+                                      readonly=True, help='Property Room')
     sequence = fields.Integer(default=1)
     amenity_ids = fields.Many2many(
         'hms.room.amenity',
@@ -1470,25 +1436,27 @@ class RoomFacility(models.Model):
         required=True)
     facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string='Facility Type',
-                                      required=True)
-    facility_desc = fields.Text(string="Description")
+                                      required=True, help='Room Facility Type')
+    facility_desc = fields.Text(string="Description", help='Description')
 
 
 class RoomAmenitiy(models.Model):
     _name = "hms.room.amenity"
     _description = "Room Amenity"
 
+    is_csv = fields.Boolean(default=False)
     facilitytype_id = fields.Many2one('hms.room.facility.type',
                                       string="Facility Type",
-                                      required=True)
-    name = fields.Char(string="Amenity Name", required=True)
-    amenity_desc = fields.Text(string="Descripton")
+                                      required=True, help='Facility Type')
+    name = fields.Char(string="Amenity Name", required=True, help='Amenity Name')
+    amenity_desc = fields.Text(string="Descripton", help='Description')
 
 
 class RoomFacilityType(models.Model):
     _name = "hms.room.facility.type"
     _description = "Room Facility Type"
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
     facility_type = fields.Char(string="Room Facility Type ",
                                 help='Eg. Entertainments.....',
@@ -1519,58 +1487,58 @@ class PropertyRoom(models.Model):
                                      related="roomtype_id.fix_type")
     is_propertyroom = fields.Boolean(string='Is Property Room',
                                      compute='_compute_is_propertyroom')
-    room_no = fields.Char(string="Room No", required=True)
+    room_no = fields.Char(string="Room No", required=True, help='Room No')
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  readonly=True)
+                                  readonly=True, help='Property')
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
     roomtype_id = fields.Many2one('hms.roomtype',
                                   string="Room Type",
                                   domain="[('id', '=?', roomtype_ids)]",
-                                  required=True)
-    roomview_ids = fields.Many2many('hms.roomview', string="Room View Code")
+                                  required=True, help='Room Type')
+    roomview_ids = fields.Many2many('hms.roomview', string="Room View Code", help='Room View Code')
     building_ids = fields.Many2many("hms.building",
                                     related="property_id.building_ids")
     building_id = fields.Many2one('hms.building',
                                   string="Room Building",
                                   domain="[('id', '=?', building_ids)]",
-                                  required=True)
+                                  required=True, help='Room Building')
     roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
-                                      required=True)
+                                      required=True, help='Location')
     facility_ids = fields.One2many('hms.room.facility',
                                    'propertyroom_id',
                                    string="Room Facility",
-                                   required=True)
+                                   required=True, help='Room Facility')
     room_bedqty = fields.Integer(string="Number of Beds",
                                  required=True,
                                  size=2,
-                                 default=1)
-    room_size = fields.Char(string="Room Size")
-    room_extension = fields.Char(string="Room Extension")
-    room_img = fields.Binary(string="Image", attachment=True, store=True)
-    room_desc = fields.Text(string="Description")
-    room_connect = fields.Char(string="Connecting Room")
+                                 default=1, help='Number of Beds')
+    room_size = fields.Char(string="Room Size", help='Room Size')
+    room_extension = fields.Char(string="Room Extension", help='Room Extension')
+    room_img = fields.Binary(string="Image", attachment=True, store=True, help='Image')
+    room_desc = fields.Text(string="Description", help='Desription')
+    room_connect = fields.Char(string="Connecting Room", help='Connecting Room')
     room_fostatus = fields.Char(string="FO Room Status",
                                 size=2,
                                 default='VC',
-                                invisible=True)
+                                invisible=True, help='FO Room Status')
     room_hkstatus = fields.Char(string="HK Room Status",
                                 size=2,
                                 default='VC',
-                                invisible=True)
+                                invisible=True, help='HK Room Status')
     room_status = fields.Char(string="Room Status",
                               size=2,
                               default='CL',
-                              invisible=True)
+                              invisible=True, help='Room Status')
     bedtype_ids = fields.Many2many('hms.bedtype',
                                    related="roomtype_id.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
-                                 domain="[('id', '=?', bedtype_ids)]")
-    no_of_pax = fields.Integer(string="Allow Pax", default=2)
+                                 domain="[('id', '=?', bedtype_ids)]", help='Bed Type')
+    no_of_pax = fields.Integer(string="Allow Pax", default=2, help='Allow Pax')
     room_reservation_line_ids = fields.One2many('hms.reservation.line',
-                                                'room_no')
+                                                'room_no', help='Room No')
 
     _sql_constraints = [
         ('room_no_unique', 'UNIQUE(property_id, room_no)',
@@ -1623,17 +1591,25 @@ class PropertyRoom(models.Model):
                     record.is_hfo = True
 
 
+    @api.onchange('roomtype_id')
+    def clear_bed_type(self):
+        bedtype = self.env['hms.bedtype']
+        if self.roomtype_id.fix_type is True:
+            self.bedtype_id = bedtype
+
+
 class MarketSegment(models.Model):
     _name = "hms.marketsegment"
     _description = "Maret Segment"
     _order = 'group_id'
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
-    market_code = fields.Char(string="Market Code", size=3, required=True)
-    market_name = fields.Char(string="Market Name", required=True)
+    market_code = fields.Char(string="Market Code", size=3, required=True, help='Market Code')
+    market_name = fields.Char(string="Market Name", required=True, help='Market Name')
     group_id = fields.Many2one('hms.marketgroup',
                                string="Group Code",
-                               required=True)
+                               required=True, help='Group Code')
     options = fields.Selection([
         ('W', 'Walk In'),
         ('H', 'House Use'),
@@ -1659,6 +1635,7 @@ class MarketGroup(models.Model):
     _name = "hms.marketgroup"
     _description = "Market Group"
 
+    is_csv = fields.Boolean(default=False)
     group_code = fields.Char(string="Group Code",
                              help='Eg. COR.....',
                              size=3,
@@ -1679,9 +1656,10 @@ class MarketSource(models.Model):
     _name = "hms.marketsource"
     _description = "Market Source"
 
+    is_csv = fields.Boolean(default=False)
     sequence = fields.Integer(default=1)
-    source_code = fields.Char(string="Source Code", size=3, required=True)
-    source_desc = fields.Char(string="Description")
+    source_code = fields.Char(string="Source Code", size=3, required=True, help='Source Code')
+    source_desc = fields.Char(string="Description", help='Description')
 
     _sql_constraints = [(
         'source_code_unique', 'UNIQUE(source_code)',
@@ -1703,9 +1681,16 @@ class SpecialDay(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
-                                  readonly=True)
-    special_date = fields.Date(string="Special Date", required=True)
-    special_desc = fields.Char(string="Description")
+                                  readonly=True, help='Property')
+    special_date = fields.Date(string="Special Date", required=True, help='Special Date')
+    special_desc = fields.Char(string="Description", help='Description')
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append((record.id, "{} ({})".format(record.special_date,
+                                                       record.special_desc)))
+        return result
 
     def name_get(self):
         result = []
@@ -1748,12 +1733,12 @@ class Package(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
-                                  required=True)
-    package_code = fields.Char(string="Package Code", size=4, required=True)
-    package_name = fields.Char(string="Package Name", required=True)
+                                  required=True, help='Property')
+    package_code = fields.Char(string="Package Code", size=4, required=True, help='Package Code')
+    package_name = fields.Char(string="Package Name", required=True, help='Package Name')
     package_line_ids = fields.One2many('hms.package.charge.line',
                                        'package_id',
-                                       string='Package Charge Lines')
+                                       string='Package Charge Lines', help='Package Charge Lines')
 
     _sql_constraints = [(
         'package_code_unique', 'UNIQUE(property_id, package_code)',
@@ -1773,16 +1758,16 @@ class RevenueType(models.Model):
     _description = "Revenue Type"
     _order = "rev_code"
 
-    rev_code = fields.Char(string="Group Code", size=1, required=True)
+    rev_code = fields.Char(string="Group Code", size=1, required=True, help='Group Code')
     rev_type = fields.Selection(AVAILABLE_REV,
                                 string="Revenue Type",
-                                required=True)
-    revtype_name = fields.Char(string="Revenue")
-    rev_subgroup = fields.Boolean(string="Sub Group")
+                                required=True, help='Revenue Type')
+    revtype_name = fields.Char(string="Revenue", help='Revenue')
+    rev_subgroup = fields.Boolean(string="Sub Group", help='Sub Group')
     subgroup_ids = fields.One2many('hms.subgroup',
                                    'revtype_id',
-                                   string="Sub Group")
-    transaction_id = fields.Many2one('hms.transaction', 'trans_revtype')
+                                   string="Sub Group", help='Sub Group')
+    transaction_id = fields.Many2one('hms.transaction', 'trans_revtype', help='Transaction Type')
 
     _sql_constraints = [(
         'rev_code_unique', 'UNIQUE(rev_code)',
@@ -1910,26 +1895,26 @@ class Transaction(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
-                                  readonly=True)
+                                  readonly=True, help='Property')
     revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  required=True)
-    revtype_name = fields.Char(String="Revenue Type")
+    revtype_name = fields.Char(String="Revenue Type", help='Revenue Type')
     revsub_active = fields.Boolean(string="SubGroup")
-    trans_ptype = fields.Selection(AVAILABLE_PAY, string="Pay Type")
+    trans_ptype = fields.Selection(AVAILABLE_PAY, string="Pay Type", help='Pay Type')
     subgroup_ids = fields.One2many('hms.subgroup',
                                    related="property_id.subgroup_ids")
     subgroup_id = fields.Many2one(
         'hms.subgroup',
         domain="[('id', '=?', subgroup_ids), ('revtype_id', '=', revtype_id)]",
-        string="Sub Group")
-    subgroup_name = fields.Char(string="Group Name", readonly=True, store=True)
+        string="Sub Group", help='Sub Group')
+    subgroup_name = fields.Char(string="Group Name", readonly=True, store=True, help='Group Name')
     trans_code = fields.Char(string="Transaction Code",
                              size=4,
                              required=True,
-                             index=True)
-    trans_name = fields.Char(string="Transaction Name", required=True)
-    trans_unitprice = fields.Float(string="Unit Price", required=True)
+                             index=True, help='Transaction Code')
+    trans_name = fields.Char(string="Transaction Name", required=True, help='Transaction Name')
+    trans_unitprice = fields.Float(string="Unit Price", required=True, help='Unit Price')
     trans_utilities = fields.Selection([
         ('Y', 'Yes'),
         ('N', 'No'),
@@ -2072,7 +2057,7 @@ class TransactionRoot(models.Model):
     name = fields.Char()
     revname = fields.Char()
     parent_id = fields.Many2one('hms.transaction.root',
-                                string="Superior Level")
+                                string="Superior Level", help='Superior Level')
     group = fields.Many2one('hms.subgroup')
 
     def init(self):
@@ -2110,6 +2095,7 @@ class RsvnType(models.Model):
     _description = "Reservation Type"
     _rec_name = "rsvn_name"
 
+    is_csv = fields.Boolean(default=False)
     rsvn_name = fields.Char(string="Reservation Type", size=30, required=True)
     rsvn_options = fields.Selection([
         ('CF', 'Confirmed'),
@@ -2124,6 +2110,7 @@ class RsvnStatus(models.Model):
     _name = "hms.rsvnstatus"
     _description = "Reservation Status"
 
+    is_csv = fields.Boolean(default=False)
     rsvn_code = fields.Char(string="Reservation Status", size=3, required=True)
     rsvn_status = fields.Char(string="Description", required=True)
     rsvntype_id = fields.Many2one('hms.rsvntype',
@@ -2147,14 +2134,23 @@ class CreditLimit(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True,
-                                  readonly=True)
+                                  readonly=True, help='Property')
     payment_type = fields.Selection(AVAILABLE_PAY,
                                     string="Payment Type",
-                                    required=True)
-    crd_startdate = fields.Date(string="Start Date", required=True)
+                                    required=True, help='Payment Type')
+    crd_startdate = fields.Date(string="Start Date", required=True, help='Start Date')
     crd_enddate = fields.Date(string="End Date",
-                              required=True)  #compute="get_end_date",
-    crd_limit = fields.Float(string="Credit Limit")
+                              required=True, help='End Date')  #compute="get_end_date",
+    crd_limit = fields.Float(string="Credit Limit", help='Credit Limit')
+
+    def name_get(self):
+        result = []
+        for record in self:
+            result.append(
+                (record.id, "{} ({}-{})".format(record.crd_limit,
+                                                record.crd_startdate,
+                                                record.crd_enddate)))
+        return result
 
     def name_get(self):
         result = []

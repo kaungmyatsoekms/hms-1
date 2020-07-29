@@ -1,45 +1,45 @@
-"id","name","facilitytype_id:id"
-1,Bathrobes,5
-2,Mirrors,5
-3,Towels,5
-4,Hair Dryer,5
-5,Toiletries,5
-6,Cleaning Products,5
-7,Scale,5
-8,Bathroom Phone,5
-9,Whirlpool Bathtub,5
-10,Additional Toilet,5
-11,Additional Bathroom,5
-12,Free WiFi,1
-13,Satellite/Cable Channels,1
-14,Telephone,1
-15,On-demand movies,1
-16,DVD/CD Player,1
-17,Air Conditioning,2
-18,Heating,2
-19,Sound Proofing,2
-20,Blackout Curtains,2
-21,Mosquito Net,2
-22,Alarm Clock,2
-23,Daily Newspaper,2
-24,Linens,2
-25,Slippers,2
-26,Umbrella,2
-27,Wakeup Service,2
-28,Private Entrance,2
-29,Carpeting,3
-30,Extra Long Bed,3
-31,High Floor,3
-32,Desk,3
-33,Sofa,3
-34,Seating Area,3
-35,Interconnecting Rooms Available,3
-36,Separate Dining Area,3
-37,Fireplace,3
-38,Laptop Workspace,3
-39,Wooden/Parqueted Flooring,3
-40,Separate Living Room,3
-41,Fire Extinguisher,4
-42,In-room Safe Box,4
-43,Laptop Safe Box,4
-44,Smoke Detector,4
+"id","name","facilitytype_id:id","is_csv"
+1,Bathrobes,5,True
+2,Mirrors,5,True
+3,Towels,5,True
+4,Hair Dryer,5,True
+5,Toiletries,5,True
+6,Cleaning Products,5,True
+7,Scale,5,True
+8,Bathroom Phone,5,True
+9,Whirlpool Bathtub,5,True
+10,Additional Toilet,5,True
+11,Additional Bathroom,5,True
+12,Free WiFi,1,True
+13,Satellite/Cable Channels,1,True
+14,Telephone,1,True
+15,On-demand movies,1,True
+16,DVD/CD Player,1,True
+17,Air Conditioning,2,True
+18,Heating,2,True
+19,Sound Proofing,2,True
+20,Blackout Curtains,2,True
+21,Mosquito Net,2,True
+22,Alarm Clock,2,True
+23,Daily Newspaper,2,True
+24,Linens,2,True
+25,Slippers,2,True
+26,Umbrella,2,True
+27,Wakeup Service,2,True
+28,Private Entrance,2,True
+29,Carpeting,3,True
+30,Extra Long Bed,3,True
+31,High Floor,3,True
+32,Desk,3,True
+33,Sofa,3,True
+34,Seating Area,3,True
+35,Interconnecting Rooms Available,3,True
+36,Separate Dining Area,3,True
+37,Fireplace,3,True
+38,Laptop Workspace,3,True
+39,Wooden/Parqueted Flooring,3,True
+40,Separate Living Room,3,True
+41,Fire Extinguisher,4,True
+42,In-room Safe Box,4,True
+43,Laptop Safe Box,4,True
+44,Smoke Detector,4,True

@@ -58,7 +58,7 @@
                             </tr>
                         </thead>
                         <tbody style="background:white;">
-                            <tr t-foreach="get_checkin" t-as="info">
+                            <tr t-foreach="get_reservation_list" t-as="info">
                                 <td style="border:1px solid lightgray;">
                                     <span t-field="info.confirm_no"/>
                                 </td>

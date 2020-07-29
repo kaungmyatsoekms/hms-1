@@ -1,5 +1,5 @@
-id,name,code,active,sequence
-1,Extra Bed,EB,TRUE,1
-2,Breakfast,BF,TRUE,2
-3,Child Breakfast,CBF,TRUE,3
+id,name,code,active,sequence,is_csv
+1,Extra Bed,EB,TRUE,1,True
+2,Breakfast,BF,TRUE,2,True
+3,Child Breakfast,CBF,TRUE,3,True
 

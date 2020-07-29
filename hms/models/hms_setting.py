@@ -275,6 +275,7 @@ class HMSCompanyCategory(models.Model):
     _description = "Company Category"
     _order = 'ordinal_no,code,name'
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char("Description", required=True, track_visibility=True)
     # type = fields.Selection(
     #     string = 'Type',
@@ -335,6 +336,7 @@ class HMSGuestCategory(models.Model):
     _description = "Guest Categorys"
     _order = 'ordinal_no,code,name'
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char("Description", required=True, track_visibility=True)
     code = fields.Char("Code", track_visibility=True, size=3)
     ordinal_no = fields.Integer("Ordinal No", track_visibility=True)
@@ -846,3 +848,11 @@ class HMSCurrency(models.Model):
                 record.status = False
             else:
                 record.status = True
+
+
+class HMSExcelExtended(models.Model):
+    _name = 'hms.excel.extended'
+    _description = "Excel Extended"
+
+    excel_file = fields.Binary('Download Report :- ')
+    file_name = fields.Char('Excel File', size=64)

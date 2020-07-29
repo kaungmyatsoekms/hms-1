@@ -26,6 +26,7 @@ $brand-secondary-dark: darken($brand-secondary, 10%);
 body {
     font-family: "Roboto";
     display: flex;
+    background-color: whitesmoke;
 }
 
 nav {
@@ -53,18 +54,26 @@ nav {
 }
 
 .o_main_navbar > a:hover, .o_main_navbar > a:focus, .o_main_navbar > button:hover, .o_main_navbar > button:focus {
-
-  background-color: #182e4d;
+    color:#fc7c04 !important;
+    background-color: none;
+    background: none;
     // color: inherit;
 
 }
 
 .o_main_navbar > ul > li > a:hover, .o_main_navbar > ul > li > label:hover {
-  background: #182e4d;
+    color:#fc7c04;
+    background-color: none;
+    background: none;
 }
 
 .o_main_navbar .show .dropdown-toggle {
-  background-color: #182e4d;
+  background-color: #1d4464;
+}
+
+.o_main_navbar > ul > li.o_extra_menu_items.show > ul > li > a.dropdown-toggle {
+    background-color: #1d4464 !important;
+    pointer-events: none;
 }
 
 
@@ -154,14 +163,14 @@ table tbody tr td {
 }
 
 .o_form_view .o_form_statusbar > .o_statusbar_status > .o_arrow_button.btn-primary.disabled {
-    color: #fc7b04;
+    color: #fc7c04;
     background-color: #e9ecef !important;
     font-size: 15px;
-    font-weight: 550;
+    font-weight: bold;
 }
 
 .o_form_view .o_form_statusbar > .o_statusbar_status > .o_arrow_button:not(.disabled):hover {
-    color: #fd7a00;
+    color: #fc7c04;
 }
 
 .o_dropdown_toggler_btn, .o_dropdown_toggler_btn:hover, .o_dropdown_toggler_btn:focus, .o_dropdown_toggler_btn:hover, .o_dropdown_toggler_btn:focus, .btn-icon, .o_graph_button {
@@ -169,11 +178,6 @@ table tbody tr td {
     color: $gray-dark !important;
     background-color: transparent !important;
     border: 2px !important;
-}
-
-.dropdown-menu {
-    border-radius: 0px;
-    color: white;
 }
 
 .oe_highlight {
@@ -233,6 +237,53 @@ select.o_field_widget.o_input {
 }
 .o_calendar_container .o_calendar_sidebar_container .ui-datepicker table .ui-state-default {
     color: $brand-primary;
+}
+
+.o_calendar_view .o_calendar_widget .fc-month-view .fc-content-skeleton .fc-today .fc-day-number {
+    margin-top: 3px;
+    padding: 0.4em 0.4em 0.35em;
+    border-radius: 100%;
+    min-width: 1.1em;
+    background: #036630;
+    text-align: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+thead.fc-head {
+    background-color: #1d4464;
+    color: white;
+    tr th {
+        font-size: 15px;
+        font-weight: 550 !important;
+    }
+}
+
+.o_calendar_view .o_calendar_widget .fc-month-view td:last-child {
+    border-right-color: #dbdbdb;
+    border-left-color: #dbdbdb;
+    // border-left-width: medium;
+}
+
+.o_calendar_view .o_calendar_widget .fc-widget-content .fc-other-month{
+    border-left-color: transparent;
+    background-color: white;
+}
+
+tbody.fc-body {
+    background-color: #60ad96;
+}
+
+.o_calendar_view .o_calendar_widget .fc-month-view .fc-bg .fc-today {
+    background: #60ad96;
+    border-color: #dee2e6;
+}
+
+.o_calendar_view .fc-view .fc-event.o_calendar_color_6 .fc-bg {
+    background: #ff7b00;
+}
+.o_calendar_view .fc-view .fc-event.o_calendar_color_6 .fc-bg:hover {
+    background: #ff7300 !important;
 }
 
 .datepicker {
@@ -423,7 +474,7 @@ textarea, select, .o_form_view.o_form_editable .o_form_field_many2manytags,
 }
 
 .o_list_view .table-responsive .o_list_table thead tr:nth-child(1) th {
-    background-color: rgb(194, 94, 0);
+    background-color: #d66902;
     color: white;
     font-weight: 550;
 }
@@ -434,9 +485,10 @@ textarea, select, .o_form_view.o_form_editable .o_form_field_many2manytags,
     border-top: 1px solid #e2e2e0;
 }
 
-// .table-striped > tbody >tr {
-//     height: 20px;
-// }
+.table-striped > tbody >tr.o_data_row:hover {
+    background-color: #dfae87;
+}
+
 
 .table-striped > tbody > tr:nth-of-type(2n+1) {
     background-color: #fde5d1;

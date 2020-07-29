@@ -1,6 +1,6 @@
-id,facility_type,facilitytype_desc
-ent,ENT,Entertainments
-cof,COF,Conforts
-loy,LOY,Layout & Furnishings
-ss,S&S,Safety & Security
-bt,B&T,Bathroom & Toileties
+id,facility_type,facilitytype_desc,is_csv
+ent,ENT,Entertainments,True
+cof,COF,Conforts,True
+loy,LOY,Layout & Furnishings,True
+ss,S&S,Safety & Security,True
+bt,B&T,Bathroom & Toileties,True

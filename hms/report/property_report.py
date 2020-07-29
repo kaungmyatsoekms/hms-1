@@ -11,7 +11,7 @@ class PropertyReport(models.AbstractModel):
 
     def get_property(self, property_id):
         property_obj = self.env['hms.property'].search([('id', '=',
-                                                              property_id[0])])
+                                                         property_id[0])])
         return property_obj
 
     @api.model
@@ -23,9 +23,8 @@ class PropertyReport(models.AbstractModel):
             docids = data.get('ids', data.get('active_ids'))
 
         property_id = data['form']['property_id']
-        folio_profile = self.env['hms.property'].search([
-            ('id', '=', property_id[0])
-        ])
+        folio_profile = self.env['hms.property'].search([('id', '=',
+                                                          property_id[0])])
 
         rm_act = self.with_context(data['form'].get('used_context', {}))
         get_property = rm_act.get_property(property_id)

@@ -12,7 +12,7 @@
                     <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
-                    <field name="guest_id" optional="show"/>
+                    <field name="guest_id" optional="show" options='{"bg_color": "red:company_id != True "}'/>
                     <field name="arrival" optional="show"/>
                     <field name="departure" optional="show"/>
                     <field name="nights" optional="show"/>
@@ -503,7 +503,7 @@
                         <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Check In" name="%(action_checkin_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', '|',  ('is_arrival_today', '=', False), ('state', '!=', 'confirm'), ('rooms', '!=', 1), ('room_no', '=', False), ('ratehead_id', '=', False), ('ratecode_id', '=', False)]}">
+                        <button string="Check In" name="%(action_checkin_line_wiz)d" type="action" class="btn btn-primary" context="{'default_guest_name': guest_id, 'default_group_name': group_id, 'default_nationality_id': nationality_id, 'default_pax': pax, 'default_child': child, 'default_extrabed': extrabed, 'default_child_bfpax': child_bfpax}" attrs="{'invisible': ['|', '|', '|', '|', '|',  ('is_arrival_today', '=', False), ('state', '!=', 'confirm'), ('rooms', '!=', 1), ('room_no', '=', False), ('ratehead_id', '=', False), ('ratecode_id', '=', False)]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
@@ -844,9 +844,10 @@
                 <form string="Reason Type" create="false" no_create_edit="True" delete="false" import="false">
                     <sheet>
                         <group>
-                            <field name="code" attrs="{'readonly': ['|',('code', '=', 'CXL'),('code', '=', 'DRS')]}"/>
-                            <field name="name"/>
-                            <field name="reason_ids" context="{'default_type_id' : id}"/>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="code" attrs="{'readonly': ['|','|',('code', '=', 'CXL'),('code', '=', 'DRS'),('is_csv', '=', True)]}"/>
+                            <field name="name" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="reason_ids" context="{'default_type_id' : id}" attrs="{'readonly': [('is_csv', '=', True)]}"/>
                         </group>
                     </sheet>
                 </form>
@@ -881,9 +882,10 @@
                 <form string="Reason Type" import="false">
                     <sheet>
                         <group>
-                            <field name="type_id" attrs="{'readonly': ['|',('type_id','=',1),('type_id','=',2)]}" />
-                            <field name="code"/>
-                            <field name="name"/>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="type_id" attrs="{'readonly': ['|','|',('type_id','=',1),('type_id','=',2),('is_csv', '=', True)]}" />
+                            <field name="code" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="name" attrs="{'readonly': [('is_csv', '=', True)]}"/>
                         </group>
                     </sheet>
                 </form>
@@ -1371,6 +1373,8 @@
             <field name="res_model">hms.cancel.rsvn</field>
             <field name="view_mode">tree</field>
         </record>
+
+
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="market_config" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>

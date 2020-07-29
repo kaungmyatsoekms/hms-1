@@ -1,13 +1,13 @@
-id,source_code,source_desc
-1,AIR,Airline
-2,CMP,Complementary
-3,COR,Coporate
-4,EM,Email
-5,GOV,Government
-6,HFO,System House Folio
-7,HSE,House Use
-8,OTA,Online Travel Agent
-9,PH,Phone
-10,TAG,Travel Agent
-11,WEB,Web Site
-12,WLK,Walk-In
+id,source_code,source_desc,is_csv
+1,AIR,Airline,True
+2,CMP,Complementary,True
+3,COR,Coporate,True
+4,EM,Email,True
+5,GOV,Government,True
+6,HFO,System House Folio,True
+7,HSE,House Use,True
+8,OTA,Online Travel Agent,True
+9,PH,Phone,True
+10,TAG,Travel Agent,True
+11,WEB,Web Site,True
+12,WLK,Walk-In,True
