@@ -25,12 +25,13 @@
                 <div class="row mt16 mb16">
                     <strong>Report Date:</strong>
                     <span t-esc="arr_date"/>
-
                 </div>
                 <div class="row">
-                    <p id = "date">Printed Date:</p>
-                    <script>                   
-                    </script>
+                    <p>Printed Date : 
+                        <script>
+                document.write(new Date().toLocalDateString());
+                        </script>
+                    </p>
                 </div>
                 <table class="table" style="width:100%;border: 3px solid darkgray;padding:5px 5px 5px;font-size:15px;">
                     <thread>
@@ -72,7 +73,6 @@
                             <th style="width:8%; solid lightgray;">
                                     Dep.Date
                             </th>
-
                             <th style="width:5%; solid lightgray;">
                                     Flight
                             </th>
@@ -101,7 +101,6 @@
                             <tr t-foreach="get_expected_arrival" t-as="info" style="padding:10px 5px 5px 5px;">
                                 <td style="width:5%; solid lightgray;">
                                     <span t-field="info.room_no.room_no"/>
-`
                                 </td>
                                 <td style="width:4%; solid lightgray;">
                                     <span t-field="info.room_type.code"/>

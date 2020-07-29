@@ -2,98 +2,165 @@
 <odoo>
     <template id="report_reservation_qweb">
         <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <div class="page">
-                    <div class="row">
-                        <h4>
-                            <strong>Reservation List</strong>
-                        </h4>
-                    </div>
-                    <div class="row">
-                        <h5>
+            <div class="page">
+                <div class="row" style="width:100%;">
+                    <div class="column" style="text-aligin:left;">
+                        <div class="row">
                             <strong>
                                 <span t-esc="property_id"/>
                             </strong>
-                        </h5>
+                        </div>
+                        <div class="row">
+                            <strong>Reservation List</strong>
+                        </div>
+
                     </div>
-                    <div class="row mt32 mb32">
-                        <strong>From:</strong>
-                        <span t-esc="date_start"/>
-                        <strong>To:</strong>
-                        <span t-esc="date_end"/>
+                    <div class="column" style ="text-align:right;">
+                        <div class="row">
+                            <p id="date">Printed Date : 
+                                <script>
+                                document.getElementById("date").innerHTML = new Date();
+                                </script>
+                            </p>
+                            <!-- <span t-esc="date_end"/> -->
+                        </div>
+                        <div class="row">
+                            <strong>Report Date:  </strong>
+                            <span t-esc="date_start"/>
+                        </div>
                     </div>
-                    <table class="table table-condensed" style="width:100%;font-size:14px;background:#f5f5f0;">
-                        <thead>
-                            <tr>
-                                <th style="width:15%;border:1px solid lightgray;">
-                                    #No
-                                </th>
-                                <th style="width:14%;border:1px solid lightgray;">
-                                    Company
-                                </th>
-                                <th style="width:14%;border:1px solid lightgray;">
-                                    Group
-                                </th>
-                                <th style="width:14%;border:1px solid lightgray;">
-                                    Guest Name
-                                </th>
-                                <th style="width:10%;border:1px solid lightgray;">
-                                    Arr.Date
-                                </th>
-                                <th style="width:10%;border:1px solid lightgray;">
-                                    Dep.Date
-                                </th>
-                                <th style="width:15%;border:1px solid lightgray;">
+                </div>
+
+                <table class="table table-condensed" style="width:100%;border: 3px solid darkgray;font-size:16px;">
+                    <thread>
+                        <tr>
+                            <th style="width:5%; solid lightgray;">
+                                    Room
+                            </th>
+                            <th style="width:4%; solid lightgray;">
                                     Rmty
-                                </th>
-                                <th style="width:2%;border:1px solid lightgray;">
+                            </th>
+                            <th style="width:3%; solid lightgray;">
                                     Rm
-                                </th>
-                                <th style="width:2%;border:1px solid lightgray;">
-                                    Pax
-                                </th>
-                                <th style="width:3%;border:1px solid lightgray;">
-                                    Mkt
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody style="background:white;">
-                            <tr t-foreach="get_checkin" t-as="info">
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.confirm_no"/>
+                            </th>
+                            <th style="width:2%; solid lightgray;">
+                                    Ad
+                            </th>
+                            <th style="width:2%; solid lightgray;">
+                                    Ch
+                            </th>
+                            <th style="width:12%; solid lightgray;">
+                                    Guest Name
+                            </th>
+                            <th style="width:8%; solid lightgray;">
+                                    Book Ref
+                            </th>
+                            <th style="width:4%; solid lightgray;">
+                                   VIP
+                            </th>
+                            <th style="width:8%; solid lightgray;">
+                                    Arr.Date
+                            </th>
+                            <th style="width:5%; solid lightgray;">
+                                    Flight
+                            </th>
+                            <th style="width:5%; solid lightgray;">
+                                    Time
+                            </th>
+                            <th style="width:8%; solid lightgray;">
+                                    Dep.Date
+                            </th>
+                            <th style="width:5%; solid lightgray;">
+                                    Flight
+                            </th>
+                            <th style="width:5%; solid lightgray;">
+                                    Time
+                            </th>
+                            <th style="width:8%; solid lightgray;">
+                                    Company
+                            </th>
+                            <th style="width:7%; solid lightgray;">
+                                    F/O
+                            </th>
+                            <th style="width:14%; solid lightgray;">
+                                    Remark/ Billing
+                            </th>
+                        </tr>
+                    </thread>
+                </table>
+                <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
+                    <tbody style="background:white;padding:3px 3px 3px 3px;">
+                        <div t-foreach="get_reservation_list" t-as="info">
+                            <tr>
+                                <tr>
+                                    <strong>Date
+                                        <span t-field="info.arrival"/>
+                                    </strong>
+                                </tr>
+                                <td style="width:5%; solid lightgray;">
+                                    <span t-field="info.room_no.room_no"/>
                                 </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.company_id.name"/>
+                                <td style="width:4%; solid lightgray;">
+                                    <span t-field="info.room_type.code"/>
                                 </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.group_id.name"/>
-                                </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.guest_id.name"/>
-                                </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.arrival"/>
-                                </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.departure"/>
-                                </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.room_type.name"/>
-                                </td>
-                                <td style="border:1px solid lightgray;">
+                                <td style="width:3%; solid lightgray;">
                                     <span t-field="info.rooms"/>
                                 </td>
-                                <td style="border:1px solid lightgray;">
+                                <td style="width:2%; solid lightgray;">
                                     <span t-field="info.pax"/>
                                 </td>
-                                <td style="border:1px solid lightgray;">
-                                    <span t-field="info.market.market_code"/>
+                                <td style="width:2%; solid lightgray;">
+                                    <span t-field="info.child"/>
+                                </td>
+                                <td style="width:12%; solid lightgray;">
+                                    <span t-field="info.guest_id.name"/>
+                                </td>
+                                <td style="width:8%; solid lightgray;">
+                                    <!-- booking reference -->
+                                </td>
+                                <td style="width:5%; solid lightgray;">
+                                    <!-- VIP -->
+                                </td>
+                                <td style="width:8%; solid lightgray;">
+                                    <span t-field="info.arrival"/>
+                                </td>
+                                <td style="width:5%; solid lightgray;">
+                                    <span t-field="info.arrival_flight"/>
+                                </td>
+                                <td style="width:5%; solid lightgray;">
+                                    <span t-field="info.arrival_flighttime"/>
+                                </td>
+                                <td style="width:8%; solid lightgray;">
+                                    <span t-field="info.departure"/>
+                                </td>
+                                <td style="width:5%; solid lightgray;">
+                                    <span t-field="info.dep_flight"/>
+                                </td>
+                                <td style="width:5%; solid lightgray;">
+                                    <span t-field="info.dep_flighttime"/>
+                                </td>
+                                <td style="width:8%; solid lightgray;">
+                                    <span t-field="info.company_id.name"/>
+                                </td>
+                                <td style="width:7%; solid lightgray;">
+                                    <!-- FO -->
+                                </td>
+                                <td style="width:14%; solid lightgray;">
+                                    <span t-field="info.fo_remark"/>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </t>
+                        </div>
+                    </tbody>
+                </table>
+                <p>
+                    <div >
+                        <strong>Sub Total</strong>
+                    </div>
+                    <div>
+                        <strong>Total </strong>
+                    </div>
+                </p>
+            </div>
         </t>
     </template>
 </odoo>
