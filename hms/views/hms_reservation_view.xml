@@ -12,7 +12,7 @@
                     <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
-                    <field name="guest_id" optional="show"/>
+                    <field name="guest_id" optional="show" options='{"bg_color": "red:company_id != True "}'/>
                     <field name="arrival" optional="show"/>
                     <field name="departure" optional="show"/>
                     <field name="nights" optional="show"/>
