@@ -105,6 +105,7 @@
         'data/hms.reservation.fields.csv',
         'views/hms_package_config.xml',
         'data/res.lang.csv',
+        'data/hms_color_attribute_data.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',
