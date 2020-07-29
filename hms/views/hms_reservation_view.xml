@@ -8,11 +8,11 @@
                 <tree string="Reservation" import="false" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
                     <field name="sequence" widget="handle"/>
                     <field name="state" invisible='1'/>
-                    <field name="is_no_show" optional="show"/>
+                    <field name="is_no_show" optional="hide"/>
                     <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
-                    <field name="guest_id" optional="show" options='{"bg_color": "red:company_id != True "}'/>
+                    <field name="guest_id" optional="show"/>
                     <field name="arrival" optional="show"/>
                     <field name="departure" optional="show"/>
                     <field name="nights" optional="show"/>
@@ -157,12 +157,13 @@
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
                                                                 'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
-                                    <form string="Reservation Line">
+                                    <!-- <form string="Reservation Line">
                                         <group colspan="4" col="4">
                                             <field name="is_roomtype_fix" invisible="1"/>
-                                            <field name="is_no_show"/>
+                                            <field name="required_color" widget="color" invisible="1"/>
+                                            <field name="is_no_show" invisible="1"/>
                                             <field name="state"/>
-                                            <field name="ispartial"/>
+                                            <field name="ispartial" invisible="1"/>
                                             <field name="property_id"/>
                                             <field name="guest_id"/>
                                             <field name="arrival"/>
@@ -191,14 +192,15 @@
                                             <field name='etd' invisible='1'/>
                                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                                         </group>
-                                    </form>
+                                    </form> -->
                                     <tree string="Reservation Line" editable="bottom" decoration-muted="state=='cancel'" decoration-info="state=='reservation'" decoration-success="state=='confirm'">
                                         <field name="is_roomtype_fix" invisible="1"/>
                                         <field name="sequence" widget="handle"/>
+                                        <field name="required_color" widget="color"/>
                                         <field name="is_no_show" invisible="1"/>
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
-                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|', ('rooms', '!=', 1), ('state', 'in', ('booking', 'reservation', 'cancel'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|','|',('room_type','!=','HFO'), ('rooms', '!=', 1), ('state', 'in', ('booking', 'reservation', 'cancel'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                         <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }" options="{'no_quick_create': True}"/>
                                         <field name="arrival"/>
                                         <field name="departure"/>
@@ -383,7 +385,9 @@
             <field name="res_model">hms.reservation</field>
             <field name="view_mode">kanban,calendar,tree,form,gantt</field>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('reservation_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('reservation_view_form')})]"/>
-            <field name="domain">[('state','!=','cancel')]</field>
+            <field name="domain">[('state','!=','cancel'),('is_no_show','!=','True')]</field>
+            <field name="context">{'group_by':['property_id','arrival:year']}</field>
+            <field name="search_view_id" ref="view_hms_reservation_search"/>
         </record>
 
         <!-- Reservation Calendar View-->
@@ -692,6 +696,7 @@
                     <field name="property_id" optional="show"/>
                     <field name="is_roomtype_fix" invisible="1"/>
                     <field name="sequence" widget="handle"/>
+                    <field name="required_color" widget="color"/>
                     <field name="state" invisible="1"/>
                     <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                     <field name="reservation_id" optional="hide"/>
@@ -827,13 +832,44 @@
             </field>
         </record>
 
+        <!-- Search view of hotel reservation -->
+        <record id="view_hms_reservation_line_search" model="ir.ui.view">
+            <field name="name">hms.reservation.line.search</field>
+            <field name="model">hms.reservation.line</field>
+            <field name="arch" type="xml">
+                <search string="Reservation">
+                    <filter name='current_reservations' string="Current Reservations" domain="[('departure','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('arrival','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]" help="Current Reservations" />
+                    <filter name='booking' domain="[('state','=','booking')]" string="Booking" />
+                    <filter name='reservation' domain="[('state','=','reservation')]" string="Reservation" />
+                    <filter name='confirm' domain="[('state','=','confirm')]" string="Confirm" />
+                    <filter name='cancel' domain="[('state','=','cancel')]" string="Cancel" />
+                    <filter name='checkin' domain="[('state','=','checkin')]" string="CheckIn" />
+                    <field name="guest_id" />
+                    <field name="group_id"/>
+                    <field name="company_id"/>
+                    <field name="confirm_no" />
+                    <field name="arrival" />
+                    <field name="departure" />
+                    <field name="state" />
+                    <newline />
+                    <group expand="0" string="Group By">
+                        <filter name="guest_id" string="Guest Name" icon="terp-personal" domain="[]" context="{'group_by':'guest_id'}" />
+                        <filter name='order_by_month_arrival' string="Arrival" domain="[]" context="{'group_by':'arrival'}" />
+                        <filter name='order_by_month_departure' string="Departure" domain="[]" context="{'group_by':'departure'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <!-- Reservation Line Action-->
         <record id="reservation_line_action_window" model="ir.actions.act_window">
             <field name="name">Reservation Details</field>
             <field name="res_model">hms.reservation.line</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('reservation_line_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('reservation_line_view_form')})]"/>
-            <field name="domain">[('state','!=','cancel')]</field>
+            <field name="domain">[('state','!=','cancel'),('is_no_show','!=','True')]</field>
+            <field name="context">{'group_by':['property_id','arrival:year']}</field>
+            <field name="search_view_id" ref="view_hms_reservation_line_search"/>
         </record>
 
         <!-- Reason Type View Form-->
@@ -921,30 +957,10 @@
                     <header>
                         <field name="is_reservation" invisible="1"/>
                         <field name="is_arrival_today" invisible="1"/>
-                        <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}">
+                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <!-- <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}"><i class="fa fa-paint-brush"></i></button> -->
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
+                        <field name="state" widget="statusbar" />
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -1034,7 +1050,7 @@
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
                                                                 'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
-                                    <form string="Reservation Line">
+                                    <!-- <form string="Reservation Line">
                                         <group colspan="4" col="4">
                                             <field name="state"/>
                                             <field name="property_id"/>
@@ -1063,7 +1079,7 @@
                                             <field name='etd' invisible='1'/>
                                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                                         </group>
-                                    </form>
+                                    </form> -->
                                     <tree string="Reservation Line" editable="bottom">
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
@@ -1114,6 +1130,8 @@
             <field name="model">hms.reservation</field>
             <field name="arch" type="xml">
                 <tree string="Group Cancel List" create="false" import="false" edit="false" delete="false">
+                    <field name="state"/>
+                    <field name="is_no_show"/>
                     <field name="confirm_no"/>
                     <field name="company_id"/>
                     <field name="group_id"/>
@@ -1128,34 +1146,22 @@
 
         <!-- Group Cancel Action-->
         <record id="cancel_full_action_window" model="ir.actions.act_window">
-            <field name="name">Cancellation Group</field>
+            <field name="name">Cancel/NoShow Group</field>
             <field name="res_model">hms.reservation</field>
             <field name="view_mode">tree,form</field>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('group_cancel_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('group_cancel_view_form')})]"/>
-            <field name="domain">['&amp;',('state','=','cancel'),('is_full_cancel','=',True)]</field>
+            <field name="domain">['|',('is_no_show','=','True'),('state','=','cancel')]</field>
         </record>
 
         <!-- Line Cancel View Form -->
         <record id="line_cancel_view_form" model="ir.ui.view">
-            <field name="name">reservation.line.view.form</field>
+            <field name="name">cancel.reservation.line.view.form</field>
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
                 <form string="Cancel Line Reservation Details" create="false" edit="false" delete="false" no_create_edit="True" import="false">
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
-                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('is_arrival_today', '=', False), ('room_type', '=', 'null'), ('room_no', '=', 'null')]}">
+                        <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar"/>
@@ -1327,6 +1333,8 @@
             <field name="model">hms.reservation.line</field>
             <field name="arch" type="xml">
                 <tree string="Group Cancel List" create="false" import="false" edit="false" delete="false">
+                    <field name="state"/>
+                    <field name="is_no_show"/>
                     <field name="confirm_no"/>
                     <field name="reservation_id"/>
                     <field name="company_id"/>
@@ -1334,8 +1342,8 @@
                     <field name="guest_id"/>
                     <field name="arrival"/>
                     <field name="departure"/>
-                    <field name="rooms"/>
                     <field name="room_type"/>
+                    <field name="rooms"/>
                     <field name="reason_id"/>
                 </tree>
             </field>
@@ -1347,7 +1355,7 @@
             <field name="res_model">hms.reservation.line</field>
             <field name="view_mode">tree,form</field>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('line_cancel_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('line_cancel_view_form')})]"/>
-            <field name="domain">['&amp;', ('state','=','cancel'), ('active', '=', False)]</field>
+            <field name="domain">['|',('state','=','cancel'),('is_no_show','=','True')]</field>
         </record>
 
         <!-- Cancel Record View List-->
@@ -1382,8 +1390,8 @@
         <menuitem id="menu_action_hotel_reservation_summary" name="Reservation Summary" action="action_hotel_reservation_summary" parent="reservation_menu" sequence="3" />
         <menuitem id="reservation_group_menu" name="Reservation" parent="reservation_menu" sequence="1" action="reservation_action_window"/>
         <menuitem id="reservation_Details" name="Reservation Details" parent="reservation_menu" sequence="2" action="reservation_line_action_window"/>
-        <menuitem id="cancellation_menu" name="Cancellation" parent="hms_menu_rsvn" sequence="2"/>
-        <menuitem id="full_cancel" name="Cancellation Group" parent="cancellation_menu" sequence="1" action="cancel_full_action_window"/>
-        <menuitem id="cancellation_list" name="Cancellation List" parent="cancellation_menu" sequence="2" action="cancel_line_action_window"/>
+        <menuitem id="cancellation_menu" name="Cancel/NoShow" parent="hms_menu_rsvn" sequence="2"/>
+        <menuitem id="full_cancel" name="Cancel/NoShow Group" parent="cancellation_menu" sequence="1" action="cancel_full_action_window"/>
+        <menuitem id="cancellation_list" name="Cancel/NoShow Details" parent="cancellation_menu" sequence="2" action="cancel_line_action_window"/>
     </data>
 </odoo>
