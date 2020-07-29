@@ -319,7 +319,7 @@
                                         </div>
                                     </div>
                                     <div class="oe_kanban_content">
-                                        <!-- <t t-foreach="record.reservation_line_ids.raw_value" t-as="o">
+                                        <t t-foreach="record.reservation_line_ids.raw_value" t-as="o">
                                             <div>
                                                 <b>Rmty: </b>
                                                 <t t-esc="o.room_type"/>
@@ -332,7 +332,7 @@
                                                 <b>   Child: </b>
                                                 <t t-esc="o.child"/>
                                             </div>
-                                        </t> -->
+                                        </t>
                                     </div>
                                 </div>
                             </div>
