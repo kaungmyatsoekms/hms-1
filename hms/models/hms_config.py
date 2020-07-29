@@ -247,6 +247,7 @@ class ColorAttribute(models.Model):
     _description = "Color Attribute"
     _order = 'sequence, id'
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char('Attribute', required=True)
     value_ids = fields.One2many('hms.color.attribute.value',
                                 'attribute_id',
@@ -273,6 +274,7 @@ class ColorAttributeValue(models.Model):
     _order = 'attribute_id, sequence, id'
     _description = 'Color Attribute Value'
 
+    is_csv = fields.Boolean(default=False)
     name = fields.Char(string='Value', required=True)
     sequence = fields.Integer(string='Sequence',
                               help="Determine the display order",
@@ -281,7 +283,6 @@ class ColorAttributeValue(models.Model):
     attribute_id = fields.Many2one('hms.color.attribute',
                                    string="Attribute",
                                    ondelete='cascade',
-                                   required=True,
                                    index=True)
 
     _sql_constraints = [(

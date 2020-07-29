@@ -21,17 +21,19 @@
             <field name="arch" type="xml">
                 <form string="State Attribute" import="false">
                     <sheet>
+                        <field name="is_csv" invisible="1"/>
                         <group name="main_fields" class="o_label_nowrap">
                             <label for="name" string="Attribute Name"/>
-                            <field name="name" nolabel="1"/>
-                            <field name="create_variant" widget="radio"/>
+                            <field name="name" nolabel="1" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="create_variant" widget="radio" attrs="{'readonly': [('is_csv', '=', True)]}"/>
                         </group>
                         <notebook>
                             <page string="Attribute Values">
                                 <field name="value_ids" widget="one2many" nolabel="1">
                                     <tree string="Values" editable="bottom">
+                                        <field name="is_csv" invisible="1"/>
                                         <field name="sequence" widget="handle"/>
-                                        <field name="name"/>
+                                        <field name="name" attrs="{'readonly': [('is_csv', '=', True)]}"/>
                                         <field name="html_color" widget="color"/>
                                     </tree>
                                 </field>

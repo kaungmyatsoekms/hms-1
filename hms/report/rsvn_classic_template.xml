@@ -1,0 +1,128 @@
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<odoo> 
+    <data>
+        <template id="classic_report_reservation_qweb">
+            <t t-if="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id"></t>
+            </t>
+            <t t-if="not o or not 'company_id' in o">
+                <t t-set="company" t-value="res_company"></t>
+            </t>
+            <div class="header">
+                <div class="row mt32 mb32">
+                    <div class="col-6">
+                        <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"
+                             style="max-height: 50px;"/>
+                    </div>
+                    <div class="col-5 text-right" style="font:12px lucida-console,sans-serif !important;">
+                        <span t-field="company.partner_id"/>
+                        <br/>
+                        <span t-field="company.partner_id.street"/>
+                        <br/>
+                        <span t-field="company.partner_id.state_id"/>
+                        <br/>
+                        <span t-field="company.partner_id.city"/>
+                        <br/>
+                        <span t-field="company.partner_id.country_id"/>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="page">
+                        <div class="row">
+                            <h4>
+                                <strong>Reservation List</strong>
+                            </h4>
+                            <h5>
+                                <strong>
+                                    <span t-esc="property_id"/>
+                                <strong>
+                            </h5>
+                        </div>
+                        <div class="row mt32 mb32">
+                            <strong>From :</strong>
+                            <span t-esc="date_start"/>
+                            <strong>To :</strong>
+                            <span t-esc="date_end"/>
+                        </div>
+                        <table class="table table-sm" style="table-layout:fixed;">
+                            <thead>
+                                <tr>
+                                    <th style="width:15%;border:1px solid background-color:#3498DB">
+                                        #No
+                                    </th>
+                                    <th style="width:14%;border:1px solid background-color:#3498DB">
+                                        Company
+                                    </th>
+                                    <th style="width:14%;border:1px solid background-color:#3498DB">
+                                        Group
+                                    </th>
+                                    <th style="width:10%;border:1px solid background-color:#3498DB">
+                                        Guest Name
+                                    </th>
+                                    <th style="width:10%;border:1px solid background-color:#3498DB">
+                                        Arr.Date
+                                    </th>
+                                    <th style="width:15%;border:1px solid background-color:#3498DB">
+                                        Dep.Date
+                                    </th>
+                                    <th style="width:10%;border:1px solid background-color:#3498DB">
+                                        Rm Type
+                                    </th>
+                                    <th style="width:4%;border:1px solid background-color:#3498DB">
+                                        No.Rm
+                                    </th>
+                                    <th style="width:4%;border:1px solid background-color:#3498DB">
+                                        Pax
+                                    </th>
+                                    <th style="width:4%;border:1px solid background-color:#3498DB">
+                                        MKT
+                                    </th>
+                                <tr>
+                            <thead>
+                            <tbody style="background:white;">
+                                <tr t-foreach="get_reservation_list" t-as="info">
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.confirm_no"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.company_id.name"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.group_id.name"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.guest_id.name"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.arrival"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.departure"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.room_type.name"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.rooms"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.pax"/>
+                                    </td>
+                                    <td style="border:1px solid lightgray;">
+                                        <span t-field="info.market.market_code"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

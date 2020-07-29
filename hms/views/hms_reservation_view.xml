@@ -12,7 +12,7 @@
                     <field name="property_id" optional="show"/>
                     <field name="company_id" optional="hide"/>
                     <field name="group_id" optional="hide"/>
-                    <field name="guest_id" optional="show"/>
+                    <field name="guest_id" optional="show" options='{"bg_color": "red:company_id != True "}'/>
                     <field name="arrival" optional="show"/>
                     <field name="departure" optional="show"/>
                     <field name="nights" optional="show"/>
@@ -48,22 +48,22 @@
                         <button string="Accept Booking" name="accept_booking_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', '!=', 'booking')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                        <button string="Confirm" name="%(action_confirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Unconfirm" name="%(action_unconfirm_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('is_reservation', '=', False), ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                        <button string="Cancel" name="%(action_reason_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('is_reservation', '=', False), ('state', 'in', ('booking', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Re-Reservation" name="%(action_rersvn_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|',('state', '=', 'checkin'), ('is_arrival_today', '=', False)]}">
+                        <button string="Group Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_arrival_today', '=', False), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
@@ -171,7 +171,7 @@
                                             <field name="roomtype_ids" invisible="1"/>
                                             <field name="room_type" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                             <field name="bedtype_ids" invisible="1"/>
-                                            <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
+                                            <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                             <field name="rooms"/>
                                             <field name="pax"/>
                                             <field name="child"/>
@@ -198,7 +198,7 @@
                                         <field name="is_no_show" invisible="1"/>
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
-                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|', ('rooms', '!=', 1), ('state', 'not in', ('confirm', 'checkin'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|', ('rooms', '!=', 1), ('state', 'in', ('booking', 'reservation', 'cancel'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                         <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }" options="{'no_quick_create': True}"/>
                                         <field name="arrival"/>
                                         <field name="departure"/>
@@ -206,7 +206,7 @@
                                         <field name="roomtype_ids" invisible="1"/>
                                         <field name="room_type" domain="[('id','!=',1)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="bedtype_ids" invisible="1"/>
-                                        <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
+                                        <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="rooms"/>
                                         <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
@@ -216,6 +216,7 @@
                                         <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
+                                        <field name="nationality_id" invisible="1"/>
                                         <field name="market_ids" invisible="1"/>
                                         <field name="market" invisible="1"/>
                                         <field name="source" string='Source' invisible='1'/>
@@ -490,19 +491,22 @@
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
-                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', ('state', '=', 'booking'), ('state', '=', 'confirm'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                        <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Unconfirm" name="%(action_unconfirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', ('state', '=', 'booking'), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', ('state', '=', 'booking'), ('state', '=', 'cancel'), ('state', '=', 'checkin')]}">
+                        <button string="Cancel" name="%(action_reason_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Re-Reservation" name="%(action_rersvn_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'cancel')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Check In" name="%(action_checkin_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': ['|', '|', '|', '|', '|',  ('is_arrival_today', '=', False), ('state', '!=', 'confirm'), ('rooms', '!=', 1), ('room_no', '=', False), ('ratehead_id', '=', False), ('ratecode_id', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2)]}">
@@ -527,7 +531,13 @@
                             <group name="">
                                 <field name="company_id" options="{'no_quick_create': True, 'no_open': True}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>
                                 <field name="group_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
-                                <field name="guest_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
+                                <label for="guest_id" string="Guest Name"/>
+                                <div class="o_address_format">
+                                    <field name="guest_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True}" style="width:42%%"/>
+                                    <label for="nationality_id" string=" " style="width:5%%"/>
+                                    <label for="nationality_id" string="Nationality:" style="width:9.5%%"/>
+                                    <field name="nationality_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" style="width:42%%"/>
+                                </div>
                                 <label for="reservation_type" string="Rsvn Type"/>
                                 <div class="o_address_format">
                                     <field name="reservation_type" style="width:50%%" placeholder="Type" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
@@ -556,7 +566,7 @@
                                     <field name="bedtype_ids" invisible="1"/>
                                     <field name="bedtype_id" placeholder="Bed Type" style="width:20%%" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
                                     <field name="rooms" placeholder="Rooms" style="width:20%%"/>
-                                    <field name="room_no" placeholder="Room No" style="width:20%%" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible': ['|', ('rooms', '!=', 1),('state', '!=', 'confirm'),('state', '!=', 'checkin')]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="room_no" placeholder="Room No" style="width:20%%" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible': ['|', ('rooms', '!=', 1),('state', 'in', ('booking', 'reservation', 'cancel'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
                                 <label for="pax" string="Pax / Child"/>
                                 <div class="address_format">

@@ -848,3 +848,11 @@ class HMSCurrency(models.Model):
                 record.status = False
             else:
                 record.status = True
+
+
+class HMSExcelExtended(models.Model):
+    _name = 'hms.excel.extended'
+    _description = "Excel Extended"
+
+    excel_file = fields.Binary('Download Report :- ')
+    file_name = fields.Char('Excel File', size=64)

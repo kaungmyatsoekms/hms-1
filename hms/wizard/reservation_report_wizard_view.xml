@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Reservation Report">
                 <group>
-                    <field name="property_id"/>
+                    <field name="property_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                 </group>
@@ -34,13 +34,13 @@
         <field name="arch" type="xml">
             <form string="Expected Arrival">
                 <group>
-                    <field name="property_id"/>
+                    <field name="property_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                     <field name="arr_date"/>
                     <field name="type_"/>
                 </group>
                 <footer>
-                    <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
-                    <button name="get_report_excel" string="Get Excel" class="btn-primary" type="object" icon="fa-bars"/>
+                    <button name="get_report" string="PDF" class="btn-primary" type="object" icon="fa-file-text-o"/>
+                    <button name="get_report_excel" string="Excel" class="btn-primary" type="object" icon="fa-bars"/>
                     <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
                 </footer>
             </form>

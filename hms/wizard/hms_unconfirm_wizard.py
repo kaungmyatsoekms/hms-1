@@ -25,12 +25,13 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
                                        "Reservation Type",
                                        readonly=True,
                                        default=2)
-    reservation_status = fields.Many2one('hms.rsvnstatus', "Reservation Status")
+    reservation_status = fields.Many2one('hms.rsvnstatus',
+                                         "Reservation Status")
 
     def action_unconfirm_wiz(self):
         reservations = self.env['hms.reservation'].browse(
             self._context.get('active_id', []))
-        
+
         # hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=',reservations.id),('room_type.code', '=', 'HFO')])
         # no_hfo_reservation = list(set(reservations.reservation_line_ids)- set(hfo_reservation))
 
@@ -44,8 +45,10 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
                 room_type = d.room_type.id
                 rooms = d.rooms
                 reduce = True
-                status ='reservation'
-                d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
+                status = 'reservation'
+                d._state_update_forecast(state, property_id, arrival,
+                                         departure, room_type, rooms, reduce,
+                                         status)
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
@@ -56,7 +59,10 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
             'reservation_status': self.reservation_status,
             'state': 'reservation',
         })
-        hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservations.id),('room_type', '=ilike', 'H%')])
+        hfo_reservation = self.env['hms.reservation.line'].search([
+            ('reservation_id', '=', reservations.id),
+            ('room_type', '=ilike', 'H%')
+        ])
         if hfo_reservation:
             hfo_reservation.write({'state': 'reservation'})
         # return reservations.send_mail()
@@ -82,7 +88,8 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                                        "Reservation Type",
                                        readonly=True,
                                        default=2)
-    reservation_status = fields.Many2one('hms.rsvnstatus', "Reservation Status")
+    reservation_status = fields.Many2one('hms.rsvnstatus',
+                                         "Reservation Status")
 
     def action_unconfirm_line_wiz(self):
         reservation_lines = self.env['hms.reservation.line'].browse(
@@ -97,8 +104,10 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                 room_type = d.room_type.id
                 rooms = d.rooms
                 reduce = True
-                status ='reservation'
-                d._state_update_forecast(state,property_id,arrival,departure,room_type,rooms,reduce,status)
+                status = 'reservation'
+                d._state_update_forecast(state, property_id, arrival,
+                                         departure, room_type, rooms, reduce,
+                                         status)
                 d.write({
                     'reservation_type': self.reservation_type,
                     'reservation_status': self.reservation_status,
@@ -114,19 +123,7 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                 if d.room_type.code[0] != 'H':
                     confirm = confirm + 1
         if rec == 0:
-            reservation_lines.reservation_id.write({
-                'state':
-                'reservation',
-                'reservation_type':
-                reservation_lines.reservation_type,
-                'reservation_status':
-                reservation_lines.reservation_status,
-            })
-            hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
-            if hfo_reservation:
-                hfo_reservation.write({'state': 'reservation'})
-        else:
-            if confirm == 0:
+            if reservation_lines.reservation_id.state != 'checkin':
                 reservation_lines.reservation_id.write({
                     'state':
                     'reservation',
@@ -135,7 +132,29 @@ class HMSRsvnUnconfirmLineWizard(models.TransientModel):
                     'reservation_status':
                     reservation_lines.reservation_status,
                 })
-                hfo_reservation = self.env['hms.reservation.line'].search([('reservation_id', '=', reservation_lines.reservation_id.id),('room_type', '=ilike', 'H%')]) 
+                hfo_reservation = self.env['hms.reservation.line'].search([
+                    ('reservation_id', '=',
+                     reservation_lines.reservation_id.id),
+                    ('room_type', '=ilike', 'H%')
+                ])
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'reservation'})
+        else:
+            if confirm == 0:
+                if reservation_lines.reservation_id.state != 'checkin':
+                    reservation_lines.reservation_id.write({
+                        'state':
+                        'reservation',
+                        'reservation_type':
+                        reservation_lines.reservation_type,
+                        'reservation_status':
+                        reservation_lines.reservation_status,
+                    })
+                    hfo_reservation = self.env['hms.reservation.line'].search([
+                        ('reservation_id', '=',
+                         reservation_lines.reservation_id.id),
+                        ('room_type', '=ilike', 'H%')
+                    ])
+                    if hfo_reservation:
+                        hfo_reservation.write({'state': 'reservation'})
         # return reservations.send_mail()

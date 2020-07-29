@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record forcecreate="True" id="autocreate_forecast" model="ir.cron">
-        <field name="name">HMS CREATE Forecast Daily</field>
+    <record forcecreate="True" id="night_audit_auto" model="ir.cron">
+        <field name="name">HMS Run Night Audit Daily</field>
         <field name="model_id" ref="model_hms_property"/>
         <field name="state">code</field>
-        <field name="code">model._cron_daily_create_forecast()</field>
+        <field name="code">model.action_night_audit_auto()</field>
         <field name="user_id" ref="base.user_root"/>
         <field name='interval_number'>1</field>
         <field name='interval_type'>days</field>
@@ -12,7 +12,7 @@
         <field name="doall">1</field>
     </record>
 
-    <record id="no_show_reservation" model="ir.cron">
+    <!-- <record id="no_show_reservation" model="ir.cron">
         <field name="name">HMS Update No Show Reservation</field>
         <field name="model_id" ref="model_hms_reservation_line"/>
         <field name="state">code</field>
@@ -53,6 +53,6 @@
         <field name="user_id" ref="base.user_root"/>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
-        <field name="numbercall">-1</field>
-    </record>
+        <field name="numbercall">-1</field> 
+    </record>-->
 </odoo>

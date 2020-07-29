@@ -61,4 +61,5 @@ access_hms_package_header,hms.package.header,model_hms_package_header,base.group
 access_hms_color_attribute,hms.color.attribute,model_hms_color_attribute,base.group_user,1,1,1,1
 access_hms_color_attribute_value,hms.color.attribute.value,model_hms_color_attribute_value,base.group_user,1,1,1,1
 access_hms_reservation_fields,hms.reservation.fields,model_hms_reservation_fields,base.group_user,1,1,1,1
+access_hms_excel_extended,hms.excel.extended,model_hms_excel_extended,base.group_user,1,1,1,1
 

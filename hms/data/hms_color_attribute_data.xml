@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record model="hms.color.attribute" id="att1">
+            <field name="is_csv">True</field>
+            <field name="name">Reservation</field>
+        </record>
+
+        <record model="hms.color.attribute.value" id="att_value1">
+            <field name="is_csv">True</field>
+            <field name="name">High</field>
+            <field name="html_color">#ff4c00</field>
+            <field name="attribute_id" ref="att1" />
+        </record>
+
+        <record model="hms.color.attribute.value" id="att_value2">
+            <field name="is_csv">True</field>
+            <field name="name">Medium</field>
+            <field name="html_color">#ffa100</field>
+            <field name="attribute_id" ref="att1" />
+        </record>
+
+        <record model="hms.color.attribute.value" id="att_value3">
+            <field name="is_csv">True</field>
+            <field name="name">Complete</field>
+            <field name="html_color">#05b230</field>
+            <field name="attribute_id" ref="att1" />
+        </record>
+
+    </data>
+</odoo>
