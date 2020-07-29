@@ -20,7 +20,11 @@ class HMSReason(models.Model):
     type_id = fields.Many2one('hms.reasontype',
                               string="Reason Type",
                               required=True,
+<<<<<<< HEAD
                               help='Reason Type')
+=======
+                              help='Reaso Type')
+>>>>>>> 6a7e81b6e06bb407e3c241efd9d28bba9d0d5fc6
 
 
 class HMSReasonType(models.Model):
@@ -415,9 +419,13 @@ class Reservation(models.Model):
             if record.state == 'booking':
                 color = 3
             elif record.state == 'reservation':
-                color = 4
+                color = 11
             elif record.state == 'confirm':
+                color = 4
+            elif record.state == 'checkin':
                 color = 10
+            elif record.state == 'cancel':
+                color = 1
             record.color = color
 
     @api.depends('rooms')
@@ -875,11 +883,23 @@ class ReservationLine(models.Model):
                                      readonly=False,
                                      related="room_type.fix_type")
     sequence = fields.Integer(default=1)
+<<<<<<< HEAD
     required_color = fields.Char(string=" ", compute="_compute_required_color",  
         help="""- Red Color: If you do not choose Rate Code, Showing Red Color.This is the High Priority.
         - Orange Color: If you do not fill up Room No, Guest Name, Nationality, Showing Orange Color.This is the Medium Priority.
         - Green Color: This state will tell you are already fill basic information that you Check in.
         Note: You need to fill up full information when you get more information Eg. Travel Information etc...""")
+=======
+    required_color = fields.Char(
+        string=" ",
+        compute="_compute_required_color",
+        help=
+        """- Red Color: If you do not choose Rate Code, Showing Red Color.This is the High Priority.
+        - Orange Color: If you do not fill up Room No, Guest Name, Nationality, Showing Orange Color.This is the Medium Priority.
+        - Green Color: This state will tell you are already fill basic information that you Check in.
+        Note: You need to fill up full information when you get more information Eg. Travel Information etc..."""
+    )
+>>>>>>> 6a7e81b6e06bb407e3c241efd9d28bba9d0d5fc6
     color = fields.Integer(string='Color Index',
                            compute="set_kanban_color",
                            help='Colour Index')
@@ -1252,9 +1272,13 @@ class ReservationLine(models.Model):
             if record.state == 'booking':
                 color = 3
             elif record.state == 'reservation':
-                color = 4
+                color = 11
             elif record.state == 'confirm':
+                color = 4
+            elif record.state == 'checkin':
                 color = 10
+            elif record.state == 'cancel':
+                color = 1
             record.color = color
     
     def _compute_required_color(self):
@@ -1285,6 +1309,39 @@ class ReservationLine(models.Model):
                     record.required_color = complete_color 
             else:
                 record.required_color = complete_color 
+
+    def _compute_required_color(self):
+        color_attribute = self.env['hms.color.attribute'].search([
+            ('name', '=', 'Reservation')
+        ])
+        value_ids = color_attribute.value_ids
+        high_color = " "
+        medium_color = " "
+        complete_color = " "
+        for value in value_ids:
+            if value.name == "High":
+                high_color = value.html_color
+            elif value.name == "Medium":
+                medium_color = value.html_color
+            elif value.name == "Complete":
+                complete_color = value.html_color
+
+        for record in self:
+            room_no = self.env['hms.property.room']
+            guest_name = self.env['res.partner']
+            ratehead_id = self.env['hms.ratecode.header']
+            nationality_id = self.env['hms.nationality']
+            if (record.room_type.code != 'HFO'):
+                if (record.ratehead_id == ratehead_id):
+                    record.required_color = high_color
+                elif (record.room_no == room_no
+                      or record.guest_id == guest_name
+                      or record.nationality_id == nationality_id):
+                    record.required_color = medium_color
+                else:
+                    record.required_color = complete_color
+            else:
+                record.required_color = complete_color
 
     def _compute_is_arrival_today(self):
         for rec in self:
@@ -1495,8 +1552,22 @@ class ReservationLine(models.Model):
 
     # For Edit Button to Open Current Record in Edit Mode
     def action_show_record_details(self):
-        # self.ensure_one()
         view = self.env.ref('hms.reservation_line_view_form')
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'hms.reservation.line',
+            'views': [(view.id, 'form')],
+            'view_id': view.id,
+            'res_id': self.id,
+            'context': dict(self.env.context),
+            'target': 'current',
+        }
+
+    # For Details Button in Cancel Record
+    def action_show_cancel_record(self):
+        view = self.env.ref('hms.line_cancel_view_form')
         return {
             'type': 'ir.actions.act_window',
             'view_type': 'form',
@@ -2177,7 +2248,7 @@ class ReservationLine(models.Model):
             previous_state = self.state
             new_state = values.get('state')
             if new_state == 'booking' and (previous_state in [
-                    'reservation', 'confirm'
+                    'reservation', 'confirm', 'checkin'
             ]):
                 raise ValidationError(
                     _("You can't go back from '%s' state to 'booking' state!" %
@@ -2683,9 +2754,13 @@ class CancelReservation(models.Model):
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
     )
+<<<<<<< HEAD
     room_rate = fields.Float("Room Rate",
                              compute='_compute_room_rate',
                              help='Room Rate')
+=======
+    room_rate = fields.Float("Room Rate", help='Room Rate')
+>>>>>>> 6a7e81b6e06bb407e3c241efd9d28bba9d0d5fc6
     updown_amt = fields.Float("Updown Amount", help='Updown Amount')
     updown_pc = fields.Float("Updown PC", help='Updown Percentage')
     package_id = fields.Many2one(
