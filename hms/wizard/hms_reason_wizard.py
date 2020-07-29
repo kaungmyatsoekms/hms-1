@@ -50,7 +50,7 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'reason_id': self.reason_id,
                     'state': status,
                     'is_cancel': True,
-                    'room_no' : room_no,
+                    'room_no': room_no,
                 })
                 # res = {}
                 self.env['hms.cancel.rsvn'].create({
@@ -230,7 +230,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 'reason_id': self.reason_id,
                 'state': status,
                 'is_cancel': True,
-                'room_no' : room_no,
+                'room_no': room_no,
             })
         reservation_lines.copy_cancel_record()
         # Check All Reservation lines are same state, update main group to state
@@ -255,19 +255,20 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 hfo_reservation.write({'state': 'cancel'})
         else:
             if confirm == 0:
-                reservation_lines.reservation_id.write({
-                    'state':
-                    'reservation',
-                    'reservation_type':
-                    2,
-                    'reservation_status':
-                    13,
-                })
-                hfo_reservation = self.env['hms.reservation.line'].search([
-                    ('reservation_id', '=',
-                     reservation_lines.reservation_id.id),
-                    ('room_type', '=ilike', 'H%')
-                ])
-                if hfo_reservation:
-                    hfo_reservation.write({'state': 'reservation'})
+                if reservation_lines.reservation_id.state != 'checkin':
+                    reservation_lines.reservation_id.write({
+                        'state':
+                        'reservation',
+                        'reservation_type':
+                        2,
+                        'reservation_status':
+                        13,
+                    })
+                    hfo_reservation = self.env['hms.reservation.line'].search([
+                        ('reservation_id', '=',
+                         reservation_lines.reservation_id.id),
+                        ('room_type', '=ilike', 'H%')
+                    ])
+                    if hfo_reservation:
+                        hfo_reservation.write({'state': 'reservation'})
         # return reservations.send_mail()
