@@ -5,12 +5,14 @@
             <div class="page">
                 <div class="row">
                     <div class="column" style="width:50%;float:left;line-height:15pt;">
-                        <h1> <span t-esc="property_name"/></h1>
+                        <h1>
+                            <span t-esc="property_name"/>
+                        </h1>
                         <h3>Reservation List</h3>
                     </div>
-                    <div class="column" style="width:18%;float:right;line-height:1pt;">
+                    <div class="column" style="width:18%;float:right;line-height:7pt;">
                         <h5 style="text-align:right;">Page: 1</h5>
-                        <h4>Report Date: 
+                        <h4 style="line-height:1pt;">Report Date: 
                             <span t-esc="system_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
                         </h4>
                         <strong>
@@ -87,76 +89,142 @@
                         </tr>
                     </thread>
                 </table>
+                <t t-set="date1" t-value="0"></t>
+                <t t-set="date2" t-value="0"></t>
                 <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
-                    <tbody style="background:white;padding:3px 3px 3px 3px;">
-                        <div t-foreach="get_reservation_list" t-as="info">
-                            <tr>
-                                <td style="width:5%; solid lightgray;">
-                                    <span t-field="info.room_no.room_no"/>
-                                </td>
-                                <td style="width:4%; solid lightgray;">
-                                    <span t-field="info.room_type.code"/>
-                                </td>
-                                <td style="width:3%; solid lightgray;">
-                                    <span t-field="info.rooms"/>
-                                </td>
-                                <td style="width:2%; solid lightgray;">
-                                    <span t-field="info.pax"/>
-                                </td>
-                                <td style="width:2%; solid lightgray;">
-                                    <span t-field="info.child"/>
-                                </td>
-                                <td style="width:12%; solid lightgray;">
-                                    <span t-field="info.guest_id.name"/>
-                                </td>
-                                <td style="width:8%; solid lightgray;">
-                                    <!-- booking reference -->
-                                </td>
-                                <td style="width:5%; solid lightgray;">
-                                    <!-- VIP -->
-                                </td>
-                                <td style="width:8%; solid lightgray;">
-                                    <span t-field="info.arrival"/>
-                                </td>
-                                <td style="width:5%; solid lightgray;">
-                                    <span t-field="info.arrival_flight"/>
-                                </td>
-                                <td style="width:5%; solid lightgray;">
-                                    <span t-field="info.arrival_flighttime"/>
-                                </td>
-                                <td style="width:8%; solid lightgray;">
-                                    <span t-field="info.departure"/>
-                                </td>
-                                <td style="width:5%; solid lightgray;">
-                                    <span t-field="info.dep_flight"/>
-                                </td>
-                                <td style="width:5%; solid lightgray;">
-                                    <span t-field="info.dep_flighttime"/>
-                                </td>
-                                <td style="width:8%; solid lightgray;">
-                                    <span t-field="info.company_id.name"/>
-                                </td>
-                                <td style="width:7%; solid lightgray;">
-                                    <!-- FO -->
-                                </td>
-                                <td style="width:14%; solid lightgray;">
-                                    <span t-field="info.fo_remark"/>
-                                </td>
-                            </tr>
-                        </div>
-                    </tbody>
-                </table>
-                <p>
-                    <div >
-                        <hr></hr>
-                        <strong>Sub Total</strong>
-                    </div>
-                    <div>
-                        <hr></hr>
-                        <strong>Total </strong>
-                    </div>
-                </p>
-            </div>
-        </t>
-    </template>
+                <tbody style="background:white;padding:3px 3px 3px 3px;" t-foreach="get_reservation_list" t-as="info">
+                        <t t-set="date2" t-value="info.arrival"></t>
+                        <t t-if="date1 == 0">
+                            <t t-set="date1" t-value="info.arrival"></t>
+                            <strong>Date: <span t-esc="info.arrival"/>
+                            </strong>
+                        </t>
+                    <t t-if="date2 == date1">
+                        <tr>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.room_no.room_no"/>
+                            </td>
+                            <td style="width:4%; solid lightgray;">
+                                <span t-field="info.room_type.code"/>
+                            </td>
+                            <td style="width:3%; solid lightgray;">
+                                <span t-field="info.rooms"/>
+                            </td>
+                            <td style="width:2%; solid lightgray;">
+                                <span t-field="info.pax"/>
+                            </td>
+                            <td style="width:2%; solid lightgray;">
+                                <span t-field="info.child"/>
+                            </td>
+                            <td style="width:12%; solid lightgray;">
+                                <span t-field="info.guest_id.name"/>
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <span t-field="info.arrival"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.arrival_flight"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.arrival_flighttime"/>
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <span t-field="info.departure"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.dep_flight"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.dep_flighttime"/>
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <span t-field="info.company_id.name"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;">
+                                <span t-field="info.fo_remark"/>
+                            </td>
+                         </tr>
+                    </t>
+                    <t t-else="date2 != date1">
+                        <tr>
+                            <strong>Date: <span t-esc="info.arrival"/>
+                            </strong>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.room_no.room_no"/>
+                            </td>
+                            <td style="width:4%; solid lightgray;">
+                                <span t-field="info.room_type.code"/>
+                            </td>
+                            <td style="width:3%; solid lightgray;">
+                                <span t-field="info.rooms"/>
+                            </td>
+                            <td style="width:2%; solid lightgray;">
+                                <span t-field="info.pax"/>
+                            </td>
+                            <td style="width:2%; solid lightgray;">
+                                <span t-field="info.child"/>
+                            </td>
+                            <td style="width:12%; solid lightgray;">
+                                <span t-field="info.guest_id.name"/>
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <span t-field="info.arrival"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.arrival_flight"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.arrival_flighttime"/>
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <span t-field="info.departure"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.dep_flight"/>
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <span t-field="info.dep_flighttime"/>
+                            </td>
+                            <td style="width:8%; solid lightgray;">
+                                <span t-field="info.company_id.name"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;">
+                                <span t-field="info.fo_remark"/>
+                            </td>
+                        </tr>                   
+                  </t>
+            
+                </tbody>
+            </table>
+            <p>
+                <div >
+                    <hr></hr>
+                    <strong>Sub Total</strong>
+                </div>
+                <div>
+                    <hr></hr>
+                    <strong>Total </strong>
+                </div>
+            </p>
+        </div>
+    </t>
+</template>
 </odoo>
