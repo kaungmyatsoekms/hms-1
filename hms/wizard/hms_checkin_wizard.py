@@ -67,6 +67,8 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
                 'child': self.child,
                 'nationality_id': self.nationality_id,
                 'citime': citime,
+                'extrabed': self.extrabed,
+                'child_bfpax': self.child_bfpax,
             })
         # Update Guest Nationality in Guest Profile
         reservation_lines.guest_id.write({

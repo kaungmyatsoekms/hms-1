@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Wizard for In House List -->
+    <record id="inhouse_report_wiz" model="ir.ui.view">
+        <field name="name">In House List</field>
+        <field name="model">hms.inhouse_report_wizard</field>
+        <field name="arch" type="xml">
+            <form string="In House Report">
+                <group>
+                    <field name="with_rate" invisible="1"/>
+                    <field name="property_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="property_name" invisible="1" force_save="1"/>
+                    <field name="system_date" invisible="1" force_save="1"/>
+                    <field name="rate_attr" widget="radio" class="oe_edit_only"/>
+                    <field name="sorting_method"/>
+                </group>
+                <footer>
+                    <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_inhouse_report_wiz" model="ir.actions.act_window">
+        <field name="name">In House Report</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hms.inhouse_report_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem id="menu_inhouse_report" name="In House List" action="action_inhouse_report_wiz" parent="menu_reservation_report" sequence="3"/>
+</odoo>

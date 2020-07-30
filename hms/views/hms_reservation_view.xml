@@ -811,15 +811,14 @@
             </field>
         </record>
 
-        <!-- Reservation Line Action-->
+        <!-- Reservation Line Action -->
         <record id="reservation_line_action_window" model="ir.actions.act_window">
             <field name="name">Reservation Details</field>
             <field name="res_model">hms.reservation.line</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('reservation_line_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('reservation_line_view_form')})]"/>
-            <field name="domain">[]</field>
+            <field name="domain">[('state','!=','cancel')]</field>
         </record>
-        <!-- ('state','!=','cancel') -->
 
         <!-- Reason Type View Form-->
         <record id="reason_type_view_form" model="ir.ui.view">
