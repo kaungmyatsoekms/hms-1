@@ -960,10 +960,11 @@
                             <div>
                                 <field name="type" widget="radio" class="oe_edit_only" options="{'horizontal': true}"/>
                             </div>
-                            <div>
-                                <field name="user_id" readonly="1" class="oe_avatar"/>
-                                <field name="date_order" class="oe_avatar"/>
-                            </div>
+                        </div>
+                        <div class="o_row">
+                            <field name="user_id" readonly="1"/>
+                            <br></br>
+                            <field name="date_order"/>
                         </div>
                         <group>
                             <group>
@@ -1161,9 +1162,9 @@
                             </h1>
                         </div>
                         <div class="o_row">
-                            <field name="reservation_user_id" readonly="1" class="oe_avatar"/>
+                            <field name="reservation_user_id" readonly="1"/>
                             <br></br>
-                            <field name="madeondate" class="oe_avatar"/>
+                            <field name="madeondate"/>
                         </div>
                         <group>
                             <group name="">
@@ -1337,7 +1338,7 @@
             <field name="res_model">hms.reservation.line</field>
             <field name="view_mode">tree,form</field>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('line_cancel_view_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('line_cancel_view_form')})]"/>
-            <field name="domain">['&amp;', ('state','=','cancel'), ('active', '=', False)]</field>
+            <field name="domain">[('state','=','cancel')]</field>
         </record>
 
         <!-- Cancel Record View List-->

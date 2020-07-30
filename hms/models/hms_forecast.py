@@ -13,36 +13,36 @@ class Availability(models.Model):
     _name = "hms.availability"
     _description = "Availability"
 
-    active = fields.Boolean('Active', default=True)
-    color = fields.Integer(string='Color Index')
+    active = fields.Boolean('Active', default=True, help='Active')
+    color = fields.Integer(string='Color Index', help="Colour Index")
     property_id = fields.Many2one('hms.property', String="Property")
-    avail_date = fields.Date(string="Date")
-    avail_booking = fields.Integer('Booking', default=0)
-    avail_arrival = fields.Integer('Arr', store=True, default=0)
-    avail_dep = fields.Integer('Dep', store=True, default=0)
-    avail_occupancy = fields.Integer('Occ', store=True, default=0)
-    avail_block = fields.Integer('Block', default=0)
-    avail_ooo = fields.Integer('OOO', default=0)
-    avail_waitlist = fields.Integer('Wait', default=0)
-    avail_allotment = fields.Integer('Allt', default=0)
-    avail_arrguest = fields.Integer('Arr Guests', default=0)
-    avail_depguest = fields.Integer('Dep Guests', default=0)
-    avail_occguest = fields.Integer('Occ Guests', default=0)
-    avail_grp = fields.Integer('GRP Rooms', default=0)
-    avail_fit = fields.Integer('FIT Rooms', default=0)
-    avail_grpguest = fields.Integer('GRP Guests', default=0)
-    avail_fitguest = fields.Integer('FIT Guests', default=0)
-    avail_unconfirm = fields.Integer('Uncfm', store=True, default=0)
-    avail_rmrev = fields.Integer('Room Revenue', default=0)
-    total_room = fields.Integer('Total Room')
+    avail_date = fields.Date(string="Date", help="Date")
+    avail_booking = fields.Integer('Booking', default=0, help="Booking")
+    avail_arrival = fields.Integer('Arr', store=True, default=0, help="Arr")
+    avail_dep = fields.Integer('Dep', store=True, default=0, help="Dep")
+    avail_occupancy = fields.Integer('Occ', store=True, default=0, help="Occ")
+    avail_block = fields.Integer('Block', default=0, help="Block")
+    avail_ooo = fields.Integer('OOO', default=0, help="OOO")
+    avail_waitlist = fields.Integer('Wait', default=0, help="Wait")
+    avail_allotment = fields.Integer('Allt', default=0, help="Allt")
+    avail_arrguest = fields.Integer('Arr Guests', default=0, help="Arr Guests")
+    avail_depguest = fields.Integer('Dep Guests', default=0, help="Dep Guests")
+    avail_occguest = fields.Integer('Occ Guests', default=0, help="Occ Guests")
+    avail_grp = fields.Integer('GRP Rooms', default=0, help='GRP Rooms')
+    avail_fit = fields.Integer('FIT Rooms', default=0, help="FIT Rooms")
+    avail_grpguest = fields.Integer('GRP Guests', default=0, help="GRP Guests")
+    avail_fitguest = fields.Integer('FIT Guests', default=0, help="FIT Guests")
+    avail_unconfirm = fields.Integer('Uncfm', store=True, default=0, help="Uncfm")
+    avail_rmrev = fields.Integer('Room Revenue', default=0, help="Room Revenue")
+    total_room = fields.Integer('Total Room', help="Total Room")
     avail_tl_room = fields.Integer('Avail',
                                    compute='_compute_avail_room',
-                                   store=True)
-    revpar = fields.Integer('REVPAR', default=0)
-    adr = fields.Integer('ADR', default=0)
+                                   store=True, help="Avail")
+    revpar = fields.Integer('REVPAR', default=0, help="REVPAR")
+    adr = fields.Integer('ADR', default=0, help="ADR")
     avail_roomtype_ids = fields.One2many('hms.roomtype.available',
                                          'availability_id',
-                                         "Available Room Type")
+                                         "Available Room Type", help="Available Room Type")
     # reservation_line_ids = fields.One2many(
     #     'hms.reservation.line',
     #     'property_id',
@@ -131,33 +131,33 @@ class RoomTypeAvailable(models.Model):
     _name = "hms.roomtype.available"
     _description = "Room Type Available"
 
-    active = fields.Boolean('Active', default=True)
-    color = fields.Integer(string='Color Index')
-    availability_id = fields.Many2one('hms.availability')
+    active = fields.Boolean('Active', default=True, help="Active")
+    color = fields.Integer(string='Color Index', help="Colour Index")
+    availability_id = fields.Many2one('hms.availability', help="Availability")
     property_id = fields.Many2one('hms.property',
-                                  string="Property")
-    ravail_date = fields.Date('Date', required=True)
+                                  string="Property", help="Property")
+    ravail_date = fields.Date('Date', required=True, help="Date")
     roomtype_ids = fields.Many2many('hms.roomtype',
                                     related="property_id.roomtype_ids")
     ravail_rmty = fields.Many2one(
         'hms.roomtype',
         string="Room Type",
         domain="[('id', '=?', roomtype_ids)]",
-        required=True)  #, domain="[('id', '=?', roomtype_ids)]", required=True
-    ravail_ooo = fields.Integer('Out Of Order', default=0)
-    ravail_booking = fields.Integer('Booking', default=0)
-    ravail_occupancy = fields.Integer('Occupancy', default=0)
-    ravail_block = fields.Integer('Block', default=0)
-    ravail_waitlist = fields.Integer('Wait List', default=0)
-    ravail_allotment = fields.Integer('Allotment', default=0)
+        required=True, help="Room Type")  #, domain="[('id', '=?', roomtype_ids)]", required=True
+    ravail_ooo = fields.Integer('Out Of Order', default=0, help="Out of Order")
+    ravail_booking = fields.Integer('Booking', default=0, help="Booking")
+    ravail_occupancy = fields.Integer('Occupancy', default=0, help="Occupancy")
+    ravail_block = fields.Integer('Block', default=0, help="Block")
+    ravail_waitlist = fields.Integer('Wait List', default=0, help="Wait List")
+    ravail_allotment = fields.Integer('Allotment', default=0, help="Allotment")
     ravail_unconfirm = fields.Integer(
-        'Unconfirm', default=0)  #,compute ='_compute_unconfirm_room')
-    total_room = fields.Integer('Total Room', store=True)
+        'Unconfirm', default=0, help="Unconfirm")  #,compute ='_compute_unconfirm_room')
+    total_room = fields.Integer('Total Room', store=True, help="Total Room")
     ravail_totalroom = fields.Integer('Available',
                                       compute='_compute_avail_room',
-                                      store=True)
+                                      store=True, help="Available")
     overbook_ids = fields.One2many('hms.overbooking', 'rt_avail_id',
-                                   "Overbookings")
+                                   "Overbookings", help="Overbooking")
 
     def name_get(self):
         result = []

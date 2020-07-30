@@ -59,10 +59,10 @@ class Package(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
-                                  required=True)
-    package_code = fields.Char(string="Package Code", size=4, required=True)
-    package_name = fields.Char(string="Package Name", required=True)
-    shortcut = fields.Text(string="Description")
+                                  required=True, help="Property")
+    package_code = fields.Char(string="Package Code", size=4, required=True, help="Package Code")
+    package_name = fields.Char(string="Package Name", required=True, help="Package Name")
+    shortcut = fields.Text(string="Description", help="Description")
     start_date = fields.Date(string="Start Date",
                              required=True,
                              help="Start of Package")
@@ -71,61 +71,61 @@ class Package(models.Model):
                            help="End of Package")
     forecast_next_day = fields.Boolean(string="Forecast Next Day",
                                        default=False,
-                                       track_visibility=True)
+                                       track_visibility=True, help="Forecast Next Day")
     post_next_day = fields.Boolean(string="Post Next Day",
                                    default=False,
-                                   track_visibility=True)
+                                   track_visibility=True, help="Post Next Day")
     catering = fields.Boolean(string="Catering",
                               default=False,
-                              track_visibility=True)
+                              track_visibility=True, help="Catering")
     transaction_id = fields.Many2one(
         'hms.transaction',
         string='Transaction',
         domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]", help="Transaction")
     package_profit = fields.Many2one(
         'hms.transaction',
         string='Profit',
         domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]", help="Profit")
     package_loss = fields.Many2one(
         'hms.transaction',
         string='Loss',
         domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
-    product_item = fields.Char('Product Item')
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]", help="Loss")
+    product_item = fields.Char('Product Item', help="Product Item")
     include_service = fields.Boolean('Include Service',
                                      track_visibility=True,
-                                     related='transaction_id.trans_svc')
+                                     related='transaction_id.trans_svc', help="Include Service")
     include_tax = fields.Boolean('Include Tax',
                                  track_visibility=True,
-                                 related='transaction_id.trans_tax')
+                                 related='transaction_id.trans_tax', help="Include Tax")
     allowance = fields.Boolean(string="Allowance",
                                default=False,
-                               track_visibility=True)
+                               track_visibility=True, help="Allowance")
     valid_eod = fields.Boolean(string="Valid C/O EOD",
                                default=False,
-                               track_visibility=True)
+                               track_visibility=True, help="Valid C/O EOD")
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   default=default_get_curency,
                                   required=True,
-                                  track_visibility=True)
+                                  track_visibility=True, help="Currency")
     posting_rythms = fields.Selection(POSTING_RYTHMS,
                                       string='Posting Rhythms',
                                       index=True,
-                                      default=POSTING_RYTHMS[0][0])
+                                      default=POSTING_RYTHMS[0][0], help="Posting Rythms")
     Calculation_method = fields.Selection(CALCUATION_METHODS,
                                           string='Calculation Method',
                                           index=True,
-                                          default=CALCUATION_METHODS[0][0])
-    Fix_price = fields.Float('Price', digits='Fix Price')
+                                          default=CALCUATION_METHODS[0][0], help="Calculation Method")
+    Fix_price = fields.Float('Price', digits='Fix Price', help="Price")
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
                                       default=RATE_ATTRIBUTE[0][0],
                                       compute='_compute_attribute_type',
-                                      inverse='_write_attribute_type')
+                                      inverse='_write_attribute_type', help="Attribute")
     reservation_fields_id = fields.Many2one('hms.reservation.fields',
                                             string="Reservation Fields",
                                             help="Reservation Fields")

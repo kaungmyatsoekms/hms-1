@@ -57,14 +57,20 @@ nav {
     color:#fc7c04 !important;
     background-color: none;
     background: none;
-    // color: inherit;
+}
 
+.o_main_navbar .o_menu_brand {
+    font-size: 15px;
 }
 
 .o_main_navbar > ul > li > a:hover, .o_main_navbar > ul > li > label:hover {
     color:#fc7c04;
     background-color: none;
     background: none;
+}
+
+.o_main_navbar > ul > li > a, .o_main_navbar > ul > li > label {
+    font-size: 13px;
 }
 
 .o_main_navbar .show .dropdown-toggle {
@@ -76,8 +82,15 @@ nav {
     pointer-events: none;
 }
 
+.dropdown-menu .dropdown-header{
+    font-size: 13px;
+    background-color: #1d4464;
+    color: white !important;
+}
 
-
+.dropdown-menu .dropdown-item {
+    font-size: 12px;
+}
 
 // Fix color Add file button
 .o_control_panel .o_cp_sidebar .o_hidden_input_file .o_form_binary_form span {
@@ -647,6 +660,28 @@ textarea, select, .o_form_view.o_form_editable .o_form_field_many2manytags,
 	background-color: $brand-primary;
 }
 
-//report
-//expected arrival
+//dropdown ui li
+ul .ui-menu .ui-widget .ui-widget-content .ui-autocomplete .ui-front:hover {
+    background-color: none;
+}
 
+.ui-menu .ui-menu-item:hover {
+    a {
+    background-color: #fde5d1 !important;
+    color: black !important;
+    }
+}
+
+.ui-autocomplete .ui-menu-item.o_m2o_dropdown_option > a:hover {
+    color: #0b7753;
+}
+
+.ui-autocomplete .ui-menu-item.o_m2o_dropdown_option > a {
+    color: #0b7753;
+}
+
+ul:hover {
+    li > .ui-menu-item {
+        background-color: #fde5d1 !important;
+    }
+}

@@ -83,13 +83,13 @@ class HMSTownship(models.Model):
     _description = "Township"
     _order = "code,name"
 
-    name = fields.Char("Name", required=True, track_visibility=True)
-    code = fields.Char("Code", required=True, track_visibility=True)
+    name = fields.Char("Name", required=True, track_visibility=True, help="Name")
+    code = fields.Char("Code", required=True, track_visibility=True, help="Code")
     city_id = fields.Many2one("hms.city",
                               "City",
                               ondelete='cascade',
                               required=True,
-                              track_visibility=True)
+                              track_visibility=True, help="City")
     _sql_constraints = [('code_unique', 'unique(code)',
                          'Township Code is already existed.')]
 
@@ -104,11 +104,11 @@ class HMSCountry(models.Model):
     _name = "hms.country"
     _description = "Country"
 
-    name = fields.Char("Country Name", required=True, track_visibility=True)
+    name = fields.Char("Country Name", required=True, track_visibility=True, help="Country Name")
     code = fields.Char("Country Code",
                        size=3,
                        required=True,
-                       track_visibility=True)
+                       track_visibility=True, help="Country Code")
     _sql_constraints = [('code_unique', 'unique(code)',
                          'Country Code is already existed.')]
 
@@ -183,12 +183,12 @@ class Passport(models.Model):
 
     profile_id = fields.Many2one('res.partner',
                                  string="Profile",
-                                 required=True)
-    passport = fields.Char(string="Passport", required=True)
-    issue_date = fields.Date(string="Issue Date", required=True)
-    expire_date = fields.Date(string="Expired Date")
-    country_id = fields.Many2one('res.country', string="Country")
-    nationality = fields.Many2one('hms.nationality', string="Nationality")
+                                 required=True, help="Profile")
+    passport = fields.Char(string="Passport", required=True, help="Passport")
+    issue_date = fields.Date(string="Issue Date", required=True, help="Issue Date")
+    expire_date = fields.Date(string="Expired Date", help="Expired Date")
+    country_id = fields.Many2one('res.country', string="Country", help="Country")
+    nationality = fields.Many2one('hms.nationality', string="Nationality", help="Nationality")
     #image1 = fields.Many2many('ir.attachment', string="Image")
     image1 = fields.Binary(string="Photo 1", attachemtn=True, store=True)
     image2 = fields.Binary(string="Photo 2", attachemtn=True, store=True)
@@ -244,12 +244,12 @@ class Contract(models.Model):
 
     profile_id = fields.Many2one('res.partner',
                                  string="Profile",
-                                 required=True)
-    name = fields.Char(string="Name", required=True)
-    start_date = fields.Date(string="Start Date", required=True)
-    end_date = fields.Date(string="End Date", required=True)
-    note = fields.Text(string="Internal Note")
-    file = fields.Binary(string="File")
+                                 required=True, help="Profile")
+    name = fields.Char(string="Name", required=True, help="Name")
+    start_date = fields.Date(string="Start Date", required=True, help="Start Date")
+    end_date = fields.Date(string="End Date", required=True, help="End Date")
+    note = fields.Text(string="Internal Note", help="Internal Note")
+    file = fields.Binary(string="File", help="File")
 
     def name_get(self):
         result = []
@@ -274,7 +274,7 @@ class HMSCompanyCategory(models.Model):
     _order = 'ordinal_no,code,name'
 
     is_csv = fields.Boolean(default=False)
-    name = fields.Char("Description", required=True, track_visibility=True)
+    name = fields.Char("Description", required=True, track_visibility=True, help="Description")
     # type = fields.Selection(
     #     string = 'Type',
     #     selection=[('guest', 'Guest'), ('company', 'Company'),('group','Group')],
@@ -286,8 +286,8 @@ class HMSCompanyCategory(models.Model):
         selection=[('agent', 'Travel Agent'), ('other', 'Other')],
         required=True,
     )
-    code = fields.Char("Code", track_visibility=True, size=3)
-    ordinal_no = fields.Integer("Ordinal No", track_visibility=True)
+    code = fields.Char("Code", track_visibility=True, size=3, help='Code')
+    ordinal_no = fields.Integer("Ordinal No", track_visibility=True, help="Ordinal No")
     active = fields.Boolean(default=True, track_visibility=True)
 
     def toggle_active(self):
@@ -335,9 +335,9 @@ class HMSGuestCategory(models.Model):
     _order = 'ordinal_no,code,name'
 
     is_csv = fields.Boolean(default=False)
-    name = fields.Char("Description", required=True, track_visibility=True)
-    code = fields.Char("Code", track_visibility=True, size=3)
-    ordinal_no = fields.Integer("Ordinal No", track_visibility=True)
+    name = fields.Char("Description", required=True, track_visibility=True, help="Description")
+    code = fields.Char("Code", track_visibility=True, size=3, help="Code")
+    ordinal_no = fields.Integer("Ordinal No", track_visibility=True, help="Ordinal No")
     active = fields.Boolean(default=True, track_visibility=True)
 
     def toggle_active(self):
@@ -359,22 +359,23 @@ class Company(models.Model):
     _description = 'Companies'
     _order = 'sequence, name'
 
-    code = fields.Char(string="Company Code", size=3, required=True)
+    code = fields.Char(string="Company Code", size=3, required=True, help="Company Code")
     city = fields.Many2one("hms.city",
                            "City Name",
                            compute='_compute_address',
                            inverse='_inverse_city',
                            track_visibility=True,
-                           ondelete='cascade')
+                           ondelete='cascade', help="City Name")
     township = fields.Many2one("hms.township",
                                "Township Name",
                                inverse='_inverse_township',
                                track_visibility=True,
-                               ondelete='cascade')
+                               ondelete='cascade', help="Township Name")
     company_channel_type = fields.Many2one(
         'hms.company.category',
         string="CRM Type",
         track_visibility=True,
+        help="CRM Type"
     )
 
     _sql_constraints = [('name_unique', 'unique(name)',
@@ -441,7 +442,7 @@ class PartnerTitle(models.Model):
                               selection=[('male', 'Male'),
                                          ('female', 'Female'),
                                          ('other', 'Other')],
-                              track_visibility=True)
+                              track_visibility=True, help="Gender")
 
 
 # Create Partner
@@ -457,7 +458,7 @@ class Partner(models.Model):
     #             property_id = self.env.user.property_id[0]
     #         return property_id or 1
 
-    city = fields.Many2one("hms.city", "City Name", track_visibility=True)
+    city = fields.Many2one("hms.city", "City Name", track_visibility=True, help="City Name")
     company_type = fields.Selection(string='Company Type',
                                     selection=[('guest', 'Guest'),
                                                ('person', 'Contact'),
@@ -465,25 +466,25 @@ class Partner(models.Model):
                                                ('company', 'Company')],
                                     compute='_compute_company_type',
                                     inverse='_write_company_type',
-                                    track_visibility=True)
+                                    track_visibility=True, help="Company Type")
     # New Field
-    dob = fields.Date('Date of Birth')
+    dob = fields.Date('Date of Birth', help="Date of Birth")
     child_ids = fields.One2many('res.partner',
                                 'parent_id',
                                 string='Contacts',
                                 track_visibility=True,
-                                domain=[('is_company', '!=', True)])
+                                domain=[('is_company', '!=', True)], help="Contacts")
     company_channel_type = fields.Many2one('hms.company.category',
                                            string="CRM Type",
-                                           track_visibility=True)
+                                           track_visibility=True, help="CRM Type")
     guest_channel_type = fields.Many2one('hms.guest.category',
                                          string="Guest Type",
-                                         track_visibility=True)
+                                         track_visibility=True, help="Guest Type")
     township = fields.Many2one('hms.township',
                                "Township",
-                               track_visibility=True)
+                               track_visibility=True, help="Township")
     property_id = fields.Many2one(
-        "hms.property", track_visibility=True)  #default=get_property_id,
+        "hms.property", track_visibility=True, help='Property')  #default=get_property_id,
     property_ids = fields.Many2many("hms.property", track_visibility=True)
     is_from_hms = fields.Boolean(string="Is from HMS",
                                  default=False,
@@ -498,41 +499,41 @@ class Partner(models.Model):
                                      compute='_compute_is_guest_exists')
     first_name = fields.Char(string="First Name",
                              track_visibility=True,
-                             store=True)
-    middle_name = fields.Char(string="Middle Name", track_visibility=True)
-    last_name = fields.Char(string="Last Name", track_visibility=True)
-    dob = fields.Date(string="Date of Birth", track_visibility=True)
+                             store=True, help="First Name")
+    middle_name = fields.Char(string="Middle Name", track_visibility=True, help="Middle Name")
+    last_name = fields.Char(string="Last Name", track_visibility=True, help="Last Name")
+    dob = fields.Date(string="Date of Birth", track_visibility=True, help="Date of Birth")
     nationality_id = fields.Many2one('hms.nationality',
                                      string="Nationality",
-                                     track_visibility=True)
+                                     track_visibility=True, help="Nationality")
     gender = fields.Selection(
         string='Gender',
         selection=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
         default='male',
-        track_visibility=True,
+        track_visibility=True, help="Gender"
     )
-    nrc_card = fields.Char(string="NRC", track_visibility=True)
-    father = fields.Char(string="Father", track_visibility=True)
+    nrc_card = fields.Char(string="NRC", track_visibility=True, help="NRC")
+    father = fields.Char(string="Father", track_visibility=True, help="Father")
     passport_id = fields.One2many('hms.passport',
                                   'profile_id',
                                   string="Passport",
                                   track_visibility=True,
-                                  context={'active_test': False})
+                                  context={'active_test': False}, help="Passport")
     country_id = fields.Many2one('res.country',
                                  string="Country",
-                                 track_visibility=True)
+                                 track_visibility=True, help="Country")
     ratecode_id = fields.Many2one('hms.ratecode.header',
                                   "Rate Code",
-                                  track_visibility=True)
-    blacklist = fields.Boolean(default=False, track_visibility=True)
-    message = fields.Text(string="Message", track_visibility=True)
-    group_code = fields.Char(string="Group Code", track_visibility=True)
-    group_name = fields.Char(string="Group Name", track_visibility=True)
+                                  track_visibility=True, help="Rate Code")
+    blacklist = fields.Boolean(default=False, track_visibility=True, help="Blacklist")
+    message = fields.Text(string="Message", track_visibility=True, help="Message")
+    group_code = fields.Char(string="Group Code", track_visibility=True, help="Group Code")
+    group_name = fields.Char(string="Group Name", track_visibility=True, help="Group Name")
     contract_ids = fields.One2many('hms.contract',
                                    'profile_id',
                                    string="Contract",
                                    readonly=False,
-                                   track_visibility=True)
+                                   track_visibility=True, help="Contract")
     ar_no = fields.Char(string="AR NO.")
     profile_no = fields.Char(string="Profile NO.")  # compute="get_profile_no"
     no_of_visit = fields.Integer(string="Number of Visit")

@@ -122,36 +122,36 @@ class RateCodeDetails(models.Model):
         else:
             return mmk_currency_id
 
-    sequence = fields.Integer('Sequence', default=1)
+    sequence = fields.Integer('Sequence', default=1, help="Sequence")
     ratehead_id = fields.Many2one('hms.ratecode.header',
-                                  string="Rate Code Header")
+                                  string="Rate Code Header", help="Rate Code Header")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  readonly=True, store=True)
-    season_code = fields.Char(string="Season", size=10, required=True)
+                                  readonly=True, store=True, help="Property")
+    season_code = fields.Char(string="Season", size=10, required=True, help="Season Code")
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
     roomtype_id = fields.Many2many('hms.roomtype',
                                    string="Room Type",
                                    store=True,
                                    domain="[('id', '=?', roomtype_ids)]",
-                                   required=True)
+                                   required=True, help="Room Type")
 
     start_date = fields.Date(string="Start Date",
                              required=True,
-                             default=datetime.today())
-    end_date = fields.Date(string="End Date", required=True)
+                             default=datetime.today(), help="Start Date")
+    end_date = fields.Date(string="End Date", required=True, help="End Date")
     transaction_id = fields.Many2one(
         'hms.transaction',
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
-        required=True)
+        required=True, help="Transaction")
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   default=default_get_curency,
                                   required=True,
-                                  track_visibility=True)
+                                  track_visibility=True, help="Currency")
     normal_price1 = fields.Float(string="1 Adult",
     digits='Rate Price')
     normal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
@@ -288,19 +288,19 @@ class RateCategories(models.Model):
                             default=True,
                             track_visibility=True)
     sequence = fields.Integer(default=1)
-    code = fields.Char(string="Code", size=10, required=True)
-    categories = fields.Char(string="Description", required=True)
+    code = fields.Char(string="Code", size=10, required=True, help="Code")
+    categories = fields.Char(string="Description", required=True, help='Description')
     start_date = fields.Date(string="Start Date",
                              required=True,
-                             default=datetime.today())
-    end_date = fields.Date(string="End Date")
+                             default=datetime.today(), help="Start Date")
+    end_date = fields.Date(string="End Date", help="End Date")
     rate_header_ids = fields.One2many('hms.ratecode.head',
                                       'rate_category_id',
                                       string="Rate Codes",
-                                      required=True)
+                                      required=True,  help="Rate Code")
     terminate_end_date = fields.Date(string="Terminate End Date",
                                      compute='get_terminate_end_date',
-                                     store=True)
+                                     store=True, help="Terminate End Date")
 
     def _compute_is_rate_category(self):
         self.is_rate_category = True
@@ -355,17 +355,17 @@ class RateCodeHead(models.Model):
     _description = "Rate Code"
 
     head_create = fields.Boolean(default=True)
-    rate_code = fields.Char(string="Rate Code", size=10, required=True)
-    ratecode_name = fields.Char(string="Description", required=True)
+    rate_code = fields.Char(string="Rate Code", size=10, required=True, help="Rate Code")
+    ratecode_name = fields.Char(string="Description", required=True, help="Description")
     start_date = fields.Date(string="Start Date",
                              required=True,
-                             default=datetime.today())
-    end_date = fields.Date(string="End Date", required=True)
+                             default=datetime.today(), help="Start Date")
+    end_date = fields.Date(string="End Date", required=True, help="End Date")
     rate_category_id = fields.Many2one('hms.rate.categories',
-                                       string="Rate Categories")
+                                       string="Rate Categories", help="Rate Categories")
     property_ids = fields.Many2many("hms.property",
                                     store=True,
-                                    track_visibility=True)
+                                    track_visibility=True, help="Property")
 
     def name_get(self):
         result = []
