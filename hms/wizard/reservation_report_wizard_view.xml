@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Reservation Report">
                 <group>
-                    <field name="property_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="property_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                 </group>
@@ -34,7 +34,7 @@
         <field name="arch" type="xml">
             <form string="Expected Arrival">
                 <group>
-                    <field name="property_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="property_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                     <field name="arr_date"/>
                     <field name="type_"/>
                 </group>

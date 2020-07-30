@@ -20,11 +20,7 @@ class HMSReason(models.Model):
     type_id = fields.Many2one('hms.reasontype',
                               string="Reason Type",
                               required=True,
-<<<<<<< HEAD
                               help='Reason Type')
-=======
-                              help='Reaso Type')
->>>>>>> 6a7e81b6e06bb407e3c241efd9d28bba9d0d5fc6
 
 
 class HMSReasonType(models.Model):
@@ -883,23 +879,11 @@ class ReservationLine(models.Model):
                                      readonly=False,
                                      related="room_type.fix_type")
     sequence = fields.Integer(default=1)
-<<<<<<< HEAD
     required_color = fields.Char(string=" ", compute="_compute_required_color",  
         help="""- Red Color: If you do not choose Rate Code, Showing Red Color.This is the High Priority.
         - Orange Color: If you do not fill up Room No, Guest Name, Nationality, Showing Orange Color.This is the Medium Priority.
         - Green Color: This state will tell you are already fill basic information that you Check in.
         Note: You need to fill up full information when you get more information Eg. Travel Information etc...""")
-=======
-    required_color = fields.Char(
-        string=" ",
-        compute="_compute_required_color",
-        help=
-        """- Red Color: If you do not choose Rate Code, Showing Red Color.This is the High Priority.
-        - Orange Color: If you do not fill up Room No, Guest Name, Nationality, Showing Orange Color.This is the Medium Priority.
-        - Green Color: This state will tell you are already fill basic information that you Check in.
-        Note: You need to fill up full information when you get more information Eg. Travel Information etc..."""
-    )
->>>>>>> 6a7e81b6e06bb407e3c241efd9d28bba9d0d5fc6
     color = fields.Integer(string='Color Index',
                            compute="set_kanban_color",
                            help='Colour Index')
@@ -2754,13 +2738,9 @@ class CancelReservation(models.Model):
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
     )
-<<<<<<< HEAD
     room_rate = fields.Float("Room Rate",
                              compute='_compute_room_rate',
                              help='Room Rate')
-=======
-    room_rate = fields.Float("Room Rate", help='Room Rate')
->>>>>>> 6a7e81b6e06bb407e3c241efd9d28bba9d0d5fc6
     updown_amt = fields.Float("Updown Amount", help='Updown Amount')
     updown_pc = fields.Float("Updown PC", help='Updown Percentage')
     package_id = fields.Many2one(

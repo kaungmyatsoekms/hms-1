@@ -283,7 +283,6 @@ class ColorAttributeValue(models.Model):
     attribute_id = fields.Many2one('hms.color.attribute',
                                    string="Attribute",
                                    ondelete='cascade',
-                                   required=True,
                                    index=True)
 
     _sql_constraints = [(
