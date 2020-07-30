@@ -117,14 +117,16 @@
                                 </td>
                                 <td style="border:1px solid lightgray;">
                                     <t t-foreach="info.building_ids" t-as="building">
-                                        <t t-esc="hms.building_name"/>
-        ,
+                                        <span t-if="building.building_name != 'ZZZ'" t-field="building.building_name"/>
+                                        <!-- <t t-if="building.building_name != 'ZZZ'" t-esc="building.building_name"/>
+        , -->
                                     </t>
                                 </td>
                                 <td style="border:1px solid lightgray;">
                                     <t t-foreach="info.roomtype_ids" t-as="roomtype">
-                                        <t t-esc="roomtype.name"/>
-        ,
+                                        <span t-if="roomtype.code != 'HFO'" t-field="roomtype.name"/>
+                                        <!-- <t t-if="roomtype.code != 'HFO'" t-esc="roomtype.name"/>
+        , -->
                                     </t>
                                 </td>
                                 <td style="border:1px solid lightgray;">

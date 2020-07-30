@@ -40,6 +40,8 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
     nationality_id = fields.Many2one('hms.nationality',
                                      string="Nationality",
                                      required=True)
+    extrabed = fields.Integer("Extra Bed", help="No. of Extra Bed")
+    child_bfpax = fields.Integer("Child BF-Pax", help="Child BF Pax")
 
     @api.onchange('guest_name')
     def onchange_guest_nationality(self):
@@ -53,6 +55,7 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
     def action_checkin_line_wiz(self):
         reservation_lines = self.env['hms.reservation.line'].browse(
             self._context.get('active_id'))
+
         for d in reservation_lines:
             citime = datetime.strptime(str(datetime.now()),
                                        "%Y-%m-%d %H:%M:%S.%f")
@@ -65,6 +68,10 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
                 'nationality_id': self.nationality_id,
                 'citime': citime,
             })
+        # Update Guest Nationality in Guest Profile
+        reservation_lines.guest_id.write({
+            'nationality_id': self.nationality_id,
+        })
         # Update 'checkin' state to main reservation
         count = 0
         for d in reservation_lines.reservation_id.reservation_line_ids:

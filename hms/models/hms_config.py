@@ -177,18 +177,6 @@ class HmsFormatDetail(models.Model):
         return res
 
 
-class Users(models.Model):
-    _inherit = "res.users"
-
-    property_id = fields.Many2many("hms.property",
-                                   'property_id',
-                                   'user_id',
-                                   "hms_property_user_rel",
-                                   "Property",
-                                   store=True,
-                                   track_visibility=True)
-
-
 class Company(models.Model):
     _inherit = "res.company"
 

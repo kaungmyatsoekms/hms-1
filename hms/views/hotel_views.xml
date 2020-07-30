@@ -1,16 +1,6 @@
 <odoo>
   <data>
 
-    <!-- Top menu item -->
-    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5"/>
-
-    <!-- menu categories -->
-    <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/>
-    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="3"/>
-    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
-    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
-
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -366,7 +356,7 @@
                     <field name="rating" widget='priority'/>
                   </div>
                   <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
-                    <i class="fa fa-moon-o"></i>
+                    <i class="fa fa-moon-o"></i>Night Audit
                   </button>
                 </div>
               </div>
@@ -1537,9 +1527,19 @@
       <field name="view_mode">tree,form</field>
     </record>
 
+    <!-- Top menu item -->
+    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5" action="property_action_window"/>
+
+    <!-- menu categories -->
+    <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
+    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
+    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
+    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
+
     <menuitem action="property_action_window" id="menu_action_property_form" parent="base.menu_users"/>
 
-    <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/>
+    <!-- <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/> -->
 
     <menuitem id="room_config" name="Room Config" parent="hms_menu_config" sequence="2"/>
     <menuitem id="room_type_menu" name="Room Type" parent="room_config" sequence="1" action="room_type_action_window"/>

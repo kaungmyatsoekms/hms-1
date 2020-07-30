@@ -14,11 +14,13 @@
                         <field name="reservation_no" readonly="1"/>
                         <field name="guest_name" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True}"/>
                         <field name="group_name" options="{'no_quick_create': True}" context="{'default_company_type' : 'group','default_is_from_hms': True}"/>
+                        <field name="nationality_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
                     </group>
                     <group>
                         <field name="pax"/>
                         <field name="child"/>
-                        <field name="nationality_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                        <field name="extrabed"/>
+                        <field name="child_bfpax"/>
                     </group>
                 </group>
                 <footer>

@@ -1535,6 +1535,7 @@ class RoomFacilityType(models.Model):
 
 class PropertyRoom(models.Model):
     _name = "hms.property.room"
+    _rec_name = "room_no"
     _description = "Property Room"
     _group = 'roomlocation_id'
 
@@ -1622,13 +1623,13 @@ class PropertyRoom(models.Model):
     def _compute_is_propertyroom(self):
         self.is_propertyroom = True
 
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append(
-                (record.id, "{} ({})".format(record.room_no,
-                                             record.roomtype_id.code)))
-        return result
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         result.append(
+    #             (record.id, "{} ({})".format(record.room_no,
+    #                                          record.roomtype_id.code)))
+    #     return result
 
     # Room location link with Building
     @api.onchange('building_id')
