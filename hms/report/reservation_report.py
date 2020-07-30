@@ -13,16 +13,15 @@ class ReservationReport(models.AbstractModel):
     _description = 'Reservation Report'
 
     def get_reservation_list(self, property_id, date_start, date_end):
-        print('-- get reservation List --')
         reservation_line_obj = self.env['hms.reservation.line'].search([
             ('property_id', '=', property_id[0]),
-            ('arrival', '>=', date_start), ('departure', '<=', date_end)
+            ('arrival', '>=', date_start), 
+            ('departure', '<=', date_end)
         ])
         return reservation_line_obj
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        print ('-- reservationreport _value --')
         self.model = self.env.context.get('active_model')
         if data is None:
             data = {}
@@ -32,6 +31,8 @@ class ReservationReport(models.AbstractModel):
         property_id = data['form']['property_id']
         date_start = data['form']['date_start']
         date_end = data['form']['date_end']
+        property_name = data['form']['property_name']
+        system_date = data['form']['system_date']
         folio_profile = self.env['hms.reservation.line'].search([
             ('property_id', '=', property_id[0]),
             ('arrival', '>=', date_start), ('departure', '<=', date_end)
@@ -46,8 +47,7 @@ class ReservationReport(models.AbstractModel):
         get_reservation_list = rm_act.get_reservation_list(
             property_id, date_start, date_end)
         # Change Date Format to D/M/Y after all processes are done
-        print('--- >')
-        print(get_reservation_list)
+
         date_start = datetime.strptime(date_start,
                                        '%Y-%m-%d').strftime('%d/%m/%Y')
         date_end = datetime.strptime(date_end, '%Y-%m-%d').strftime('%d/%m/%Y')
@@ -58,6 +58,8 @@ class ReservationReport(models.AbstractModel):
             'date_start': date_start,
             'date_end': date_end,
             'property_id': property_id[1],
+            'property_name':property_name,
+            'system_date':system_date,
             'docs': folio_profile,
             'time': time,
             'get_reservation_list': get_reservation_list,

@@ -1120,7 +1120,6 @@ class Property(models.Model):
     # Schedule Update
     @api.model
     def _cron_daily_create_forecast(self):
-
         property_objs = self.env['hms.property'].search([])
         for record in property_objs:
             if record.is_manual is False:

@@ -10,6 +10,9 @@
                     <field name="property_id"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
+                    <field name="property_name" force_save="1" invisible="1"/>
+                    <field name="system_date" force_save="1" invisible="1"/>
+
                 </group>
                 <footer>
                     <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>

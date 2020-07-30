@@ -14,7 +14,19 @@ class ReservationReportWizard(models.TransientModel):
     date_end = fields.Date(string='End Date',
                            required=True,
                            default=fields.Date.today)
+    property_name = fields.Char('Name',  store=True)
+    system_date = fields.Date('System_Date',store=True)
+    @api.onchange('property_id')
+    def onchange_name(self):
+        for record in self:
+            record.property_name = record.property_id.name
 
+    @api.onchange('property_id')
+    def onchange_systemdate(self):
+        for record in self:
+            record.system_date = record.property_id.system_date
+            print("---date---")
+            print(record.system_date)
     # def print_report(self):
     #     data = {
     #         'ids': self.ids,
@@ -40,7 +52,7 @@ class ReservationReportWizard(models.TransientModel):
         data = {
             'ids': self.ids,
             'model': 'hms.reservation.line',
-            'form': self.read(['property_id', 'date_start', 'date_end'])[0]
+            'form': self.read(['property_id', 'date_start', 'date_end','property_name','system_date'])[0]
         }
 
         # ref `module_name.report_id` as reference.

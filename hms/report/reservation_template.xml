@@ -3,31 +3,30 @@
     <template id="report_reservation_qweb">
         <t t-call="web.html_container">
             <div class="page">
-                <div class="row" style="width:100%;">
-                    <div class="column" style="text-aligin:left;">
-                        <div class="row">
-                            <strong>
-                                <span t-esc="property_id"/>
-                            </strong>
-                        </div>
-                        <div class="row">
-                            <strong>Reservation List</strong>
-                        </div>
-
+                <div class="row">
+                    <div class="column" style="width:50%;float:left;line-height:15pt;">
+                        <h1> <span t-esc="property_name"/></h1>
+                        <h3>Reservation List</h3>
                     </div>
-                    <div class="column" style ="text-align:right;">
-                        <div class="row">
-                            <p id="date">Printed Date : 
+                    <div class="column" style="width:18%;float:right;line-height:1pt;">
+                        <h5 style="text-align:right;">Page: 1</h5>
+                        <h4>Report Date: 
+                            <span t-esc="system_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
+                        </h4>
+                        <strong>
+                            <h4 id="date" style="line-height:8pt;">
                                 <script>
-                                document.getElementById("date").innerHTML = new Date();
+                                var d = new Date();            
+                                var mm = d.getMonth()+1; 
+                                var dd =  d.getDate();
+                                var year = d.getFullYear();
+                                var seconds = d.getSeconds();
+                                var minutes = d.getMinutes();
+                                var hour = d.getHours();                           
+                              document.getElementById("date").innerHTML ="Printed Date:  "+ dd+"/"+mm+"/"+year+" "+hour+":"+minutes+":"+seconds;
                                 </script>
-                            </p>
-                            <!-- <span t-esc="date_end"/> -->
-                        </div>
-                        <div class="row">
-                            <strong>Report Date:  </strong>
-                            <span t-esc="date_start"/>
-                        </div>
+                            </h4>
+                        </strong>
                     </div>
                 </div>
 
@@ -92,11 +91,6 @@
                     <tbody style="background:white;padding:3px 3px 3px 3px;">
                         <div t-foreach="get_reservation_list" t-as="info">
                             <tr>
-                                <tr>
-                                    <strong>Date
-                                        <span t-field="info.arrival"/>
-                                    </strong>
-                                </tr>
                                 <td style="width:5%; solid lightgray;">
                                     <span t-field="info.room_no.room_no"/>
                                 </td>
@@ -154,9 +148,11 @@
                 </table>
                 <p>
                     <div >
+                        <hr></hr>
                         <strong>Sub Total</strong>
                     </div>
                     <div>
+                        <hr></hr>
                         <strong>Total </strong>
                     </div>
                 </p>
