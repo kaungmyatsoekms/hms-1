@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<odoo>
+
+    <!-- Mail template are declared in a NOUPDATE block
+         so users can freely customize/delete them -->
+    <data noupdate="1">
+        <!--Email template -->
+        <record id="confirm_letter_template" model="mail.template">
+            <field name="name">Confirm Letter</field>
+            <field name="model_id" ref="hms.model_hms_reservation"/>
+            <field name="email_from">${(object.sales_id.email_formatted or user.email_formatted) |safe}</field>
+            <field name="partner_to">${object.guest_id.email}</field>
+            <field name="subject">${object.sales_id.company_id.name} Confirm Letter ${object.confirm_no}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Dear
+                        % if object.guest_id.parent_id:
+                            ${object.guest_id.name} (${object.guest_id.parent_id.name}),
+                        % else:
+                            ${object.guest_id.name},
+                        % endif
+                        <br /><br />
+                        Here is your reservation ${object.confirm_no} to ${object.property_id.name}
+                        % if object.state == 'confirm':
+                            This reservation is confirmed.
+                        % else:
+                            Please confirm your reservation at your earliest convenience.
+                        % endif
+                        <br /><br />
+                        Do not hesitate to contact us if you have any questions.
+                    </p>
+                </div>
+            </field>
+            <field name="report_template" ref="account_invoices"/>
+            <field name="report_name">Confirm Letter</field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>

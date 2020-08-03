@@ -852,6 +852,7 @@
             <field name="context">{'group_by':['property_id','arrival:year']}</field>
             <field name="search_view_id" ref="view_hms_reservation_line_search"/>
         </record>
+        <!-- ('state','!=','cancel') -->
 
         <!-- Reason Type View Form-->
         <record id="reason_type_view_form" model="ir.ui.view">

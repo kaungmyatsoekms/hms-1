@@ -134,7 +134,7 @@ class RateCodeDetails(models.Model):
     roomtype_id = fields.Many2many('hms.roomtype',
                                    string="Room Type",
                                    store=True,
-                                   domain="[('id', '=?', roomtype_ids)]",
+                                   domain="[('id', '=?', roomtype_ids),('id', '=?', roomtype_ids)]",
                                    required=True)
 
     start_date = fields.Date(string="Start Date",

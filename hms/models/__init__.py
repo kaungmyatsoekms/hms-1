@@ -10,3 +10,4 @@ from . import hms_applicable_charge_type
 from . import hms_transaction_charge_line
 from . import hms_rate_config
 from . import hms_package_config
+from . import res_user_and_role
