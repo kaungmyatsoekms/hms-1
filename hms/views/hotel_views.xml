@@ -1,16 +1,6 @@
 <odoo>
   <data>
 
-    <!-- Top menu item -->
-    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5"/>
-
-    <!-- menu categories -->
-    <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
-    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="3"/>
-    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
-    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
-
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -1536,6 +1526,17 @@
       <field name="res_model">hms.creditlimit</field>
       <field name="view_mode">tree,form</field>
     </record>
+
+    <!-- Top menu item -->
+    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5" action="property_action_window"/>
+
+    <!-- menu categories -->
+    <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
+    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
+    <menuitem id="hms_menu_inhouse" name="Inhouse" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="4"/>
+    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
+    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
 
     <menuitem action="property_action_window" id="menu_action_property_form" parent="base.menu_users"/>
 

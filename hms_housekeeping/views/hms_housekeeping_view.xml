@@ -27,7 +27,9 @@
                 </header>
                 <sheet>
                     <group>
+                        <field name="property_ids" invisible="1"/>
                         <field name="property_id" readonly="1"/>
+                        <field name="user_id" invisible="1"/>
                         <group>
                             <field name="current_date" />
                             <field name="clean_type" />

@@ -93,6 +93,8 @@ class ExpectedArrReportWizard(models.TransientModel):
         workbook = xlwt.Workbook(encoding='utf-8')
 
         worksheet = workbook.add_sheet('Expected Arrival Report')
+        date_format = xlwt.XFStyle()
+        date_format.num_format_str = 'dd/mm/yyyy'
         font = xlwt.Font()
         font.bold = True
         for_left = xlwt.easyxf("font: bold 1, color black; borders: top double, bottom double, left double, right double; align: horiz left")
@@ -156,10 +158,10 @@ class ExpectedArrReportWizard(models.TransientModel):
             worksheet.write(row,5,obj.guest_id.name or '',for_left_not_bold)
             worksheet.write(row,6,obj.group_id.name or '',for_left_not_bold)
             worksheet.write(row,7,obj.company_id.name or '',for_left_not_bold)
-            worksheet.write(row,8,obj.arrival or '',for_left_not_bold)
+            worksheet.write(row,8,obj.arrival or '',date_format)
             worksheet.write(row,9,obj.arrival_flight or '',for_left_not_bold)
             worksheet.write(row,10,obj.arrival_flighttime or '',for_left_not_bold)
-            worksheet.write(row,11,obj.departure or '',for_left_not_bold)
+            worksheet.write(row,11,obj.departure or '',date_format)
             worksheet.write(row,12,obj.market.market_code or '',for_left_not_bold)
             worksheet.write(row,13,obj.source.source_code or '',for_left_not_bold)
             worksheet.write(row,14,obj.ratehead_id.rate_code or '',for_left_not_bold)

@@ -973,7 +973,7 @@ class ReservationLine(models.Model):
                                     related="property_id.roomtype_ids")
     room_type = fields.Many2one('hms.roomtype',
                                 string="Room Type",
-                                domain="[('id', '=?', roomtype_ids)]",
+                                domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
                                 delegate=True,
                                 ondelete='cascade',
                                 index=True,

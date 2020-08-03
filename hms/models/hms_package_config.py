@@ -35,7 +35,7 @@ RATE_ATTRIBUTE = [
 
 class Package(models.Model):
     _name = "hms.package.header"
-    _rec_name = 'shortcut'
+    _rec_name = 'package_name'
     _description = "Package"
 
     # Default Get Currency
@@ -221,5 +221,5 @@ class PackageGroup(models.Model):
         result = []
         for record in self:
             result.append((record.id, "{} ({})".format(record.pkg_group_code,
-                                                       record.shortcut)))
+                                                       record.pkg_group_name)))
         return result

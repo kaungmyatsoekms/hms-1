@@ -9,3 +9,4 @@ from . import hms_ratecat_terminate_wizard
 from . import hms_rc_detail_copy_wizard
 from . import hms_checkin_wizard
 from . import property_report_wizard
+from . import in_house_report_wizard

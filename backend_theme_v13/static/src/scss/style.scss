@@ -7,11 +7,11 @@
 }
 
 //fa fa-pencil
-@media (max-width: 474.98px){
-    .o_field_widget.o_field_image .o_form_image_controls > .fa.o_select_file_button {
-        background: #0b7753;
-    }
-}
+// @media (max-width: 474.98px){
+//     .o_field_widget.o_field_image .o_form_image_controls > .fa.o_select_file_button {
+//         background: #0b7753;
+//     }
+// }
 
 $gray-base:              #000;
 $gray-darker:            lighten($gray-base, 13.5%);
@@ -67,6 +67,10 @@ nav {
     background: none;
 }
 
+.o_main_navbar > ul > li > a, .o_main_navbar > ul > li > label {
+    font-size: 13px;
+}
+
 .o_main_navbar .show .dropdown-toggle {
   background-color: #1d4464;
 }
@@ -76,7 +80,15 @@ nav {
     pointer-events: none;
 }
 
+.dropdown-menu .dropdown-header{
+    font-size: 13px;
+    background-color: #1d4464;
+    color: white !important;
+}
 
+.dropdown-menu .dropdown-item {
+    font-size: 12px;
+}
 
 // Fix color Add file button
 .o_control_panel .o_cp_sidebar .o_hidden_input_file .o_form_binary_form span {
@@ -96,14 +108,21 @@ nav {
     color: #fff;
     background-color: $brand-secondary !important;
     border: 2px solid;
+    .o_button_icon {
+        color: whitesmoke;
+    }
 }
 
 .btn-primary:hover {
-    border-color: $brand-secondary-dark !important;
+    border-color: $brand-secondary !important;
     -webkit-box-shadow: none;
     box-shadow: none;
     color: black;
     background-color: #eee !important;
+    .o_button_icon {
+        color: #0b7753;
+    }
+    
 } 
 
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle {
@@ -115,15 +134,22 @@ nav {
     color: #fff;
     background-color: $brand-secondary;
     border: 2px solid;
+    .o_button_icon {
+        color: whitesmoke !important;
+    }
 }
 
 .btn-seondary:hover {
     border: 2px solid;
-    border-color: $brand-primary-dark;
+    border-color: $brand-primary !important;
     -webkit-box-shadow: none;
     box-shadow: none;
     color: black;
     background-color: rgb(255, 255, 255) !important;
+    .o_button_icon {
+        color: #0b7753;
+    }
+    
 }
 
 .btn:active, .btn.active {
@@ -133,6 +159,9 @@ nav {
     border-color: $brand-secondary-dark;
 }
 
+.o_form_view .oe_button_box .oe_stat_button .o_button_icon {
+    color: #0b7753;
+}
 
 .btn-group.open .dropdown-toggle {
     -webkit-box-shadow: none;
@@ -188,10 +217,6 @@ table tbody tr td {
 .o_external_button {
     color: #0077ff !important;
     background: #ffffff;
-}
-
-.o_button_icon {
-    color: $brand-primary !important;
 }
 
 .o_form_image_controls {
@@ -271,19 +296,36 @@ thead.fc-head {
 }
 
 tbody.fc-body {
-    background-color: #60ad96;
+    background-color: #c4ebf1;
 }
 
 .o_calendar_view .o_calendar_widget .fc-month-view .fc-bg .fc-today {
-    background: #60ad96;
+    background: #c4ebf1;
     border-color: #dee2e6;
 }
 
+.o_calendar_view .fc-view .fc-event.o_calendar_color_6 {
+    border-color: #1d4464 !important;
+    color: white;
+    opacity: 0.8;
+}
+
 .o_calendar_view .fc-view .fc-event.o_calendar_color_6 .fc-bg {
-    background: #ff7b00;
+    background: #ff7b00 !important;
+    opacity: 100%;
 }
 .o_calendar_view .fc-view .fc-event.o_calendar_color_6 .fc-bg:hover {
     background: #ff7300 !important;
+}
+
+.o_calendar_view .o_calendar_widget .fc-month-view .fc-event.o_cw_nobg .fc-bg {
+    visibility: visible;
+}
+
+.o_cw_filter_color_6 .o_cw_filter_input_bg {
+    border-color: #ff7300;
+    background: #ff7300;
+    color: #FFFFFF;
 }
 
 .datepicker {
@@ -614,5 +656,18 @@ textarea, select, .o_form_view.o_form_editable .o_form_field_many2manytags,
 
 .o_thread_window .o_thread_window_header {
 	background-color: $brand-primary;
+}
+
+//dropdown ui li
+// #ui-id-2:hover {
+//     background-color: white;
+//     color: black;
+// }
+// ul:hover {
+//     background-color: white;
+// }
+.ui-menu .ui-menu-item:hover {
+    background-color: #fde5d1;
+    color: white !important;
 }
 

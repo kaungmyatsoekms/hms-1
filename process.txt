@@ -1,14 +1,6 @@
-24/7/20
-pkg shorcut placeholder & string name
-pkg group shorcut placeholder & string name
-transaction default_property_id for subgroup
-rate create
-rate detials copy button edit remove related to season code
-close create at guest form
-close create at ratecode details roomtype
-Add currency at ratecode details
-fix property_id at ratecode details when save, id is miss 
-close create at reservation line form
+30/7/20
+1. Edit Rsvn Details
+2. Add In House Details
 
 Need to check
 	all many2one fields is close quick create

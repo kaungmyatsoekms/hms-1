@@ -109,7 +109,6 @@ class ExpectedArrivalReport(models.AbstractModel):
         return {
             'doc_ids': docids,
             'doc_model': 'hms.reservation.line',
-            # 'data': data['form'],
             'arr_date': arr_date,
             'property_id': property_id[1],
             'type_': type_,
@@ -119,37 +118,47 @@ class ExpectedArrivalReport(models.AbstractModel):
         }
 
 
-# class PropertyReport(models.AbstractModel):
-#     _name = 'report.hms.property'
+class InHouseReport(models.AbstractModel):
+    _name = 'report.hms.report_in_house_qweb'
+    _description = 'In House Report'
 
-#     def get_data(self, name):
-#         data_property = []
-#         property_obj = self.env['hms.property']
-#         act_domain = [('name', '=',name)]
-#         tids = property_obj.search(act_domain)
-#         for data in tids:
-#             data_property.append({
-#                 'name': data.name,
-#                 'code': data.code,
-#                 'room_count': data.room_count,
-#                 'roomtype_count': data.roomtype_count,
-#             })
-#         return data_property
+    def get_inhouse_list(self, property_id):
+        reservation_line_obj = self.env['hms.reservation.line'].search([
+            ('property_id', '=', property_id[0]), ('state', '=', 'checkin'),
+            ('departure', '>', datetime.today())
+        ])
+        return reservation_line_obj
 
-#     @api.model
-#     def get_report_values(self, docids, data):
-#         self.model = self.env.context.get('active_model')
-#         if data is None:
-#             data = {}
-#         if not docids:
-#             docids = data['form'].get('docids')
-#         property_profile = self.env['hms.property'].browse(docids)
-#         name = data['form'].get('name')
-#         return {
-#             'doc_ids': docids,
-#             'doc_model': self.model,
-#             'data': data['form'],
-#             'docs': property_profile,
-#             'time': time,
-#             'property_data': self.get_data(name)
-#         }
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        self.model = self.env.context.get('active_model')
+        if data is None:
+            data = {}
+        if not docids:
+            docids = data.get('ids', data.get('active_ids'))
+
+        property_id = data['form']['property_id']
+        property_name = data['form']['property_name']
+        system_date = data['form']['system_date']
+        with_rate = data['form']['with_rate']
+        rate_attr = data['form']['rate_attr']
+        sorting_method = data['form']['sorting_method']
+        folio_profile = self.env['hms.reservation.line'].search([
+            ('property_id', '=', property_id[0]), ('state', '=', 'checkin'),
+            ('departure', '>', datetime.today())
+        ])
+        rm_act = self.with_context(data['form'].get('used_context', {}))
+        get_inhouse_list = rm_act.get_inhouse_list(property_id)
+        return {
+            'doc_ids': docids,
+            'doc_model': 'hms.reservation.line',
+            'property_id': property_id[1],
+            'property_name': property_name,
+            'system_date': system_date,
+            'with_rate': with_rate,
+            'rate_attr': rate_attr,
+            'sorting_method': sorting_method,
+            'docs': folio_profile,
+            'time': time,
+            'get_inhouse_list': get_inhouse_list,
+        }
