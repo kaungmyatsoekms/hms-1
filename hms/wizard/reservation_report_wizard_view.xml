@@ -57,5 +57,5 @@
 
     <menuitem id="menu_reservation_report" name="Reservation Report" parent="hms_menu_report" sequence="2"/>
     <menuitem id="menu_reservation_list_report" name="Reservation List" action="action_reservation_report_wiz" parent="menu_reservation_report" sequence="1"/>
-    <menuitem id="menu_expected_arrival_report" name="Expected Arrival" action="action_expected_arr_report_wiz" parent="menu_reservation_report" sequence="2"/>
+    <menuitem id="menu_expected_arrival_report" name="Expected Arrival List" action="action_expected_arr_report_wiz" parent="menu_reservation_report" sequence="2"/>
 </odoo>

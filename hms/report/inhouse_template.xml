@@ -2,34 +2,37 @@
 <odoo>
     <template id="report_in_house_qweb">
         <t t-call="web.html_container">
-            <!-- <t t-call="web.external_layout"> -->
+            <t t-call="web.external_layout">
                 <div class="page">
-                    <div class="row" style="width:100%;">
-                        <h5>
-                            <strong>
-                                <span t-esc="property_name"/>
-                            </strong>
-                        </h5>
-                        <div class="row">
-                            <div class="column" style="width:50%;float:left;font-size:16px;">
-                                <h6>
-                                    In-House by
-                                    <t t-if="rate_attr == 'with'">
-                                        Room with Rate Report
-                                    </t>
-                                    <t t-if="rate_attr == 'without'">
-                                        Room without Rate Report
-                                    </t>
-                                </h6>
-                            </div>
-                            <div class="row mt16 mb16" style="float:right;">
-                                <strong>Report Date:</strong>
-                                <span t-esc="system_date"/>
-                            </div>
-                            <div class="row mt16 mb16" style="float:right;">
+                    <div class="row">
+                        <div class="col-9" style="float:left;">
+                            <h5>
                                 <strong>
-                                    <p id="date">
-                                        <script>
+                                    <span t-esc="property_name"/>
+                                </strong>
+                            </h5>
+                        </div>
+                        <div class="col-3" style="float:right;font-size:13px;">
+                            <strong>Report Date:
+                                <span t-esc="system_date"/>
+                            </strong>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-9" style="float:left;">
+                            <strong>In-House by
+                                <t t-if="rate_attr == 'with'">
+                                    Room with Rate Report
+                                </t>
+                                <t t-if="rate_attr == 'without'">
+                                    Room without Rate Report
+                                </t>
+                            </strong>
+                        </div>
+                        <div class="col-3" style="float:right;font-size:13px;">
+                            <strong>
+                                <p id="date">
+                                    <script>
                                         var d = new Date();
                                         var dd =  d.getDate();
                                         var mm =  d.getMonth()+1;
@@ -37,14 +40,13 @@
                                         var seconds = d.getSeconds();
                                         var minutes = d.getMinutes();
                                         var hour = d.getHours();
-                                        document.getElementById("date").innerHTML ="Printed Date:  "+ dd+"/"+mm+"/"+year+" "+hour+":"+minutes+":"+seconds;
-                                        </script>
-                                    </p>
-                                </strong>
-                            </div>
+                                        document.getElementById("date").innerHTML ="Printed Date:  "+ dd+"/"+mm+"/"+year+"\t"+hour+":"+minutes+":"+seconds;
+                                    </script>
+                                </p>
+                            </strong>
                         </div>
                     </div>
-                    <table class="table table-condensed" style="width:100%;font-size:12px;background:white;">
+                    <table class="table table-condensed" style="width:100%;font-size:13px;background:white;">
                         <thead>
                             <tr>
                                 <th style="width:3%;">
@@ -152,7 +154,7 @@
                                     <span t-field="info.general_remark"/>
                                 </td>
                             </tr>
-                            <tr t-if="sorting_method == 'gpname'" t-foreach="get_inhouse_list.sorted(key=lambda x: x.group_id.name)" t-as="info">
+                            <!-- <tr t-if="sorting_method == 'gpname'" t-foreach="get_inhouse_list.sorted(key=lambda x: x.group_id.name)" t-as="info">
                                 <td>
                                     <span t-field="info.room_no.room_no"/>
                                 </td>
@@ -255,7 +257,7 @@
                                 <td>
                                     <span t-field="info.general_remark"/>
                                 </td>
-                            </tr>
+                            </tr> -->
                             <tr t-if="sorting_method == 'room'" t-foreach="get_inhouse_list.sorted(key=lambda x: x.room_no.room_no)" t-as="info">
                                 <td>
                                     <span t-field="info.room_no.room_no"/>
@@ -415,7 +417,7 @@
                         </tbody>
                     </table>
                 </div>
-            <!-- </t> -->
+            </t>
         </t>
     </template>
 </odoo>

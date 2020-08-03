@@ -139,7 +139,7 @@ class Package(models.Model):
         result = []
         for record in self:
             result.append(
-                (record.id, "{} ({} {})".format(record.shortcut,
+                (record.id, "{} ({} {})".format(record.package_name,
                                                 record.start_date,
                                                 record.end_date)))
         return result

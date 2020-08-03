@@ -149,6 +149,9 @@ class InHouseReport(models.AbstractModel):
         ])
         rm_act = self.with_context(data['form'].get('used_context', {}))
         get_inhouse_list = rm_act.get_inhouse_list(property_id)
+        # Change Date Format to D/M/Y after all processes are done
+        system_date = datetime.strptime(system_date,
+                                        '%Y-%m-%d').strftime('%d/%m/%Y')
         return {
             'doc_ids': docids,
             'doc_model': 'hms.reservation.line',

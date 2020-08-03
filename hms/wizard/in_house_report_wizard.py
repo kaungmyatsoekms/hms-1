@@ -18,12 +18,11 @@ class InHouseReportWizard(models.TransientModel):
                               store=True)
     property_name = fields.Char(string="Property Name", store=True)
     with_rate = fields.Boolean(default=False)
-    rate_attr = fields.Selection(
-        string='Rate',
-        selection=[('with', 'With Rate'), ('without', 'Without Rate')],
-        compute='_compute_rate_attr',
-        inverse='_write_rate_attr',
-    )
+    rate_attr = fields.Selection(string='Rate',
+                                 selection=[('with', 'With Rate'),
+                                            ('without', 'Without Rate')],
+                                 compute='_compute_rate_attr',
+                                 inverse='_write_rate_attr')
     sorting_method = fields.Selection(
         string="Sort By",
         selection=[('gname', 'Guest Name'), ('gpname', 'Group Name'),
