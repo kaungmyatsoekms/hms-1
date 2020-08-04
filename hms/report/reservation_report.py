@@ -83,7 +83,6 @@ class ExpectedArrivalReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        print ('-- expectedArribal value -- ')
         self.model = self.env.context.get('active_model')
         if data is None:
             data = {}
@@ -141,7 +140,6 @@ class PropertyReport(models.AbstractModel):
 
     @api.model
     def get_report_values(self, docids, data):
-        print ('-- propetyReport value --')
         self.model = self.env.context.get('active_model')
         if data is None:
             data = {}

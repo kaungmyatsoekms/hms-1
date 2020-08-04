@@ -25,8 +25,7 @@ class ReservationReportWizard(models.TransientModel):
     def onchange_systemdate(self):
         for record in self:
             record.system_date = record.property_id.system_date
-            print("---date---")
-            print(record.system_date)
+        
     # def print_report(self):
     #     data = {
     #         'ids': self.ids,
