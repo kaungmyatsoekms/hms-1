@@ -134,7 +134,7 @@ class RateCodeDetails(models.Model):
     roomtype_id = fields.Many2many('hms.roomtype',
                                    string="Room Type",
                                    store=True,
-                                   domain="[('id', '=?', roomtype_ids),('id', '=?', roomtype_ids)]",
+                                   domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
                                    required=True)
 
     start_date = fields.Date(string="Start Date",
@@ -159,8 +159,8 @@ class RateCodeDetails(models.Model):
     normal_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     normal_extra = fields.Float(string="Extra", digits='Rate Price')
     weekend_price1 = fields.Float(string="1 Adult", digits='Rate Price')
-    weekend_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
-    weekend_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
+    weekend_price2 = fields.Float(string="2rd Adult(+)", digits='Rate Price')
+    weekend_price3 = fields.Float(string="3rd Adult(+$)", digits='Rate Price')
     weekend_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     weekend_extra = fields.Float(string="Extra", digits='Rate Price')
     special_price1 = fields.Float(string="1 Adult", digits='Rate Price')

@@ -39,7 +39,7 @@
                     <field name="type_"/>
                 </group>
                 <footer>
-                    <button name="get_report" string="PDF" class="btn-primary" type="object" icon="fa-file-text-o"/>
+                    <button name="get_report" string="PDF" class="btn-primary" type="object" icon="fa-bars"/>
                     <button name="get_report_excel" string="Excel" class="btn-primary" type="object" icon="fa-bars"/>
                     <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
                 </footer>
@@ -57,5 +57,5 @@
 
     <menuitem id="menu_reservation_report" name="Reservation Report" parent="hms_menu_report" sequence="2"/>
     <menuitem id="menu_reservation_list_report" name="Reservation List" action="action_reservation_report_wiz" parent="menu_reservation_report" sequence="1"/>
-    <menuitem id="menu_expected_arrival_report" name="Expected Arrival" action="action_expected_arr_report_wiz" parent="menu_reservation_report" sequence="2"/>
+    <menuitem id="menu_expected_arrival_report" name="Expected Arrival List" action="action_expected_arr_report_wiz" parent="menu_reservation_report" sequence="2"/>
 </odoo>

@@ -11,6 +11,7 @@
         <form string="Property" import="false">
           <header>
             <field name='is_property' invisible='1'/>
+            <field name='is_night_audit' invisible='1'/>
             <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
@@ -35,7 +36,7 @@
             <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
           </header>
@@ -164,7 +165,7 @@
                         <field name="room_bedqty" optional="show"/>
                         <field name="room_extension" optional="show"/>
                         <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
+                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': ['|',('is_hfo', '=', True),('is_propertyroom', '=', False)]}">
                           <i class="fa fa-paint-brush"></i>
                         </button>
                       </tree>
@@ -282,6 +283,7 @@
           <field name="system_date"/>
           <field name="is_property"/>
           <field name="is_manual"/>
+          <field name="is_night_audit"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
@@ -355,7 +357,7 @@
                   <div t-if="record.rating.raw_value">
                     <field name="rating" widget='priority'/>
                   </div>
-                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
                     <i class="fa fa-moon-o"></i>Night Audit
                   </button>
                 </div>
@@ -887,12 +889,6 @@
               </group>
             </group>
           </sheet>
-          <!-- <footer> -->
-          <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
-          <!-- <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
-            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}" context="{'default_property_id' : id}">
-        <i class="fa fa-paint-brush"></i></button>
-          </footer> -->
         </form>
       </field>
     </record>
@@ -1533,7 +1529,8 @@
     <!-- menu categories -->
     <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
     <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hms_menu_inhouse" name="Inhouse" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="4"/>
     <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
     <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
 
