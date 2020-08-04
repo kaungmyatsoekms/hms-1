@@ -97,8 +97,7 @@ class HMSTownship(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            result.append((record.id, "{} ({})".format(record.name,
-                                                       record.code)))
+            result.append((record.id, "{}".format(record.name)))
         return result
 
 

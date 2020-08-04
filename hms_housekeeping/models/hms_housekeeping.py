@@ -9,7 +9,13 @@ class HMSHousekeeping(models.Model):
     _name = "hms.housekeeping"
     _description = "Reservation"
 
-    property_id = fields.Many2one('hms.property',string="Property", default=lambda self: self.env.user.property_id.id)
+    property_ids = fields.Many2many('hms.property',
+                                    related="user_id.property_id")
+    user_id = fields.Many2one('res.users',
+                              string='Salesperson',
+                              default=lambda self: self.env.uid,
+                              help='Salesperson')
+    property_id = fields.Many2one('hms.property',string="Property", domain="[('id', '=?', property_ids)]",help="Property")
     current_date = fields.Date("Today's Date", required=True,
                                index=True,
                                states={'done': [('readonly', True)]},
@@ -53,14 +59,15 @@ class HMSHousekeeping(models.Model):
         ---------------------------------------
         @param self: object pointer
         """
-        self.write({
-            'state': 'dirty',
-            'quality': False
-        })
-        self.activity_line_ids.write({
-            'clean': False,
-            'dirty': True,
-        })
+        for rec in self:
+            rec.write({
+                'state': 'dirty',
+                'quality': False
+            })
+            rec.activity_line_ids.write({
+                'clean': False,
+                'dirty': True,
+            })
 
     def room_cancel(self):
         """
@@ -69,7 +76,8 @@ class HMSHousekeeping(models.Model):
         ---------------------------------------
         @param self: object pointer
         """
-        self.write({'state': 'cancel', 'quality': False})
+        for rec in self:
+            rec.write({'state': 'cancel', 'quality': False})
 
     def room_done(self):
         """
@@ -78,9 +86,10 @@ class HMSHousekeeping(models.Model):
         ---------------------------------------
         @param self: object pointer
         """
-        if not self.quality:
-            raise ValidationError(_('Please update quality of work!'))
-        self.state = 'done'
+        for rec in self:
+            if not rec.quality:
+                raise ValidationError(_('Please update quality of work!'))
+            rec.state = 'done'
 
     def room_inspect(self):
         """
@@ -89,7 +98,8 @@ class HMSHousekeeping(models.Model):
         ---------------------------------------
         @param self: object pointer
         """
-        self.write({'state': 'inspect', 'quality': False})
+        for rec in self:
+            rec.write({'state': 'inspect', 'quality': False})
 
     def room_clean(self):
         """
@@ -98,11 +108,12 @@ class HMSHousekeeping(models.Model):
         ---------------------------------------
         @param self: object pointer
         """
-        self.write({
-            'state': 'clean',
-            'quality': False
-        })
-        self.activity_line_ids.write({
-            'clean': True,
-            'dirty': False,
-        })
+        for rec in self:
+            rec.write({
+                'state': 'clean',
+                'quality': False
+            })
+            rec.activity_line_ids.write({
+                'clean': True,
+                'dirty': False,
+            })

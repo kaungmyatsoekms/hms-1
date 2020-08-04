@@ -32,9 +32,10 @@ class HMSHousekeepingActivities(models.Model):
         @param self: object pointer
         @return: raise warning depending on the validation
         '''
-        if self.clean_start_time >= self.clean_end_time:
-            raise ValidationError(_(
-                'Start Date Should be less than the End Date!'))
+        for rec in self:
+            if rec.clean_start_time >= rec.clean_end_time:
+                raise ValidationError(_(
+                    'Start Date Should be less than the End Date!'))
 
     @api.model
     def default_get(self, fields):
@@ -50,5 +51,5 @@ class HMSHousekeepingActivities(models.Model):
         if self._context.get('room_id', False):
             res.update({'room_id': self._context['room_id']})
         if self._context.get('today_date', False):
-            res.update({'today_date': self._context['today_date']})
+            self.update({'today_date': self._context['today_date']})
         return res

@@ -389,10 +389,6 @@ class Property(models.Model):
     # Night Audit Manual Action
     def action_night_audit(self):
 
-        # For System Date Update
-
-        self.system_date = datetime.today()
-
         # For Forecast Update
         avail_objs = self.env['hms.availability'].search([
             ('property_id', '=', self.id),
@@ -438,7 +434,9 @@ class Property(models.Model):
             rsvn_line.update({'active': False})
 
         out_date_reservations = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id), ('arrival', '<', datetime.today())
+            ('property_id', '=', self.id),
+            ('arrival', '<', datetime.today()),
+            '|',('state', '=', 'reservation'),('state', '=', 'booking')
         ])
         for rsvn in out_date_reservations:
             if len(rsvn.reservation_line_ids) == 0:
@@ -454,7 +452,9 @@ class Property(models.Model):
             no_show_rsvn_line.update({'is_no_show': True})
             # Reservation
         no_show_rsvns = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id), ('arrival', '<', datetime.today())
+            ('property_id', '=', self.id),
+            ('arrival', '<', datetime.today()),
+            ('state', '=', 'confirm')
         ])
         for no_show_rsvn in no_show_rsvns:
             no_show_line_count = 0
@@ -481,7 +481,112 @@ class Property(models.Model):
             if len(ex_noshow_rsvn.reservation_line_ids) == 0:
                 ex_noshow_rsvn.update({'active': False})
 
+        # For System Date Update
+
+        self.system_date = datetime.today()
+
         return
+
+    @api.model
+    def action_night_audit_auto(self):
+
+        # For Forecast Update
+        property_objs = self.env['hms.property'].search([])
+        for record in property_objs:
+            if record.is_manual is False:
+                avail_objs = self.env['hms.availability'].search([
+                    ('property_id', '=', record.id),
+                    ('avail_date', '<=', datetime.today())
+                ])
+
+                for avail_obj in avail_objs:
+                    avail_obj.update({'active': False})
+                    rt_avail_objs = self.env['hms.roomtype.available'].search([
+                        ('property_id', '=', record.id),
+                        ('ravail_date', '<=', datetime.today()),
+                        ('availability_id', '=', avail_obj.id)
+                    ])
+
+                    new_avail_objs = self.env['hms.availability'].create({
+                    'property_id' : avail_obj.property_id.id,
+                    'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
+                    'total_room' : record.room_count})
+
+                    for new_avail_obj in new_avail_objs:
+
+                        for rt_avail_obj in rt_avail_objs:
+                            rt_avail_obj.update({'active': False})
+                            vals = []
+                            vals.append((0, 0, {
+                                'availability_id': new_avail_obj.id,
+                                'property_id': new_avail_obj.property_id.id,
+                                'ravail_date': new_avail_obj.avail_date,
+                                'ravail_rmty': rt_avail_obj.ravail_rmty.id,
+                                'color': rt_avail_obj.color,
+                            }))
+                            new_avail_obj.update({'avail_roomtype_ids': vals})
+
+        # For Removing Reservation and Reservation Line
+        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('arrival', '<', datetime.today()), ('active', '=', True),'|', ('state', '=', 'booking'),('state', '=', 'reservation')
+        ])
+        for rsvn_line in out_date_rsvn_lines:
+            if rsvn_line.property_id.is_manual is False:
+                rsvn_line.update({'active': False})
+
+        out_date_reservations = self.env['hms.reservation'].search([
+            ('arrival', '<', datetime.today()),
+            '|',('state', '=', 'booking'),('state', '=', 'reservation')
+        ])
+        for rsvn in out_date_reservations:
+            if rsvn.property_id.is_manual is False:
+                if len(rsvn.reservation_line_ids) == 0:
+                    rsvn.update({'active': False})
+
+        # For No Show Reservation and Reservation Line Update
+        no_show_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('arrival', '<', datetime.today()),
+            ('state', '=','confirm')
+            ])
+        for no_show_rsvn_line in no_show_rsvn_lines:
+            if no_show_rsvn_line.property_id.is_manual is False:
+                no_show_rsvn_line.update({'is_no_show': True})
+        no_show_rsvns = self.env['hms.reservation'].search([
+            ('arrival', '<', datetime.today()),
+            ('state', '=', 'confirm')
+        ])
+        for no_show_rsvn in no_show_rsvns:
+            if no_show_rsvn.property_id.is_manual is False:
+                no_show_line_count = 0
+                for line in no_show_rsvn.reservation_line_ids:
+                    if line.is_no_show is True:
+                        no_show_line_count += 1
+                if len(no_show_rsvn.reservation_line_ids) == no_show_line_count:
+                    no_show_rsvn.update({'is_no_show': True})
+
+        # For removing No Show Reservation and Reservatin Line
+        ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
+            ('is_no_show', '=', True),
+            ('departure', '<', datetime.today())
+        ])
+        for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
+            if ex_noshow_rsvn_line.property_id.is_manual is False:
+                ex_noshow_rsvn_line.update({'active': False})
+
+        ex_noshow_rsvns = self.env['hms.reservation'].search([
+            ('is_no_show', '=', True),
+            ('departure', '<', datetime.today())
+        ])
+        for ex_noshow_rsvn in ex_noshow_rsvns:
+            if ex_noshow_rsvn.property_id.is_manual is False:
+                if len(ex_noshow_rsvn.reservation_line_ids) == 0:
+                    ex_noshow_rsvn.update({'active': False})
+
+        # For System Date Update
+        property_objs = self.env['hms.property'].search([])
+        for record in property_objs:
+            if record.is_manual is False:
+                record.system_date = datetime.today()
 
     def set_onboarding_step_done(self, step_name):
         if self[step_name] == 'not_done':
@@ -1168,62 +1273,6 @@ class Property(models.Model):
         res = super(Property, self).unlink()
         return res
 
-    # Schedule Update
-    @api.model
-    def _cron_daily_create_forecast(self):
-
-        property_objs = self.env['hms.property'].search([])
-        for record in property_objs:
-            if record.is_manual is False:
-                avail_objs = self.env['hms.availability'].search([
-                    ('property_id', '=', record.id),
-                    ('avail_date', '<=', datetime.today())
-                ])
-
-                for avail_obj in avail_objs:
-                    avail_obj.update({'active': False})
-                    rt_avail_objs = self.env['hms.roomtype.available'].search([
-                        ('property_id', '=', record.id),
-                        ('ravail_date', '<=', datetime.today()),
-                        ('availability_id', '=', avail_obj.id)
-                    ])
-
-                    new_avail_objs = self.env['hms.availability'].create({
-                        'property_id':
-                        avail_obj.property_id.id,
-                        'avail_date':
-                        avail_obj.avail_date +
-                        timedelta(days=record.availability),
-                        'total_room':
-                        record.room_count
-                    })
-
-                    for new_avail_obj in new_avail_objs:
-
-                        for rt_avail_obj in rt_avail_objs:
-                            rt_avail_obj.update({'active': False})
-                            vals = []
-                            vals.append((0, 0, {
-                                'availability_id':
-                                new_avail_obj.id,
-                                'property_id':
-                                new_avail_obj.property_id.id,
-                                'ravail_date':
-                                new_avail_obj.avail_date,
-                                'ravail_rmty':
-                                rt_avail_obj.ravail_rmty.id,
-                                'color':
-                                rt_avail_obj.color,
-                            }))
-                            new_avail_obj.update({'avail_roomtype_ids': vals})
-
-    #Scheduled Update System Date
-    @api.model
-    def update_system_date(self):
-        property_objs = self.env['hms.property'].search([])
-        for record in property_objs:
-            if record.is_manual is False:
-                record.system_date = datetime.today()
 
 
 class Property_roomtype(models.Model):
@@ -1467,8 +1516,8 @@ class RoomType(models.Model):
 
     @api.constrains('color')
     def limit_color_code(self):
-        if self.color < 0 or self.color > 9:
-            raise ValidationError(_("Color can only be 0 to 9"))
+        if self.color < 0 or self.color > 11:
+            raise ValidationError(_("Color can only be 0 to 11"))
 
     #Write Function
     def write(self, values):
@@ -1573,6 +1622,7 @@ class RoomFacilityType(models.Model):
 
 class PropertyRoom(models.Model):
     _name = "hms.property.room"
+    _rec_name = "room_no"
     _description = "Property Room"
     _group = 'roomlocation_id'
 
@@ -1678,13 +1728,13 @@ class PropertyRoom(models.Model):
     def _compute_is_propertyroom(self):
         self.is_propertyroom = True
 
-    def name_get(self):
-        result = []
-        for record in self:
-            result.append(
-                (record.id, "{} ({})".format(record.room_no,
-                                             record.roomtype_id.code)))
-        return result
+    # def name_get(self):
+    #     result = []
+    #     for record in self:
+    #         result.append(
+    #             (record.id, "{} ({})".format(record.room_no,
+    #                                          record.roomtype_id.code)))
+    #     return result
 
     # Room location link with Building
     @api.onchange('building_id')

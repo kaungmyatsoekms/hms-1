@@ -71,6 +71,8 @@ class ExpectedArrReportWizard(models.TransientModel):
         workbook = xlwt.Workbook(encoding='utf-8')
 
         worksheet = workbook.add_sheet('Expected Arrival Report')
+        date_format = xlwt.XFStyle()
+        date_format.num_format_str = 'dd/mm/yyyy'
         font = xlwt.Font()
         font.bold = True
         for_left = xlwt.easyxf(
