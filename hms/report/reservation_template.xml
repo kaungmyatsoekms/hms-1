@@ -31,6 +31,23 @@
                         </strong>
                     </div>
                 </div>
+<!-- Float to Time for flight time -->
+                <!-- <h4 id="date" style="line-height:8pt;">
+<script>
+function convertNumToTime(number) {
+    var sign = (number >= 0) ? 1 : -1;
+    number = number * sign;
+    var hour = Math.floor(number);
+    var decpart = number - hour;
+    var min = 1 / 60;
+    decpart = min * Math.round(decpart / min);
+    var minute = Math.floor(decpart * 60) + '';
+    if (minute.length < 2) {minute = '0' + minute; }
+    sign = sign == 1 ? '' : '-';
+    time = sign + hour + ':' + minute;
+    return time;}
+document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.999);
+</script></h4> -->
                 <!-- header start -->
                 <table class="table table-condensed" style="width:100%;border: 3px solid darkgray;font-size:16px;">
                     <thread>
@@ -320,7 +337,6 @@
                         </div>
                     </t>
                 </t>
-
                 <!-- body end -->
                 <!-- total start-->
                 <hr></hr>
