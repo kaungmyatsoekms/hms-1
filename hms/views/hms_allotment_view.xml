@@ -57,12 +57,10 @@
                 </field>
               </page>
             </notebook>
-            <footer>
-              <div class="oe_chatter">
-                <field name="message_follower_ids" widget="mail_followers"/>
-                <field name="message_ids" widget="mail_thread"/>
-              </div>
-            </footer>
+            <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+            </div>
           </sheet>
         </form>
       </field>
@@ -141,15 +139,15 @@
           </header>
           <sheet>
             <div class="oe_title">
-              <h3>
+              <h2>
                 <field name="property_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="allotment_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id" placeholder="Room Type" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
-              </h3>
+              </h2>
             </div>
             <group>
               <group>
+                <field name="allotment_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                <field name="roomtype_ids" invisible="1"/>
+                <field name="roomtype_id" placeholder="Room Type" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="cut_off_days"/>

@@ -110,21 +110,14 @@ nav {
     color: #fff;
     background-color: $brand-secondary !important;
     border: 2px solid;
-    .o_button_icon {
-        color: whitesmoke;
-    }
 }
 
 .btn-primary:hover {
     border-color: $brand-secondary !important;
     -webkit-box-shadow: none;
     box-shadow: none;
-    color: black;
+    color: #0b7753;
     background-color: #eee !important;
-    .o_button_icon {
-        color: #0b7753;
-    }
-    
 } 
 
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle {
@@ -136,22 +129,17 @@ nav {
     color: #fff;
     background-color: $brand-secondary;
     border: 2px solid;
-    .o_button_icon {
-        color: whitesmoke !important;
-    }
 }
 
-.btn-seondary:hover {
-    border: 2px solid;
-    border-color: $brand-primary !important;
+.btn-secondary:hover {
+    border-color: $brand-secondary !important;
     -webkit-box-shadow: none;
     box-shadow: none;
-    color: black;
-    background-color: rgb(255, 255, 255) !important;
+    color: #0b7753;
+    background-color: #eee !important;
     .o_button_icon {
         color: #0b7753;
     }
-    
 }
 
 .btn:active, .btn.active {
@@ -684,4 +672,18 @@ ul:hover {
     li > .ui-menu-item {
         background-color: #fde5d1 !important;
     }
+}
+
+.o_list_view .o_list_table tbody > tr.o_group_header .o_pager .o_pager_previous, 
+.o_list_view .o_list_table tbody > tr.o_group_header .o_pager .o_pager_next {
+    color: #fff;
+    background-color: $brand-secondary !important;
+    border: 2px solid;
+}
+
+.o_list_view .o_list_table tbody > tr.o_group_header .o_pager .o_pager_previous:hover, 
+.o_list_view .o_list_table tbody > tr.o_group_header .o_pager .o_pager_next:hover {
+    border-color: $brand-secondary !important;
+    color: #0b7753;
+    background-color: #eee !important;
 }

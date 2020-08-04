@@ -9,13 +9,15 @@
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                        <field name="property_id" placeholder="Property"/>
+                        <h2>
+                            <field name="property_id" placeholder="Property"/>
+                        </h2>
                         <field name="rate_separate_line" invisible="1"/>
                         <field name="rate_combined_line" invisible="1"/>
                         <field name="is_sell_separate" invisible="1"/>
-                        <separator string="Package" colspan="4"/>
+                        <!-- <separator colspan="4"/> -->
                         <group>
-                            <group>
+                            <group string="Package">
                                 <field name="package_code" default_focus="1" placeholder="Package Code"/>
                                 <field name="package_name" placeholder="Package Name"/>
                                 <field name="shortcut" placeholder="Description"/>

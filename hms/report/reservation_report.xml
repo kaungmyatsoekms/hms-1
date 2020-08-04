@@ -27,4 +27,13 @@
         <field name="report_name">hms.report_expected_arrival_qweb</field>
     </record>
 
+    <!-- Custom Report for In House -->
+    <report id="inhouse_report_id" string="In House List" model="hms.reservation.line" report_type="qweb-pdf" name="hms.report_in_house_qweb" menu="False"/>
+    <record id="inhouse_report" model="ir.actions.report">
+        <field name="name">In House Report</field>
+        <field name="model">report.hms.report_in_house_qweb</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hms.report_in_house_qweb</field>
+    </record>
+
 </odoo>

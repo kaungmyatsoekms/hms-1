@@ -122,36 +122,36 @@ class RateCodeDetails(models.Model):
         else:
             return mmk_currency_id
 
-    sequence = fields.Integer('Sequence', default=1, help="Sequence")
+    sequence = fields.Integer('Sequence', default=1)
     ratehead_id = fields.Many2one('hms.ratecode.header',
-                                  string="Rate Code Header", help="Rate Code Header")
+                                  string="Rate Code Header")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  readonly=True, store=True, help="Property")
-    season_code = fields.Char(string="Season", size=10, required=True, help="Season Code")
+                                  readonly=True, store=True)
+    season_code = fields.Char(string="Season", size=10, required=True)
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
     roomtype_id = fields.Many2many('hms.roomtype',
                                    string="Room Type",
                                    store=True,
-                                   domain="[('id', '=?', roomtype_ids)]",
-                                   required=True, help="Room Type")
+                                   domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
+                                   required=True)
 
     start_date = fields.Date(string="Start Date",
                              required=True,
-                             default=datetime.today(), help="Start Date")
-    end_date = fields.Date(string="End Date", required=True, help="End Date")
+                             default=datetime.today())
+    end_date = fields.Date(string="End Date", required=True)
     transaction_id = fields.Many2one(
         'hms.transaction',
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
-        required=True, help="Transaction")
+        required=True)
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   default=default_get_curency,
                                   required=True,
-                                  track_visibility=True, help="Currency")
+                                  track_visibility=True)
     normal_price1 = fields.Float(string="1 Adult",
     digits='Rate Price')
     normal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
@@ -159,8 +159,8 @@ class RateCodeDetails(models.Model):
     normal_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     normal_extra = fields.Float(string="Extra", digits='Rate Price')
     weekend_price1 = fields.Float(string="1 Adult", digits='Rate Price')
-    weekend_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
-    weekend_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
+    weekend_price2 = fields.Float(string="2rd Adult(+)", digits='Rate Price')
+    weekend_price3 = fields.Float(string="3rd Adult(+$)", digits='Rate Price')
     weekend_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     weekend_extra = fields.Float(string="Extra", digits='Rate Price')
     special_price1 = fields.Float(string="1 Adult", digits='Rate Price')
@@ -288,19 +288,19 @@ class RateCategories(models.Model):
                             default=True,
                             track_visibility=True)
     sequence = fields.Integer(default=1)
-    code = fields.Char(string="Code", size=10, required=True, help="Code")
-    categories = fields.Char(string="Description", required=True, help='Description')
+    code = fields.Char(string="Code", size=10, required=True)
+    categories = fields.Char(string="Description", required=True)
     start_date = fields.Date(string="Start Date",
                              required=True,
-                             default=datetime.today(), help="Start Date")
-    end_date = fields.Date(string="End Date", help="End Date")
+                             default=datetime.today())
+    end_date = fields.Date(string="End Date")
     rate_header_ids = fields.One2many('hms.ratecode.head',
                                       'rate_category_id',
                                       string="Rate Codes",
-                                      required=True,  help="Rate Code")
+                                      required=True)
     terminate_end_date = fields.Date(string="Terminate End Date",
                                      compute='get_terminate_end_date',
-                                     store=True, help="Terminate End Date")
+                                     store=True)
 
     def _compute_is_rate_category(self):
         self.is_rate_category = True
@@ -355,17 +355,17 @@ class RateCodeHead(models.Model):
     _description = "Rate Code"
 
     head_create = fields.Boolean(default=True)
-    rate_code = fields.Char(string="Rate Code", size=10, required=True, help="Rate Code")
-    ratecode_name = fields.Char(string="Description", required=True, help="Description")
+    rate_code = fields.Char(string="Rate Code", size=10, required=True)
+    ratecode_name = fields.Char(string="Description", required=True)
     start_date = fields.Date(string="Start Date",
                              required=True,
-                             default=datetime.today(), help="Start Date")
-    end_date = fields.Date(string="End Date", required=True, help="End Date")
+                             default=datetime.today())
+    end_date = fields.Date(string="End Date", required=True)
     rate_category_id = fields.Many2one('hms.rate.categories',
-                                       string="Rate Categories", help="Rate Categories")
+                                       string="Rate Categories")
     property_ids = fields.Many2many("hms.property",
                                     store=True,
-                                    track_visibility=True, help="Property")
+                                    track_visibility=True)
 
     def name_get(self):
         result = []

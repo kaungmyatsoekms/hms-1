@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Wizard for Property -->
+    <record id="property_report_wiz" model="ir.ui.view">
+        <field name="name">Property</field>
+        <field name="model">hms.property_report_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Property Report">
+                <separator colspan="1" string="Choose Property"/>
+                <group>
+                    <field name="property_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </group>
+                <footer>
+                    <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_property_report_wiz" model="ir.actions.act_window">
+        <field name="name">Property Report</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hms.property_report_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_property_report_wizard" name="Property Report" action="action_property_report_wiz" parent="hms_menu_report" sequence="1"/>
+</odoo>

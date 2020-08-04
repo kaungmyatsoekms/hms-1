@@ -13,13 +13,13 @@ class HMSAllotment(models.Model):
     _description = "Allotment"
     _order = "name"
 
-    name = fields.Char("Allotment Name", required=True, help="Allotment Name")
-    description = fields.Char("Description", required=True, help="Description")
-    property_id = fields.Many2one('hms.property', track_visibility=True, help="Property")
+    name = fields.Char("Allotment Name", required=True)
+    description = fields.Char("Description", required=True)
+    property_id = fields.Many2one('hms.property', track_visibility=True)
     cut_off = fields.Boolean(default=True, track_visibility=True)
     active = fields.Boolean(default=True, track_visibility=True)
     allotment_line_ids = fields.One2many('hms.allotment.line', 'allotment_id',
-                                         'Allotment', help="Allotment")
+                                         'Allotment')
     state = fields.Selection([('initial', 'Initial'), ('open', "Open"),
                               ('close', "Close")],
                              string='Status',
@@ -27,7 +27,7 @@ class HMSAllotment(models.Model):
                              copy=False,
                              store=True,
                              default='initial',
-                             track_visibility=True, help="Status")
+                             track_visibility=True)
 
 
 class HMSAllotmentLine(models.Model):
@@ -37,25 +37,23 @@ class HMSAllotmentLine(models.Model):
 
     allotment_id = fields.Many2one("hms.allotment",
                                 "Allotment Details",
-                                track_visibility=True, help="Allotment Detail")
+                                track_visibility=True)
     property_id = fields.Many2one("hms.property",             
                                 store=True,
-                                track_visibility=True, help="Property")
+                                track_visibility=True)
     roomtype_ids = fields.Many2many("hms.roomtype", related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2one('hms.roomtype', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True, help="Room type")
-    ratecode_id = fields.Many2one('hms.ratecode.header', string="Rate Code", help="Rate Code")
+    roomtype_id = fields.Many2one('hms.roomtype', string="Room Type", domain="[('id', '=?', roomtype_ids)]", required=True)
+    ratecode_id = fields.Many2one('hms.ratecode.header', string="Rate Code")
     start_date = fields.Date(string="Start Date",
                              readonly=False,
                              required=True,
                              store=True,
-                             track_visibility=True, 
-                             help="Start Date")
+                             track_visibility=True)
     end_date = fields.Date(string="End Date",
                            readonly=False,
                            required=True,
                            store=True,
-                           track_visibility=True, 
-                           help="End Date")
+                           track_visibility=True)
     cut_off_days = fields.Integer(string="Cut off Days")
     monday = fields.Integer(string="Mon")
     tuesday = fields.Integer(string="Tue")

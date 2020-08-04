@@ -1,16 +1,6 @@
 <odoo>
   <data>
 
-    <!-- Top menu item -->
-    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5"/>
-
-    <!-- menu categories -->
-    <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/>
-    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="3"/>
-    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
-    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
-
     <!-- ========== Hotel Property Setup ========== -->
     <!-- Property Setup Form View -->
     <record id="property_view_form" model="ir.ui.view">
@@ -91,10 +81,7 @@
                   <field name="city_id" placeholder="City" class="o_address_city" options="{'no_quick_create':True, 'no_open':True}"/>
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create':True, 'no_open':True}"/>
-                  <field name="timezone"/>
                 </div>
-                <field name="system_date"/>
-                <field name="rating" widget="priority"/>
                 <label for="image" string="Image"/>
                 <div>
                   <field name="image"/>
@@ -102,9 +89,12 @@
               </group>
               <group>
                 <newline/>
+                <field name="timezone"/>
+                <field name="system_date"/>
                 <field name="ci_time" widget="float_time"/>
                 <field name="co_time" widget="float_time"/>
-                <field name="night_audit" widget="radio"/> 
+                <field name="night_audit" widget="radio"/>
+                <field name="rating" widget="priority"/>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
                 <field name="email" placeholder="example@company.com....."/>
@@ -290,6 +280,8 @@
           <field name="rating"/>
           <field name="timezone"/>
           <field name="system_date"/>
+          <field name="is_property"/>
+          <field name="is_manual"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
@@ -363,6 +355,9 @@
                   <div t-if="record.rating.raw_value">
                     <field name="rating" widget='priority'/>
                   </div>
+                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                    <i class="fa fa-moon-o"></i>Night Audit
+                  </button>
                 </div>
               </div>
             </t>
@@ -553,8 +548,10 @@
             <h2>Room Location</h2>
             <br></br>
             <group>
-              <field name="location_code" placeholder="Eg. 1F" style="width:40%%" attrs="{'readonly': [('id', '=', 1)]}"/>
-              <field name="location_name" placeholder="Eg. 1st Floor" style="width:40%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+              <group>
+                <field name="location_code" placeholder="Eg. 1F" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="location_name" placeholder="Eg. 1st Floor" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -707,8 +704,11 @@
             <h2>Room View Setup</h2>
             <br></br>
             <group>
-              <field name="name" placeholder="Eg. MTV....."/>
-              <field name="roomview_desc" placeholder="Eg. Mountain View"/>
+              <group>
+                <field name="is_csv" invisible="1"/>
+                <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -786,6 +786,7 @@
             <h2>Facility Type</h2>
             <br></br>
             <group>
+              <field name="is_csv" invisible="1"/>
               <field name="facility_type" placeholder="Eg. ENT..... "/>
               <field name="facilitytype_desc" placeholder="Eg. Entertainments...."/>
             </group>
@@ -803,6 +804,26 @@
           <field name="facility_type"/>
           <field name="facilitytype_desc"/>
         </tree>
+      </field>
+    </record>
+
+    <!-- Room Amenity Setup Form View -->
+    <record id="room_amenity_view_form" model="ir.ui.view">
+      <field name="name">hms.room.amenity.view.form</field>
+      <field name="model">hms.room.amenity</field>
+      <field name="arch" type="xml">
+        <form string="Room Amenity" import="false">
+          <sheet>
+            <h2>Room Amenity Setup</h2>
+            <br></br>
+            <group>
+              <field name="is_csv" invisible="1"/>
+              <field name="facilitytype_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="name" placeholder="Eg. AC" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <field name="amenity_desc" placeholder="Eg. Air-Con" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+            </group>
+          </sheet>
+        </form>
       </field>
     </record>
 
@@ -961,11 +982,13 @@
             <h2>Market Segment</h2>
             <br></br>
             <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}"/>
-              <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <group>
+                <field name="is_csv" invisible="1" style="width:50%%"/>
+                <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}" style="width:50%%"/>
+                <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -1041,11 +1064,14 @@
         <form string="Special Day" import="false">
           <sheet>
             <h2>Special Day</h2>
-            <br></br>
-            <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+            <h2>
+              <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+            </h2>
             <group>
+              <group>
                 <field name="special_date" placeholder="Eg. Water Festival Date....." style="width:50%%"/>
-                <field name="special_desc" placeholder="Eg. Water Festival....." style="width:50%%"/>
+                <field name="special_desc" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -1079,9 +1105,10 @@
         <form string="Weekend" create="false" delete="false" no_create_edit="True" import="false">
           <sheet>
             <h2>Define Weekends</h2>
-            <br></br>
-            <group>
+            <h2>
               <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+            </h2>
+            <group>
               <field name="monday" widget="boolean_toggle"/>
               <field name="tuesday" widget="boolean_toggle"/>
               <field name="wednesday" widget="boolean_toggle" />
@@ -1184,11 +1211,13 @@
         <form string="Revenue Type" create="false" edit="true" import="false" delete="false">
           <sheet>
             <group>
-              <field name="rev_type"/>
-              <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9"/>
-              <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" />
-              <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
-              <field name="subgroup_ids" context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}"/>
+              <group>
+                <field name="rev_type" style="width:50%%"/>
+                <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9" style="width:50%%"/>
+                <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" style="width:50%%"/>
+                <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}" style="width:50%%"/>
+                <field name="subgroup_ids" context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -1468,14 +1497,15 @@
         <form string="Credit Limit" import="false">
           <sheet>
             <h2>Credit Limit</h2>
-            <br></br>
-            <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
+            <h2>
+              <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}' style="width:50%%"/>
+            </h2>
             <group>
               <group>
-                <field name="payment_type"/>
-                <field name="crd_startdate"/>
-                <field name="crd_enddate"/>
-                <field name="crd_limit"/>
+                <field name="payment_type" style="width:50%%"/>
+                <field name="crd_startdate" style="width:50%%"/>
+                <field name="crd_enddate" style="width:50%%"/>
+                <field name="crd_limit" style="width:50%%"/>
               </group>
             </group>
           </sheet>
@@ -1504,9 +1534,20 @@
       <field name="view_mode">tree,form</field>
     </record>
 
+    <!-- Top menu item -->
+    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5" action="property_action_window"/>
+
+    <!-- menu categories -->
+    <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
+    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
+    <menuitem id="hms_menu_inhouse" name="Inhouse" parent="hotel_menu_root" sequence="3"/>
+    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="4"/>
+    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
+    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
+
     <menuitem action="property_action_window" id="menu_action_property_form" parent="base.menu_users"/>
 
-    <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/>
+    <!-- <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/> -->
 
     <menuitem id="room_config" name="Room Config" parent="hms_menu_config" sequence="2"/>
     <menuitem id="room_type_menu" name="Room Type" parent="room_config" sequence="1" action="room_type_action_window"/>

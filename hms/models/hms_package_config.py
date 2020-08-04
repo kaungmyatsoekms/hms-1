@@ -35,7 +35,7 @@ RATE_ATTRIBUTE = [
 
 class Package(models.Model):
     _name = "hms.package.header"
-    _rec_name = 'shortcut'
+    _rec_name = 'package_name'
     _description = "Package"
 
     # Default Get Currency
@@ -59,10 +59,10 @@ class Package(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
-                                  required=True, help="Property")
-    package_code = fields.Char(string="Package Code", size=4, required=True, help="Package Code")
-    package_name = fields.Char(string="Package Name", required=True, help="Package Name")
-    shortcut = fields.Text(string="Description", help="Description")
+                                  required=True)
+    package_code = fields.Char(string="Package Code", size=4, required=True)
+    package_name = fields.Char(string="Package Name", required=True)
+    shortcut = fields.Text(string="Description")
     start_date = fields.Date(string="Start Date",
                              required=True,
                              help="Start of Package")
@@ -71,61 +71,61 @@ class Package(models.Model):
                            help="End of Package")
     forecast_next_day = fields.Boolean(string="Forecast Next Day",
                                        default=False,
-                                       track_visibility=True, help="Forecast Next Day")
+                                       track_visibility=True)
     post_next_day = fields.Boolean(string="Post Next Day",
                                    default=False,
-                                   track_visibility=True, help="Post Next Day")
+                                   track_visibility=True)
     catering = fields.Boolean(string="Catering",
                               default=False,
-                              track_visibility=True, help="Catering")
+                              track_visibility=True)
     transaction_id = fields.Many2one(
         'hms.transaction',
         string='Transaction',
         domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]", help="Transaction")
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_profit = fields.Many2one(
         'hms.transaction',
         string='Profit',
         domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]", help="Profit")
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
     package_loss = fields.Many2one(
         'hms.transaction',
         string='Loss',
         domain=
-        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]", help="Loss")
-    product_item = fields.Char('Product Item', help="Product Item")
+        "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]")
+    product_item = fields.Char('Product Item')
     include_service = fields.Boolean('Include Service',
                                      track_visibility=True,
-                                     related='transaction_id.trans_svc', help="Include Service")
+                                     related='transaction_id.trans_svc')
     include_tax = fields.Boolean('Include Tax',
                                  track_visibility=True,
-                                 related='transaction_id.trans_tax', help="Include Tax")
+                                 related='transaction_id.trans_tax')
     allowance = fields.Boolean(string="Allowance",
                                default=False,
-                               track_visibility=True, help="Allowance")
+                               track_visibility=True)
     valid_eod = fields.Boolean(string="Valid C/O EOD",
                                default=False,
-                               track_visibility=True, help="Valid C/O EOD")
+                               track_visibility=True)
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   default=default_get_curency,
                                   required=True,
-                                  track_visibility=True, help="Currency")
+                                  track_visibility=True)
     posting_rythms = fields.Selection(POSTING_RYTHMS,
                                       string='Posting Rhythms',
                                       index=True,
-                                      default=POSTING_RYTHMS[0][0], help="Posting Rythms")
+                                      default=POSTING_RYTHMS[0][0])
     Calculation_method = fields.Selection(CALCUATION_METHODS,
                                           string='Calculation Method',
                                           index=True,
-                                          default=CALCUATION_METHODS[0][0], help="Calculation Method")
-    Fix_price = fields.Float('Price', digits='Fix Price', help="Price")
+                                          default=CALCUATION_METHODS[0][0])
+    Fix_price = fields.Float('Price', digits='Fix Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
                                       default=RATE_ATTRIBUTE[0][0],
                                       compute='_compute_attribute_type',
-                                      inverse='_write_attribute_type', help="Attribute")
+                                      inverse='_write_attribute_type')
     reservation_fields_id = fields.Many2one('hms.reservation.fields',
                                             string="Reservation Fields",
                                             help="Reservation Fields")
@@ -139,7 +139,7 @@ class Package(models.Model):
         result = []
         for record in self:
             result.append(
-                (record.id, "{} ({} {})".format(record.shortcut,
+                (record.id, "{} ({} {})".format(record.package_name,
                                                 record.start_date,
                                                 record.end_date)))
         return result
@@ -221,5 +221,5 @@ class PackageGroup(models.Model):
         result = []
         for record in self:
             result.append((record.id, "{} ({})".format(record.pkg_group_code,
-                                                       record.shortcut)))
+                                                       record.pkg_group_name)))
         return result

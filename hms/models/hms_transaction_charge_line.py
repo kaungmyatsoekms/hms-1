@@ -27,35 +27,35 @@ class HMSTransactionChargeLine(models.Model):
         if reservation_line:
             return reservation_line
 
-    property_id = fields.Many2one('hms.property', string="Property", help="Property")
+    property_id = fields.Many2one('hms.property', string="Property")
     transaction_id = fields.Many2one(
         'hms.transaction',
         string='Transaction',
-        domain="[('property_id', '=?', property_id)]", help="Transaction")
+        domain="[('property_id', '=?', property_id)]")
     reservation_line_id = fields.Many2one("hms.reservation.line",
                                           "Reservation",
-                                          default=get_reservation_line_id, help="Reservation")
-    rate = fields.Float("Rate", store=True, help="Rate")
-    total_amount = fields.Float("Total", help="Total")
+                                          default=get_reservation_line_id)
+    rate = fields.Float("Rate", store=True)
+    total_amount = fields.Float("Total")
     price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True,
-        currency_field='always_set_currency_id', help="Sub Total")
+        currency_field='always_set_currency_id')
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
         'hms.package.header',
         related="reservation_line_id.package_id.package_ids")
-    package_id = fields.Many2one('hms.package.header', string='Package', help="Package")
-    total_room = fields.Integer('Rooms', related="reservation_line_id.rooms", help='Rooms')
-    transaction_date = fields.Date("Date", help=" Trns Date")
+    package_id = fields.Many2one('hms.package.header', string='Package')
+    total_room = fields.Integer('Rooms', related="reservation_line_id.rooms")
+    transaction_date = fields.Date("Date")
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
-                                      default=RATE_ATTRIBUTE[0][0], help='Attribute')
-    ref = fields.Char(string="Reference", help="Reference")
+                                      default=RATE_ATTRIBUTE[0][0])
+    ref = fields.Char(string="Reference")
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
                                   required=True,
-                                  track_visibility=True, help="Currency")
+                                  track_visibility=True)
     always_set_currency_id = fields.Many2one('res.currency', string='Foreign Currency',
         compute='_compute_always_set_currency_id',
         help="Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one.")

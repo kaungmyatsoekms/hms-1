@@ -8,9 +8,11 @@ class HMSCalculationMethod(models.Model):
     _description = "Calculation Method"
     _order = 'ordinal_no,name'
 
+    is_csv = fields.Boolean(default=False)
     ordinal_no = fields.Integer("Order No")
     name = fields.Char("Name")
     active = fields.Boolean("Active")
+
 
 # Charge Type
 class HMSChargeTypes(models.Model):
@@ -19,12 +21,12 @@ class HMSChargeTypes(models.Model):
     _order = 'ordinal_no,name'
 
     is_csv = fields.Boolean(default=False)
-    name = fields.Char("Charge Type", required=True, track_visibility=True, help="Charge Type")
-    ordinal_no = fields.Integer("Ordinal No", required=True, help="Ordinal No")
+    name = fields.Char("Charge Type", required=True, track_visibility=True)
+    ordinal_no = fields.Integer("Ordinal No", required=True)
     calculate_method_ids = fields.Many2many("hms.calculation.method",
                                             "hms_charge_type_calculation",
                                             "charge_id", "calc_method_id",
-                                            "Calculate Methods", help='Calculate Methods')
+                                            "Calculate Methods")
     active = fields.Boolean(default=True, track_visibility=True)
     _sql_constraints = [('name_unique', 'unique(name)',
                          'Charge Type is already existed.')]
@@ -41,35 +43,35 @@ class HMSPackageChargeLine(models.Model):
     _description = "Package Charge Line"
     _inherit = ['mail.thread']
 
-    name = fields.Char("Name", required=True, track_visibility=True, help="Name")
-    property_id = fields.Many2one('hms.property', string="Property", help="Property")
+    name = fields.Char("Name", required=True, track_visibility=True)
+    property_id = fields.Many2one('hms.property', string="Property")
     transaction_id = fields.Many2one('hms.transaction',
                                      string='Transaction',
-                                     domain="[('property_id', '=?', property_id)]", help="Transaction")
-    package_id = fields.Many2one('hms.package',string="Package",track_visibility=True, help="Package")
-    charge_type_id = fields.Many2one("hms.charge_types",'Main Charge Type', required=True, track_visibility=True, help="Main Charge Type")
+                                     domain="[('property_id', '=?', property_id)]")
+    package_id = fields.Many2one('hms.package',string="Package",track_visibility=True)
+    charge_type_id = fields.Many2one("hms.charge_types",'Main Charge Type', required=True, track_visibility=True)
     calculate_method_ids = fields.Many2many( 'hms.calculation.method', "Calculation Method", related="charge_type_id.calculate_method_ids")
     calculation_method_id = fields.Many2one('hms.calculation.method',
                                             "Calculation Method",
                                             track_visibility=True,
                                             readonly=False,
                                             required=True,
-                                            store=True, help="Calculation Method")
+                                            store=True)
     is_apply_service = fields.Boolean('Apply Service',
                                       track_visibility=True,
-                                      related='transaction_id.trans_svc', help="Apply Service")
-    service = fields.Float("Tax", track_visibility=True, help="Tax")
+                                      related='transaction_id.trans_svc')
+    service = fields.Float("Tax", track_visibility=True)
     is_apply_tax = fields.Boolean('Apply Tax',
                                   track_visibility=True,
-                                  related='transaction_id.trans_tax', help="Apply Tax")
-    tax = fields.Float("Tax", track_visibility=True, help="Tax")
+                                  related='transaction_id.trans_tax')
+    tax = fields.Float("Tax", track_visibility=True)
     billing_type = fields.Selection([('daily', 'Daily'),
                                      ('partial', 'Partially'),
                                      ('monthly', 'Monthly')],
                                     "Billing Type",
                                     required=True,
                                     default='daily',
-                                    track_visibility=True, help="Billing Type")
+                                    track_visibility=True)
     active = fields.Boolean(default=True)
     #     unit_charge_line = fields.One2many("hms.unit.charge.line",
     #                                        "applicable_charge_id",
