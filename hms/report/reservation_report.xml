@@ -36,4 +36,12 @@
         <field name="report_name">hms.report_in_house_qweb</field>
     </record>
 
+    <!-- <report id="confirm_letter_id" string="Confirm Letter" model="hms.reservation" report_type="qweb-pdf" name="hms.confirm_letter_template" menu="False"/>
+    <record id="confirm_letter" model="ir.actions.report">
+        <field name="name">Confirm Letter</field>
+        <field name="model">hms.confirm_letter</field>
+        <field name="report_type">qwed-pdf</field>
+        <field name="report_name">hms.confirm_letter_template</field>
+    </record> -->
+
 </odoo>

@@ -3,9 +3,8 @@ from odoo.addons.mail.wizard.mail_compose_message import _reopen
 from odoo.exceptions import UserError
 from odoo.tools.misc import get_lang
 
-
 class ConfirmLetter(models.TransientModel):
-    _name = 'hms.confirm.letter'
+    _name = 'hms.confirm_letter'
     _inherits = {'mail.compose.message':'composer_id'}
     _description = 'Confirm Letter'
 
@@ -13,7 +12,6 @@ class ConfirmLetter(models.TransientModel):
     invoice_without_email = fields.Text(compute='_compute_invoice_without_email', string='invoice(s) that will not be sent')
     is_print = fields.Boolean('Print', default=lambda self: self.env.company.invoice_is_print)
     printed = fields.Boolean('Is Printed', default=False)
-    invoice_ids = fields.Many2many('account.move', 'account_move_account_invoice_send_rel', string='Invoices')
     composer_id = fields.Many2one('mail.compose.message', string='Composer', required=True, ondelete='cascade')
     template_id = fields.Many2one(
         'mail.template', 'Use template', index=True,
@@ -23,7 +21,7 @@ class ConfirmLetter(models.TransientModel):
     def _send_email(self):
         self.composer_id.send_mail()
 
-    def send_confirm_letter(self):
+    def action_confirm_letter(self):
         self.ensure_one()
         # Send the mails in the correct language by splitting the ids per lang.
         # This should ideally be fixed in mail_compose_message, so when a fix is made there this whole commit should be reverted.
