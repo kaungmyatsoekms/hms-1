@@ -28,9 +28,7 @@
                 </div>
                 <div class="row">
                     <p>Printed Date : 
-                        <script>
-                document.write(new Date().toLocalDateString());
-                        </script>
+                        <script>document.write(new Date().toLocalDateString());</script>
                     </p>
                 </div>
                 <table class="table" style="width:100%;border: 3px solid darkgray;padding:5px 5px 5px;font-size:15px;">

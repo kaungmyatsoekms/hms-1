@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <template id="report_reservation_qweb">
         <t t-call="web.html_container">
             <div class="page">
                 <div class="row">
-                    <div class="column" style="width:50%;float:left;line-height:15pt;">
+                    <div class="column" style="width:50%;float:left;line-height:12pt;">
                         <h1>
                             <span t-esc="property_name"/>
                         </h1>
                         <h3>Reservation List</h3>
                     </div>
-                    <div class="column" style="width:18%;float:right;line-height:7pt;">
+                    <div class="column" style="width:18%;float:right;line-height:5pt;">
                         <h5 style="text-align:right;">Page : 1</h5>
-            
                         <h4 style="line-height:1pt;">Report Date: 
                             <span t-esc="system_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
                         </h4>
                         <strong>
-                            <h4 id="date" style="line-height:8pt;">
+                            <h4 id="date" style="line-height:7pt;">
                              Printed Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/>
                             </h4>
                         </strong>
@@ -110,12 +110,17 @@
 
                     <t t-if="date1 == 0">
                         <t t-set="date1" t-value="info.arrival"></t>
-                        <t t-set="date3" t-value="0"></t>
-                        <div style="margin-top:12px;margin-bottom:5px;">
-                            <strong style="border-bottom:1px solid grey;">Date: <span t-esc="info.arrival"/>
+                          <div style="margin-top:12px;margin-bottom:5px;">
+                            <strong style="border-bottom:1px solid grey;">
+                            Date: <span t-esc="info.arrival"/>
+                            Date1: <span t-esc="date1"/>
+                            Date2: <span t-esc="date2"/>
+                            Date3: <span t-esc="date3"/>
                             </strong>
                         </div>
+                        <t t-set="date3" t-value="0"></t>
                     </t>
+                    <!-- date2 == date1 -->
                     <t t-if="date2 == date1">
                         <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
                             <tbody style="background:white;padding:3px 3px 3px 3px;">
@@ -152,7 +157,6 @@
                                     </td>
                                     <td style="width:5%; solid lightgray;">
                                         <t t-esc="'%02d:%02d' %(int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
-                                        <span t-field="info.arrival_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.departure"/>
@@ -162,7 +166,6 @@
                                     </td>
                                     <td style="width:5%; solid lightgray;">
                                         <t t-esc="'%02d:%02d' % (int(info.dep_flighttime), info.dep_flighttime % 1 * 60)" />
-                                        <span t-field="info.dep_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.company_id.name"/>
@@ -177,9 +180,14 @@
                             </tbody>
                         </table>
                     </t>
-                    <t t-if="date3==0">
-                        <t t-if="date1!=date2">
-                            <div>
+
+                    <!-- date 2 ! =date1 -->
+                    <t t-if="date2 != date1">
+                        <t t-if="date3 != 0">
+                            <t t-set="date1" t-value="date2"></t>
+                        </t>
+                        <t t-if="date3==0">
+                             <div>
                                 <hr></hr>
                                 <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
                                     <tbody>
@@ -195,20 +203,23 @@
                                                 <span t-esc="sub_ad-1"/>
                                                 <t t-set="sub_ad" t-value="0"></t>
                                             </td>
+                                              <td style="width:3%; solid lightgray;">
+                                                <h5>date3 ==0 ,date1!=date2</h5>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </t>
-                    </t>
-                    <t t-if="date2 != date1">
-                        <t t-if="date3 != 0">
-                            <t t-set="date1" t-value="0"></t>
-                        </t>
+
                         <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
                             <tbody style="background:white;padding:3px 3px 3px 3px;">
                                 <div style="margin-top:12px;margin-bottom:5px;">
-                                    <strong style="border-bottom:1px solid grey;">Date: <span t-esc="info.arrival"/>
+                                    <strong style="border-bottom:1px solid grey;">
+                                    Date: <span t-esc="info.arrival"/>
+                                    Date1: <span t-esc="date1"/>
+                                    Date2: <span t-esc="date2"/>
+                                    Date3: <span t-esc="date3"/>
                                     </strong>
                                 </div >
                                 <tr>
@@ -244,7 +255,6 @@
                                     </td>
                                     <td style="width:5%; solid lightgray;">
                                         <t t-esc="'%02d:%02d' % (int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
-                                        <span t-field="info.arrival_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.departure"/>
@@ -254,7 +264,6 @@
                                     </td>
                                     <td style="width:5%; solid lightgray;">
                                         <t t-esc="'%02d:%02d' % (int(info.dep_flighttime), info.dep_flighttime % 1 * 60)" />
-                                        <span t-field="info.dep_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.company_id.name"/>
@@ -272,7 +281,6 @@
                             <t t-if="date3==0">
                                 <t t-set="sub_rm" t-value="sub_rm+1"></t>
                                 <t t-set="sub_ad" t-value="sub_ad+1"></t>
-
                             </t>
                             <hr></hr>
                             <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
@@ -282,12 +290,15 @@
                                             <strong>Sub Total </strong>
                                         </td>
                                         <td style="width:3%; solid lightgray;">
-                                            <span t-esc="sub_rm"/>
+                                            <span t-esc="date1"/>
                                             <t t-set="sub_rm" t-value="0"></t>
                                         </td>
                                         <td style="width:3%; solid lightgray;">
-                                            <span t-esc="sub_ad"/>
+                                            <span t-esc="date2"/>
                                             <t t-set="sub_ad" t-value="0"></t>
+                                        </td>
+                                        <td style="width:3%; solid lightgray;">
+                                          <h5>date2!=date1</h5>
                                         </td>
                                     </tr>
                                 </tbody>
