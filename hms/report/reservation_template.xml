@@ -11,44 +11,21 @@
                         <h3>Reservation List</h3>
                     </div>
                     <div class="column" style="width:18%;float:right;line-height:7pt;">
-                        <h5 style="text-align:right;">Page: 1</h5>
+                        <h5 style="text-align:right;">Page : 1</h5>
+            
                         <h4 style="line-height:1pt;">Report Date: 
                             <span t-esc="system_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
                         </h4>
                         <strong>
                             <h4 id="date" style="line-height:8pt;">
-                                <script>
-                                var d = new Date();            
-                                var mm = d.getMonth()+1; 
-                                var dd =  d.getDate();
-                                var year = d.getFullYear();
-                                var seconds = d.getSeconds();
-                                var minutes = d.getMinutes();
-                                var hour = d.getHours();                           
-                              document.getElementById("date").innerHTML ="Printed Date:  "+ dd+"/"+mm+"/"+year+" "+hour+":"+minutes+":"+seconds;
-                                </script>
+                             Printed Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/>
                             </h4>
                         </strong>
+
                     </div>
                 </div>
-<!-- Float to Time for flight time -->
-                <!-- <h4 id="date" style="line-height:8pt;">
-<script>
-function convertNumToTime(number) {
-    var sign = (number >= 0) ? 1 : -1;
-    number = number * sign;
-    var hour = Math.floor(number);
-    var decpart = number - hour;
-    var min = 1 / 60;
-    decpart = min * Math.round(decpart / min);
-    var minute = Math.floor(decpart * 60) + '';
-    if (minute.length < 2) {minute = '0' + minute; }
-    sign = sign == 1 ? '' : '-';
-    time = sign + hour + ':' + minute;
-    return time;}
-document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.999);
-</script></h4> -->
-                <!-- header start -->
+
+                <!-- table header start -->
                 <table class="table table-condensed" style="width:100%;border: 3px solid darkgray;font-size:16px;">
                     <thread>
                         <tr>
@@ -106,7 +83,7 @@ document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.
                         </tr>
                     </thread>
                 </table>
-                <!-- header end -->
+                <!-- table header end -->
 
                 <!-- body start -->
                 <t t-set="i" t-value="0"></t>
@@ -174,7 +151,8 @@ document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.
                                         <span t-field="info.arrival_flight"/>
                                     </td>
                                     <td style="width:5%; solid lightgray;">
-                                        <span t-field="info.arrival_flighttime"/>
+                                        <t t-esc="'%02d:%02d' %(int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
+                                        <span t-field="info.arrival_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.departure"/>
@@ -183,7 +161,8 @@ document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.
                                         <span t-field="info.dep_flight"/>
                                     </td>
                                     <td style="width:5%; solid lightgray;">
-                                        <span t-field="info.dep_flighttime"/>
+                                        <t t-esc="'%02d:%02d' % (int(info.dep_flighttime), info.dep_flighttime % 1 * 60)" />
+                                        <span t-field="info.dep_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.company_id.name"/>
@@ -264,7 +243,8 @@ document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.
                                         <span t-field="info.arrival_flight"/>
                                     </td>
                                     <td style="width:5%; solid lightgray;">
-                                        <span t-field="info.arrival_flighttime"/>
+                                        <t t-esc="'%02d:%02d' % (int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
+                                        <span t-field="info.arrival_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.departure"/>
@@ -273,7 +253,8 @@ document.getElementById("date").innerHTML ="Printed Date: "+convertNumToTime(11.
                                         <span t-field="info.dep_flight"/>
                                     </td>
                                     <td style="width:5%; solid lightgray;">
-                                        <span t-field="info.dep_flighttime"/>
+                                        <t t-esc="'%02d:%02d' % (int(info.dep_flighttime), info.dep_flighttime % 1 * 60)" />
+                                        <span t-field="info.dep_flighttime" t-field-options='{"widget": "float_time"}' />
                                     </td>
                                     <td style="width:8%; solid lightgray;">
                                         <span t-field="info.company_id.name"/>
