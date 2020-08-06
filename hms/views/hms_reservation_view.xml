@@ -66,6 +66,9 @@
                         <button string="Group Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_arrival_today', '=', False), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
+                        <button string="Confirm Letter" name="action_confirm_letter" type="object" class="btn btn-primary" attrs="{'invisible': [('is_reservation', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>        
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
                     </header>
                     <sheet>
@@ -201,15 +204,15 @@
                                         <field name="state"/>
                                         <field name="property_id" invisible='1'/>
                                         <field name="company_id" invisible="1"/>
-                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|', ('rooms', '!=', 1), ('state', 'in', ('booking', 'reservation', 'cancel'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
                                         <field name="guest_id" context="{'default_company_type' : 'guest','default_is_from_hms': True }" options='{"bg_color": "required_color:company_id != True"}'/>
                                         <field name="arrival"/>
                                         <field name="departure"/>
-                                        <field name="nights" string="Nights"/>
                                         <field name="roomtype_ids" invisible="1"/>
                                         <field name="room_type" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="bedtype_ids" invisible="1"/>
                                         <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="room_no" attrs="{'readonly': [('state', '=', 'checkin')], 'invisible':['|', ('rooms', '!=', 1), ('state', 'in', ('booking', 'reservation', 'cancel'))]}" domain="[('id','in',avail_room_ids)]" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
+                                        <field name="nights" string="Nights"/>                                        
                                         <field name="rooms"/>
                                         <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
@@ -688,19 +691,23 @@
                     <field name="sequence" widget="handle"/>
                     <field name="required_color" widget="color"/>
                     <field name="state"/>
+                    <field name="confirm_no" optional="show"/>
+                    <field name="company_id" optional="show"/>
+                    <field name="group_id" optional="show"/>
+                    <field name="guest_id" optional="show"/>
                     <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                     <field name="reservation_id" optional="hide"/>
-                    <field name="confirm_no" optional="hide"/>
-                    <field name="arrival" optional="hide"/>
-                    <field name="departure" optional="hide"/>
+                    <field name="arrival" optional="show"/>
+                    <field name="departure" optional="show"/>
                     <field name="room_type"/>
-                    <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}"/>
+                    <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}" optional="hide"/>
                     <field name="rooms"/>
-                    <field name="pax" optional="hide"/>
+                    <field name="pax" optional="show"/>
+                    <field name="market" optional="show"/>
                     <field name="room_no" optional="hide"/>
-                    <field name="ratehead_id"/>
+                    <field name="ratehead_id" optional="hide"/>
                     <field name="ratecode_id" optional="hide"/>
-                    <field name="room_rate"/>
+                    <field name="room_rate" optional="hide"/>
                     <field name="package_id" optional="hide"/>
                     <field name="allotment_id" optional="hide"/>
                     <field name="specialrequest_id" optional="hide"/>
@@ -1388,6 +1395,9 @@
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
                         <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Move Room" name="%(action_move_room_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar"/>

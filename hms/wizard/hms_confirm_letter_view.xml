@@ -1,16 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="confirm_letter_wizard_form" model="ir.ui.view">
             <field name="name">confirm.letter.send.form</field>
-            <field name="model">hms.confirm.letter</field>
+            <field name="model">hms.confirm_letter</field>
             <field name="groups_id" eval="[(4,ref('base.group_user'))]"/>
             <field name="arch" type="xml">
                 <form string="Confirm Letter">
                     <!-- truly invisible fields for control and options -->
                     <field name="composition_mode" invisible="1"/>
-                    <field name="invoice_ids" invisible="1"/>
                     <field name="email_from" invisible="1" />
                     <field name="mail_server_id" invisible="1"/>
                     <div name="mail_form">
@@ -45,7 +42,7 @@
 
                     <footer>
                         <button string="Send Confirm Letter"
-                            name="send_and_print_action" type="object" class="send_and_print btn-primary o_mail_send"/>
+                            name="action_confirm_letter" type="object" class="send_and_print btn-primary o_mail_send"/>
                         <button string="Cancel" class="btn-secondary" special="cancel" />
                     </footer>
                 </form>
@@ -55,7 +52,7 @@
        <act_window
             name="Send &amp; print"
             id="confirm_letter"
-            res_model="hms.confirm.letter"
+            res_model="hms.confirm_letter"
             binding_model="hms.reservation"
             binding_views="list"
             view_mode="form"
@@ -64,5 +61,4 @@
                 'default_template_id': ref('hms.confirm_letter_template')}"/>
 
     </data>
-
 </odoo>

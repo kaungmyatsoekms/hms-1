@@ -840,6 +840,39 @@ class Reservation(models.Model):
                     }))
                 self.update({'reservation_line_ids': vals})
 
+    def action_confirm_letter(self):
+        """ Open a window to compose an email, with the confirm letter template
+            message loaded by default
+        """
+        self.ensure_one()
+        template = self.env.ref('hms.confirm_letter_template', raise_if_not_found=False)
+        lang = get_lang(self.env)
+        if template and template.lang:
+            lang = template._render_template(template.lang, 'hms.reservation', self.id)
+        else:
+            lang = lang.code
+        compose_form = self.env.ref('hms.confirm_letter_wizard_form', raise_if_not_found=False)
+        ctx = dict(
+            default_model='hms.reservation',
+            default_res_id=self.id,
+            default_use_template=bool(template),
+            default_template_id=template.id,
+            default_composition_mode='comment',
+            # mark_invoice_as_sent=True,
+            # custom_layout="mail.mail_notification_paynow",
+            # model_description=self.with_context(lang=lang).type_name,
+            force_email=True
+        )
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'account.invoice.send',
+            'views': [(compose_form.id, 'form')],
+            'view_id': compose_form.id,
+            'target': 'new',
+            'context': ctx,
+        }
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -1107,41 +1140,6 @@ class ReservationLine(models.Model):
         "Charges",
         help='Charges')
 
-    # def action_confirm_letter(self):
-    #     """ Open a window to compose an email, with the confirm letter template
-    #         message loaded by default
-    #     """
-    #     self.ensure_one()
-    #     template = self.env.ref('hms.confirm_letter_template', raise_if_not_found=False)
-    #     lang = get_lang(self.env)
-    #     if template and template.lang:
-    #         lang = template._render_template(template.lang, 'account.move', self.id)
-    #     else:
-    #         lang = lang.code
-    #     compose_form = self.env.ref('account.account_invoice_send_wizard_form', raise_if_not_found=False)
-    #     ctx = dict(
-    #         default_model='account.move',
-    #         default_res_id=self.id,
-    #         default_use_template=bool(template),
-    #         default_template_id=template and template.id or False,
-    #         default_composition_mode='comment',
-    #         mark_invoice_as_sent=True,
-    #         custom_layout="mail.mail_notification_paynow",
-    #         model_description=self.with_context(lang=lang).type_name,
-    #         force_email=True
-    #     )
-    #     return {
-    #         'name': _('Send Invoice'),
-    #         'type': 'ir.actions.act_window',
-    #         'view_type': 'form',
-    #         'view_mode': 'form',
-    #         'res_model': 'account.invoice.send',
-    #         'views': [(compose_form.id, 'form')],
-    #         'view_id': compose_form.id,
-    #         'target': 'new',
-    #         'context': ctx,
-    #     }
-
     def name_get(self):
         result = []
         for record in self:
@@ -1314,39 +1312,6 @@ class ReservationLine(models.Model):
             elif record.state == 'cancel':
                 color = 1
             record.color = color
-
-    def _compute_required_color(self):
-        color_attribute = self.env['hms.color.attribute'].search([
-            ('name', '=', 'Reservation')
-        ])
-        value_ids = color_attribute.value_ids
-        high_color = " "
-        medium_color = " "
-        complete_color = " "
-        for value in value_ids:
-            if value.name == "High":
-                high_color = value.html_color
-            elif value.name == "Medium":
-                medium_color = value.html_color
-            elif value.name == "Complete":
-                complete_color = value.html_color
-
-        for record in self:
-            room_no = self.env['hms.property.room']
-            guest_name = self.env['res.partner']
-            ratehead_id = self.env['hms.ratecode.header']
-            nationality_id = self.env['hms.nationality']
-            if (record.room_type.code != 'HFO'):
-                if (record.ratehead_id == ratehead_id):
-                    record.required_color = high_color
-                elif (record.room_no == room_no
-                      or record.guest_id == guest_name
-                      or record.nationality_id == nationality_id):
-                    record.required_color = medium_color
-                else:
-                    record.required_color = complete_color
-            else:
-                record.required_color = complete_color
 
     def _compute_is_arrival_today(self):
         for rec in self:
@@ -2027,7 +1992,7 @@ class ReservationLine(models.Model):
                     posting_dates.append(post_dates)
                 day_count += 1
         return posting_dates
-
+    
     def create_line_with_posting_rhythm(self, reservation_line_id,
                                         transaction_date, package_ids):
         res = reservation_line_id
