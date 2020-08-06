@@ -1665,9 +1665,12 @@ class PropertyRoom(models.Model):
                                   domain="[('id', '=?', building_ids)]",
                                   required=True,
                                   help='Room Building')
+    location_ids = fields.Many2many('hms.roomlocation',
+                                    related="building_id.location_ids")
     roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       required=True,
+                                      domain="[('id', '=?', location_ids)]",
                                       help='Location')
     facility_ids = fields.One2many('hms.room.facility',
                                    'propertyroom_id',
@@ -1748,14 +1751,9 @@ class PropertyRoom(models.Model):
     # Room location link with Building
     @api.onchange('building_id')
     def onchange_room_location_id(self):
-        location_list = []
-        domain = {}
+        location = self.env['hms.roomlocation']
         for rec in self:
-            if (rec.building_id.location_ids):
-                for location in rec.building_id.location_ids:
-                    location_list.append(location.id)
-                domain = {'roomlocation_id': [('id', 'in', location_list)]}
-                return {'domain': domain}
+            rec.roomlocation_id = location
 
     @api.onchange('roomtype_id')
     def check_is_hfo(self):

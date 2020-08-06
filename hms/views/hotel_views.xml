@@ -848,6 +848,7 @@
                 <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="building_ids" invisible="1"/>
                 <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                <field name="location_ids" invisible="1"/>
                 <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="room_bedqty"/>
                 <field name="no_of_pax"/>
