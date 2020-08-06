@@ -39,7 +39,6 @@ access_hms_allotment,hms.allotment,model_hms_allotment,base.group_user,1,1,1,1
 access_hms_allotment_line,hms.allotment.line,model_hms_allotment_line,base.group_user,1,1,1,1
 access_hms_department,hms.department,model_hms_department,base.group_user,1,1,1,1
 access_hms_special_request,hms.special.request,model_hms_special_request,base.group_user,1,1,1,1
-access_hms_reservation,hms.reservation,model_hms_reservation,base.group_user,1,1,1,1
 access_reservation_user,hms.reservation,model_hms_reservation,hms.group_reservation_user,1,0,0,0
 access_reservation_manager,hms.reservation,model_hms_reservation,hms.group_reservation_manager,1,1,1,1
 access_hms_room_reservation_summary,hms.room.reservation.summary,model_hms_room_reservation_summary,base.group_user,1,1,1,1

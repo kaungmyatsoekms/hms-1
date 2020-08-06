@@ -1,5 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="report_simple_reservation_list">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="row">
+                        <div class="col-9" style="float:left;">
+                            <h5>
+                                <strong>
+                                    Reservation List
+                                </strong>
+                            </h5>
+                        </div>
+                        <div class="col-3" style="float:right;font-size:13px;">
+                            <strong>
+                                <p id="date">
+                                    <script>
+                                        var d = new Date();
+                                        var dd =  d.getDate();
+                                        var mm =  d.getMonth()+1;
+                                        var year = d.getFullYear();
+                                        var seconds = d.getSeconds();
+                                        var minutes = d.getMinutes();
+                                        var hour = d.getHours();
+                                        document.getElementById("date").innerHTML ="Printed Date:  "+ dd+"/"+mm+"/"+year+"\t"+hour+":"+minutes+":"+seconds;
+                                    </script>
+                                </p>
+                            </strong>
+                        </div>
+                    </div>
+                    <table class="table table-condensed" style="width:100%;font-size:14px;background:white;">
+                        <thead>
+                            <tr>
+                                <th style="width:5%;">
+                                    Property
+                                </th>
+                                <th style="width:14%;">
+                                    Company
+                                </th>
+                                <th style="width:14%;">
+                                    Group
+                                </th>
+                                <th style="width:14%;">
+                                    Guest Name
+                                </th>
+                                <th style="width:5%;">
+                                    NAT
+                                </th>
+                                <th style="width:3%;">
+                                    Mkt
+                                </th>
+                                <th style="width:5%;">
+                                    Arr.Date
+                                </th>
+                                <th style="width:5%;">
+                                    Dep.Date
+                                </th>
+                                <th style="width:3%;">
+                                    Rmty
+                                </th>
+                                <th style="width:2%;">
+                                    Rm
+                                </th>
+                                <th style="width:2%;">
+                                    Ad
+                                </th>
+                                <th style="width:2%;">
+                                    Ch
+                                </th>
+                                <th style="width:12%;">
+                                    Remark
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o">
+                                <t t-set="reservation" t-value="reservation"/>
+                                <tr>
+                                    <td>
+                                        <span t-field="o.property_id.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.company_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.group_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.guest_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.nationality_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.market.market_code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.arrival"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.departure"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.room_type.code"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.rooms"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.pax"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.child"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.general_remark"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
     <template id="report_reservation_qweb">
         <t t-call="web.html_container">
             <t t-call="web.external_layout">

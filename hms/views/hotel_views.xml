@@ -165,7 +165,7 @@
                         <field name="room_bedqty" optional="show"/>
                         <field name="room_extension" optional="show"/>
                         <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': ['|',('is_hfo', '=', True),('is_propertyroom', '=', False)]}">
+                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
                           <i class="fa fa-paint-brush"></i>
                         </button>
                       </tree>
@@ -231,6 +231,12 @@
               <field name="message_ids" widget="mail_thread"/>
             </div>
           </sheet>
+          <!-- <footer>
+            <div class="oe_chatter">
+              <field name="message_follower_ids" widget="mail_followers"/>
+              <field name="message_ids" widget="mail_thread"/>
+            </div>
+          </footer> -->
         </form>
       </field>
     </record>
@@ -277,7 +283,6 @@
           <field name="system_date"/>
           <field name="is_property"/>
           <field name="is_manual"/>
-          <field name="is_night_audit"/>
           <templates>
             <t t-name="kanban-box">
               <div class="oe_kanban_global_click">
@@ -351,7 +356,7 @@
                   <div t-if="record.rating.raw_value">
                     <field name="rating" widget='priority'/>
                   </div>
-                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
+                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
                     <i class="fa fa-moon-o"></i>Night Audit
                   </button>
                 </div>
@@ -843,6 +848,7 @@
                 <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="building_ids" invisible="1"/>
                 <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                <field name="location_ids" invisible="1"/>
                 <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="room_bedqty"/>
                 <field name="no_of_pax"/>
@@ -883,6 +889,12 @@
               </group>
             </group>
           </sheet>
+          <!-- <footer> -->
+          <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
+          <!-- <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
+            <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}" context="{'default_property_id' : id}">
+        <i class="fa fa-paint-brush"></i></button>
+          </footer> -->
         </form>
       </field>
     </record>
