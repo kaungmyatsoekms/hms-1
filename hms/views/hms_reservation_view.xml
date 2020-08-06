@@ -1790,7 +1790,7 @@
             <field name="view_mode">tree</field>
             <field name="view_id" ref="expected_arrival_view_list"/>
             <field name="domain">[('arrival', '=', datetime.datetime.today())]</field>
-            <field name="context">{}</field>
+            <field name="context">{'group_by': ['property_id']}</field>
         </record>
 
         <menuitem id="reason_type_menu" name="Reason Type" parent="market_config" sequence="99" action="reason_type_action_window"/>

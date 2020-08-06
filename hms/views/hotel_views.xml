@@ -837,9 +837,10 @@
             <group>
               <group>
                 <field name="is_hfo" invisible="1"/>
+                <field name="is_used" invisible="1"/>
                 <field name="is_propertyroom" invisible='1'/>
                 <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="room_no" placeholder="Eg. 101..."/>
+                <field name="room_no" placeholder="Eg. 101..." attrs="{'readonly': [('is_used', '=', True)]}"/>
                 <field name="roomtype_ids" invisible="1"/>
                 <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="bedtype_ids" invisible="1"/>
