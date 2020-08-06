@@ -840,6 +840,39 @@ class Reservation(models.Model):
                     }))
                 self.update({'reservation_line_ids': vals})
 
+    def action_confirm_letter_send(self):
+        """ Open a window to compose an email, with the confirm letter template
+            message loaded by default
+        """
+        self.ensure_one()
+        template = self.env.ref('hms.confirm_letter_template', raise_if_not_found=False)
+        # lang = get_lang(self.env)
+        # if template and template.lang:
+        #     lang = template._render_template(template.lang, 'hms.reservation', self.id)
+        # else:
+        #     lang = lang.code
+        compose_form = self.env.ref('hms.confirm_letter_wizard_form', raise_if_not_found=False)
+        ctx = {
+            'default_model':'hms.reservation',
+            'default_res_id':self.id,
+            'default_use_template':bool(template),
+            'default_template_id':template.id,
+            'default_composition_mode':'comment',
+            # 'mark_invoice_as_sent':True,
+            # 'custom_layout':"mail.mail_notification_paynow",
+            # 'model_description':self.with_context(lang=lang).type_name,
+            'force_email':True
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'hms.confirm_letter',
+            'views': [(compose_form.id, 'form')],
+            'view_id': compose_form.id,
+            'target': 'new',
+            'context': ctx,
+        }
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -2196,7 +2229,7 @@ class ReservationLine(models.Model):
                         res, transaction_date, pkg)
 
             day_count += 1
-
+            
     @api.model
     def create(self, values):
         # _logger.info(values)
