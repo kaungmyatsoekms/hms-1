@@ -23,7 +23,7 @@ class ConfirmLetter(models.TransientModel):
     def _send_email(self):
         self.composer_id.send_mail()
 
-    def send_confirm_letter(self):
+    def send_and_print_action(self):
         self.ensure_one()
         # Send the mails in the correct language by splitting the ids per lang.
         # This should ideally be fixed in mail_compose_message, so when a fix is made there this whole commit should be reverted.

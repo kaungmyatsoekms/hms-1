@@ -107,8 +107,6 @@ class Property(models.Model):
     def default_get_roomtype(self):
         return self.env['hms.roomtype'].search([('code', '=', 'HFO')]).ids
 
-
-
     is_property = fields.Boolean(string='Is Property',
                                  compute='_compute_is_property',
                                  help='Is Property')
@@ -203,7 +201,6 @@ class Property(models.Model):
                                    inverse='_write_night_audit',
                                    help='Night Audit')
     is_manual = fields.Boolean(default=False)
-    is_night_audit = fields.Boolean(default=False, compute="_compute_is_night_audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -368,14 +365,6 @@ class Property(models.Model):
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
-    @api.depends('system_date')
-    def _compute_is_night_audit(self):
-        for rec in self:
-            if rec.system_date > date.today():
-                rec.is_night_audit = True
-            else:
-                rec.is_night_audit = False
-
     @api.depends('is_manual')
     def _compute_night_audit(self):
         for property in self:
@@ -494,7 +483,7 @@ class Property(models.Model):
 
         # For System Date Update
 
-        self.system_date = self.system_date + timedelta(days=1)
+        self.system_date = datetime.today()
 
         return
 

@@ -84,10 +84,7 @@
         'wizard/hms_reason_wizard_view.xml',
         'wizard/hms_rersvn_wizard_view.xml',
         'wizard/hms_checkin_wizard_view.xml',
-        'wizard/hms_move_room_wizard_view.xml',
-        'report/confirm_letter_template.xml',
-        # 'report/confirm_letter_view.xml',
-        'wizard/hms_confirm_letter_wizard_view.xml',
+        
         'views/hms_reservation_view.xml',
         'views/room_summ_view.xml',
         'views/action_manager.xml',
