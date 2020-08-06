@@ -69,7 +69,7 @@
               </h4>
             </div>
             <newline/>
-            <group>
+            <group colspan="3" col="3">
               <separator colspan='4' string="Property Information" />
               <group>
                 <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
@@ -89,13 +89,14 @@
                 </div>
               </group>
               <group>
-                <newline/>
                 <field name="timezone"/>
                 <field name="system_date"/>
                 <field name="ci_time" widget="float_time"/>
                 <field name="co_time" widget="float_time"/>
                 <field name="night_audit" widget="radio"/>
                 <field name="rating" widget="priority"/>
+              </group>
+              <group>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
                 <field name="fax" placeholder="Eg. 01-123456"/>
                 <field name="email" placeholder="example@company.com....."/>
@@ -838,9 +839,10 @@
             <group>
               <group>
                 <field name="is_hfo" invisible="1"/>
+                <field name="is_used" invisible="1"/>
                 <field name="is_propertyroom" invisible='1'/>
                 <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="room_no" placeholder="Eg. 101..."/>
+                <field name="room_no" placeholder="Eg. 101..." attrs="{'readonly': [('is_used', '=', True)]}"/>
                 <field name="roomtype_ids" invisible="1"/>
                 <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="bedtype_ids" invisible="1"/>

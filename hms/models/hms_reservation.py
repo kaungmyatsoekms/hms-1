@@ -2238,11 +2238,9 @@ class ReservationLine(models.Model):
                                         total_amount, True, pkg,
                                         transaction_date, res.rooms, False,
                                         pkg.rate_attribute)
-
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
-
             day_count += 1
             
     @api.model
@@ -2868,10 +2866,6 @@ class RoomReservationSummary(models.Model):
     _name = 'hms.room.reservation.summary'
     _description = 'Room reservation summary'
 
-    # property_id = fields.Many2one(
-    #     'hms.property',
-    #     string="Property",
-    #     default=lambda self: self.env.user.property_id.id)
     user_id = fields.Many2one('res.users', default=lambda self: self.env.uid)
     property_ids = fields.Many2many('hms.property',
                                     related="user_id.property_id")
@@ -2885,6 +2879,20 @@ class RoomReservationSummary(models.Model):
     date_to = fields.Date('Date To')
     summary_header = fields.Text('Summary Header')
     room_summary = fields.Text('Room Summary')
+
+    @api.onchange('property_ids')
+    def default_get_property_id(self):
+        if self.property_ids:
+            if len(self.property_ids) >= 1:
+                self.property_id = self.property_ids[0]._origin.id
+        else:
+            return {
+                'warning': {
+                    'title': _('No Property Permission'),
+                    'message':
+                    _("Please Select Property in User Setting First!")
+                }
+            }
 
     @api.model
     def default_get(self, fields):
