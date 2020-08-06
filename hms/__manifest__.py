@@ -84,7 +84,6 @@
         'wizard/hms_reason_wizard_view.xml',
         'wizard/hms_rersvn_wizard_view.xml',
         'wizard/hms_checkin_wizard_view.xml',
-        
         'views/hms_reservation_view.xml',
         'views/room_summ_view.xml',
         'views/action_manager.xml',
