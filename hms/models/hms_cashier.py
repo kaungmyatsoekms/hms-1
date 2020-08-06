@@ -2,16 +2,21 @@ from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
 
 
-# Calculation Method
-class HMSCalculationMethod(models.Model):
-    _name = "hms.calculation.method"
-    _description = "Calculation Method"
+# Cashier Transaction
+class HMSCashierTransaction(models.Model):
+    _name = "hms.cashier.transaction"
+    _description = "Cashier Transaction"
     _order = 'ordinal_no,name'
 
-    is_csv = fields.Boolean(default=False)
-    ordinal_no = fields.Integer("Order No")
+    sequence = fields.Integer("Sequence")
     name = fields.Char("Name")
-    active = fields.Boolean("Active")
+    active = fields.Boolean("Active", default=True)
+    reservation_line_id = fields.Many2one("hms.reservation.line",
+                                store=True)
+    reservation_line_id = fields.Many2one("hms.reservation.line",
+    store=True)
+    transaction_date = fields.Date("Date")
+    transaction_time = fields.Datetime("Time", help='Transaction Time')
 
 
 # Charge Type
