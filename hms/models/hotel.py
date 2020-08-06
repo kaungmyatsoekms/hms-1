@@ -201,6 +201,7 @@ class Property(models.Model):
                                    inverse='_write_night_audit',
                                    help='Night Audit')
     is_manual = fields.Boolean(default=False)
+    is_night_audit = fields.Boolean(default=False, compute="_compute_is_night_audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -365,6 +366,14 @@ class Property(models.Model):
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
+    @api.depends('system_date')
+    def _compute_is_night_audit(self):
+        for rec in self:
+            if rec.system_date > date.today():
+                rec.is_night_audit = True
+            else:
+                rec.is_night_audit = False
+
     @api.depends('is_manual')
     def _compute_night_audit(self):
         for property in self:
@@ -483,7 +492,7 @@ class Property(models.Model):
 
         # For System Date Update
 
-        self.system_date = datetime.today()
+        self.system_date = self.system_date + timedelta(days=1)
 
         return
 
@@ -586,7 +595,7 @@ class Property(models.Model):
         property_objs = self.env['hms.property'].search([])
         for record in property_objs:
             if record.is_manual is False:
-                record.system_date = datetime.today()
+                record.system_date = record.system_date + timedelta(days=1)
 
     def set_onboarding_step_done(self, step_name):
         if self[step_name] == 'not_done':
@@ -984,7 +993,7 @@ class Property(models.Model):
             raise ValidationError(
                 _("Total Room cannot be zero or smaller than zero"))
 
-        #Create Sequence for each Property
+    #Create Sequence for each Property
     def create_sequence(self, property):
         if property.gprofile_id_format:
             if property.gprofile_id_format.format_line_id.filtered(
