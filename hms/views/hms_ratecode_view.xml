@@ -168,6 +168,7 @@
                                         <div>
                                             <b>Property: </b>
                                             <field name="property_id"/>
+                                            <br></br>
                                             <b>     Code: </b>
                                             <field name="season_code"/>
                                         </div>
@@ -183,7 +184,8 @@
                                         <div>
                                             <b>From: </b>
                                             <field name="start_date"/>
-                                            <b>     To: </b>
+                                            &#x2063;
+                                            <b>To: </b>
                                             <field name="end_date"/>
                                         </div>
                                         <div>

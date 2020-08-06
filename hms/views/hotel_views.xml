@@ -189,8 +189,12 @@
                 <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
               </page>
               <page string='Hotel License'>
-                <field name="roomqty"/>
-                <field name="property_license"/>
+                <group>
+                  <group>
+                    <field name="roomqty" style="width:50%%"/>
+                    <field name="property_license" style="width:50%%"/>
+                  </group>
+                </group>
               </page>
               <page string="Configuration">
                 <group>

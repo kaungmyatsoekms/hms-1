@@ -35,10 +35,10 @@
                     <h3>
                         <field name="profile_no" readonly="1"/>
                     </h3>
-                    <field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')], 'readonly' : ['|',('is_guest', '=', True),('is_group', '=', True)]}" force_save="1"/>
+                    <field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')], 'readonly' : ['|',('is_guest', '=', True),('is_group', '=', True)]}" force_save="1" style="width:50%%"/>
                 </xpath>
                 <xpath expr="//field[@name='parent_id']" position="before">
-                    <field name="property_id" attrs="{'invisible':[('is_group','!=', True)]}" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                    <field name="property_id" attrs="{'invisible':[('is_group','!=', True)]}" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" style="width:50%%"/>
                 </xpath>
                 <xpath expr="//form/sheet/group[1]" position="replace">
                     <group>
@@ -52,12 +52,12 @@
                             <field name="father" attrs="{'invisible': ['|', ('is_company', '=', True), ('is_guest','!=', True)]}" placeholder="Father Name"/>
                             <field name="nationality_id" attrs="{'invisible': ['|',('is_guest','!=', True)]}" options="{'no_quick_create': True, 'no_open': True}"/>
                             <field name="nrc_card" attrs="{'invisible': [('is_guest','!=', True)]}"/>
-                        </group>
-                        <group>
-                            <field name="guest_channel_type" attrs="{'invisible': [('is_guest','!=', True)]}" placeholder="Guest Type" options="{'no_quick_create': True, 'no_open': True}"/>
                             <field name="company_channel_type" attrs="{'invisible': [('is_company','!=', True)]}" placeholder="Company Type" options="{'no_quick_create': True, 'no_open': True}"/>
                             <field name="group_code" attrs="{'invisible': [('is_group','!=', True)],'required': [('is_group','=', True)]}" placeholder="Group Code"/>
                             <field name="group_name" attrs="{'invisible': [('is_group','!=', True)],'required': [('is_group','=', True)]}" placeholder="Group Name"/>
+                        </group>
+                        <group>
+                            <field name="guest_channel_type" attrs="{'invisible': [('is_guest','!=', True)]}" placeholder="Guest Type" options="{'no_quick_create': True, 'no_open': True}"/>
                             <field name="email" widget="email" attrs="{'required': [('user_ids','!=', [])]}"/>
                             <field name="phone" widget="phone"/>
                             <field name="mobile" widget="phone"/>

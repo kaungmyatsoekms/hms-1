@@ -7,12 +7,14 @@
         <field name="arch" type="xml">
             <form string="In House Report">
                 <group>
-                    <field name="with_rate" invisible="1"/>
-                    <field name="property_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                    <field name="property_name" invisible="1" force_save="1"/>
-                    <field name="system_date" invisible="1" force_save="1"/>
-                    <field name="rate_attr" widget="radio" class="oe_edit_only"/>
-                    <field name="sorting_method"/>
+                    <group>
+                        <field name="with_rate" invisible="1" style="width:50%%"/>
+                        <field name="property_id" style="width:50%%" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                        <field name="property_name" invisible="1" force_save="1" style="width:50%%"/>
+                        <field name="system_date" invisible="1" force_save="1" style="width:50%%"/>
+                        <field name="rate_attr" widget="radio" class="oe_edit_only" style="width:50%%"/>
+                        <field name="sorting_method" style="width:50%%"/>
+                    </group>
                 </group>
                 <footer>
                     <button name="get_report" string="PDF" class="btn-primary" type="object" icon="fa-bars"/>
