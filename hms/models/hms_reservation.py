@@ -1333,6 +1333,34 @@ class ReservationLine(models.Model):
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'confirm'})
 
+    # Get Guest's Nationality from Contact
+    @api.onchange('guest_id')
+    def onchange_guest_nationality(self):
+        for rec in self:
+            if rec.guest_id:
+                if rec.guest_id.nationality_id:
+                    rec.nationality_id = rec.guest_id.nationality_id
+                else:
+                    rec.nationality_id = False
+
+    # For Cancel Check-In Button
+    def action_cancel_checkin(self):
+        self.write({'state': 'confirm'})
+        count = 0
+        for rec in self:
+            for record in rec.reservation_id.reservation_line_ids:
+                if record.state == 'checkin':
+                    if record.room_type.code[0] != 'H':
+                        count += 1
+            if count == 0:
+                rec.reservation_id.write({'state': 'confirm'})
+                hfo_reservation = self.env['hms.reservation.line'].search([
+                    ('reservation_id', '=', rec.reservation_id.id),
+                    ('room_type', '=ilike', 'H%')
+                ])
+                if hfo_reservation:
+                    hfo_reservation.write({'state': 'confirm'})
+
     def set_kanban_color(self):
         for record in self:
             color = 0
@@ -1347,6 +1375,35 @@ class ReservationLine(models.Model):
             elif record.state == 'cancel':
                 color = 1
             record.color = color
+    
+    def _compute_required_color(self):
+        color_attribute = self.env['hms.color.attribute'].search([('name', '=','Reservation')])
+        value_ids = color_attribute.value_ids
+        high_color = " "
+        medium_color = " "
+        complete_color = " "
+        for value in value_ids:
+            if value.name =="High":
+                high_color= value.html_color
+            elif value.name == "Medium":
+                medium_color = value.html_color
+            elif value.name == "Complete":
+                complete_color = value.html_color   
+
+        for record in self:
+            room_no = self.env['hms.property.room']
+            guest_name = self.env['res.partner']
+            ratehead_id =self.env['hms.ratecode.header']
+            nationality_id = self.env['hms.nationality']
+            if (record.room_type.code != 'HFO'):
+                if (record.ratehead_id  == ratehead_id):
+                    record.required_color = high_color
+                elif (record.room_no == room_no or record.guest_id == guest_name or record.nationality_id == nationality_id):
+                    record.required_color =  medium_color
+                else:
+                    record.required_color = complete_color 
+            else:
+                record.required_color = complete_color 
 
     def _compute_required_color(self):
         color_attribute = self.env['hms.color.attribute'].search([
@@ -2060,7 +2117,7 @@ class ReservationLine(models.Model):
                     posting_dates.append(post_dates)
                 day_count += 1
         return posting_dates
-
+    
     def create_line_with_posting_rhythm(self, reservation_line_id,
                                         transaction_date, package_ids):
         res = reservation_line_id
