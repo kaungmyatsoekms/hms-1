@@ -9,6 +9,9 @@
         <field name="report_name">hms.report_property_qweb</field>
     </record>
 
+    <!-- Print Button for Property -->
+    <report id="property_reports" string="Property (PDF)" model="hms.property" report_type="qweb-pdf" file="hms.report_simple_property" name="hms.report_simple_property" print_report_name="'Property - %s' % (object.name)"/>
+
     <!-- Custom Report for Reservation List -->
     <report id="reservation_report_id" string="Reservation Report" model="hms.reservation.line" report_type="qweb-pdf" name="hms.report_reservation_qweb" menu="False"/>
     <record id="reservation_report" model="ir.actions.report">
@@ -17,6 +20,9 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">hms.report_reservation_qweb</field>
     </record>
+
+    <!-- Print Button for Reservation -->
+    <report id="reservation_reports" string="Reservation (PDF)" model="hms.reservation.line" report_type="qweb-pdf" file="hms.report_simple_reservation_list" name="hms.report_simple_reservation_list" print_report_name="'Reservation - %s' % (object.property_id.name)"/>
 
     <!-- Custom Report for Expected Arrival -->
     <report id="expected_arrival_report_id" string="Expected Arrival" model="hms.reservation.line" report_type="qweb-pdf" name="hms.report_expected_arrival_qweb" menu="False"/>

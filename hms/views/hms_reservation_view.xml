@@ -1378,7 +1378,7 @@
             <field name="view_mode">tree</field>
         </record>
 
-         <!-- Inhouse Line Form View -->
+        <!-- Inhouse Line Form View -->
         <record id="inhouse_line_view_form" model="ir.ui.view">
             <field name="name">inhouse.line.view.form</field>
             <field name="model">hms.reservation.line</field>
@@ -1732,6 +1732,39 @@
             <field name="search_view_id" ref="view_hms_reservation_line_search"/>
         </record>
 
+        <record id="expected_arrival_view_list" model="ir.ui.view">
+            <field name="name">expected.arrival.view.list</field>
+            <field name="model">hms.reservation.line</field>
+            <field name="arch" type="xml">
+                <tree string="Expected Arrival List" create="false" import="false" decoration-info="state == 'booking'" decoration-primary="state == 'reservation'" decoration-danger="state == 'cancel'" decoration-success="state == 'confirm'">
+                    <field name="property_id" optional="show"/>
+                    <field name="sequence" widget="handle"/>
+                    <field name="required_color" widget="color"/>
+                    <field name="state" optional="hide"/>
+                    <field name="is_arrival_today" optional="hide"/>
+                    <field name="guest_id"/>
+                    <field name="arrival"/>
+                    <field name="departure"/>
+                    <field name="room_type"/>
+                    <field name="rooms"/>
+                    <field name="pax" optional="show"/>
+                    <field name="child" optional="show"/>
+                    <field name="room_no" optional="show"/>
+                    <field name="ratehead_id" optional="show"/>
+                    <field name="ratecode_id" optional="hide"/>
+                    <field name="room_rate" optional="show"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="expected_arrival_list_action_window" model="ir.actions.act_window">
+            <field name="name">Expected Arrival</field>
+            <field name="res_model">hms.reservation.line</field>
+            <field name="view_mode">tree</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'tree', 'view_id': ref('expected_arrival_view_list')})]"/>
+            <field name="domain">[('is_arrival_today', '=', True)]</field>
+        </record>
+
         <menuitem id="reason_type_menu" name="Reason Type" parent="market_config" sequence="99" action="reason_type_action_window"/>
         <menuitem id="reservation_menu" name="Reservation" parent="hms_menu_rsvn" sequence="1"/>
 
@@ -1744,5 +1777,12 @@
 
         <menuitem id="inhouse_menu" name="Inhouse" parent="hms_menu_inhouse" sequence="1"/>
         <menuitem id="inhouse_details" name="Inhouse List" parent="inhouse_menu" sequence="1" action="inhouse_line_action_window"/>
+
+        <!-- <menuitem id="reservation_list_menu" name="Reservation" parent="hms_menu_inhouse" sequence="2"/>
+        <menuitem id="reservation_list" name="Reservation List" parent="reservation_list_menu" sequence="1" action=""/> -->
+
+        <menuitem id="expected_arrival_list_menu" name="Expected Arrival" parent="hms_menu_inhouse" sequence="3"/>
+        <menuitem id="expected_arrival_list" name="Expected Arrival List" parent="expected_arrival_list_menu" sequence="1" action="expected_arrival_list_action_window"/>
+
     </data>
 </odoo>
