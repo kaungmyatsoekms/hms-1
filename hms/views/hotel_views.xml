@@ -1027,9 +1027,11 @@
             <h2>Market Source</h2>
             <br></br>
             <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <group>
+                <field name="is_csv" invisible="1"/>
+                <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}" />
+              </group>
             </group>
           </sheet>
         </form>

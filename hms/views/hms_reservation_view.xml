@@ -423,13 +423,11 @@
                             <field name="property_ids" invisible="1"/>
                             <field name="property_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                         </div>
-                        <group colspan="4" col="4">
-                            <div>
-                                <label for="date_from" string="Summary Period"/>
-                                <field name="date_from" class="oe_inline"/>
-                                to
-                                <field name="date_to" class="oe_inline"/>
-                            </div>
+                        <group>
+                            <group>
+                                <field name="date_from" class="oe_inline" style="width:50%%"/>
+                                <field name="date_to" class="oe_inline" style="width:50%%"/>
+                            </group>
                         </group>
                         <notebook>
                             <page string="Room Summary">
@@ -513,7 +511,9 @@
                     <sheet>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
-                            <field name="property_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                            <h2>
+                                <field name="property_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                            </h2>
                             <field name="reservation_id" invisible="1"/>
                             <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
                             <h1>
