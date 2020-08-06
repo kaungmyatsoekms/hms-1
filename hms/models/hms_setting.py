@@ -611,7 +611,7 @@ class Partner(models.Model):
                 group_code = record.group_code
             record.name = firstname + middlename + lastname + group_code
 
-    @api.onchange('title', 'gender')
+    @api.onchange('title')
     def onchange_title_gender(self):
         for partner in self:
             if partner.title.gender:

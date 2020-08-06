@@ -2074,19 +2074,19 @@ class SubGroup(models.Model):
                                                        record.sub_desc)))
         return result
 
-    @api.onchange('property_ids')
-    def default_get_property_id(self):
-        if self.property_ids:
-            if len(self.property_ids) >= 1:
-                self.property_id = self.property_ids[0]._origin.id
-        else:
-            return {
-                'warning': {
-                    'title': _('No Property Permission'),
-                    'message':
-                    _("Please Select Property in User Setting First!")
-                }
-            }
+    # @api.onchange('property_ids')
+    # def default_get_property_id(self):
+    #     if self.property_ids:
+    #         if len(self.property_ids) >= 1:
+    #             self.property_id = self.property_ids[0]._origin.id
+    #     else:
+    #         return {
+    #             'warning': {
+    #                 'title': _('No Property Permission'),
+    #                 'message':
+    #                 _("Please Select Property in User Setting First!")
+    #             }
+    #         }
 
     @api.constrains('sub_group')
     def _check_sub_group(self):
