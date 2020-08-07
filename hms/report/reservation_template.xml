@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <template id="report_reservation_qweb">
+<template id="report_reservation_qweb">
         <t t-call="web.html_container">
-            <div class="page">
+             <div class="header">
+                <div class="text-muted"> Page: <span class="page"/> / <span class="topage"/></div>
+                </div>
+                <div class="page">
+           
                 <div class="row">
                     <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
                         <h1>
@@ -111,10 +114,7 @@
                         <t t-set="date1" t-value="info.arrival"></t>
                           <div style="margin-top:12px;margin-bottom:5px;">
                             <strong style="border-bottom:1px solid grey;">
-                            Date: <span t-esc="info.arrival"/>
-                            Date1: <span t-esc="date1"/>
-                            Date2: <span t-esc="date2"/>
-                            Date3: <span t-esc="date3"/>
+                            Date: <span t-esc="info.arrival"/>               
                             </strong>
                         </div>
                         <t t-set="date3" t-value="0"></t>
@@ -180,10 +180,10 @@
                         </table>
                     </t>
 
-                    <!-- date 2 ! =date1 -->
+                    <!-- date 2 != date1 -->
                     <t t-if="date2 != date1">
                         <t t-if="date3 != 0">
-                            <t t-set="date1" t-value="date2"></t>
+                            <t t-set="date3" t-value="date2"></t>
                         </t>
                         <t t-if="date3==0">
                              <div>
@@ -201,25 +201,18 @@
                                             <td style="width:3%; solid lightgray;">
                                                 <span t-esc="sub_ad-1"/>
                                                 <t t-set="sub_ad" t-value="0"></t>
-                                            </td>
-                                              <td style="width:3%; solid lightgray;">
-                                                <h5>date3 ==0 ,date1!=date2</h5>
-                                            </td>
+                                            </td>                                       
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <t t-set="date3" t-value="date2"></t>
+                            <t t-set="date1" t-value="date2"></t>
                         </t>
-
                         <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
                             <tbody style="background:white;padding:3px 3px 3px 3px;">
                                 <div style="margin-top:12px;margin-bottom:5px;">
                                     <strong style="border-bottom:1px solid grey;">
                                     Date: <span t-esc="info.arrival"/>
-                                    Date1: <span t-esc="date1"/>
-                                    Date2: <span t-esc="date2"/>
-                                    Date3: <span t-esc="date3"/>
                                     </strong>
                                 </div >
                                 <tr>
@@ -283,9 +276,11 @@
                                 <t t-set="sub_ad" t-value="sub_ad+1"></t>
                             </t>
                             <t t-if="date2!=date1">
-                                <hr></hr>
+                                 <t t-if="date1!=date3">
+                                 <t t-if="date2!=date3">
+                                          <hr></hr>
                                 <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
-                                <tbody>
+                                 <tbody>
                                     <tr>
                                         <td style="width:10%;">
                                             <strong>Sub Total </strong>
@@ -298,16 +293,17 @@
                                             <span t-esc="date2"/>
                                             <t t-set="sub_ad" t-value="0"></t>
                                         </td>
-                                        <td style="width:3%; solid lightgray;">
-                                          <h5>date2!=date1</h5>
-                                        </td>
                                     </tr>
-                                </tbody>
-                            </table>
+                                    </tbody>
+                              </table>
+                                 </t>
+                                <t t-set="date3" t-value="date2"></t>
+                               <t t-set="date1" t-value="0"></t>
+                            </t>
                             </t>
                         </div>
-                    </t>
-
+                    </t>  
+                    <!-- last index -->
                     <t t-if="i==l">
                         <div>
                             <hr></hr>
@@ -354,5 +350,5 @@
 
             </div>
         </t>
-    </template>
+</template>
 </odoo>
