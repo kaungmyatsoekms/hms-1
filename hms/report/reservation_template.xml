@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
 <template id="report_reservation_qweb">
         <t t-call="web.html_container">
-             <div class="header">
-                <div class="text-muted"> Page: <span class="page"/> / <span class="topage"/></div>
-                </div>
                 <div class="page">
-           
+
+                <!-- title start -->
                 <div class="row">
                     <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
                         <h1>
@@ -26,7 +25,7 @@
 
                     </div>
                 </div>
-
+                <!-- title end -->
                 <!-- table header start -->
                 <table class="table table-condensed" style="width:100%;border: 3px solid darkgray;font-size:16px;">
                     <thread>
@@ -351,4 +350,5 @@
             </div>
         </t>
 </template>
+
 </odoo>
