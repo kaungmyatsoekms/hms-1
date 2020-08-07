@@ -100,9 +100,7 @@
                 <t t-foreach="get_reservation_list" t-as="info">
                     <t t-set="l" t-value="0"></t>
                     <t t-set="i" t-value="i+1"></t>
-                    <t t-foreach="get_reservation_list" t-as="inf">
-                        <t t-set="l" t-value="l+1"></t>
-                    </t>
+                     <t t-set="l" t-value="info_size"></t>
                     <t t-set="date2" t-value="info.arrival"></t>
                     <t t-set="rm" t-value="rm+info.rooms"></t>
                     <t t-set="ad" t-value="ad+info.pax"></t>
