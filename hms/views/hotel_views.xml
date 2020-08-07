@@ -11,6 +11,7 @@
         <form string="Property" import="false">
           <header>
             <field name='is_property' invisible='1'/>
+            <field name='is_night_audit' invisible='1'/>
             <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
@@ -35,7 +36,7 @@
             <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
-            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
               <i class="fa fa-paint-brush"></i>
             </button>
           </header>
@@ -72,6 +73,7 @@
               <separator colspan='4' string="Property Information" />
               <group>
                 <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
+                 <field name="scurrency_id" string="Second Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
                 <label for="address1" string="Address"/>
                 <div class="o_address_format">
                   <field name="address1" placeholder="Street..." class="o_address_street"/>
@@ -190,8 +192,12 @@
                 <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
               </page>
               <page string='Hotel License'>
-                <field name="roomqty"/>
-                <field name="property_license"/>
+                <group>
+                  <group>
+                    <field name="roomqty" style="width:50%%"/>
+                    <field name="property_license" style="width:50%%"/>
+                  </group>
+                </group>
               </page>
               <page string="Configuration">
                 <group>
@@ -549,8 +555,10 @@
             <h2>Room Location</h2>
             <br></br>
             <group>
-              <field name="location_code" placeholder="Eg. 1F" style="width:40%%" attrs="{'readonly': [('id', '=', 1)]}"/>
-              <field name="location_name" placeholder="Eg. 1st Floor" style="width:40%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+              <group>
+                <field name="location_code" placeholder="Eg. 1F" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="location_name" placeholder="Eg. 1st Floor" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -703,9 +711,11 @@
             <h2>Room View Setup</h2>
             <br></br>
             <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <group>
+                <field name="is_csv" invisible="1"/>
+                <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -849,6 +859,7 @@
                 <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="building_ids" invisible="1"/>
                 <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                <field name="location_ids" invisible="1"/>
                 <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                 <field name="room_bedqty"/>
                 <field name="no_of_pax"/>
@@ -980,11 +991,13 @@
             <h2>Market Segment</h2>
             <br></br>
             <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}"/>
-              <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <group>
+                <field name="is_csv" invisible="1" style="width:50%%"/>
+                <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}" style="width:50%%"/>
+                <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -1023,9 +1036,11 @@
             <h2>Market Source</h2>
             <br></br>
             <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+              <group>
+                <field name="is_csv" invisible="1"/>
+                <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}" />
+              </group>
             </group>
           </sheet>
         </form>
@@ -1060,17 +1075,14 @@
         <form string="Special Day" import="false">
           <sheet>
             <h2>Special Day</h2>
-            <br></br>
-            <group>
+            <h2>
               <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-              <label for="special_date" string="Date"/>
-              <div>
-                <field name="special_date" placeholder="Eg. Water Festival Date....."/>
-              </div>
-              <label for="special_desc" string="Description"/>
-              <div>
-                <field name="special_desc"/>
-              </div>
+            </h2>
+            <group>
+              <group>
+                <field name="special_date" placeholder="Eg. Water Festival Date....." style="width:50%%"/>
+                <field name="special_desc" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -1104,9 +1116,10 @@
         <form string="Weekend" create="false" delete="false" no_create_edit="True" import="false">
           <sheet>
             <h2>Define Weekends</h2>
-            <br></br>
-            <group>
+            <h2>
               <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+            </h2>
+            <group>
               <field name="monday" widget="boolean_toggle"/>
               <field name="tuesday" widget="boolean_toggle"/>
               <field name="wednesday" widget="boolean_toggle" />
@@ -1209,11 +1222,13 @@
         <form string="Revenue Type" create="false" edit="true" import="false" delete="false">
           <sheet>
             <group>
-              <field name="rev_type"/>
-              <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9"/>
-              <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" />
-              <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
-              <field name="subgroup_ids" context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}"/>
+              <group>
+                <field name="rev_type" style="width:50%%"/>
+                <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9" style="width:50%%"/>
+                <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" style="width:50%%"/>
+                <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}" style="width:50%%"/>
+                <field name="subgroup_ids" context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}" style="width:50%%"/>
+              </group>
             </group>
           </sheet>
         </form>
@@ -1493,14 +1508,15 @@
         <form string="Credit Limit" import="false">
           <sheet>
             <h2>Credit Limit</h2>
-            <br></br>
+            <h2>
+              <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}' style="width:50%%"/>
+            </h2>
             <group>
               <group>
-                <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
-                <field name="payment_type"/>
-                <field name="crd_startdate"/>
-                <field name="crd_enddate"/>
-                <field name="crd_limit"/>
+                <field name="payment_type" style="width:50%%"/>
+                <field name="crd_startdate" style="width:50%%"/>
+                <field name="crd_enddate" style="width:50%%"/>
+                <field name="crd_limit" style="width:50%%"/>
               </group>
             </group>
           </sheet>

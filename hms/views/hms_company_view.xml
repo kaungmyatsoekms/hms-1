@@ -36,6 +36,7 @@
                 <field name="vat"/>
                 <field name="company_registry"/>
                 <field name="currency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
+                <field name="scurrency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
               </group>
             </group>
             <notebook>

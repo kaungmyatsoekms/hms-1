@@ -8,7 +8,9 @@
             <form string="Property Report">
                 <separator colspan="1" string="Choose Property"/>
                 <group>
-                    <field name="property_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <group>
+                        <field name="property_id" style="width:50%%" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    </group>
                 </group>
                 <footer>
                     <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>

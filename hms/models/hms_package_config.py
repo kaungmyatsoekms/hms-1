@@ -111,15 +111,21 @@ class Package(models.Model):
                                   default=default_get_curency,
                                   required=True,
                                   track_visibility=True)
+    scurrency_id = fields.Many2one("res.currency",
+                                   "Second Currency",
+                                   default=default_get_curency,
+                                   required=True,
+                                   track_visibility=True)
     posting_rythms = fields.Selection(POSTING_RYTHMS,
                                       string='Posting Rhythms',
                                       index=True,
                                       default=POSTING_RYTHMS[0][0])
-    Calculation_method = fields.Selection(CALCUATION_METHODS,
+    calculation_method = fields.Selection(CALCUATION_METHODS,
                                           string='Calculation Method',
                                           index=True,
                                           default=CALCUATION_METHODS[0][0])
-    Fix_price = fields.Float('Price', digits='Fix Price')
+    fix_price = fields.Float('Price', digits='Fix Price')
+    sfix_price = fields.Float('Price', digits='Fix Price')
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
                                       index=True,
