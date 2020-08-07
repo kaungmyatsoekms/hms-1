@@ -7,9 +7,11 @@
         <field name="arch" type="xml">
             <form string="Reservation Report">
                 <group>
-                    <field name="property_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                    <field name="date_start"/>
-                    <field name="date_end"/>
+                    <group>
+                        <field name="property_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                        <field name="date_start" style="width:50%%"/>
+                        <field name="date_end" style="width:50%%"/>
+                    </group>
                 </group>
                 <footer>
                     <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
@@ -34,9 +36,11 @@
         <field name="arch" type="xml">
             <form string="Expected Arrival">
                 <group>
-                    <field name="property_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                    <field name="arr_date"/>
-                    <field name="type_"/>
+                    <group>
+                        <field name="property_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                        <field name="arr_date" style="width:50%%"/>
+                        <field name="type_" style="width:50%%"/>
+                    </group>
                 </group>
                 <footer>
                     <button name="get_report" string="PDF" class="btn-primary" type="object" icon="fa-bars"/>

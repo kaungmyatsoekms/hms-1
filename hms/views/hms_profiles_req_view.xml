@@ -100,12 +100,14 @@
                         <h2>Contract</h2>
                         <br></br>
                         <group>
-                            <field name="profile_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
-                            <field name="name"/>
-                            <field name="start_date"/>
-                            <field name="end_date"/>
-                            <field name="file"/>
-                            <field name="note" string="Note" placeholder="Internal notes..."/>
+                            <group>
+                                <field name="profile_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                                <field name="name"/>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                                <field name="file"/>
+                                <field name="note" string="Note" placeholder="Internal notes..."/>
+                            </group>
                         </group>
                     </sheet>
                 </form>
