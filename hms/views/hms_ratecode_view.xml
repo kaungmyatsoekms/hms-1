@@ -1,5 +1,20 @@
 <odoo>
     <data>
+        <!-- Rate Code List View Header -->
+        <record id="rate_code_header_view_list" model="ir.ui.view">
+            <field name="name">hms.ratecode.header.list</field>
+            <field name="model">hms.ratecode.header</field>
+            <field name="arch" type="xml">
+                <tree string="Rate Code" import="false">
+                    <field name="rate_category_id"/>
+                    <field name="rate_code"/>
+                    <field name="ratecode_name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </tree>
+            </field>
+        </record>
+
         <!-- Rate Code Header Form View -->
         <record id="rate_code_header_view_form" model="ir.ui.view">
             <field name="name">hms.ratecode.header.form</field>
@@ -30,21 +45,6 @@
                         </notebook>
                     </sheet>
                 </form>
-            </field>
-        </record>
-
-        <!-- Rate Code List View Header -->
-        <record id="rate_code_header_view_list" model="ir.ui.view">
-            <field name="name">hms.ratecode.header.list</field>
-            <field name="model">hms.ratecode.header</field>
-            <field name="arch" type="xml">
-                <tree string="Rate Code" import="false">
-                    <field name="rate_category_id"/>
-                    <field name="rate_code"/>
-                    <field name="ratecode_name"/>
-                    <field name="start_date"/>
-                    <field name="end_date"/>
-                </tree>
             </field>
         </record>
 
