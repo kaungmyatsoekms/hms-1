@@ -103,6 +103,12 @@ class Reservation(models.Model):
                               string='Salesperson',
                               default=lambda self: self.env.uid,
                               help='Salesperson')
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  readonly=False,
+                                  required=True,
+                                  track_visibility=True,
+                                  help='Currency')
     date_order = fields.Datetime('Date Ordered',
                                  readonly=True,
                                  required=True,
@@ -261,6 +267,19 @@ class Reservation(models.Model):
                     result.append(
                         (record.id, "{}".format(record.company_id.name)))
         return result
+
+    @api.onchange('property_id')
+    def onchange_property_id(self):
+        currency_list = []
+        domain = {}
+        for rec in self:
+            if rec.property_id:
+                if (rec.property_id.currency_id):
+                    currency_list.append(rec.property_id.currency_id.id)
+                if (rec.property_id.scurrency_id):
+                    currency_list.append(rec.property_id.scurrency_id.id)
+        domain = {'currency_id': [('id', '=', currency_list)]}
+        return {'domain': domain}
 
     def _compute_rsvn_rooms(self):
         hfo_reservation = self.env['hms.reservation.line'].search([
@@ -845,23 +864,25 @@ class Reservation(models.Model):
             message loaded by default
         """
         self.ensure_one()
-        template = self.env.ref('hms.confirm_letter_template', raise_if_not_found=False)
+        template = self.env.ref('hms.confirm_letter_template',
+                                raise_if_not_found=False)
         # lang = get_lang(self.env)
         # if template and template.lang:
         #     lang = template._render_template(template.lang, 'hms.reservation', self.id)
         # else:
         #     lang = lang.code
-        compose_form = self.env.ref('hms.confirm_letter_wizard_form', raise_if_not_found=False)
+        compose_form = self.env.ref('hms.confirm_letter_wizard_form',
+                                    raise_if_not_found=False)
         ctx = {
-            'default_model':'hms.reservation',
-            'default_res_id':self.id,
-            'default_use_template':bool(template),
-            'default_template_id':template.id,
-            'default_composition_mode':'comment',
+            'default_model': 'hms.reservation',
+            'default_res_id': self.id,
+            'default_use_template': bool(template),
+            'default_template_id': template.id,
+            'default_composition_mode': 'comment',
             # 'mark_invoice_as_sent':True,
             # 'custom_layout':"mail.mail_notification_paynow",
             # 'model_description':self.with_context(lang=lang).type_name,
-            'force_email':True
+            'force_email': True
         }
         return {
             'type': 'ir.actions.act_window',
@@ -873,6 +894,7 @@ class Reservation(models.Model):
             'target': 'new',
             'context': ctx,
         }
+
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -959,6 +981,9 @@ class ReservationLine(models.Model):
                                   related='reservation_id.property_id',
                                   store=True,
                                   help='Property')
+    currency_id = fields.Many2one('res.currency',
+                                  related='reservation_id.currency_id',
+                                  store=True)
     confirm_no = fields.Char(string="Confirm No.",
                              readonly=True,
                              related='reservation_id.confirm_no',
@@ -1013,8 +1038,6 @@ class ReservationLine(models.Model):
         'hms.roomtype',
         string="Room Type",
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
-        delegate=True,
-        ondelete='cascade',
         index=True,
         help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
@@ -1116,11 +1139,11 @@ class ReservationLine(models.Model):
     extrabed = fields.Integer("Extra Bed", help="No. of Extra Bed")
     extrabed_amount = fields.Float("Extra Bed Amount",
                                    help="Extra Bed Amount",
-                                   related="ratecode_id.extra_bed")
+                                   compute="_compute_extrabed_amount")
     child_bfpax = fields.Integer("Child BF-Pax", help="Child BF Pax")
     child_bf = fields.Float("Child Breakfast",
                             help="Child BF Amount",
-                            related="ratecode_id.child_bf")
+                            compute="_compute_child_bf")
     extra_addon = fields.Float("Extra Addon", help="Extra Amount")
 
     pickup = fields.Datetime("Pick Up Time", help='Pick Up Time')
@@ -1183,7 +1206,7 @@ class ReservationLine(models.Model):
         return result
 
     # Compute Room Rate based on Pax
-    def _check_rate(self, check_date, pax, rate, property_id):
+    def _check_rate(self, check_date, pax, rate, property_id, currency_id):
         check_day = datetime.strptime(
             str(check_date), '%Y-%m-%d').weekday()  # get 'day' of arrival date
         temp = (calendar.day_name[check_day])  # get 'day' of arrival date
@@ -1224,45 +1247,88 @@ class ReservationLine(models.Model):
         for special_day in special_day_objs:
             if check_date == special_day.special_date:
                 is_special_day = True
-        if is_special_day is True and rate.special_price1 > 0.0:
-            if pax == 1:
-                room_rate = rate.special_price1
-            elif pax == 2:
-                room_rate = rate.special_price1 + rate.special_price2
-            elif pax == 3:
-                room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3
-            elif pax == 4:
-                room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3 + rate.special_price4
+        room_rate = 0.0
+        if currency_id.id == rate.currency_id.id:
+            if is_special_day is True and rate.special_price1 > 0.0:
+                if pax == 1:
+                    room_rate = rate.special_price1
+                elif pax == 2:
+                    room_rate = rate.special_price1 + rate.special_price2
+                elif pax == 3:
+                    room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3
+                elif pax == 4:
+                    room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3 + rate.special_price4
+                else:
+                    x = pax - 4
+                    room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3 + rate.special_price4 + (
+                        rate.special_extra * x)
+            elif is_weekend is True and rate.weekend_price1 > 0.0:
+                if pax == 1:
+                    room_rate = rate.weekend_price1
+                elif pax == 2:
+                    room_rate = rate.weekend_price1 + rate.weekend_price2
+                elif pax == 3:
+                    room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3
+                elif pax == 4:
+                    room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3 + rate.weekend_price4
+                else:
+                    x = pax - 4
+                    room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3 + rate.weekend_price4 + (
+                        rate.weekend_extra * x)
             else:
-                x = pax - 4
-                room_rate = rate.special_price1 + rate.special_price2 + rate.special_price3 + rate.special_price4 + (
-                    rate.special_extra * x)
-        elif is_weekend is True and rate.weekend_price1 > 0.0:
-            if pax == 1:
-                room_rate = rate.weekend_price1
-            elif pax == 2:
-                room_rate = rate.weekend_price1 + rate.weekend_price2
-            elif pax == 3:
-                room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3
-            elif pax == 4:
-                room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3 + rate.weekend_price4
+                if pax == 1:
+                    room_rate = rate.normal_price1
+                elif pax == 2:
+                    room_rate = rate.normal_price1 + rate.normal_price2
+                elif pax == 3:
+                    room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3
+                elif pax == 4:
+                    room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4
+                else:
+                    x = pax - 4
+                    room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4 + (
+                        rate.normal_extra * x)
+
+        elif currency_id.id == rate.scurrency_id.id:
+            if is_special_day is True and rate.sspecial_price1 > 0.0:
+                if pax == 1:
+                    room_rate = rate.sspecial_price1
+                elif pax == 2:
+                    room_rate = rate.sspecial_price1 + rate.sspecial_price2
+                elif pax == 3:
+                    room_rate = rate.sspecial_price1 + rate.sspecial_price2 + rate.sspecial_price3
+                elif pax == 4:
+                    room_rate = rate.sspecial_price1 + rate.sspecial_price2 + rate.sspecial_price3 + rate.sspecial_price4
+                else:
+                    x = pax - 4
+                    room_rate = rate.sspecial_price1 + rate.sspecial_price2 + rate.sspecial_price3 + rate.sspecial_price4 + (
+                        rate.sspecial_extra * x)
+            elif is_weekend is True and rate.sweekend_price1 > 0.0:
+                if pax == 1:
+                    room_rate = rate.sweekend_price1
+                elif pax == 2:
+                    room_rate = rate.sweekend_price1 + rate.sweekend_price2
+                elif pax == 3:
+                    room_rate = rate.sweekend_price1 + rate.sweekend_price2 + rate.sweekend_price3
+                elif pax == 4:
+                    room_rate = rate.sweekend_price1 + rate.sweekend_price2 + rate.sweekend_price3 + rate.sweekend_price4
+                else:
+                    x = pax - 4
+                    room_rate = rate.sweekend_price1 + rate.sweekend_price2 + rate.sweekend_price3 + rate.sweekend_price4 + (
+                        rate.sweekend_extra * x)
             else:
-                x = pax - 4
-                room_rate = rate.weekend_price1 + rate.weekend_price2 + rate.weekend_price3 + rate.weekend_price4 + (
-                    rate.weekend_extra * x)
-        else:
-            if pax == 1:
-                room_rate = rate.normal_price1
-            elif pax == 2:
-                room_rate = rate.normal_price1 + rate.normal_price2
-            elif pax == 3:
-                room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3
-            elif pax == 4:
-                room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4
-            else:
-                x = pax - 4
-                room_rate = rate.normal_price1 + rate.normal_price2 + rate.normal_price3 + rate.normal_price4 + (
-                    rate.normal_extra * x)
+                if pax == 1:
+                    room_rate = rate.snormal_price1
+                elif pax == 2:
+                    room_rate = rate.snormal_price1 + rate.snormal_price2
+                elif pax == 3:
+                    room_rate = rate.snormal_price1 + rate.snormal_price2 + rate.snormal_price3
+                elif pax == 4:
+                    room_rate = rate.snormal_price1 + rate.snormal_price2 + rate.snormal_price3 + rate.snormal_price4
+                else:
+                    x = pax - 4
+                    room_rate = rate.snormal_price1 + rate.snormal_price2 + rate.snormal_price3 + rate.snormal_price4 + (
+                        rate.snormal_extra * x)
         return room_rate
 
     # Compute Room Rate based on Pax
@@ -1271,7 +1337,8 @@ class ReservationLine(models.Model):
         for rec in self:
             rec.room_rate = rec._check_rate(rec.arrival, rec.pax,
                                             rec.ratecode_id,
-                                            rec.property_id.id)
+                                            rec.property_id.id,
+                                            rec.currency_id)
 
     # Compute Rate Nett
     @api.depends('package_id')
@@ -1284,6 +1351,24 @@ class ReservationLine(models.Model):
                     rate = rec.rate_calculate(pkg, rec)
                     total_amount += rec.total_amount_calculate(rate, pkg, rec)
             rec.rate_nett = rec.room_rate + total_amount
+
+    # Compute Extrabed Amount
+    @api.depends('ratecode_id')
+    def _compute_extrabed_amount(self):
+        for rec in self:
+            if rec.currency_id.id == rec.ratecode_id.currency_id.id:
+                rec.extrabed_amount = rec.ratecode_id.extra_bed
+            elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
+                rec.extrabed_amount = rec.ratecode_id.sextra_bed
+
+    # Compute Child BF Amount
+    @api.depends('ratecode_id')
+    def _compute_child_bf(self):
+        for rec in self:
+            if rec.currency_id.id == rec.ratecode_id.currency_id.id:
+                rec.child_bf = rec.ratecode_id.child_bf
+            elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
+                rec.child_bf = rec.ratecode_id.schild_bf
 
     # Get default rate code based on ratehead_id
     @api.onchange('ratehead_id')
@@ -1333,34 +1418,6 @@ class ReservationLine(models.Model):
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'confirm'})
 
-    # Get Guest's Nationality from Contact
-    @api.onchange('guest_id')
-    def onchange_guest_nationality(self):
-        for rec in self:
-            if rec.guest_id:
-                if rec.guest_id.nationality_id:
-                    rec.nationality_id = rec.guest_id.nationality_id
-                else:
-                    rec.nationality_id = False
-
-    # For Cancel Check-In Button
-    def action_cancel_checkin(self):
-        self.write({'state': 'confirm'})
-        count = 0
-        for rec in self:
-            for record in rec.reservation_id.reservation_line_ids:
-                if record.state == 'checkin':
-                    if record.room_type.code[0] != 'H':
-                        count += 1
-            if count == 0:
-                rec.reservation_id.write({'state': 'confirm'})
-                hfo_reservation = self.env['hms.reservation.line'].search([
-                    ('reservation_id', '=', rec.reservation_id.id),
-                    ('room_type', '=ilike', 'H%')
-                ])
-                if hfo_reservation:
-                    hfo_reservation.write({'state': 'confirm'})
-
     def set_kanban_color(self):
         for record in self:
             color = 0
@@ -1375,35 +1432,6 @@ class ReservationLine(models.Model):
             elif record.state == 'cancel':
                 color = 1
             record.color = color
-    
-    def _compute_required_color(self):
-        color_attribute = self.env['hms.color.attribute'].search([('name', '=','Reservation')])
-        value_ids = color_attribute.value_ids
-        high_color = " "
-        medium_color = " "
-        complete_color = " "
-        for value in value_ids:
-            if value.name =="High":
-                high_color= value.html_color
-            elif value.name == "Medium":
-                medium_color = value.html_color
-            elif value.name == "Complete":
-                complete_color = value.html_color   
-
-        for record in self:
-            room_no = self.env['hms.property.room']
-            guest_name = self.env['res.partner']
-            ratehead_id =self.env['hms.ratecode.header']
-            nationality_id = self.env['hms.nationality']
-            if (record.room_type.code != 'HFO'):
-                if (record.ratehead_id  == ratehead_id):
-                    record.required_color = high_color
-                elif (record.room_no == room_no or record.guest_id == guest_name or record.nationality_id == nationality_id):
-                    record.required_color =  medium_color
-                else:
-                    record.required_color = complete_color 
-            else:
-                record.required_color = complete_color 
 
     def _compute_required_color(self):
         color_attribute = self.env['hms.color.attribute'].search([
@@ -2047,7 +2075,7 @@ class ReservationLine(models.Model):
                            reservation_line_id, rate, total_amount, active,
                            package_id, transaction_date, total_room, delete,
                            rate_attribute):
-        currency = reservation_line_id.ratecode_id.currency_id
+        currency = reservation_line_id.currency_id
         vals = []
         vals.append((0, 0, {
             'property_id': property_id.id,
@@ -2070,7 +2098,7 @@ class ReservationLine(models.Model):
     def update_charge_line(self, room_transaction_line_id, transaction_id,
                            rate, total_amount, active, package_id,
                            transaction_date, total_room, delete,
-                           rate_attribute):
+                           rate_attribute, currency_id):
         room_transaction_line_id.update({
             'transaction_id': transaction_id.id,
             'rate': rate,
@@ -2081,6 +2109,7 @@ class ReservationLine(models.Model):
             'total_room': total_room,
             'delete': delete,
             'rate_attribute': rate_attribute,
+            'currency_id': currency_id.id,
             'ref': 'AUTO',
         })
 
@@ -2117,7 +2146,7 @@ class ReservationLine(models.Model):
                     posting_dates.append(post_dates)
                 day_count += 1
         return posting_dates
-    
+
     def create_line_with_posting_rhythm(self, reservation_line_id,
                                         transaction_date, package_ids):
         res = reservation_line_id
@@ -2164,7 +2193,8 @@ class ReservationLine(models.Model):
                 if ratecode_detail_obj and len(ratecode_detail_obj) == 1:
                     temp_rate = res._check_rate(transaction_date, res.pax,
                                                 ratecode_detail_obj,
-                                                res.property_id.id)
+                                                res.property_id.id,
+                                                res.currency_id)
                 else:
                     temp_rate = 0.0
 
@@ -2208,7 +2238,7 @@ class ReservationLine(models.Model):
                                 ratecode_detail_obj) == 1:
                             temp_rate = res._check_rate(
                                 transaction_date, res.pax, ratecode_detail_obj,
-                                res.property_id.id)
+                                res.property_id.id, res.currency_id)
                         else:
                             temp_rate = 0.0
 
@@ -2218,7 +2248,8 @@ class ReservationLine(models.Model):
                                                res.ratecode_id.transaction_id,
                                                room_rate, room_amount, True,
                                                pkg, transaction_date,
-                                               res.rooms, False, 'INR')
+                                               res.rooms, False, 'INR',
+                                               res.currency_id)
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
@@ -2248,13 +2279,15 @@ class ReservationLine(models.Model):
                                                 r, pkg.transaction_id, rate,
                                                 total_amount, False, pkg,
                                                 transaction_date, res.rooms,
-                                                False, pkg.rate_attribute)
+                                                False, pkg.rate_attribute,
+                                                res.currency_id)
                                         else:
                                             res.update_charge_line(
                                                 r, pkg.transaction_id, rate,
                                                 total_amount, True, pkg,
                                                 transaction_date, res.rooms,
-                                                False, pkg.rate_attribute)
+                                                False, pkg.rate_attribute,
+                                                res.currency_id)
                         else:
                             res.create_line_with_posting_rhythm(
                                 res, transaction_date, pkg)
@@ -2288,18 +2321,18 @@ class ReservationLine(models.Model):
                                         r, pkg.transaction_id, rate,
                                         total_amount, False, pkg,
                                         transaction_date, res.rooms, False,
-                                        pkg.rate_attribute)
+                                        pkg.rate_attribute, res.currency_id)
                                 else:
                                     res.update_charge_line(
                                         r, pkg.transaction_id, rate,
                                         total_amount, True, pkg,
                                         transaction_date, res.rooms, False,
-                                        pkg.rate_attribute)
+                                        pkg.rate_attribute, res.currency_id)
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
             day_count += 1
-            
+
     @api.model
     def create(self, values):
         # _logger.info(values)
@@ -2510,8 +2543,8 @@ class ReservationLine(models.Model):
 
         res = super(ReservationLine, self).write(values)
 
-        if 'ratehead_id' in values.keys() or 'ratecode_id' in values.keys(
-        ) or 'package_id' in values.keys(
+        if 'currency_id' in values.keys() or 'ratehead_id' in values.keys(
+        ) or 'ratecode_id' in values.keys() or 'package_id' in values.keys(
         ) or 'additional_pkg_ids' in values.keys() or 'rooms' in values.keys(
         ) or 'arrival' in values.keys() or 'departure' in values.keys(
         ) or 'room_type' in values.keys() or 'nights' in values.keys(
@@ -2683,28 +2716,39 @@ class ReservationLine(models.Model):
 
     def rate_calculate(self, package_id, reservation_line_id):
         rate = 0.0
-        if package_id.reservation_fields_id:
-            if package_id.reservation_fields_id.code == 'BF':
-                rate = reservation_line_id.ratecode_id.adult_bf
-            elif package_id.reservation_fields_id.code == 'EB':
-                rate = reservation_line_id.ratecode_id.extra_bed
-            elif package_id.reservation_fields_id.code == 'CBF':
-                rate = reservation_line_id.ratecode_id.child_bf
-        else:
-            rate = package_id.Fix_price
+        if reservation_line_id.currency_id.id == reservation_line_id.ratecode_id.currency_id.id:
+            if package_id.reservation_fields_id:
+                if package_id.reservation_fields_id.code == 'BF':
+                    rate = reservation_line_id.ratecode_id.adult_bf
+                elif package_id.reservation_fields_id.code == 'EB':
+                    rate = reservation_line_id.ratecode_id.extra_bed
+                elif package_id.reservation_fields_id.code == 'CBF':
+                    rate = reservation_line_id.ratecode_id.child_bf
+            else:
+                rate = package_id.fix_price
+        elif reservation_line_id.currency_id.id == reservation_line_id.ratecode_id.scurrency_id.id:
+            if package_id.reservation_fields_id:
+                if package_id.reservation_fields_id.code == 'BF':
+                    rate = reservation_line_id.ratecode_id.sadult_bf
+                elif package_id.reservation_fields_id.code == 'EB':
+                    rate = reservation_line_id.ratecode_id.sextra_bed
+                elif package_id.reservation_fields_id.code == 'CBF':
+                    rate = reservation_line_id.ratecode_id.schild_bf
+            else:
+                rate = package_id.sfix_price
         return rate
 
     def total_amount_calculate(self, rate, package_id, reservation_line_id):
         total_amount = 0.0
-        if package_id.Calculation_method == 'FIX':
+        if package_id.calculation_method == 'FIX':
             total_amount = rate * reservation_line_id.rooms
-        elif package_id.Calculation_method == 'PA':
+        elif package_id.calculation_method == 'PA':
             total_amount = rate * reservation_line_id.pax * reservation_line_id.rooms
-        elif package_id.Calculation_method == 'PC':
+        elif package_id.calculation_method == 'PC':
             total_amount = rate * reservation_line_id.child * reservation_line_id.rooms
-        elif package_id.Calculation_method == 'CBP':
+        elif package_id.calculation_method == 'CBP':
             total_amount = rate * reservation_line_id.child_bfpax * reservation_line_id.rooms
-        elif package_id.Calculation_method == 'NEB':
+        elif package_id.calculation_method == 'NEB':
             total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
         return total_amount
 

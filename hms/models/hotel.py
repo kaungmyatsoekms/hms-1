@@ -76,7 +76,7 @@ class Property(models.Model):
     _rec_name = "code"
     _description = "Property"
 
-    # Default Get Currency
+    # # Default Get Currency
     def default_get_curency(self):
         mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
                                                            ])
@@ -141,11 +141,17 @@ class Property(models.Model):
                                help="State")
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
-                                  "Currency",
+                                  "Main Currency",
                                   default=default_get_curency,
                                   readonly=False,
                                   track_visibility=True,
                                   help='Currency')
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  default=default_get_curency,
+                                  readonly=False,
+                                  track_visibility=True,
+                                  help='Second Currency')
     country_id = fields.Many2one('res.country',
                                  string='Country',
                                  readonly=False,

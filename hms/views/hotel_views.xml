@@ -73,6 +73,7 @@
               <separator colspan='4' string="Property Information" />
               <group>
                 <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
+                 <field name="scurrency_id" string="Second Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
                 <label for="address1" string="Address"/>
                 <div class="o_address_format">
                   <field name="address1" placeholder="Street..." class="o_address_street"/>
