@@ -221,13 +221,13 @@ class Company(models.Model):
         else:
             country_id = self.env['res.country'].search([('code', '=', "MMR")])
         return country_id
-    
+
     scurrency_id = fields.Many2one("res.currency",
-                                  "Second Currency",
-                                  default=default_get_curency,
-                                  readonly=False,
-                                  track_visibility=True,
-                                  help='Second Currency')
+                                   "Second Currency",
+                                   default=default_get_curency,
+                                   readonly=False,
+                                   track_visibility=True,
+                                   help='Second Currency')
 
     property_code_len = fields.Integer("Property Code Length",
                                        default=8,
@@ -259,7 +259,9 @@ class Company(models.Model):
                                          track_visibility=True)
 
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", readonly=False)
+    sale_tax_id = fields.Many2one('account.tax',
+                                  string="Default Sale Tax",
+                                  readonly=False)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -271,20 +273,24 @@ class Company(models.Model):
         "Show line subtotals with taxes (B2C)",
         implied_group='account.group_show_line_subtotals_tax_included',
         group='base.group_portal,base.group_user,base.group_public')
-    show_line_subtotals_tax_selection = fields.Selection([
-        ('tax_excluded', 'Tax-Excluded'),
-        ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default='tax_excluded',
+    show_line_subtotals_tax_selection = fields.Selection(
+        [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
+        string="Line Subtotals Tax Display",
+        required=True,
+        default='tax_excluded',
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
     enable_service_charge = fields.Boolean(string='Service Charges')
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type', default='amount')
+                                           string='Type',
+                                           default='amount')
     service_charge = fields.Float(string='Service Charge')
-    service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('available_in_pos', '=', True),"
-                                                "('sale_ok', '=', True), ('type', '=', 'service')]")
+    service_product_id = fields.Many2one(
+        'product.product',
+        string='Service Product',
+        domain="[('available_in_pos', '=', True),"
+        "('sale_ok', '=', True), ('type', '=', 'service')]")
 
     @api.onchange('show_line_subtotals_tax_selection')
     def _onchange_sale_tax(self):
@@ -303,8 +309,10 @@ class Company(models.Model):
     def set_config_service_charge(self):
         if self.enable_service_charge:
             if not self.service_product_id:
-                domain = [('available_in_pos', '=', True), ('sale_ok', '=', True),  ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(domain, limit=1)
+                domain = [('available_in_pos', '=', True),
+                          ('sale_ok', '=', True), ('type', '=', 'service')]
+                self.service_product_id = self.env['product.product'].search(
+                    domain, limit=1)
             self.service_charge = 10.0
         else:
             self.service_product_id = False
@@ -379,7 +387,7 @@ class ResConfigSettings(models.TransientModel):
     def get_company_id(self):
         if not self.company_id:
             return self.env.user.company_id
-    
+
     company_id = fields.Many2one('res.company', default=get_company_id)
     property_code_len = fields.Integer("Property Code Length",
                                        related="company_id.property_code_len",
@@ -412,7 +420,10 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.gprofile_id_format",
         track_visibility=True)
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", related='company_id.account_sale_tax_id', readonly=False)
+    sale_tax_id = fields.Many2one('account.tax',
+                                  string="Default Sale Tax",
+                                  related='company_id.account_sale_tax_id',
+                                  readonly=False)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -424,21 +435,25 @@ class ResConfigSettings(models.TransientModel):
         "Show line subtotals with taxes (B2C)",
         implied_group='account.group_show_line_subtotals_tax_included',
         group='base.group_portal,base.group_user,base.group_public')
-    show_line_subtotals_tax_selection = fields.Selection([
-        ('tax_excluded', 'Tax-Excluded'),
-        ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default='tax_excluded',
+    show_line_subtotals_tax_selection = fields.Selection(
+        [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
+        string="Line Subtotals Tax Display",
+        required=True,
+        default='tax_excluded',
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
     enable_service_charge = fields.Boolean(string='Service Charges')
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type', default='amount')
+                                           string='Type',
+                                           default='amount')
     service_charge = fields.Float(string='Service Charge')
-    service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('available_in_pos', '=', True),"
-                                                "('sale_ok', '=', True), ('type', '=', 'service')]")
-    
+    service_product_id = fields.Many2one(
+        'product.product',
+        string='Service Product',
+        domain="[('available_in_pos', '=', True),"
+        "('sale_ok', '=', True), ('type', '=', 'service')]")
+
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):
         if self.property_code_len:
@@ -496,8 +511,10 @@ class ResConfigSettings(models.TransientModel):
     def set_config_service_charge(self):
         if self.enable_service_charge:
             if not self.service_product_id:
-                domain = [('available_in_pos', '=', True), ('sale_ok', '=', True),  ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(domain, limit=1)
+                domain = [('available_in_pos', '=', True),
+                          ('sale_ok', '=', True), ('type', '=', 'service')]
+                self.service_product_id = self.env['product.product'].search(
+                    domain, limit=1)
             self.service_charge = 10.0
         else:
             self.service_product_id = False

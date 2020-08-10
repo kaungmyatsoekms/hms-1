@@ -84,10 +84,6 @@
                   <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                   <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create':True, 'no_open':True}"/>
                 </div>
-                <label for="image" string="Image"/>
-                <div>
-                  <field name="image"/>
-                </div>
               </group>
               <group>
                 <field name="timezone"/>
@@ -96,6 +92,10 @@
                 <field name="co_time" widget="float_time"/>
                 <field name="night_audit" widget="radio"/>
                 <field name="rating" widget="priority"/>
+                <label for="image" string="Image"/>
+                <div>
+                  <field name="image"/>
+                </div>
               </group>
               <group>
                 <field name="phone" placeholder="Eg. 09123456789....."/>
