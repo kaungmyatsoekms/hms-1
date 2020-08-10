@@ -511,7 +511,7 @@
                         <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2),('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar"/>
