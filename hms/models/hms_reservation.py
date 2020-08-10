@@ -760,8 +760,18 @@ class Reservation(models.Model):
                 vals = []
                 for record in range(room - 1):
                     vals.append((0, 0, {
+                        'state':
+                        resv_line.state,
                         'rooms':
                         1,
+                        'nights':
+                        resv_line.nights,
+                        'group_id':
+                        resv_line.group_id.id,
+                        'guest_id':
+                        resv_line.guest_id.id,
+                        'company_id':
+                        resv_line.company_id.id,
                         'arrival':
                         resv_line.arrival,
                         'departure':
@@ -824,14 +834,6 @@ class Reservation(models.Model):
                         resv_line.extrabed,
                         'extrabed_amount':
                         resv_line.extrabed_amount,
-                        'extrabed_bf':
-                        resv_line.extrabed_bf,
-                        'extrapax':
-                        resv_line.extrapax,
-                        'extrapax_amount':
-                        resv_line.extrapax_amount,
-                        'extrapax_bf':
-                        resv_line.extrapax_bf,
                         'child_bfpax':
                         resv_line.child_bfpax,
                         'child_bf':
@@ -1038,6 +1040,7 @@ class ReservationLine(models.Model):
         'hms.roomtype',
         string="Room Type",
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
+        required=True,
         index=True,
         help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
@@ -1356,19 +1359,25 @@ class ReservationLine(models.Model):
     @api.depends('ratecode_id')
     def _compute_extrabed_amount(self):
         for rec in self:
-            if rec.currency_id.id == rec.ratecode_id.currency_id.id:
-                rec.extrabed_amount = rec.ratecode_id.extra_bed
-            elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
-                rec.extrabed_amount = rec.ratecode_id.sextra_bed
+            if rec.ratecode_id:
+                if rec.currency_id.id == rec.ratecode_id.currency_id.id:
+                    rec.extrabed_amount = rec.ratecode_id.extra_bed
+                elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
+                    rec.extrabed_amount = rec.ratecode_id.sextra_bed
+            else:
+                rec.extrabed_amount = 0.0
 
     # Compute Child BF Amount
     @api.depends('ratecode_id')
     def _compute_child_bf(self):
         for rec in self:
-            if rec.currency_id.id == rec.ratecode_id.currency_id.id:
-                rec.child_bf = rec.ratecode_id.child_bf
-            elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
-                rec.child_bf = rec.ratecode_id.schild_bf
+            if rec.ratecode_id:
+                if rec.currency_id.id == rec.ratecode_id.currency_id.id:
+                    rec.child_bf = rec.ratecode_id.child_bf
+                elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
+                    rec.child_bf = rec.ratecode_id.schild_bf
+            else:
+                rec.child_bf = 0.0
 
     # Get default rate code based on ratehead_id
     @api.onchange('ratehead_id')
@@ -2004,7 +2013,12 @@ class ReservationLine(models.Model):
             vals = []
             for rec in range(rooms):
                 vals.append((0, 0, {
+                    'state': self.state,
                     'rooms': 1,
+                    'nights': self.nights,
+                    'group_id': self.group_id.id,
+                    'guest_id': self.guest_id.id,
+                    'company_id': self.company_id.id,
                     'arrival': self.arrival,
                     'departure': self.departure,
                     'arrival_flight': self.arrival_flight,
@@ -2018,6 +2032,7 @@ class ReservationLine(models.Model):
                     'eta': self.eta,
                     'etd': self.etd,
                     'room_type': self.room_type.id,
+                    'bedtype_id': self.bedtype_id.id,
                     'pax': self.pax,
                     'child': self.child,
                     'ratecode_id': self.ratecode_id.id,
@@ -2036,10 +2051,6 @@ class ReservationLine(models.Model):
                     'cotime': self.cotime,
                     'extrabed': self.extrabed,
                     'extrabed_amount': self.extrabed_amount,
-                    'extrabed_bf': self.extrabed_bf,
-                    'extrapax': self.extrapax,
-                    'extrapax_amount': self.extrapax_amount,
-                    'extrapax_bf': self.extrapax_bf,
                     'child_bfpax': self.child_bfpax,
                     'child_bf': self.child_bf,
                     'extra_addon': self.extra_addon,

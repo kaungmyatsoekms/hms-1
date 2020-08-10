@@ -73,7 +73,7 @@
               <separator colspan='4' string="Property Information" />
               <group>
                 <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
-                 <field name="scurrency_id" string="Second Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
+                <field name="scurrency_id" string="Second Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
                 <label for="address1" string="Address"/>
                 <div class="o_address_format">
                   <field name="address1" placeholder="Street..." class="o_address_street"/>
@@ -457,7 +457,7 @@
             <group>
               <group>
                 <field name="building_name" placeholder="Eg. Story Building (or) Villa" attrs="{'readonly': [('id', '=', 1)]}"/>
-                <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}' attrs="{'readonly': [('id', '=', 1)]}"/>
+                <field name="building_type" placeholder="Eg. Building Type" options='{"no_quick_create": True, "no_open": True}' attrs="{'readonly': [('id', '=', 1)]}"/>
                 <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities" attrs="{'readonly': [('id', '=', 1)]}"/>
                 <field name="building_location" attrs="{'readonly': [('id', '=', 1)]}"/>
                 <field name="building_desc" attrs="{'readonly': [('id', '=', 1)]}"/>
@@ -604,7 +604,7 @@
                 <field name="name" placeholder="Eg. Deluxe....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
                 <field name="color" required="True" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
                 <field name="fix_type" widget="boolean_toggle" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
-                <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)], 'readonly': ['|',('is_used','=',True),('id', '=', 1)]}" widget="many2many_tags"/>
+                <field name="bed_type" options="{'no_quick_create': True, 'no_open': True}" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)], 'readonly': ['|',('is_used','=',True),('id', '=', 1)]}" widget="many2many_tags"/>
                 <field name="totalroom" invisible='1'/>
                 <field name="roomtype_desc" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
               </group>
