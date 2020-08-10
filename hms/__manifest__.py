@@ -26,7 +26,7 @@
     # any module necessary for this one to work correctly
     'depends': [
         'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
-        'point_of_sale', 'web', 'website', 'web_one2many_kanban'
+        'web', 'website', 'web_one2many_kanban'
     ],
     "external_dependencies": {
         "python": ["graphene"]
