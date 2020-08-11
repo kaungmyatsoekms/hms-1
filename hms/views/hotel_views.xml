@@ -213,14 +213,14 @@
                     <field name="terminate_days"/>
                     <field name="extend_count"/>
                   </group> -->
-                  <group string="Format Definition">
-                    <field name="profile_id_format" widget="selection"/>
-                    <field name="cprofile_id_format" widget="selection"/>
-                    <field name="gprofile_id_format" widget="selection"/>
-                    <field name="confirm_id_format" widget="selection"/>
-                    <!-- <field name="cancellation_id_format" widget="selection"/> -->
-                  </group>
-                  <!-- <group string="Define Rent Schedule Type">
+                                    <group string="Format Definition">
+                                        <field name="profile_id_format" widget="selection"/>
+                                        <field name="cprofile_id_format" widget="selection"/>
+                                        <field name="gprofile_id_format" widget="selection"/>
+                                        <field name="confirm_id_format" widget="selection"/>
+                                        <!-- <field name="cancellation_id_format" widget="selection"/> -->
+                                    </group>
+                                    <!-- <group string="Define Rent Schedule Type">
                     <field name="rentschedule_type"/>
                   </group>
                    <group string="API Information">
@@ -308,137 +308,137 @@
               <field name="message_ids" widget="mail_thread"/>
             </div>
           </footer> -->
-        </form>
-      </field>
-    </record>
+                </form>
+            </field>
+        </record>
 
-    <!-- List View of Property -->
-    <record id="property_view_list" model="ir.ui.view">
-      <field name="name">property.view.list</field>
-      <field name="model">hms.property</field>
-      <field name="arch" type="xml">
-        <tree string="Property" import="false">
-          <field name="name"/>
-          <field name="code"/>
-          <field name="timezone"/>
-          <field name="city_id" optional="show"/>
-          <field name="state_id" optional="hide"/>
-          <field name="country_id" optional="show"/>
-          <field name="phone" optional="show"/>
-          <field name="email" optional="hide"/>
-          <field name="website" optional="hide"/>
-          <field name="rating" optional="show"/>
-          <field name="logo" optional="hide"/>
-        </tree>
-      </field>
-    </record>
+        <!-- List View of Property -->
+        <record id="property_view_list" model="ir.ui.view">
+            <field name="name">property.view.list</field>
+            <field name="model">hms.property</field>
+            <field name="arch" type="xml">
+                <tree string="Property" import="false">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="timezone"/>
+                    <field name="city_id" optional="show"/>
+                    <field name="state_id" optional="hide"/>
+                    <field name="country_id" optional="show"/>
+                    <field name="phone" optional="show"/>
+                    <field name="email" optional="hide"/>
+                    <field name="website" optional="hide"/>
+                    <field name="rating" optional="show"/>
+                    <field name="logo" optional="hide"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Kanban View of Property -->
-    <record id="property_view_kanban" model="ir.ui.view">
-      <field name="name">property.view.kanban</field>
-      <field name="model">hms.property</field>
-      <field name="arch" type="xml">
-        <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" import="false">
-          <field name="id"/>
-          <field name="logo"/>
-          <field name="hotelgroup_id"/>
-          <field name="name"/>
-          <field name="code"/>
-          <field name="city_id"/>
-          <field name="country_id"/>
-          <field name="phone"/>
-          <field name="email"/>
-          <field name="website"/>
-          <field name="rating"/>
-          <field name="timezone"/>
-          <field name="system_date"/>
-          <field name="is_property"/>
-          <field name="is_manual"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div class="o_kanban_image">
-                  <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
-                  <field name="system_date"/>
-                </div>
-                <!-- <div class="container o_kanban_card_content">
+        <!-- Kanban View of Property -->
+        <record id="property_view_kanban" model="ir.ui.view">
+            <field name="name">property.view.kanban</field>
+            <field name="model">hms.property</field>
+            <field name="arch" type="xml">
+                <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" import="false">
+                    <field name="id"/>
+                    <field name="logo"/>
+                    <field name="hotelgroup_id"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="city_id"/>
+                    <field name="country_id"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                    <field name="website"/>
+                    <field name="rating"/>
+                    <field name="timezone"/>
+                    <field name="system_date"/>
+                    <field name="is_property"/>
+                    <field name="is_manual"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
+                                    <field name="system_date"/>
+                                </div>
+                                <!-- <div class="container o_kanban_card_content">
                   <div class="row o_kanban_card_upper_content">
                       <div class="col-5 o_kanban_primary_left" name="to_replace_in_sale_crm">
                           <button type="object" class="btn btn-primary" name="action_primary_channel_button">Company Profile</button>
                       </div>
                   </div>
                 </div> -->
-                <div class="o_dropdown_kanban dropdown" groups="base.group_user">
-                  <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
-                    <span class="fa fa-bars fa-lg" />
-                  </a>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <t t-if="widget.editable">
-                      <li>
-                        <a type="edit">Edit</a>
-                      </li>
-                    </t>
-                    <t t-if="widget.deletable">
-                      <li>
-                        <a type="delete">Delete</a>
-                      </li>
-                    </t>
-                    <t>
-                      <li>
+                                <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                    <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                        <span class="fa fa-bars fa-lg" />
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                        <t t-if="widget.editable">
+                                            <li>
+                                                <a type="edit">Edit</a>
+                                            </li>
+                                        </t>
+                                        <t t-if="widget.deletable">
+                                            <li>
+                                                <a type="delete">Delete</a>
+                                            </li>
+                                        </t>
+                                        <t>
+                                            <li>
                         Profile
-                        <ul>
-                          <li>
-                            <a type="object" name="action_companyprofile" context="{'default_property_id' : id}">Company Profile</a>
-                          </li>
-                          <li>
-                            <a type="object">Guest Profile</a>
-                          </li>
-                        </ul>
-                      </li>
-                    </t>
-                    <!-- <li>
+                                                <ul>
+                                                    <li>
+                                                        <a type="object" name="action_companyprofile" context="{'default_property_id' : id}">Company Profile</a>
+                                                    </li>
+                                                    <li>
+                                                        <a type="object">Guest Profile</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </t>
+                                        <!-- <li>
                         <ul class="oe_kanban_colorpicker" data-field="color" />
                     </li> -->
-                  </ul>
-                </div>
-                <div class="oe_kanban_details">
-                  <div>
-                    <field name="name"/>
-                  </div>
-                  <div>
-                    <field name="hotelgroup_id"/>
-                  </div>
-                  <div>
-                    <field name="timezone"/>
-                  </div>
-                  <div>
-                    <field t-if="record.city_id.raw_value" name="city_id"/>
-                    <field t-if="record.country_id.raw_value" name="country_id"/>
-                  </div>
-                  <div t-if="record.phone.raw_value">
-                    <field name="phone"/>
-                  </div>
-                  <div t-if="record.email.raw_value">
-                    <field name="email"/>
-                  </div>
-                  <div t-if="record.website.raw_value">
-                    <field name="website"/>
-                  </div>
-                  <div t-if="record.rating.raw_value">
-                    <field name="rating" widget='priority'/>
-                  </div>
-                  <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
-                    <i class="fa fa-moon-o"></i>Night Audit
-                  </button>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record>
+                                    </ul>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <div>
+                                        <field name="name"/>
+                                    </div>
+                                    <div>
+                                        <field name="hotelgroup_id"/>
+                                    </div>
+                                    <div>
+                                        <field name="timezone"/>
+                                    </div>
+                                    <div>
+                                        <field t-if="record.city_id.raw_value" name="city_id"/>
+                                        <field t-if="record.country_id.raw_value" name="country_id"/>
+                                    </div>
+                                    <div t-if="record.phone.raw_value">
+                                        <field name="phone"/>
+                                    </div>
+                                    <div t-if="record.email.raw_value">
+                                        <field name="email"/>
+                                    </div>
+                                    <div t-if="record.website.raw_value">
+                                        <field name="website"/>
+                                    </div>
+                                    <div t-if="record.rating.raw_value">
+                                        <field name="rating" widget='priority'/>
+                                    </div>
+                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                                        <i class="fa fa-moon-o"></i>Night Audit
+                                    </button>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
 
-    <!-- <record id="property_view_kanban" model="ir.ui.view">
+        <!-- <record id="property_view_kanban" model="ir.ui.view">
       <field name="name">property.view.kanban</field>
       <field name="model">hms.property</field>
       <field name="arch" type="xml">
@@ -480,1165 +480,1162 @@
       </field>
     </record> -->
 
-    <!-- Search View of Property -->
-    <record model="ir.ui.view" id="view_pms_properites_filter">
-      <field name="name">Properties Filter</field>
-      <field name="model">hms.property</field>
-      <field name="arch" type="xml">
-        <search>
-          <field name="code" string="Property Code"/>
-          <field name="name" string="Property Name"/>
-          <field name="website" string="Website"/>
-        </search>
-      </field>
-    </record>
+        <!-- Search View of Property -->
+        <record model="ir.ui.view" id="view_pms_properites_filter">
+            <field name="name">Properties Filter</field>
+            <field name="model">hms.property</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="code" string="Property Code"/>
+                    <field name="name" string="Property Name"/>
+                    <field name="website" string="Website"/>
+                </search>
+            </field>
+        </record>
 
-    <record id="property_action_tree" model="ir.actions.act_window">
-      <field name="name">Hotel Properties</field>
-      <field name="type">ir.actions.act_window</field>
-      <field name="res_model">hms.property</field>
-      <field name="view_mode">tree,form</field>
-      <field name="domain">[('id','=',active_id)]</field>
-    </record>
+        <record id="property_action_tree" model="ir.actions.act_window">
+            <field name="name">Hotel Properties</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hms.property</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('id','=',active_id)]</field>
+        </record>
 
-    <!-- action of property setup -->
-    <record id="property_action_window" model="ir.actions.act_window">
-      <field name="name">Hotel Property</field>
-      <field name="res_model">hms.property</field>
-      <field name="view_mode">kanban,tree,form</field>
-      <field name="view_id" ref="property_view_kanban"/>
-    </record>
+        <!-- action of property setup -->
+        <record id="property_action_window" model="ir.actions.act_window">
+            <field name="name">Hotel Property</field>
+            <field name="res_model">hms.property</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_id" ref="property_view_kanban"/>
+        </record>
 
-    <!-- ========== Hotel Building Setup ========== -->
-    <!-- Building Setup Form View -->
-    <record id="building_view_form" model="ir.ui.view">
-      <field name="name">building.view.form</field>
-      <field name="model">hms.building</field>
-      <field name="arch" type="xml">
-        <form string="Building" import="false">
-          <sheet>
-            <h2>Hotel Building</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="building_name" placeholder="Eg. Story Building (or) Villa" attrs="{'readonly': [('id', '=', 1)]}"/>
-                <field name="building_type" placeholder="Eg. Building Type" options='{"no_open": True}' attrs="{'readonly': [('id', '=', 1)]}"/>
-                <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities" attrs="{'readonly': [('id', '=', 1)]}"/>
-                <field name="building_location" attrs="{'readonly': [('id', '=', 1)]}"/>
-                <field name="building_desc" attrs="{'readonly': [('id', '=', 1)]}"/>
-              </group>
-              <group>
-                <field name="building_img" widget="image" colspan="6"/>
-                <!-- <field name="location_number" invisible ='1'/> -->
-              </group>
-            </group>
-            <notebook>
-              <page string="Room Location" colspan='4'>
-                <field name="location_ids">
-                  <tree string="Room Location" limit="10">
+        <!-- ========== Hotel Building Setup ========== -->
+        <!-- Building Setup Form View -->
+        <record id="building_view_form" model="ir.ui.view">
+            <field name="name">building.view.form</field>
+            <field name="model">hms.building</field>
+            <field name="arch" type="xml">
+                <form string="Building" import="false">
+                    <sheet>
+                        <h2>Hotel Building</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="building_name" placeholder="Eg. Story Building (or) Villa" attrs="{'readonly': [('id', '=', 1)]}"/>
+                                <field name="building_type" placeholder="Eg. Building Type" options='{"no_quick_create": True, "no_open": True}' attrs="{'readonly': [('id', '=', 1)]}"/>
+                                <field name="building_capacity" placeholder="Eg. Floors (or) Villa Capacities" attrs="{'readonly': [('id', '=', 1)]}"/>
+                                <field name="building_location" attrs="{'readonly': [('id', '=', 1)]}"/>
+                                <field name="building_desc" attrs="{'readonly': [('id', '=', 1)]}"/>
+                            </group>
+                            <group>
+                                <field name="building_img" widget="image" colspan="6"/>
+                                <!-- <field name="location_number" invisible ='1'/> -->
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Room Location" colspan='4'>
+                                <field name="location_ids">
+                                    <tree string="Room Location" limit="10">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="location_code"/>
+                                        <field name="location_name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Building Tree View-->
+        <record id="building_view_list" model="ir.ui.view">
+            <field name="name">building.view.list</field>
+            <field name="model">hms.building</field>
+            <field name="arch" type="xml">
+                <tree string="Building" import="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="building_name"/>
+                    <field name="building_type"/>
+                    <field name="location_ids" widget="many2many_tags"/>
+                    <field name="building_location" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of building setup -->
+        <record id="building_action_window" model="ir.actions.act_window">
+            <field name="name">Hotel Building</field>
+            <field name="res_model">hms.building</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- ===========Building Type Setup============-->
+        <!-- Building Type View List -->
+        <record id="building_type_view_list" model="ir.ui.view">
+            <field name="name">hms.buildingtype.view.list</field>
+            <field name="model">hms.buildingtype</field>
+            <field name="arch" type="xml">
+                <tree string="Building Type" import="false">
+                    <field name="building_type"/>
+                    <field name="buildingtype_desc"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Building Type View Form -->
+        <record id="building_type_view_form" model="ir.ui.view">
+            <field name="name">hms.buildingtype.view.form</field>
+            <field name="model">hms.buildingtype</field>
+            <field name="arch" type="xml">
+                <form string="Building Type" import="false">
+                    <sheet>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="building_type" placeholder="Eg. BLD....." attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+                            <field name="buildingtype_desc" placeholder="Eg. Building Type....." attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action of Building Type-->
+        <record id="action_country_state" model="ir.actions.act_window">
+            <field name="name">Fed. States</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hms.buildingtype</field>
+            <field name="view_id" ref="building_type_view_list"/>
+            <field name="help">You can manage the different federal states you are working on from here. Each state is attached to one country.</field>
+        </record>
+
+        <!-- ========== Hotel Room Location Setup ========== -->
+        <!-- Room Location Setup Form View -->
+        <record id="room_location_view_form" model="ir.ui.view">
+            <field name="name">hms.roomlocation.view.form</field>
+            <field name="model">hms.roomlocation</field>
+            <field name="arch" type="xml">
+                <form string="Room Location" import="false">
+                    <sheet>
+                        <h2>Room Location</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="location_code" placeholder="Eg. 1F" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+                                <field name="location_name" placeholder="Eg. 1st Floor" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Room Location Tree View-->
+        <record id="room_location_view_list" model="ir.ui.view">
+            <field name="name">hms.roomlocation.view.list</field>
+            <field name="model">hms.roomlocation</field>
+            <field name="arch" type="xml">
+                <tree string="Room Location" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="location_code"/>
                     <field name="location_name"/>
-                  </tree>
-                </field>
-              </page>
-            </notebook>
-          </sheet>
-        </form>
-      </field>
-    </record>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Building Tree View-->
-    <record id="building_view_list" model="ir.ui.view">
-      <field name="name">building.view.list</field>
-      <field name="model">hms.building</field>
-      <field name="arch" type="xml">
-        <tree string="Building" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="building_name"/>
-          <field name="building_type"/>
-          <field name="location_ids" widget="many2many_tags"/>
-          <field name="building_location" optional="hide"/>
-        </tree>
-      </field>
-    </record>
+        <!-- action of room location setup -->
+        <record id="room_location_action_window" model="ir.actions.act_window">
+            <field name="name">Room Location</field>
+            <field name="res_model">hms.roomlocation</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- action of building setup -->
-    <record id="building_action_window" model="ir.actions.act_window">
-      <field name="name">Hotel Building</field>
-      <field name="res_model">hms.building</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- ========== Room Type Setup ========== -->
+        <!-- Room Type Setup Form View -->
+        <record id="room_type_view_form" model="ir.ui.view">
+            <field name="name">hms.roomtype.view.form</field>
+            <field name="model">hms.roomtype</field>
+            <field name="arch" type="xml">
+                <form string="Room Type" import="false">
+                    <sheet>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <h2>Room Type Setup</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="is_used" invisible="1"/>
+                                <field name="code" placeholder="Eg. DLX....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                                <field name="name" placeholder="Eg. Deluxe....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                                <field name="color" required="True" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                                <field name="fix_type" widget="boolean_toggle" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                                <field name="bed_type" options="{'no_quick_create': True, 'no_open': True}" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)], 'readonly': ['|',('is_used','=',True),('id', '=', 1)]}" widget="many2many_tags"/>
+                                <field name="totalroom" invisible='1'/>
+                                <field name="roomtype_desc" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
+                            </group>
+                            <group>
+                                <field name="image" widget="image"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- ===========Building Type Setup============-->
-    <!-- Building Type View List -->
-    <record id="building_type_view_list" model="ir.ui.view">
-      <field name="name">hms.buildingtype.view.list</field>
-      <field name="model">hms.buildingtype</field>
-      <field name="arch" type="xml">
-        <tree string="Building Type" import="false">
-          <field name="building_type"/>
-          <field name="buildingtype_desc"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Room Type List View-->
+        <record id="room_type_view_list" model="ir.ui.view">
+            <field name="name">hms.roomtype.view.list</field>
+            <field name="model">hms.roomtype</field>
+            <field name="arch" type="xml">
+                <tree string="Room Type List" import="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name" />
+                    <field name="fix_type"/>
+                    <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
+                    <field name="roomtype_desc"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Building Type View Form -->
-    <record id="building_type_view_form" model="ir.ui.view">
-      <field name="name">hms.buildingtype.view.form</field>
-      <field name="model">hms.buildingtype</field>
-      <field name="arch" type="xml">
-        <form string="Building Type" import="false">
-          <sheet>
-            <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="building_type" placeholder="Eg. BLD....." attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
-              <field name="buildingtype_desc" placeholder="Eg. Building Type....." attrs="{'readonly': ['|',('is_csv', '=', True),('id', '=', 1)]}"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Action of Building Type-->
-    <record id="action_country_state" model="ir.actions.act_window">
-      <field name="name">Fed. States</field>
-      <field name="type">ir.actions.act_window</field>
-      <field name="res_model">hms.buildingtype</field>
-      <field name="view_id" ref="building_type_view_list"/>
-      <field name="help">You can manage the different federal states you are working on from here. Each state is attached to one country.</field>
-    </record>
-
-    <!-- ========== Hotel Room Location Setup ========== -->
-    <!-- Room Location Setup Form View -->
-    <record id="room_location_view_form" model="ir.ui.view">
-      <field name="name">hms.roomlocation.view.form</field>
-      <field name="model">hms.roomlocation</field>
-      <field name="arch" type="xml">
-        <form string="Room Location" import="false">
-          <sheet>
-            <h2>Room Location</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="location_code" placeholder="Eg. 1F" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
-                <field name="location_name" placeholder="Eg. 1st Floor" style="width:50%%" attrs="{'readonly': [('id', '=', 1)]}"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Room Location Tree View-->
-    <record id="room_location_view_list" model="ir.ui.view">
-      <field name="name">hms.roomlocation.view.list</field>
-      <field name="model">hms.roomlocation</field>
-      <field name="arch" type="xml">
-        <tree string="Room Location" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="location_code"/>
-          <field name="location_name"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- action of room location setup -->
-    <record id="room_location_action_window" model="ir.actions.act_window">
-      <field name="name">Room Location</field>
-      <field name="res_model">hms.roomlocation</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-
-    <!-- ========== Room Type Setup ========== -->
-    <!-- Room Type Setup Form View -->
-    <record id="room_type_view_form" model="ir.ui.view">
-      <field name="name">hms.roomtype.view.form</field>
-      <field name="model">hms.roomtype</field>
-      <field name="arch" type="xml">
-        <form string="Room Type" import="false">
-          <sheet>
-            <field name="active" invisible="1"/>
-            <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-            <h2>Room Type Setup</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="is_used" invisible="1"/>
-                <field name="code" placeholder="Eg. DLX....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
-                <field name="name" placeholder="Eg. Deluxe....." attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
-                <field name="color" required="True" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
-                <field name="fix_type" widget="boolean_toggle" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
-                <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)], 'required': [('fix_type', '!=', True)], 'readonly': ['|',('is_used','=',True),('id', '=', 1)]}" widget="many2many_tags"/>
-                <field name="totalroom" invisible='1'/>
-                <field name="roomtype_desc" attrs="{'readonly': ['|',('is_used', '=', True),('id', '=', 1)]}"/>
-              </group>
-              <group>
-                <field name="image" widget="image"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Room Type List View-->
-    <record id="room_type_view_list" model="ir.ui.view">
-      <field name="name">hms.roomtype.view.list</field>
-      <field name="model">hms.roomtype</field>
-      <field name="arch" type="xml">
-        <tree string="Room Type List" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="code"/>
-          <field name="name" />
-          <field name="fix_type"/>
-          <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
-          <field name="roomtype_desc"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- Kanban View of Room Type -->
-    <record id="room_type_view_kanban" model="ir.ui.view">
-      <field name="name">hms.roomtype.view.kanban</field>
-      <field name="model">hms.roomtype</field>
-      <field name="arch" type="xml">
-        <kanban import="false">
-          <field name="color" />
-          <field name="id"/>
-          <field name="code"/>
-          <field name="name"/>
-          <field name="image"/>
-          <field name="roomtype_desc"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
-                <div class="o_dropdown_kanban dropdown">
-                  <a role="button" class="dropdown-toggle btn" data-toggle="dropdown" href="#">
-                    <span title="fa_icon" class="fa fa-bars fa-lg" />
-                  </a>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <t t-if="widget.editable">
-                      <li>
-                        <a type="edit">Edit</a>
-                      </li>
-                    </t>
-                    <t t-if="widget.deletable">
-                      <li>
-                        <a type="delete">Delete</a>
-                      </li>
-                    </t>
-                    <!-- <li>
-                        <ul class="oe_kanban_colorpicker" data-field="color" />
-                    </li> -->
-                  </ul>
-                </div>
-                <div class="oe_kanban_details" style='margin-top: -5px;'>
-                  <div class="oe_kanban_content">
-                    <div class="oe_kanban_project_list">
-                      <div class="o_kanban_image">
-                        <img t-att-src="kanban_image('hms.roomtype','image',record.id.raw_value)" alt="image"/>
-                      </div>
-                      <div class="oe_kanban_details">
-                        <field name="code"/>
-                        <div>
-                          <field name="name"/>
-                        </div>
-                        <div>
-                          <field name="roomtype_desc"/>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record>
-
-    <!-- action of room type setup -->
-    <record id="room_type_action_window" model="ir.actions.act_window">
-      <field name="name">Room Type</field>
-      <field name="res_model">hms.roomtype</field>
-      <field name="view_mode">kanban,tree,form</field>
-    </record>
-
-    <!-- ========== Room View Setup ========== -->
-    <!-- Room View Setup Form View -->
-    <record id="room_view_view_form" model="ir.ui.view">
-      <field name="name">hms.roomview.view.form</field>
-      <field name="model">hms.roomview</field>
-      <field name="arch" type="xml">
-        <form string="Room View" import="false">
-          <sheet>
-            <h2>Room View Setup</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="is_csv" invisible="1"/>
-                <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
-                <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Room View List View -->
-    <record id="room_view_view_list" model="ir.ui.view">
-      <field name="name">hms.roomview.view.list</field>
-      <field name="model">hms.roomview</field>
-      <field name="arch" type="xml">
-        <tree string="Room View" import="false">
-          <field name="name"/>
-          <field name="roomview_desc"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- action of room view setup -->
-    <record id="room_view_action_window" model="ir.actions.act_window">
-      <field name="name">Room View</field>
-      <field name="res_model">hms.roomview</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-
-    <!-- ========== Room Facility Setup ========== -->
-    <!-- Room Facility Setup Form View -->
-    <record id="room_facility_view_form" model="ir.ui.view">
-      <field name="name">hms.room.facility.view.form</field>
-      <field name="model">hms.room.facility</field>
-      <field name="arch" type="xml">
-        <form string="Room Facility" import="false">
-          <sheet>
-            <h2>Room Facility</h2>
-            <br></br>
-            <group>
-              <field name="propertyroom_id" options="{'no_create':True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-              <field name="facilitytype_id" options="{'no_quick_create':True, 'no_open':True}"/>
-              <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags" options="{'no_quick_create':True, 'no_open':True}"/>
-              <field name="facility_desc" placeholder="Eg. Aircon....."/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Room Facility List View -->
-    <record id="room_facility_view_tree" model="ir.ui.view">
-      <field name="name">hms.room.facility.view.tree</field>
-      <field name="model">hms.room.facility</field>
-      <field name="arch" type="xml">
-        <tree string="Room Facility" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="facilitytype_id"/>
-          <field name="amenity_ids" widget="many2many_tags"/>
-          <field name="facility_desc"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- action of room facility setup -->
-    <record id="room_facility_action_window" model="ir.actions.act_window">
-      <field name="name">Room Facility</field>
-      <field name="res_model">hms.room.facility</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-
-    <!-- Room Facility Type Form View -->
-    <record id="room_facility_type_view_form" model="ir.ui.view">
-      <field name="name">hms.room.facility.type.view.form</field>
-      <field name="model">hms.room.facility.type</field>
-      <field name="arch" type="xml">
-        <form string="Room Facility" import="false">
-          <sheet>
-            <h2>Facility Type</h2>
-            <br></br>
-            <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="facility_type" placeholder="Eg. ENT..... "/>
-              <field name="facilitytype_desc" placeholder="Eg. Entertainments...."/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- Room Facility List View -->
-    <record id="room_facility_type_view_tree" model="ir.ui.view">
-      <field name="name">hms.room.facility.type.view.tree</field>
-      <field name="model">hms.room.facility.type</field>
-      <field name="arch" type="xml">
-        <tree string="Facility Type" import="false">
-          <field name="facility_type"/>
-          <field name="facilitytype_desc"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- Room Amenity Setup Form View -->
-    <record id="room_amenity_view_form" model="ir.ui.view">
-      <field name="name">hms.room.amenity.view.form</field>
-      <field name="model">hms.room.amenity</field>
-      <field name="arch" type="xml">
-        <form string="Room Amenity" import="false">
-          <sheet>
-            <h2>Room Amenity Setup</h2>
-            <br></br>
-            <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="facilitytype_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="name" placeholder="Eg. AC" attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="amenity_desc" placeholder="Eg. Air-Con" attrs="{'readonly': [('is_csv', '=', True)]}"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
-
-    <!-- ========== Hotel Room Setup ========== -->
-    <!-- Hotel Room Setup Form View -->
-    <record id="property_room_view_form" model="ir.ui.view">
-      <field name="name">hms.property.hms.roomview.form</field>
-      <field name="model">hms.property.room</field>
-      <field name="arch" type="xml">
-        <form string="Property Room" import="false">
-          <sheet>
-            <h2>Property Room</h2>
-            <br></br>
-            <field name="room_img" widget="image" class="oe_avatar"/>
-            <group>
-              <group>
-                <field name="is_hfo" invisible="1"/>
-                <field name="is_used" invisible="1"/>
-                <field name="is_propertyroom" invisible='1'/>
-                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="room_no" placeholder="Eg. 101..." attrs="{'readonly': [('is_used', '=', True)]}"/>
-                <field name="roomtype_ids" invisible="1"/>
-                <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="bedtype_ids" invisible="1"/>
-                <field name="is_roomtype_fix" invisible="1"/>
-                <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="building_ids" invisible="1"/>
-                <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="location_ids" invisible="1"/>
-                <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="room_bedqty"/>
-                <field name="no_of_pax"/>
-                <field name="zip_type" widget="boolean_toggle"/>
-              </group>
-              <group>
-                <field name="room_extension" placeholder="Eg. 101... "/>
-                <field name="roomview_ids" widget="many2many_tags" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
-                <field name="room_desc" placeholder="Eg. Special Remark"/>
-              </group>
-              <group>
-                <notebook>
-                  <page string="Room Facility">
-                    <field name="facility_ids" widget="many2many_kanban">
-                      <kanban quick_create="false" create="true" delete="true">
-                        <field name="amenity_ids"/>
-                        <field name="facilitytype_id"/>
-                        <field name="facility_desc"/>
-                        <templates>
-                          <t t-name="kanban-box">
-                            <div class="oe_kanban_global_click" style="position: relative">
-                              <a t-if="! read_only_mode" type="delete" style="position: absolute; right: 0; padding: 4px; display: inline-block">X</a>
-                              <div class="oe_module_vignette">
-                                <div class="oe_module_desc">
-                                  <field name="facilitytype_id"/>
-                                  <field name="facility_desc"/>
-                                  <field name="amenity_ids"/>
+        <!-- Kanban View of Room Type -->
+        <record id="room_type_view_kanban" model="ir.ui.view">
+            <field name="name">hms.roomtype.view.kanban</field>
+            <field name="model">hms.roomtype</field>
+            <field name="arch" type="xml">
+                <kanban import="false">
+                    <field name="color" />
+                    <field name="id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="image"/>
+                    <field name="roomtype_desc"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a role="button" class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                        <span title="fa_icon" class="fa fa-bars fa-lg" />
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                        <t t-if="widget.editable">
+                                            <li>
+                                                <a type="edit">Edit</a>
+                                            </li>
+                                        </t>
+                                        <t t-if="widget.deletable">
+                                            <li>
+                                                <a type="delete">Delete</a>
+                                            </li>
+                                        </t>
+                                    </ul>
                                 </div>
-                              </div>
+                                <div class="oe_kanban_details" style='margin-top: -5px;'>
+                                    <div class="oe_kanban_content">
+                                        <div class="oe_kanban_project_list">
+                                            <div class="o_kanban_image">
+                                                <img t-att-src="kanban_image('hms.roomtype','image',record.id.raw_value)" alt="image"/>
+                                            </div>
+                                            <div class="oe_kanban_details">
+                                                <field name="code"/>
+                                                <div>
+                                                    <field name="name"/>
+                                                </div>
+                                                <div>
+                                                    <field name="roomtype_desc"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                          </t>
-                        </templates>
-                      </kanban>
-                    </field>
-                  </page>
-                </notebook>
-              </group>
-            </group>
-          </sheet>
-          <!-- <footer> -->
-          <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
-          <!-- <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- action of room type setup -->
+        <record id="room_type_action_window" model="ir.actions.act_window">
+            <field name="name">Room Type</field>
+            <field name="res_model">hms.roomtype</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+
+        <!-- ========== Room View Setup ========== -->
+        <!-- Room View Setup Form View -->
+        <record id="room_view_view_form" model="ir.ui.view">
+            <field name="name">hms.roomview.view.form</field>
+            <field name="model">hms.roomview</field>
+            <field name="arch" type="xml">
+                <form string="Room View" import="false">
+                    <sheet>
+                        <h2>Room View Setup</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="is_csv" invisible="1"/>
+                                <field name="name" placeholder="Eg. MTV....." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                                <field name="roomview_desc" placeholder="Eg. Mountain View" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Room View List View -->
+        <record id="room_view_view_list" model="ir.ui.view">
+            <field name="name">hms.roomview.view.list</field>
+            <field name="model">hms.roomview</field>
+            <field name="arch" type="xml">
+                <tree string="Room View" import="false">
+                    <field name="name"/>
+                    <field name="roomview_desc"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of room view setup -->
+        <record id="room_view_action_window" model="ir.actions.act_window">
+            <field name="name">Room View</field>
+            <field name="res_model">hms.roomview</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- ========== Room Facility Setup ========== -->
+        <!-- Room Facility Setup Form View -->
+        <record id="room_facility_view_form" model="ir.ui.view">
+            <field name="name">hms.room.facility.view.form</field>
+            <field name="model">hms.room.facility</field>
+            <field name="arch" type="xml">
+                <form string="Room Facility" import="false">
+                    <sheet>
+                        <h2>Room Facility</h2>
+                        <br></br>
+                        <group>
+                            <field name="propertyroom_id" options="{'no_create':True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                            <field name="facilitytype_id" options="{'no_quick_create':True, 'no_open':True}"/>
+                            <field name="amenity_ids" placeholder="Eg. Aircon..." widget="many2many_tags" options="{'no_quick_create':True, 'no_open':True}"/>
+                            <field name="facility_desc" placeholder="Eg. Aircon....."/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Room Facility List View -->
+        <record id="room_facility_view_tree" model="ir.ui.view">
+            <field name="name">hms.room.facility.view.tree</field>
+            <field name="model">hms.room.facility</field>
+            <field name="arch" type="xml">
+                <tree string="Room Facility" import="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="facilitytype_id"/>
+                    <field name="amenity_ids" widget="many2many_tags"/>
+                    <field name="facility_desc"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- action of room facility setup -->
+        <record id="room_facility_action_window" model="ir.actions.act_window">
+            <field name="name">Room Facility</field>
+            <field name="res_model">hms.room.facility</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Room Facility Type Form View -->
+        <record id="room_facility_type_view_form" model="ir.ui.view">
+            <field name="name">hms.room.facility.type.view.form</field>
+            <field name="model">hms.room.facility.type</field>
+            <field name="arch" type="xml">
+                <form string="Room Facility" import="false">
+                    <sheet>
+                        <h2>Facility Type</h2>
+                        <br></br>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="facility_type" placeholder="Eg. ENT..... "/>
+                            <field name="facilitytype_desc" placeholder="Eg. Entertainments...."/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Room Facility List View -->
+        <record id="room_facility_type_view_tree" model="ir.ui.view">
+            <field name="name">hms.room.facility.type.view.tree</field>
+            <field name="model">hms.room.facility.type</field>
+            <field name="arch" type="xml">
+                <tree string="Facility Type" import="false">
+                    <field name="facility_type"/>
+                    <field name="facilitytype_desc"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Room Amenity Setup Form View -->
+        <record id="room_amenity_view_form" model="ir.ui.view">
+            <field name="name">hms.room.amenity.view.form</field>
+            <field name="model">hms.room.amenity</field>
+            <field name="arch" type="xml">
+                <form string="Room Amenity" import="false">
+                    <sheet>
+                        <h2>Room Amenity Setup</h2>
+                        <br></br>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="facilitytype_id" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="name" placeholder="Eg. AC" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="amenity_desc" placeholder="Eg. Air-Con" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- ========== Hotel Room Setup ========== -->
+        <!-- Hotel Room Setup Form View -->
+        <record id="property_room_view_form" model="ir.ui.view">
+            <field name="name">hms.property.hms.roomview.form</field>
+            <field name="model">hms.property.room</field>
+            <field name="arch" type="xml">
+                <form string="Property Room" import="false">
+                    <sheet>
+                        <h2>Property Room</h2>
+                        <br></br>
+                        <field name="room_img" widget="image" class="oe_avatar"/>
+                        <group>
+                            <group>
+                                <field name="is_hfo" invisible="1"/>
+                                <field name="is_used" invisible="1"/>
+                                <field name="is_propertyroom" invisible='1'/>
+                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="room_no" placeholder="Eg. 101..." attrs="{'readonly': [('is_used', '=', True)]}"/>
+                                <field name="roomtype_ids" invisible="1"/>
+                                <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="bedtype_ids" invisible="1"/>
+                                <field name="is_roomtype_fix" invisible="1"/>
+                                <field name="bedtype_id" attrs="{'invisible': ['|', ('is_roomtype_fix', '=', True), ('is_roomtype_fix', '=', 'Null')],'required': [('is_roomtype_fix', '=', False)]}" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="building_ids" invisible="1"/>
+                                <field name="building_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="location_ids" invisible="1"/>
+                                <field name="roomlocation_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="room_bedqty"/>
+                                <field name="no_of_pax"/>
+                                <field name="zip_type" widget="boolean_toggle"/>
+                            </group>
+                            <group>
+                                <field name="room_extension" placeholder="Eg. 101... "/>
+                                <field name="roomview_ids" widget="many2many_tags" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="room_size" placeholder="Eg. 20x30 sqt...."/>
+                                <field name="room_desc" placeholder="Eg. Special Remark"/>
+                            </group>
+                            <group>
+                                <notebook>
+                                    <page string="Room Facility">
+                                        <field name="facility_ids" widget="many2many_kanban">
+                                            <kanban quick_create="false" create="true" delete="true">
+                                                <field name="amenity_ids"/>
+                                                <field name="facilitytype_id"/>
+                                                <field name="facility_desc"/>
+                                                <templates>
+                                                    <t t-name="kanban-box">
+                                                        <div class="oe_kanban_global_click" style="position: relative">
+                                                            <a t-if="! read_only_mode" type="delete" style="position: absolute; right: 0; padding: 4px; display: inline-block">X</a>
+                                                            <div class="oe_module_vignette">
+                                                                <div class="oe_module_desc">
+                                                                    <field name="facilitytype_id"/>
+                                                                    <field name="facility_desc"/>
+                                                                    <field name="amenity_ids"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                </templates>
+                                            </kanban>
+                                        </field>
+                                    </page>
+                                </notebook>
+                            </group>
+                        </group>
+                    </sheet>
+                    <!-- <footer> -->
+                    <!-- <button type="button" class="btn btn-primary"><span>Save</span></button>-->
+                    <!-- <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
             <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('is_propertyroom', '=', False)]}" context="{'default_property_id' : id}">
         <i class="fa fa-paint-brush"></i></button>
           </footer> -->
-        </form>
-      </field>
-    </record>
+                </form>
+            </field>
+        </record>
 
-    <!-- Hotel Room List View -->
-    <record id="property_room_view_list" model="ir.ui.view">
-      <field name="name">hms.property.hms.roomview.list</field>
-      <field name="model">hms.property.room</field>
-      <field name="arch" type="xml">
-        <tree string="Room Setup" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="is_propertyroom" invisible='1'/>
-          <field name="property_id" optional="hide"/>
-          <field name="room_no" optional="show"/>
-          <field name="building_id" optional="show"/>
-          <field name="roomtype_id" optional="show"/>
-          <field name="bedtype_id" optional="show"/>
-          <field name="roomlocation_id" optional="show"/>
-          <field name="room_bedqty" optional="show"/>
-          <field name="room_extension" optional="show"/>
-          <field name="roomview_ids" optional="hide"/>
-          <field name="facility_ids" optional="hide"/>
-          <field name="room_size" optional="hide"/>
-          <field name="room_desc" optional="hide"/>
-          <field name="room_img" optional="hide"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Hotel Room List View -->
+        <record id="property_room_view_list" model="ir.ui.view">
+            <field name="name">hms.property.hms.roomview.list</field>
+            <field name="model">hms.property.room</field>
+            <field name="arch" type="xml">
+                <tree string="Room Setup" import="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="is_propertyroom" invisible='1'/>
+                    <field name="property_id" optional="hide"/>
+                    <field name="room_no" optional="show"/>
+                    <field name="building_id" optional="show"/>
+                    <field name="roomtype_id" optional="show"/>
+                    <field name="bedtype_id" optional="show"/>
+                    <field name="roomlocation_id" optional="show"/>
+                    <field name="room_bedqty" optional="show"/>
+                    <field name="room_extension" optional="show"/>
+                    <field name="roomview_ids" optional="hide"/>
+                    <field name="facility_ids" optional="hide"/>
+                    <field name="room_size" optional="hide"/>
+                    <field name="room_desc" optional="hide"/>
+                    <field name="room_img" optional="hide"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- action of room setup -->
-    <record id="property_room_action_window" model="ir.actions.act_window">
-      <field name="name">Room Setup</field>
-      <field name="res_model">hms.property.room</field>
-      <field name="limit">10</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- action of room setup -->
+        <record id="property_room_action_window" model="ir.actions.act_window">
+            <field name="name">Room Setup</field>
+            <field name="res_model">hms.property.room</field>
+            <field name="limit">10</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Market Group Form View -->
-    <record id="market_group_view_form" model="ir.ui.view">
-      <field name="name">hms.marketgroup.view.form</field>
-      <field name="model">hms.marketgroup</field>
-      <field name="arch" type="xml">
-        <form string="Market Group" import="false">
-          <sheet>
-            <h2>Market Group</h2>
-            <br></br>
-            <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="group_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="group_name" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Market Group Form View -->
+        <record id="market_group_view_form" model="ir.ui.view">
+            <field name="name">hms.marketgroup.view.form</field>
+            <field name="model">hms.marketgroup</field>
+            <field name="arch" type="xml">
+                <form string="Market Group" import="false">
+                    <sheet>
+                        <h2>Market Group</h2>
+                        <br></br>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="group_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="group_name" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Bed Type Form View -->
-    <record id="bed_type_view_form" model="ir.ui.view">
-      <field name="name">hms.bedtype.view.form</field>
-      <field name="model">hms.bedtype</field>
-      <field name="arch" type="xml">
-        <form string="Bed Type" import="false">
-          <sheet>
-            <h2>Bed Type</h2>
-            <br></br>
-            <group>
-              <field name="is_csv" invisible="1"/>
-              <field name="name" placeholder="Eg. Single" attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              <field name="no_of_bed" attrs="{'readonly': [('is_csv', '=', True)]}"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Bed Type Form View -->
+        <record id="bed_type_view_form" model="ir.ui.view">
+            <field name="name">hms.bedtype.view.form</field>
+            <field name="model">hms.bedtype</field>
+            <field name="arch" type="xml">
+                <form string="Bed Type" import="false">
+                    <sheet>
+                        <h2>Bed Type</h2>
+                        <br></br>
+                        <group>
+                            <field name="is_csv" invisible="1"/>
+                            <field name="name" placeholder="Eg. Single" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            <field name="no_of_bed" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Market Segment Setup Form View -->
-    <record id="market_segment_view_form" model="ir.ui.view">
-      <field name="name">hms.marketsegment.view.form</field>
-      <field name="model">hms.marketsegment</field>
-      <field name="arch" type="xml">
-        <form string="Market Segment" import="false">
-          <sheet>
-            <h2>Market Segment</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="is_csv" invisible="1" style="width:50%%"/>
-                <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
-                <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
-                <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}" style="width:50%%"/>
-                <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Market Segment Setup Form View -->
+        <record id="market_segment_view_form" model="ir.ui.view">
+            <field name="name">hms.marketsegment.view.form</field>
+            <field name="model">hms.marketsegment</field>
+            <field name="arch" type="xml">
+                <form string="Market Segment" import="false">
+                    <sheet>
+                        <h2>Market Segment</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="is_csv" invisible="1" style="width:50%%"/>
+                                <field name="market_code" placeholder="Eg. CMP..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                                <field name="market_name" placeholder="Eg. Complimentry..." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                                <field name="group_id" attrs="{'readonly': [('is_csv', '=', True)]}" options="{'no_quick_create':True, 'no_open':True}" style="width:50%%"/>
+                                <field name="options" attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Market Segment List View -->
-    <record id="market_segment_view_tree" model="ir.ui.view">
-      <field name="name">hms.marketsegment.view.tree</field>
-      <field name="model">hms.marketsegment</field>
-      <field name="arch" type="xml">
-        <tree string="Market Segment" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="market_code" />
-          <field name="market_name" />
-          <field name="group_id"/>
-          <field name="options"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Market Segment List View -->
+        <record id="market_segment_view_tree" model="ir.ui.view">
+            <field name="name">hms.marketsegment.view.tree</field>
+            <field name="model">hms.marketsegment</field>
+            <field name="arch" type="xml">
+                <tree string="Market Segment" import="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="market_code" />
+                    <field name="market_name" />
+                    <field name="group_id"/>
+                    <field name="options"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- action of market segment -->
-    <record id="market_segment_action_window" model="ir.actions.act_window">
-      <field name="name">Market Segment</field>
-      <field name="res_model">hms.marketsegment</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- action of market segment -->
+        <record id="market_segment_action_window" model="ir.actions.act_window">
+            <field name="name">Market Segment</field>
+            <field name="res_model">hms.marketsegment</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Market Source Form View -->
-    <record id="market_source_view_form" model="ir.ui.view">
-      <field name="name">hms.marketsource.view.form</field>
-      <field name="model">hms.marketsource</field>
-      <field name="arch" type="xml">
-        <form string="Market Source" import="false">
-          <sheet>
-            <h2>Market Source</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="is_csv" invisible="1"/>
-                <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
-                <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}" />
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Market Source Form View -->
+        <record id="market_source_view_form" model="ir.ui.view">
+            <field name="name">hms.marketsource.view.form</field>
+            <field name="model">hms.marketsource</field>
+            <field name="arch" type="xml">
+                <form string="Market Source" import="false">
+                    <sheet>
+                        <h2>Market Source</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="is_csv" invisible="1"/>
+                                <field name="source_code" placeholder="Eg. PH...." attrs="{'readonly': [('is_csv', '=', True)]}" style="width:50%%"/>
+                                <field name="source_desc" placeholder="Eg. Phone....." attrs="{'readonly': [('is_csv', '=', True)]}" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Market Source List View -->
-    <record id="market_source_view_tree" model="ir.ui.view">
-      <field name="name">hms.marketsource.view.tree</field>
-      <field name="model">hms.marketsource</field>
-      <field name="arch" type="xml">
-        <tree string="Market Source" import="false">
-          <field name="sequence" widget="handle"/>
-          <field name="source_code" />
-          <field name="source_desc" />
-        </tree>
-      </field>
-    </record>
+        <!-- Market Source List View -->
+        <record id="market_source_view_tree" model="ir.ui.view">
+            <field name="name">hms.marketsource.view.tree</field>
+            <field name="model">hms.marketsource</field>
+            <field name="arch" type="xml">
+                <tree string="Market Source" import="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="source_code" />
+                    <field name="source_desc" />
+                </tree>
+            </field>
+        </record>
 
-    <!-- action of market source -->
-    <record id="market_source_action_window" model="ir.actions.act_window">
-      <field name="name">Market Source</field>
-      <field name="res_model">hms.marketsource</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- action of market source -->
+        <record id="market_source_action_window" model="ir.actions.act_window">
+            <field name="name">Market Source</field>
+            <field name="res_model">hms.marketsource</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Special Day Form View -->
-    <record id="special_day_view_form" model="ir.ui.view">
-      <field name="name">hms.specialday.view.form</field>
-      <field name="model">hms.specialday</field>
-      <field name="arch" type="xml">
-        <form string="Special Day" import="false">
-          <sheet>
-            <h2>Special Day</h2>
-            <h2>
-              <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-            </h2>
-            <group>
-              <group>
-                <field name="special_date" placeholder="Eg. Water Festival Date....." style="width:50%%"/>
-                <field name="special_desc" style="width:50%%"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Special Day Form View -->
+        <record id="special_day_view_form" model="ir.ui.view">
+            <field name="name">hms.specialday.view.form</field>
+            <field name="model">hms.specialday</field>
+            <field name="arch" type="xml">
+                <form string="Special Day" import="false">
+                    <sheet>
+                        <h2>Special Day</h2>
+                        <h2>
+                            <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                        </h2>
+                        <group>
+                            <group>
+                                <field name="special_date" placeholder="Eg. Water Festival Date....." style="width:50%%"/>
+                                <field name="special_desc" style="width:50%%"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Special List View -->
-    <record id="special_day_view_tree" model="ir.ui.view">
-      <field name="name">hms.specialday.view.tree</field>
-      <field name="model">hms.specialday</field>
-      <field name="arch" type="xml">
-        <tree string="Special Days" import="false">
-          <field name="special_date"/>
-          <field name="special_desc"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Special List View -->
+        <record id="special_day_view_tree" model="ir.ui.view">
+            <field name="name">hms.specialday.view.tree</field>
+            <field name="model">hms.specialday</field>
+            <field name="arch" type="xml">
+                <tree string="Special Days" import="false">
+                    <field name="special_date"/>
+                    <field name="special_desc"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- action of special day -->
-    <record id="special_day_action_window" model="ir.actions.act_window">
-      <field name="name">Special Day</field>
-      <field name="res_model">hms.specialday</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- action of special day -->
+        <record id="special_day_action_window" model="ir.actions.act_window">
+            <field name="name">Special Day</field>
+            <field name="res_model">hms.specialday</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Weekend Form View -->
-    <record id="weekend_view_form" model="ir.ui.view">
-      <field name="name">weekend.view.form</field>
-      <field name="model">hms.weekend</field>
-      <field name="arch" type="xml">
-        <form string="Weekend" create="false" delete="false" no_create_edit="True" import="false">
-          <sheet>
-            <h2>Define Weekends</h2>
-            <h2>
-              <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-            </h2>
-            <group>
-              <field name="monday" widget="boolean_toggle"/>
-              <field name="tuesday" widget="boolean_toggle"/>
-              <field name="wednesday" widget="boolean_toggle" />
-              <field name="thursday" widget="boolean_toggle" />
-              <field name="friday" widget="boolean_toggle" />
-              <field name="saturday" widget="boolean_toggle" />
-              <field name="sunday" widget="boolean_toggle" />
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Weekend Form View -->
+        <record id="weekend_view_form" model="ir.ui.view">
+            <field name="name">weekend.view.form</field>
+            <field name="model">hms.weekend</field>
+            <field name="arch" type="xml">
+                <form string="Weekend" create="false" delete="false" no_create_edit="True" import="false">
+                    <sheet>
+                        <h2>Define Weekends</h2>
+                        <h2>
+                            <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                        </h2>
+                        <group>
+                            <field name="monday" widget="boolean_toggle"/>
+                            <field name="tuesday" widget="boolean_toggle"/>
+                            <field name="wednesday" widget="boolean_toggle" />
+                            <field name="thursday" widget="boolean_toggle" />
+                            <field name="friday" widget="boolean_toggle" />
+                            <field name="saturday" widget="boolean_toggle" />
+                            <field name="sunday" widget="boolean_toggle" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- action of weekend -->
-    <record id="weekend_action_window" model="ir.actions.act_window">
-      <field name="name">Weekend</field>
-      <field name="res_model">hms.weekend</field>
-      <field name="view_mode">form</field>
-      <field name="limit">1</field>
-    </record>
+        <!-- action of weekend -->
+        <record id="weekend_action_window" model="ir.actions.act_window">
+            <field name="name">Weekend</field>
+            <field name="res_model">hms.weekend</field>
+            <field name="view_mode">form</field>
+            <field name="limit">1</field>
+        </record>
 
-    <!-- Package Form View -->
-    <record id="package_view_form" model="ir.ui.view">
-      <field name="name">package.view.form</field>
-      <field name="model">hms.package</field>
-      <field name="arch" type="xml">
-        <form string="Package" import="false">
-          <sheet>
-            <h2>Package</h2>
-            <br></br>
-            <group>
-              <field name="property_id"/>
-              <field name="package_code" placeholder="Eg. INBF....."/>
-              <field name="package_name" placeholder="Eg. Including Breakfast....."/>
-            </group>
-            <notebook>
-              <page string="Package Charges">
-                <field name="package_line_ids" context="{'default_property_id' :property_id, 'default_packge_id':id}"/>
-              </page>
-            </notebook>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Package Form View -->
+        <record id="package_view_form" model="ir.ui.view">
+            <field name="name">package.view.form</field>
+            <field name="model">hms.package</field>
+            <field name="arch" type="xml">
+                <form string="Package" import="false">
+                    <sheet>
+                        <h2>Package</h2>
+                        <br></br>
+                        <group>
+                            <field name="property_id"/>
+                            <field name="package_code" placeholder="Eg. INBF....."/>
+                            <field name="package_name" placeholder="Eg. Including Breakfast....."/>
+                        </group>
+                        <notebook>
+                            <page string="Package Charges">
+                                <field name="package_line_ids" context="{'default_property_id' :property_id, 'default_packge_id':id}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Package List View -->
-    <record id="package_view_list" model="ir.ui.view">
-      <field name="name">package.view.list</field>
-      <field name="model">hms.package</field>
-      <field name="arch" type="xml">
-        <tree string="Package" import="false">
-          <field name="property_id"/>
-          <field name="package_code"/>
-          <field name="package_name"/>
-        </tree>
-      </field>
-    </record>
-
-    <!-- Kanban View of Package -->
-    <record id="package_view_kanban" model="ir.ui.view">
-      <field name="name">package.view.kanban</field>
-      <field name="model">hms.package</field>
-      <field name="arch" type="xml">
-        <kanban import="false">
-          <field name="id"/>
-          <field name="property_id"/>
-          <field name="package_code"/>
-          <field name="package_name"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div>
-                  <div class="oe_kanban_details">
+        <!-- Package List View -->
+        <record id="package_view_list" model="ir.ui.view">
+            <field name="name">package.view.list</field>
+            <field name="model">hms.package</field>
+            <field name="arch" type="xml">
+                <tree string="Package" import="false">
+                    <field name="property_id"/>
                     <field name="package_code"/>
-                    <div></div>
-                    <div>
-                      <field name="package_name"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record>
+                    <field name="package_name"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- action of package -->
-    <record id="package_action_window" model="ir.actions.act_window">
-      <field name="name">Package</field>
-      <field name="res_model">hms.package</field>
-      <field name="view_mode">kanban,tree,form</field>
-    </record>
+        <!-- Kanban View of Package -->
+        <record id="package_view_kanban" model="ir.ui.view">
+            <field name="name">package.view.kanban</field>
+            <field name="model">hms.package</field>
+            <field name="arch" type="xml">
+                <kanban import="false">
+                    <field name="id"/>
+                    <field name="property_id"/>
+                    <field name="package_code"/>
+                    <field name="package_name"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div>
+                                    <div class="oe_kanban_details">
+                                        <field name="package_code"/>
+                                        <div></div>
+                                        <div>
+                                            <field name="package_name"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
 
-    <!-- Revenue Type Form View -->
-    <record id="revenue_type_view_form" model="ir.ui.view">
-      <field name="name">hms.revenuetype.view.form</field>
-      <field name="model">hms.revenuetype</field>
-      <field name="arch" type="xml">
-        <form string="Revenue Type" create="false" edit="true" import="false" delete="false">
-          <sheet>
-            <group>
-              <group>
-                <field name="rev_type" style="width:50%%"/>
-                <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9" style="width:50%%"/>
-                <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" style="width:50%%"/>
-                <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}" style="width:50%%"/>
-                <field name="subgroup_ids" context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}" style="width:50%%"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- action of package -->
+        <record id="package_action_window" model="ir.actions.act_window">
+            <field name="name">Package</field>
+            <field name="res_model">hms.package</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
 
-    <!-- Revenue Type View List -->
-    <record id="revenue_type_view_list" model="ir.ui.view">
-      <field name="name">hms.revenuetype.list</field>
-      <field name="model">hms.revenuetype</field>
-      <field name="arch" type="xml">
-        <tree string="Revenue Type" create="false" edit="true" import="false" delete="false">
-          <field name="rev_code" string="Code"/>
-          <field name="rev_type" string ="Revenue"/>
-          <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
-          <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
-          <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}" widget='many2many_tags'/>
-        </tree>
-      </field>
-    </record>
+        <!-- Revenue Type Form View -->
+        <record id="revenue_type_view_form" model="ir.ui.view">
+            <field name="name">hms.revenuetype.view.form</field>
+            <field name="model">hms.revenuetype</field>
+            <field name="arch" type="xml">
+                <form string="Revenue Type" create="false" edit="true" import="false" delete="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="rev_type" style="width:50%%"/>
+                                <field name="rev_code" placeholder="Eg. Revenue 1~7, Non Revenue-> 8, Payment -> 9" style="width:50%%"/>
+                                <field name="rev_subgroup" attrs="{'invisible': [('rev_type', '=', 'P')]}" style="width:50%%"/>
+                                <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}" style="width:50%%"/>
+                                <field name="subgroup_ids" context="{'default_revtype_id' : id}" attrs="{'invisible': [('rev_subgroup', '=', False)]}" style="width:50%%"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- Revenue Type View Search-->
-    <record id="revenue_type_view_search" model="ir.ui.view">
-      <field name="name">hms.revenuetype.search</field>
-      <field name="model">hms.revenuetype</field>
-      <field name="arch" type="xml">
-        <search string="Revenue Type">
-          <filter string="Revenue Type" name="rev_type"/>
-          <filter string="Sub Group" name="subgroup_ids"/>
-          <field name="subgroup_ids"/>
-          <group expand="0" string="Group By">
-            <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'rev_type'}"/>
-            <filter string="Sub Group" name="subgroup" domain="" context="{'group_by':'subgroup_ids'}"/>
-          </group>
-        </search>
-      </field>
-    </record>
+        <!-- Revenue Type View List -->
+        <record id="revenue_type_view_list" model="ir.ui.view">
+            <field name="name">hms.revenuetype.list</field>
+            <field name="model">hms.revenuetype</field>
+            <field name="arch" type="xml">
+                <tree string="Revenue Type" create="false" edit="true" import="false" delete="false">
+                    <field name="rev_code" string="Code"/>
+                    <field name="rev_type" string ="Revenue"/>
+                    <field name="rev_subgroup" string="Sub Group" attrs="{'invisible': [('rev_type', '=', 'P')]}"/>
+                    <field name="revtype_name" string="Revenue Name" attrs="{'invisible': [('rev_subgroup', '=', True)]}"/>
+                    <field name="subgroup_ids" attrs="{'invisible': [('rev_subgroup', '=', False)]}" widget='many2many_tags'/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Revenue Type Action -->
-    <record id="revenue_type_action_window" model="ir.actions.act_window">
-      <field name="name">Revenue Type</field>
-      <field name="res_model">hms.revenuetype</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- Revenue Type View Search-->
+        <record id="revenue_type_view_search" model="ir.ui.view">
+            <field name="name">hms.revenuetype.search</field>
+            <field name="model">hms.revenuetype</field>
+            <field name="arch" type="xml">
+                <search string="Revenue Type">
+                    <filter string="Revenue Type" name="rev_type"/>
+                    <filter string="Sub Group" name="subgroup_ids"/>
+                    <field name="subgroup_ids"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'rev_type'}"/>
+                        <filter string="Sub Group" name="subgroup" domain="" context="{'group_by':'subgroup_ids'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
 
-    <!-- Revenue Sub Group Form View -->
-    <record id="sub_group_view_form" model="ir.ui.view">
-      <field name="name">hms.subgroup.view.form</field>
-      <field name="model">hms.subgroup</field>
-      <field name="arch" type="xml">
-        <form string="Transaction Group" import="false">
-          <sheet>
-            <group>
-              <field name="property_ids" invisible="1"/>
-              <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create": True, "no_edit_create": True}'/>
-              <field name="user_id" invisible="1"/>
-              <field name="revtype_id" options='{"no_open": True, "no_quick_create": True, "no_create": True, "no_edit_create": True}'/>
-              <field name="sub_group" placeholder="0 ~ 9"/>
-              <field name="sub_desc" placeholder="Sub Group Revenue"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Revenue Type Action -->
+        <record id="revenue_type_action_window" model="ir.actions.act_window">
+            <field name="name">Revenue Type</field>
+            <field name="res_model">hms.revenuetype</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Revenue Sub Group View List -->
-    <record id="sub_group_view_list" model="ir.ui.view">
-      <field name="name">hms.subgroup.list</field>
-      <field name="model">hms.subgroup</field>
-      <field name="arch" type="xml">
-        <tree string="Sub Group" import="false">
-          <field name="property_ids" invisible="1"/>
-          <field name="property_id"/>
-          <field name="user_id" invisible="1"/>
-          <field name="sub_group"/>
-          <field name="sub_desc"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Revenue Sub Group Form View -->
+        <record id="sub_group_view_form" model="ir.ui.view">
+            <field name="name">hms.subgroup.view.form</field>
+            <field name="model">hms.subgroup</field>
+            <field name="arch" type="xml">
+                <form string="Transaction Group" import="false">
+                    <sheet>
+                        <group>
+                            <field name="property_ids" invisible="1"/>
+                            <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create": True, "no_edit_create": True}'/>
+                            <field name="user_id" invisible="1"/>
+                            <field name="revtype_id" options='{"no_open": True, "no_quick_create": True, "no_create": True, "no_edit_create": True}'/>
+                            <field name="sub_group" placeholder="0 ~ 9"/>
+                            <field name="sub_desc" placeholder="Sub Group Revenue"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <record id="sub_group_view_search" model="ir.ui.view">
-      <field name="name">hms.subgroup.search</field>
-      <field name="model">hms.subgroup</field>
-      <field name="arch" type="xml">
-        <search string="Sub Group">
-          <field name="sub_desc" filter_domain="['|', ('sub_desc','ilike',self), ('sub_desc','=like',str(self)+'%')]" string="Sub Group"/>
-          <filter string="Property" name="property_id"/>
-          <field name="property_id"/>
-          <group expand="0" string="Group By">
-            <filter string="Property" name="property" domain="" context="{'group_by':'property_id'}"/>
-            <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
-          </group>
-        </search>
-      </field>
-    </record>
+        <!-- Revenue Sub Group View List -->
+        <record id="sub_group_view_list" model="ir.ui.view">
+            <field name="name">hms.subgroup.list</field>
+            <field name="model">hms.subgroup</field>
+            <field name="arch" type="xml">
+                <tree string="Sub Group" import="false">
+                    <field name="property_ids" invisible="1"/>
+                    <field name="property_id"/>
+                    <field name="user_id" invisible="1"/>
+                    <field name="sub_group"/>
+                    <field name="sub_desc"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Revenue Sub Group Action -->
-    <record id="sub_group_action_window" model="ir.actions.act_window">
-      <field name="name">Revenue Sub Group</field>
-      <field name="res_model">hms.subgroup</field>
-      <field name="view_mode">tree,form</field>
-      <field name="search_view_id" ref="sub_group_view_search"/>
-      <field name="view_id" ref="sub_group_view_list"/>
-    </record>
+        <record id="sub_group_view_search" model="ir.ui.view">
+            <field name="name">hms.subgroup.search</field>
+            <field name="model">hms.subgroup</field>
+            <field name="arch" type="xml">
+                <search string="Sub Group">
+                    <field name="sub_desc" filter_domain="['|', ('sub_desc','ilike',self), ('sub_desc','=like',str(self)+'%')]" string="Sub Group"/>
+                    <filter string="Property" name="property_id"/>
+                    <field name="property_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Property" name="property" domain="" context="{'group_by':'property_id'}"/>
+                        <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
 
-    <!-- Transaction Form View  -->
-    <record id="transaction_view_form" model="ir.ui.view">
-      <field name="name">transaction.view.form</field>
-      <field name="model">hms.transaction</field>
-      <field name="arch" type="xml">
-        <form string="Transaction" import="false">
-          <sheet>
-            <h2>Transaction</h2>
-            <group>
-              <group>
-                <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
-                <field name="revtype_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
-                <field name="revtype_name" invisible="1"/>
-                <field name="trans_ptype" attrs="{'invisible': [('revtype_name', '!=', 'Payment')],'required': [('revtype_name', '=', 'Payment')]}"/>
-                <field name="revsub_active" invisible="1"/>
-                <field name="subgroup_ids" invisible="1"/>
-                <field name="subgroup_id" context="{'default_property_id': property_id,'default_revtype_id':revtype_id}" options="{'no_quick_create': True, 'no_open': True}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
-                <field name="subgroup_name" force_save="1"/>
-                <!-- attrs="{'invisible': [('revsub_active', '=', True)]}"-->
-                <field name="trans_code" placeholder="Eg. 1001....."/>
-                <field name="trans_name" placeholder="Eg. Room Charge ....."/>
-                <field name="trans_unitprice"/>
-                <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
-                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
-                <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
-                <field name="trans_internal" widget="boolean_toggle"/>
-                <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
-                <field name="allowed_pkg" widget="boolean_toggle"/>
-                <field name="trans_type" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- Revenue Sub Group Action -->
+        <record id="sub_group_action_window" model="ir.actions.act_window">
+            <field name="name">Revenue Sub Group</field>
+            <field name="res_model">hms.subgroup</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="sub_group_view_search"/>
+            <field name="view_id" ref="sub_group_view_list"/>
+        </record>
 
-    <!-- Transaction List View -->
-    <record id="transaction_view_list" model="ir.ui.view">
-      <field name="name">transaction.view.list</field>
-      <field name="model">hms.transaction</field>
-      <field name="arch" type="xml">
-        <tree string="Transaction" import="false">
-          <field name="trans_code" string="Code"/>
-          <field name="trans_name" string="Description"/>
-          <field name="trans_unitprice" string="Price"/>
-          <field name="trans_utilities" string="Utility" optional="hide"/>
-          <field name="trans_svc" string="SVC"/>
-          <field name="trans_tax" string="TAX"/>
-          <field name="trans_internal" string="Internal" optional="hide"/>
-          <field name="trans_minus" optional="hide"/>
-          <field name="allowed_pkg" optional="hide"/>
-          <field name="trans_type" optional="hide"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Transaction Form View  -->
+        <record id="transaction_view_form" model="ir.ui.view">
+            <field name="name">transaction.view.form</field>
+            <field name="model">hms.transaction</field>
+            <field name="arch" type="xml">
+                <form string="Transaction" import="false">
+                    <sheet>
+                        <h2>Transaction</h2>
+                        <group>
+                            <group>
+                                <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
+                                <field name="revtype_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
+                                <field name="revtype_name" invisible="1"/>
+                                <field name="trans_ptype" attrs="{'invisible': [('revtype_name', '!=', 'Payment')],'required': [('revtype_name', '=', 'Payment')]}"/>
+                                <field name="revsub_active" invisible="1"/>
+                                <field name="subgroup_ids" invisible="1"/>
+                                <field name="subgroup_id" context="{'default_property_id': property_id,'default_revtype_id':revtype_id}" options="{'no_quick_create': True, 'no_open': True}" attrs="{'invisible': ['|',('revsub_active', '=', False),('revtype_name', '=', 'Payment')],'required': [('revsub_active', '!=', False)]}"/>
+                                <field name="subgroup_name" force_save="1"/>
+                                <!-- attrs="{'invisible': [('revsub_active', '=', True)]}"-->
+                                <field name="trans_code" placeholder="Eg. 1001....."/>
+                                <field name="trans_name" placeholder="Eg. Room Charge ....."/>
+                                <field name="trans_unitprice"/>
+                                <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
+                                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                                <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                                <field name="trans_internal" widget="boolean_toggle"/>
+                                <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                                <field name="allowed_pkg" widget="boolean_toggle"/>
+                                <field name="trans_type" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <record id="transaction_view_search" model="ir.ui.view">
-      <field name="name">hms.transaction.search</field>
-      <field name="model">hms.transaction</field>
-      <field name="arch" type="xml">
-        <search string="Transactions">
-          <field name="trans_name" filter_domain="['|', ('trans_name','ilike',self), ('code','=like',str(self)+'%')]" string="Transaction"/>
-          <filter string="Revenue Type" name="revtype_id"/>
-          <field name="revtype_id"/>
-          <group expand="0" string="Group By">
-            <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
-            <filter string="Transaction Group" name="transgroup" domain="" context="{'group_by':'subgroup_id'}"/>
-          </group>
-          <searchpanel class="transaction_root">
-            <field name="root_id" icon="fa-filter" string="Transaction"/>
-          </searchpanel>
-        </search>
-      </field>
-    </record>
+        <!-- Transaction List View -->
+        <record id="transaction_view_list" model="ir.ui.view">
+            <field name="name">transaction.view.list</field>
+            <field name="model">hms.transaction</field>
+            <field name="arch" type="xml">
+                <tree string="Transaction" import="false">
+                    <field name="trans_code" string="Code"/>
+                    <field name="trans_name" string="Description"/>
+                    <field name="trans_unitprice" string="Price"/>
+                    <field name="trans_utilities" string="Utility" optional="hide"/>
+                    <field name="trans_svc" string="SVC"/>
+                    <field name="trans_tax" string="TAX"/>
+                    <field name="trans_internal" string="Internal" optional="hide"/>
+                    <field name="trans_minus" optional="hide"/>
+                    <field name="allowed_pkg" optional="hide"/>
+                    <field name="trans_type" optional="hide"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- action of transaction -->
-    <record id="transaction_action_window" model="ir.actions.act_window">
-      <field name="name">Transaction</field>
-      <field name="res_model">hms.transaction</field>
-      <field name="view_mode">tree,form</field>
-      <field name="search_view_id" ref="transaction_view_search"/>
-      <field name="view_id" ref="transaction_view_list"/>
-    </record>
+        <record id="transaction_view_search" model="ir.ui.view">
+            <field name="name">hms.transaction.search</field>
+            <field name="model">hms.transaction</field>
+            <field name="arch" type="xml">
+                <search string="Transactions">
+                    <field name="trans_name" filter_domain="['|', ('trans_name','ilike',self), ('code','=like',str(self)+'%')]" string="Transaction"/>
+                    <filter string="Revenue Type" name="revtype_id"/>
+                    <field name="revtype_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Revenue Type" name="revtype" domain="" context="{'group_by':'revtype_id'}"/>
+                        <filter string="Transaction Group" name="transgroup" domain="" context="{'group_by':'subgroup_id'}"/>
+                    </group>
+                    <searchpanel class="transaction_root">
+                        <field name="root_id" icon="fa-filter" string="Transaction"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
 
-    <!-- Reservation Type Form View-->
-    <record id="rsvn_type_view_form" model="ir.ui.view">
-      <field name="name">hms.rsvntype.view.form</field>
-      <field name="model">hms.rsvntype</field>
-      <field name="arch" type="xml">
-        <form string="Reservation Type" create="false" edit="false" delete="false" import="false">
-          <sheet>
-            <h2>Reservation Type</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="is_csv" invisible="1"/>
-                <field name="rsvn_name" placeholder="Eg. Confirmed (or) Unconfirmed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-                <field name="rsvn_options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- action of transaction -->
+        <record id="transaction_action_window" model="ir.actions.act_window">
+            <field name="name">Transaction</field>
+            <field name="res_model">hms.transaction</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="transaction_view_search"/>
+            <field name="view_id" ref="transaction_view_list"/>
+        </record>
 
-    <!-- Reservation Type List View -->
-    <record id="rsvn_type_view_list" model="ir.ui.view">
-      <field name="name">hms.rsvntype.view.list</field>
-      <field name="model">hms.rsvntype</field>
-      <field name="arch" type="xml">
-        <tree string="Reservation Type" create="false" edit="false" delete="false" import="false">
-          <field name="rsvn_name"/>
-          <field name="rsvn_options"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Reservation Type Form View-->
+        <record id="rsvn_type_view_form" model="ir.ui.view">
+            <field name="name">hms.rsvntype.view.form</field>
+            <field name="model">hms.rsvntype</field>
+            <field name="arch" type="xml">
+                <form string="Reservation Type" create="false" edit="false" delete="false" import="false">
+                    <sheet>
+                        <h2>Reservation Type</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="is_csv" invisible="1"/>
+                                <field name="rsvn_name" placeholder="Eg. Confirmed (or) Unconfirmed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                                <field name="rsvn_options" attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- action of Reservation Type -->
-    <record id="rsvn_type_action_window" model="ir.actions.act_window">
-      <field name="name">Reservation Type</field>
-      <field name="res_model">hms.rsvntype</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- Reservation Type List View -->
+        <record id="rsvn_type_view_list" model="ir.ui.view">
+            <field name="name">hms.rsvntype.view.list</field>
+            <field name="model">hms.rsvntype</field>
+            <field name="arch" type="xml">
+                <tree string="Reservation Type" create="false" edit="false" delete="false" import="false">
+                    <field name="rsvn_name"/>
+                    <field name="rsvn_options"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Reservation Status Form View-->
-    <record id="rsvn_status_view_form" model="ir.ui.view">
-      <field name="name">hms.rsvnstatus.view.form</field>
-      <field name="model">hms.rsvnstatus</field>
-      <field name="arch" type="xml">
-        <form string="Reservation Type" import="false">
-          <sheet>
-            <h2>Reservation Type</h2>
-            <br></br>
-            <group>
-              <group>
-                <field name="is_csv" invisible="1"/>
-                <field name="rsvn_code" placeholder="Eg. CMG....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-                <field name="rsvn_status" placeholder="Eg. Company Granteed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
-                <field name="rsvntype_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- action of Reservation Type -->
+        <record id="rsvn_type_action_window" model="ir.actions.act_window">
+            <field name="name">Reservation Type</field>
+            <field name="res_model">hms.rsvntype</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Reservation Status List View -->
-    <record id="rsvn_status_view_list" model="ir.ui.view">
-      <field name="name">hms.rsvnstatus.view.list</field>
-      <field name="model">hms.rsvnstatus</field>
-      <field name="arch" type="xml">
-        <tree string="Reservation Type" import="false">
-          <field name="rsvn_code"/>
-          <field name="rsvn_status"/>
-          <field name="rsvntype_id"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Reservation Status Form View-->
+        <record id="rsvn_status_view_form" model="ir.ui.view">
+            <field name="name">hms.rsvnstatus.view.form</field>
+            <field name="model">hms.rsvnstatus</field>
+            <field name="arch" type="xml">
+                <form string="Reservation Type" import="false">
+                    <sheet>
+                        <h2>Reservation Type</h2>
+                        <br></br>
+                        <group>
+                            <group>
+                                <field name="is_csv" invisible="1"/>
+                                <field name="rsvn_code" placeholder="Eg. CMG....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                                <field name="rsvn_status" placeholder="Eg. Company Granteed....." attrs="{'readonly': [('is_csv', '=', True)]}"/>
+                                <field name="rsvntype_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}'/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- action of Reservation Status -->
-    <record id="rsvn_status_action_window" model="ir.actions.act_window">
-      <field name="name">Reservation Status</field>
-      <field name="res_model">hms.rsvnstatus</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- Reservation Status List View -->
+        <record id="rsvn_status_view_list" model="ir.ui.view">
+            <field name="name">hms.rsvnstatus.view.list</field>
+            <field name="model">hms.rsvnstatus</field>
+            <field name="arch" type="xml">
+                <tree string="Reservation Type" import="false">
+                    <field name="rsvn_code"/>
+                    <field name="rsvn_status"/>
+                    <field name="rsvntype_id"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Credit Limit Form View -->
-    <record id="credit_limit_view_form" model="ir.ui.view">
-      <field name="name">hms.creditlimit.view.form</field>
-      <field name="model">hms.creditlimit</field>
-      <field name="arch" type="xml">
-        <form string="Credit Limit" import="false">
-          <sheet>
-            <h2>Credit Limit</h2>
-            <h2>
-              <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}' style="width:50%%"/>
-            </h2>
-            <group>
-              <group>
-                <field name="payment_type" style="width:50%%"/>
-                <field name="crd_startdate" style="width:50%%"/>
-                <field name="crd_enddate" style="width:50%%"/>
-                <field name="crd_limit" style="width:50%%"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <!-- action of Reservation Status -->
+        <record id="rsvn_status_action_window" model="ir.actions.act_window">
+            <field name="name">Reservation Status</field>
+            <field name="res_model">hms.rsvnstatus</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- Credit Limit List View -->
-    <record id="credit_limit_view_list" model="ir.ui.view">
-      <field name="name">hms.creditlimit.view.list</field>
-      <field name="model">hms.creditlimit</field>
-      <field name="arch" type="xml">
-        <tree string="Credit Limit" import="false">
-          <field name="payment_type"/>
-          <field name="crd_startdate"/>
-          <field name="crd_enddate"/>
-          <field name="crd_limit"/>
-        </tree>
-      </field>
-    </record>
+        <!-- Credit Limit Form View -->
+        <record id="credit_limit_view_form" model="ir.ui.view">
+            <field name="name">hms.creditlimit.view.form</field>
+            <field name="model">hms.creditlimit</field>
+            <field name="arch" type="xml">
+                <form string="Credit Limit" import="false">
+                    <sheet>
+                        <h2>Credit Limit</h2>
+                        <h2>
+                            <field name="property_id" options='{"no_open": True, "no_quick_create": True, "no_create_edit": True}' style="width:50%%"/>
+                        </h2>
+                        <group>
+                            <group>
+                                <field name="payment_type" style="width:50%%"/>
+                                <field name="crd_startdate" style="width:50%%"/>
+                                <field name="crd_enddate" style="width:50%%"/>
+                                <field name="crd_limit" style="width:50%%"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- action of Credit Limit -->
-    <record id="credit_limit_action_window" model="ir.actions.act_window">
-      <field name="name">Credit Limit</field>
-      <field name="res_model">hms.creditlimit</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- Credit Limit List View -->
+        <record id="credit_limit_view_list" model="ir.ui.view">
+            <field name="name">hms.creditlimit.view.list</field>
+            <field name="model">hms.creditlimit</field>
+            <field name="arch" type="xml">
+                <tree string="Credit Limit" import="false">
+                    <field name="payment_type"/>
+                    <field name="crd_startdate"/>
+                    <field name="crd_enddate"/>
+                    <field name="crd_limit"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- Top menu item -->
-    <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5" action="property_action_window"/>
+        <!-- action of Credit Limit -->
+        <record id="credit_limit_action_window" model="ir.actions.act_window">
+            <field name="name">Credit Limit</field>
+            <field name="res_model">hms.creditlimit</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <!-- menu categories -->
-    <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
-    <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
-    <menuitem id="hms_menu_inhouse" name="Inhouse" parent="hotel_menu_root" sequence="3"/>
-    <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="4"/>
-    <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
-    <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
+        <!-- Top menu item -->
+        <menuitem id="hotel_menu_root" web_icon="HMS,static/description/icon.png" name="HMS-System" sequence="5" action="property_action_window"/>
 
-    <menuitem action="property_action_window" id="menu_action_property_form" parent="base.menu_users"/>
+        <!-- menu categories -->
+        <!-- <menuitem id="hotel_menu_hms" name="Property Managment" parent="hotel_menu_root" sequence="1"/> -->
+        <menuitem id="hms_menu_rsvn" name="Reservation" parent="hotel_menu_root" sequence="2"/>
+        <menuitem id="hms_menu_inhouse" name="Inhouse" parent="hotel_menu_root" sequence="3"/>
+        <menuitem id="hms_menu_report" name="Reports" parent="hotel_menu_root" sequence="4"/>
+        <menuitem id="hms_menu_config" name="Settings" parent="hotel_menu_root" sequence="8"/>
+        <menuitem id="hms_menu_setting" name="Configuration" parent="hotel_menu_root" sequence="9"/>
 
-    <!-- <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/> -->
+        <menuitem action="property_action_window" id="menu_action_property_form" parent="base.menu_users"/>
 
-    <menuitem id="room_config" name="Room Config" parent="hms_menu_config" sequence="2"/>
-    <menuitem id="room_type_menu" name="Room Type" parent="room_config" sequence="1" action="room_type_action_window"/>
-    <menuitem id="room_view_menu" name="Room View" parent="room_config" sequence="2" action="room_view_action_window"/>
-    <menuitem id="building_menu" name="Hotel Building" parent="room_config" sequence="4" action="building_action_window"/>
-    <menuitem id="room_location_menu" name="Room Location" parent="room_config" sequence="5" action="room_location_action_window"/>
+        <!-- <menuitem id="property_menu" name="Hotel Property" parent="hotel_menu_hms" sequence="1" action="property_action_window"/> -->
 
-    <menuitem id="revenue_type_menu" name="Revenue Type" parent="hms_menu_config" sequence="3" action="revenue_type_action_window"/>
-    <!-- <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hms_menu_config" sequence="3" action="sub_group_action_window"/> -->
+        <menuitem id="room_config" name="Room Config" parent="hms_menu_config" sequence="2"/>
+        <menuitem id="room_type_menu" name="Room Type" parent="room_config" sequence="1" action="room_type_action_window"/>
+        <menuitem id="room_view_menu" name="Room View" parent="room_config" sequence="2" action="room_view_action_window"/>
+        <menuitem id="building_menu" name="Hotel Building" parent="room_config" sequence="4" action="building_action_window"/>
+        <menuitem id="room_location_menu" name="Room Location" parent="room_config" sequence="5" action="room_location_action_window"/>
 
-    <menuitem id="market_config" name="Reservation" parent="hms_menu_config" sequence="4"/>
-    <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="market_segment_action_window"/>
-    <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="market_source_action_window"/>
+        <menuitem id="revenue_type_menu" name="Revenue Type" parent="hms_menu_config" sequence="3" action="revenue_type_action_window"/>
+        <!-- <menuitem id="sub_group_menu" name="Revenue Sub Group" parent="hms_menu_config" sequence="3" action="sub_group_action_window"/> -->
 
-    <menuitem id="rsvn_status_menu" name="Reservation Status" parent="market_config" sequence="5" action="rsvn_status_action_window"/>
+        <menuitem id="market_config" name="Reservation" parent="hms_menu_config" sequence="4"/>
+        <menuitem id="market_segment_menu" name="Market Segment" parent="market_config" sequence="1" action="market_segment_action_window"/>
+        <menuitem id="market_source_menu" name="Market Source" parent="market_config" sequence="2" action="market_source_action_window"/>
 
-  </data>
+        <menuitem id="rsvn_status_menu" name="Reservation Status" parent="market_config" sequence="5" action="rsvn_status_action_window"/>
+
+    </data>
 </odoo>

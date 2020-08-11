@@ -114,8 +114,8 @@
                                     <field name="reservation_type" style="width:50%%" placeholder="Type" force_save="1" options="{'no_quick_create':True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                     <field name="reservation_status" style="width:50%%" placeholder="Status" force_save="1" options="{'no_quick_create':True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
-                                <field name="currency_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}" invisible="1"/>
-                                <field name="internal_notes" placeholder="Remarks"/>
+                                <field name="currency_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <!-- <field name="internal_notes" placeholder="Remarks"/> -->
                                 <field name="dummy_readonly" invisible="1"/>
                                 <field name="is_dummy" widget="boolean_toggle" options="{'no_quick_edit': True}" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
                             </group>
@@ -142,13 +142,14 @@
                                     <!-- <label for="rooms" string=" " style="width:1em"/> -->
                                     <field name="rooms" style="width:17.5%%"/>
                                 </div>
-                                <label for="market" string="Market/Source"/>
+                                <label for="market" string="Market / Source"/>
                                 <div class="o_address_format">
                                     <field name="market_ids" invisible="1"/>
                                     <field name="market" style="width:50%%" placeholder="Market" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                     <!-- <label for="source" string=" " style="width: 3em"/> -->
                                     <field name="source" style="width:50%%" placeholder="Source" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 </div>
+                                <field name="internal_notes" placeholder="Remarks"/>
                                 <field name="reason_id" string="Cancellation Reason" readonly='1' attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
                             </group>
                         </group>
@@ -510,7 +511,7 @@
                         <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': [('rooms', '&lt;', 2),('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}" >
+                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar"/>

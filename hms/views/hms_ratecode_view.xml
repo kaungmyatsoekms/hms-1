@@ -62,9 +62,9 @@
             <field name="name">hms.ratecode.details.form</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-                <form string="Rate Code Details" import="false"> 
+                <form string="Rate Code Details" import="false">
                     <sheet>
-                        <field name="property_id" force_save="1"/> 
+                        <field name="property_id" force_save="1"/>
                         <group>
                             <group>
                                 <field name="season_code"/>
@@ -87,22 +87,22 @@
                                     <field name="normal_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price1" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="2 Adult (+)"/>
+                                <label for="normal_price2" string="2 Adult (+)"/>
                                 <div class="o_address_format">
                                     <field name="normal_price2" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price2" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="3 Adult (+)"/>
+                                <label for="normal_price3" string="3 Adult (+)"/>
                                 <div class="o_address_format">
                                     <field name="normal_price3" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price3" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="4 Adult (+)"/>
+                                <label for="normal_price4" string="4 Adult (+)"/>
                                 <div class="o_address_format">
                                     <field name="normal_price4" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price4" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="Extra"/>
+                                <label for="normal_extra" string="Extra (+1)"/>
                                 <div class="o_address_format">
                                     <field name="normal_extra" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_extra" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
@@ -138,7 +138,7 @@
                         </group>
                         <group>
                             <group string="Special">
-                            <label for="special_price1" string="1 Adult"/>
+                                <label for="special_price1" string="1 Adult"/>
                                 <div class="o_address_format">
                                     <field name="special_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="sspecial_price1" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
@@ -192,7 +192,9 @@
             <field name="name">hms.ratecode.details.tree</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-            <h2><field name="property_id"/></h2>
+                <h2>
+                    <field name="property_id"/>
+                </h2>
                 <tree name="Rate Code Details" limit="10" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="season_code"/>

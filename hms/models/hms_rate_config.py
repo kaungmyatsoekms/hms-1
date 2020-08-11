@@ -124,15 +124,17 @@ class RateCodeDetails(models.Model):
                                   string="Rate Code Header")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  readonly=True, store=True)
+                                  readonly=True,
+                                  store=True)
     season_code = fields.Char(string="Season", size=10, required=True)
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2many('hms.roomtype',
-                                   string="Room Type",
-                                   store=True,
-                                   domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
-                                   required=True)
+    roomtype_id = fields.Many2many(
+        'hms.roomtype',
+        string="Room Type",
+        store=True,
+        domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
+        required=True)
 
     start_date = fields.Date(string="Start Date",
                              required=True,
@@ -144,6 +146,7 @@ class RateCodeDetails(models.Model):
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
         required=True)
+<<<<<<< HEAD
     
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
@@ -155,6 +158,21 @@ class RateCodeDetails(models.Model):
                                   help='Second Currency')
     normal_price1 = fields.Float(string="1 Adult",
     digits='Rate Price')
+=======
+
+    currency_id = fields.Many2one("res.currency",
+                                  "Currency",
+                                  default=default_get_curency,
+                                  required=True,
+                                  track_visibility=True)
+    scurrency_id = fields.Many2one("res.currency",
+                                   "Second Currency",
+                                   default=default_get_curency,
+                                   readonly=False,
+                                   track_visibility=True,
+                                   help='Second Currency')
+    normal_price1 = fields.Float(string="1 Adult", digits='Rate Price')
+>>>>>>> 0c76b738448b5ddacab1a7bbf5b6a9d63431b17a
     normal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
     normal_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
     normal_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
@@ -173,15 +191,23 @@ class RateCodeDetails(models.Model):
     adult_bf = fields.Float(string="Adult Breakfast", digits='Rate Price')
     child_bf = fields.Float(string="Child Breakfast", digits='Rate Price')
     package_id = fields.Char(string="Package")
+<<<<<<< HEAD
     snormal_price1 = fields.Float(string="1 Adult",
     digits='Rate Price')
+=======
+    snormal_price1 = fields.Float(string="1 Adult", digits='Rate Price')
+>>>>>>> 0c76b738448b5ddacab1a7bbf5b6a9d63431b17a
     snormal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
     snormal_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
     snormal_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     snormal_extra = fields.Float(string="Extra", digits='Rate Price')
     sweekend_price1 = fields.Float(string="1 Adult", digits='Rate Price')
     sweekend_price2 = fields.Float(string="2rd Adult(+)", digits='Rate Price')
+<<<<<<< HEAD
     sweekend_price3 = fields.Float(string="3rd Adult(+$)", digits='Rate Price')
+=======
+    sweekend_price3 = fields.Float(string="3rd Adult(+)", digits='Rate Price')
+>>>>>>> 0c76b738448b5ddacab1a7bbf5b6a9d63431b17a
     sweekend_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     sweekend_extra = fields.Float(string="Extra", digits='Rate Price')
     sspecial_price1 = fields.Float(string="1 Adult", digits='Rate Price')

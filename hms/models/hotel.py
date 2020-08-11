@@ -207,7 +207,8 @@ class Property(models.Model):
                                    inverse='_write_night_audit',
                                    help='Night Audit')
     is_manual = fields.Boolean(default=False)
-    is_night_audit = fields.Boolean(default=False, compute="_compute_is_night_audit")
+    is_night_audit = fields.Boolean(default=False,
+                                    compute="_compute_is_night_audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -370,7 +371,9 @@ class Property(models.Model):
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
 
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", 
+    sale_tax_id = fields.Many2one(
+        'account.tax',
+        string="Default Sale Tax",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.account_sale_tax_id.id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
