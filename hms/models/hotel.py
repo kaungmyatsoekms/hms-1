@@ -147,11 +147,11 @@ class Property(models.Model):
                                   track_visibility=True,
                                   help='Currency')
     scurrency_id = fields.Many2one("res.currency",
-                                   "Second Currency",
-                                   default=default_get_curency,
-                                   readonly=False,
-                                   track_visibility=True,
-                                   help='Second Currency')
+                                  "Second Currency",
+                                  default=default_get_curency,
+                                  readonly=False,
+                                  track_visibility=True,
+                                  help='Second Currency')
     country_id = fields.Many2one('res.country',
                                  string='Country',
                                  readonly=False,
@@ -387,24 +387,21 @@ class Property(models.Model):
         "Show line subtotals with taxes (B2C)",
         implied_group='account.group_show_line_subtotals_tax_included',
         group='base.group_portal,base.group_user,base.group_public')
-    show_line_subtotals_tax_selection = fields.Selection(
-        [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
-        string="Line Subtotals Tax Display",
-        required=True,
-        default='tax_excluded',
+    show_line_subtotals_tax_selection = fields.Selection([
+        ('tax_excluded', 'Tax-Excluded'),
+        ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
+        required=True, default=lambda self: self.env.user.company_id.show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
-    enable_service_charge = fields.Boolean(string='Service Charges')
+    enable_service_charge = fields.Boolean(string='Service Charges', default=lambda self: self.env.user.company_id.enable_service_charge)
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type',
-                                           default='amount')
-    service_product_id = fields.Many2one(
-        'product.product',
-        string='Service Product',
-        domain="[('available_in_pos', '=', True),"
-        "('sale_ok', '=', True), ('type', '=', 'service')]")
-    service_charge = fields.Float(string='Service Charge')
+                                           string='Type',default=lambda self: self.env.user.company_id.service_charge_type)
+    service_product_id = fields.Many2one('product.product', string='Service Product',
+                                         domain="[('sale_ok', '=', True),"
+                                                "('type', '=', 'service')]", default=lambda self: self.env.user.company_id.service_product_id.id)
+    service_charge = fields.Float(string='Service Charge', default=lambda self: self.env.user.company_id.service_charge)
+
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
@@ -421,15 +418,13 @@ class Property(models.Model):
                 'group_show_line_subtotals_tax_included': True,
                 'group_show_line_subtotals_tax_excluded': False,
             })
-
+    
     @api.onchange('enable_service_charge')
-    def set_config_service_charge(self):
+    def set_config_service_charge(self): 
         if self.enable_service_charge:
             if not self.service_product_id:
-                domain = [('available_in_pos', '=', True),
-                          ('sale_ok', '=', True), ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(
-                    domain, limit=1)
+                domain = [('sale_ok', '=', True),  ('type', '=', 'service')]
+                self.service_product_id = self.env['product.product'].search(domain, limit=1)
             self.service_charge = 10.0
         else:
             self.service_product_id = False
