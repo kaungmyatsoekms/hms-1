@@ -1065,9 +1065,7 @@ class ReservationLine(models.Model):
         string="Room Type",
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
         required=True,
-        index=True,
-        required=True,
-        help='Room Type')
+        index=True, help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
                                  domain="[('id', '=?', bedtype_ids)]",

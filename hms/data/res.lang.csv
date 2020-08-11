@@ -1,8 +1,8 @@
 "id","name","code","iso_code","direction","grouping","decimal_point","thousands_sep","date_format","time_format","week_start","active"
-"base.lang_en_dmmy","English (US)(dd/MMMM/yyyy)","en_dmmy","en_dmmy","Left-to-Right","[3,0]",".",",","%d/%B/%Y","%H:%M:%S","7",True
-"base.lang_en_ddmmyy","English (US)(dd/mm/yyyy)","en_ddmmyy","en_ddmmmyy","Left-to-Right","[3,0]",".",",","%d/%m/%Y","%H:%M:%S","7",True
-"base.lang_en_yymmdd","English (US)(yyyy/mm/dd)","en_yymmdd","en_yymmdd","Left-to-Right","[3,0]",".",",","%Y/%m/%d","%H:%M:%S","7",True
-"base.lang_en_yyddmm","English (US)(yyyy/dd/mm)","en_yyddmm","en_yyddmm","Left-to-Right","[3,0]",".",",","%Y/%d/%m","%H:%M:%S","7",True
+"base.lang_en_dmmy","English(dd/MMMM/yyyy)","en_dmmy","en_dmmy","Left-to-Right","[3,0]",".",",","%d/%B/%Y","%H:%M:%S","7",True
+"base.lang_en_ddmmyy","English(dd/mm/yyyy)","en_ddmmyy","en_ddmmmyy","Left-to-Right","[3,0]",".",",","%d/%m/%Y","%H:%M:%S","7",True
+"base.lang_en_yymmdd","English(yyyy/mm/dd)","en_yymmdd","en_yymmdd","Left-to-Right","[3,0]",".",",","%Y/%m/%d","%H:%M:%S","7",True
+"base.lang_en_yyddmm","English(yyyy/dd/mm)","en_yyddmm","en_yyddmm","Left-to-Right","[3,0]",".",",","%Y/%d/%m","%H:%M:%S","7",True
 "base.lang_en","English (US)(mm/dd/yyyy)","en_US","en","Left-to-Right","[3,0]",".",",","%m/%d/%Y","%H:%M:%S","7",True
 "base.lang_am_ET","Amharic / አምሃርኛ","am_ET","am_ET","Left-to-Right","[3,0]",".",",","%d/%m/%Y","%I:%M:%S","7",False
 "base.lang_ar","Arabic / الْعَرَبيّة","ar_001","ar","Right-to-Left","[3,0]",".",",","%d %b, %Y","%I:%M:%S","6",False
