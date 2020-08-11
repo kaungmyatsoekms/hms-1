@@ -78,13 +78,8 @@
                     <field name="currency_id"/>
                     <field name="rate_attribute"/>
                     <field name="calculation_method"/>
-<<<<<<< HEAD
                     <field name="fix_price" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                     <field name="sfix_price" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}"/>
-=======
-                    <field name="fix_price"/>
-                    <field name="sfix_price"/>
->>>>>>> 0c76b738448b5ddacab1a7bbf5b6a9d63431b17a
                     <field name="posting_rythms"/>
                     <field name="forecast_next_day" optional="hide"/>
                     <field name="post_next_day" optional="hide"/>
