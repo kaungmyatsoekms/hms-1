@@ -102,8 +102,9 @@
                         <field name="date_order"/>
                         <group>
                             <group>
+                                <field name="is_property_used" invisible="1"/>
                                 <field name="property_ids" invisible="1"/>
-                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="property_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_open':True}" attrs="{'readonly': [('is_property_used','=', True)]}"/>
                                 <field name="is_company" invisible="1"/>
                                 <field name="is_group" invisible="1"/>
                                 <field name="company_id" attrs="{'required': [('type','=', 'group')]}" options="{'no_quick_create':True}" context="{'default_company_type' : 'company','default_is_from_hms': True }"/>

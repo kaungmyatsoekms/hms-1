@@ -68,6 +68,7 @@ class Reservation(models.Model):
     _order = 'confirm_no desc'
     _inherit = ['mail.thread']
 
+    is_property_used = fields.Boolean(default=False)
     is_no_show = fields.Boolean(default=False, string="No Show")
     sequence = fields.Integer(default=1)
     color = fields.Integer(string='Color Index',
@@ -176,7 +177,7 @@ class Reservation(models.Model):
         help='Contact')
     reservation_type = fields.Many2one('hms.rsvntype',
                                        string="Reservation Type",
-                                       readonly=True,
+                                        readonly=True,
                                        default=2,
                                        store=True,
                                        help='Reservation Type')
@@ -657,9 +658,32 @@ class Reservation(models.Model):
             'dummy_readonly': True
         })
 
+    @api.onchange('property_id')
+    def onchange_property(self):
+        if self.market in self.property_id.market_ids:
+            self.market = self.market
+        else:
+            self.market = False
+
+    # @api.onchange('reservation_line_ids')
+    # def onchange_is_property_used(self):
+    #     if self.reservation_line_ids:
+    #         self.is_property_used = True
+    #     else:
+    #         self.is_property_used = False
+
+    # @api.depends("reservation_line_ids")
+    # def compute_is_property_used(self):
+    #     if self.reservation_line_ids:
+    #         self.is_property_used = True
+    #     else:
+    #         self.is_property_used = False
+
     #Create Function
     @api.model
     def create(self, values):
+        # res = super(Reservation, self).create(values)
+
         property_id = values.get('property_id')
         property_id = self.env['hms.property'].search([('id', '=', property_id)
                                                        ])
@@ -706,16 +730,16 @@ class Reservation(models.Model):
                 pf_no = p_no_pre + p_no
 
             values.update({'confirm_no': pf_no})
-            res = super(Reservation, self).create(values)
-            if res.is_dummy is True:
-                res.create_hfo_room(
-                    res.state, res, res.confirm_no, res.property_id.id,
-                    res.company_id.id, res.group_id.id, res.guest_id.id,
-                    res.roomtype_id.id, res.arrival, res.departure, res.nights,
-                    res.market.id, res.source.id, res.reservation_type.id,
-                    res.reservation_status.id, res.arrival_flight,
-                    res.arrival_flighttime, res.dep_flight, res.dep_flighttime,
-                    res.eta, res.etd)
+        res = super(Reservation, self).create(values)
+        if res.is_dummy is True:
+            res.create_hfo_room(
+                res.state, res, res.confirm_no, res.property_id.id,
+                res.company_id.id, res.group_id.id, res.guest_id.id,
+                res.roomtype_id.id, res.arrival, res.departure, res.nights,
+                res.market.id, res.source.id, res.reservation_type.id,
+                res.reservation_status.id, res.arrival_flight,
+                res.arrival_flighttime, res.dep_flight, res.dep_flighttime,
+                res.eta, res.etd)
 
         return res
 
@@ -980,7 +1004,7 @@ class ReservationLine(models.Model):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   readonly=True,
-                                  related='reservation_id.property_id',
+                                  related="reservation_id.property_id",
                                   store=True,
                                   help='Property')
     currency_id = fields.Many2one('res.currency',
@@ -1042,6 +1066,7 @@ class ReservationLine(models.Model):
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
         required=True,
         index=True,
+        required=True,
         help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
@@ -1166,40 +1191,6 @@ class ReservationLine(models.Model):
         "Charges",
         help='Charges')
 
-    # def action_confirm_letter(self):
-    #     """ Open a window to compose an email, with the confirm letter template
-    #         message loaded by default
-    #     """
-    #     self.ensure_one()
-    #     template = self.env.ref('hms.confirm_letter_template', raise_if_not_found=False)
-    #     lang = get_lang(self.env)
-    #     if template and template.lang:
-    #         lang = template._render_template(template.lang, 'account.move', self.id)
-    #     else:
-    #         lang = lang.code
-    #     compose_form = self.env.ref('account.account_invoice_send_wizard_form', raise_if_not_found=False)
-    #     ctx = dict(
-    #         default_model='account.move',
-    #         default_res_id=self.id,
-    #         default_use_template=bool(template),
-    #         default_template_id=template and template.id or False,
-    #         default_composition_mode='comment',
-    #         mark_invoice_as_sent=True,
-    #         custom_layout="mail.mail_notification_paynow",
-    #         model_description=self.with_context(lang=lang).type_name,
-    #         force_email=True
-    #     )
-    #     return {
-    #         'name': _('Send Invoice'),
-    #         'type': 'ir.actions.act_window',
-    #         'view_type': 'form',
-    #         'view_mode': 'form',
-    #         'res_model': 'account.invoice.send',
-    #         'views': [(compose_form.id, 'form')],
-    #         'view_id': compose_form.id,
-    #         'target': 'new',
-    #         'context': ctx,
-    #     }
 
     def name_get(self):
         result = []
@@ -1427,33 +1418,6 @@ class ReservationLine(models.Model):
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'confirm'})
 
-    # Get Guest's Nationality from Contact
-    @api.onchange('guest_id')
-    def onchange_guest_nationality(self):
-        for rec in self:
-            if rec.guest_id:
-                if rec.guest_id.nationality_id:
-                    rec.nationality_id = rec.guest_id.nationality_id
-                else:
-                    rec.nationality_id = False
-
-    # For Cancel Check-In Button
-    def action_cancel_checkin(self):
-        self.write({'state': 'confirm'})
-        count = 0
-        for rec in self:
-            for record in rec.reservation_id.reservation_line_ids:
-                if record.state == 'checkin':
-                    if record.room_type.code[0] != 'H':
-                        count += 1
-            if count == 0:
-                rec.reservation_id.write({'state': 'confirm'})
-                hfo_reservation = self.env['hms.reservation.line'].search([
-                    ('reservation_id', '=', rec.reservation_id.id),
-                    ('room_type', '=ilike', 'H%')
-                ])
-                if hfo_reservation:
-                    hfo_reservation.write({'state': 'confirm'})
 
     def set_kanban_color(self):
         for record in self:
@@ -2820,21 +2784,6 @@ class ReservationLine(models.Model):
             total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
         return total_amount
 
-    @api.model
-    def _remove_reservation_daily(self):
-        out_date_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()), ('active', '=', True), '|',
-            ('state', '=', 'booking'), ('state', '=', 'reservation')
-        ])
-        for rsvn_line in out_date_rsvn_lines:
-            rsvn_line.update({'active': False})
-
-        out_date_reservations = self.env['hms.reservation'].search([
-            ('arrival', '<', datetime.today())
-        ])
-        for rsvn in out_date_reservations:
-            rsvn.update({'active': False})
-
     @api.onchange('room_type')
     def clear_bed_type(self):
         bedtype = self.env['hms.bedtype']
@@ -2955,6 +2904,7 @@ class CancelReservation(models.Model):
     room_type = fields.Many2one('hms.roomtype',
                                 string="Room Type",
                                 domain="[('id', '=?', roomtype_ids)]",
+                                required=True,
                                 help='Room Type')
     pax = fields.Integer("Pax", default=1, help='Pax')
     child = fields.Integer("Child", help='Child')

@@ -276,6 +276,35 @@ class Company(models.Model):
                                    track_visibility=True,
                                    help='Second Currency')
 
+    # # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
+    # Default Get Country
+    def default_get_country(self):
+        country_id = None
+        if self.currency_id:
+            country_id = self.env['res.country'].search([
+                ('currency_id', '=', self.currency_id.id)
+            ])
+        else:
+            country_id = self.env['res.country'].search([('code', '=', "MMR")])
+        return country_id
+    
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  default=default_get_curency,
+                                  readonly=False,
+                                  track_visibility=True,
+                                  help='Second Currency')
+
     property_code_len = fields.Integer("Property Code Length",
                                        default=8,
                                        track_visibility=True)
@@ -549,3 +578,9 @@ class ResConfigSettings(models.TransientModel):
         else:
             self.service_product_id = False
             self.service_charge = 0.0
+
+    # Write Function
+    def write(self, values):
+        res = super(ResConfigSettings, self).write(values)
+
+        return res

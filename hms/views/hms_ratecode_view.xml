@@ -267,7 +267,7 @@
                                         </div>
                                         <div>
                                             <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id,'default_currency_id':currency_id}">
-                                                <i class="fa fa-paint-brush"></i>
+                                                <i class="fa fa-paint-brush"></i>Copy Season Code
                                             </button>
                                         </div>
                                     </div>
