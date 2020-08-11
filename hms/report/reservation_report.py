@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATE_FORMAT
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from dateutil.relativedelta import relativedelta
@@ -16,9 +16,35 @@ class ReservationReport(models.AbstractModel):
         reservation_line_obj = self.env['hms.reservation.line'].search([
             ('property_id', '=', property_id[0]),
             ('arrival', '>=', date_start), 
-            ('departure', '<=', date_end)
+            ('departure', '<=', date_end),
         ])
         return reservation_line_obj
+
+    def getList(self,property_id,date_start,date_end):
+        dateList = [] 
+        arrivalList = {}
+        count = 0
+        reservation_line = self.env['hms.reservation.line'].search([
+            ('property_id', '=', property_id[0]),
+            ('arrival', '>=', date_start), 
+            ('departure', '<=', date_end),
+            ])
+        start_date = datetime.strptime(date_start, '%Y-%m-%d')
+        end_date = datetime.strptime(date_end, '%Y-%m-%d')
+        day_count = (end_date - start_date).days
+        for i in range(day_count + 1):
+            dayDate = start_date + timedelta(days=i)
+            dateList.append(dayDate.strftime('%d/%m/%Y'))
+        for record in reservation_line:
+            arrivaldate = record.arrival.strftime('%d/%m/%Y')
+            count = count+1
+            for daTe in dateList:
+                empty_obj={}
+                d={}
+                if arrivaldate == daTe:
+                    d[count] = empty_obj
+                    arrivalList[daTe] = d
+        return arrivalList
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -46,10 +72,9 @@ class ReservationReport(models.AbstractModel):
         rm_act = self.with_context(data['form'].get('used_context', {}))
         get_reservation_list = rm_act.get_reservation_list(
             property_id, date_start, date_end)
+        getList = rm_act.getList(property_id, date_start,date_end)
         # Change Date Format to D/M/Y after all processes are done
-
-        date_start = datetime.strptime(date_start,
-                                       '%Y-%m-%d').strftime('%d/%m/%Y')
+        date_start = datetime.strptime(date_start,'%Y-%m-%d').strftime('%d/%m/%Y')
         date_end = datetime.strptime(date_end, '%Y-%m-%d').strftime('%d/%m/%Y')
         return {
             'doc_ids': docids,
@@ -63,6 +88,7 @@ class ReservationReport(models.AbstractModel):
             'docs': folio_profile,
             'time': time,
             'get_reservation_list': get_reservation_list,
+            'getList': getList,
         }
 
 
