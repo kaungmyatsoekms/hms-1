@@ -2,13 +2,11 @@
 <odoo>
         <template id="report_reservation_qweb">
                 <t t-call="web.html_container">
-                        <div class="page">
+                                <div class="page">
                                 <!-- title start -->
                                 <div class="row">
                                         <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
-                                                <h1>
-                                                        <span t-esc="property_name"/>
-                                                </h1>
+                                                <h1><span t-esc="property_name"/></h1>
                                                 <h3>Reservation List</h3>
                                         </div>
                                         <div class="column" style="width:18%;float:right;line-height:7pt;margin-top:5px;">
@@ -17,10 +15,9 @@
                                                 </h4>
                                                 <strong>
                                                         <h4 id="date" style="line-height:7pt;">
-                             Printed Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/>
+                                        Printed Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/>
                                                         </h4>
                                                 </strong>
-
                                         </div>
                                 </div>
                                 <!-- title end -->
@@ -29,55 +26,55 @@
                                         <thread>
                                                 <tr>
                                                         <th style="width:5%; solid lightgray;">
-                                    Room
+                                        Room
                                                         </th>
                                                         <th style="width:4%; solid lightgray;">
-                                    Rmty
+                                        Rmty
                                                         </th>
                                                         <th style="width:3%; solid lightgray;">
-                                    Rm
+                                        Rm
                                                         </th>
                                                         <th style="width:2%; solid lightgray;">
-                                    Ad
+                                        Ad
                                                         </th>
                                                         <th style="width:2%; solid lightgray;">
-                                    Ch
+                                        Ch
                                                         </th>
                                                         <th style="width:12%; solid lightgray;">
-                                    Guest Name
+                                        Guest Name
                                                         </th>
                                                         <th style="width:8%; solid lightgray;">
-                                    Book Ref
+                                        Book Ref
                                                         </th>
                                                         <th style="width:4%; solid lightgray;">
-                                   VIP
+                                        VIP
                                                         </th>
                                                         <th style="width:8%; solid lightgray;">
-                                    Arr.Date
+                                        Arr.Date
                                                         </th>
                                                         <th style="width:5%; solid lightgray;">
-                                    Flight
+                                        Flight
                                                         </th>
                                                         <th style="width:5%; solid lightgray;">
-                                    Time
+                                        Time
                                                         </th>
                                                         <th style="width:8%; solid lightgray;">
-                                    Dep.Date
+                                        Dep.Date
                                                         </th>
                                                         <th style="width:5%; solid lightgray;">
-                                    Flight
+                                        Flight
                                                         </th>
                                                         <th style="width:5%; solid lightgray;">
-                                    Time
+                                        Time
                                                         </th>
                                                         <th style="width:8%; solid lightgray;">
-                                    Company
+                                        Company
                                                         </th>
                                                         <th style="width:7%; solid lightgray;">
-                                    F/O
+                                        F/O
                                                         </th>
                                                         <th style="width:14%; solid lightgray;">
-                                    Remark/ Billing
+                                        Remark/ Billing
                                                         </th>
                                                 </tr>
                                         </thread>
@@ -203,7 +200,8 @@
 
                                         </tbody>
                                 </table>
-                        </div>
+                                <!-- body end -->
+                      </div>
                 </t>
         </template>
 </odoo>
