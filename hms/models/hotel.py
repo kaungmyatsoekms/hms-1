@@ -114,6 +114,9 @@ class Property(models.Model):
                                     string='Parent Company',
                                     required=True,
                                     help='Parent Company')
+    company_id = fields.Many2one('res.company',
+                                    string="Company",
+                                    readonly=True,)
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -207,7 +210,8 @@ class Property(models.Model):
                                    inverse='_write_night_audit',
                                    help='Night Audit')
     is_manual = fields.Boolean(default=False)
-    is_night_audit = fields.Boolean(default=False, compute="_compute_is_night_audit")
+    is_night_audit = fields.Boolean(default=False,
+                                    compute="_compute_is_night_audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -370,7 +374,9 @@ class Property(models.Model):
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
 
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", 
+    sale_tax_id = fields.Many2one(
+        'account.tax',
+        string="Default Sale Tax",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.account_sale_tax_id.id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
@@ -387,16 +393,17 @@ class Property(models.Model):
     show_line_subtotals_tax_selection = fields.Selection([
         ('tax_excluded', 'Tax-Excluded'),
         ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default='tax_excluded',
+        required=True, default=lambda self: self.env.user.company_id.show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
-    enable_service_charge = fields.Boolean(string='Service Charges',  )
+    enable_service_charge = fields.Boolean(string='Service Charges', default=lambda self: self.env.user.company_id.enable_service_charge)
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type',default='amount')
+                                           string='Type',default=lambda self: self.env.user.company_id.service_charge_type)
     service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('sale_ok', '=', True), ('type', '=', 'service')]")
-    service_charge = fields.Float(string='Service Charge')
+                                         domain="[('sale_ok', '=', True),"
+                                                "('type', '=', 'service')]", default=lambda self: self.env.user.company_id.service_product_id.id)
+    service_charge = fields.Float(string='Service Charge', default=lambda self: self.env.user.company_id.service_charge)
 
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
@@ -416,7 +423,7 @@ class Property(models.Model):
             })
     
     @api.onchange('enable_service_charge')
-    def set_config_service_charge(self):
+    def set_config_service_charge(self): 
         if self.enable_service_charge:
             if not self.service_product_id:
                 domain = [('sale_ok', '=', True),  ('type', '=', 'service')]
@@ -1182,6 +1189,37 @@ class Property(models.Model):
                     True,
                 })
                 room_no += 1
+
+        if res.name:
+            company_obj = self.env['res.company']
+            crm = self.env['hms.company.category'].search([
+                ('code', '=', 'HTL')
+            ]).id
+            company_obj = self.env['res.company'].create({
+                'name': res.name,
+                'street': res.address1,
+                'street2': res.address2,
+                'zip': res.zip,
+                'city': res.city_id.id,
+                'state_id': res.state_id.id,
+                'country_id': res.country_id.id,
+                'email': res.email,
+                'phone': res.phone,
+                'website': res.website,
+                'currency_id': res.currency_id.id,
+                'scurrency_id': res.scurrency_id.id,
+                'company_channel_type': crm,
+            })
+            res.company_id = company_obj.id
+            # company_obj.partner_id.active = False
+
+            user_obj = self.env['res.users'].create({
+                'name': res.code+" Administrator",
+                'login': res.code.lower()+"admin",
+                'company_ids': [(4, company_obj.id), (4,res.hotelgroup_id.id)],
+                'company_id': company_obj.id,
+                'property_id': [(4, res.id)],
+            })
 
         return res
 

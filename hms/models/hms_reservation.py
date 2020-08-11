@@ -665,19 +665,13 @@ class Reservation(models.Model):
         else:
             self.market = False
 
-    # @api.onchange('reservation_line_ids')
-    # def onchange_is_property_used(self):
-    #     if self.reservation_line_ids:
-    #         self.is_property_used = True
-    #     else:
-    #         self.is_property_used = False
+    @api.onchange('reservation_line_ids')
+    def onchange_is_property_used(self):
+        if self.reservation_line_ids:
+            self.is_property_used = True
+        else:
+            self.is_property_used = False
 
-    # @api.depends("reservation_line_ids")
-    # def compute_is_property_used(self):
-    #     if self.reservation_line_ids:
-    #         self.is_property_used = True
-    #     else:
-    #         self.is_property_used = False
 
     #Create Function
     @api.model
@@ -1064,9 +1058,8 @@ class ReservationLine(models.Model):
         'hms.roomtype',
         string="Room Type",
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
-        index=True,
         required=True,
-        help='Room Type')
+        index=True, help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
                                  domain="[('id', '=?', bedtype_ids)]",
@@ -1349,19 +1342,25 @@ class ReservationLine(models.Model):
     @api.depends('ratecode_id')
     def _compute_extrabed_amount(self):
         for rec in self:
-            if rec.currency_id.id == rec.ratecode_id.currency_id.id:
-                rec.extrabed_amount = rec.ratecode_id.extra_bed
-            elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
-                rec.extrabed_amount = rec.ratecode_id.sextra_bed
+            if rec.ratecode_id:
+                if rec.currency_id.id == rec.ratecode_id.currency_id.id:
+                    rec.extrabed_amount = rec.ratecode_id.extra_bed
+                elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
+                    rec.extrabed_amount = rec.ratecode_id.sextra_bed
+            else:
+                rec.extrabed_amount = 0.0
 
     # Compute Child BF Amount
     @api.depends('ratecode_id')
     def _compute_child_bf(self):
         for rec in self:
-            if rec.currency_id.id == rec.ratecode_id.currency_id.id:
-                rec.child_bf = rec.ratecode_id.child_bf
-            elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
-                rec.child_bf = rec.ratecode_id.schild_bf
+            if rec.ratecode_id:
+                if rec.currency_id.id == rec.ratecode_id.currency_id.id:
+                    rec.child_bf = rec.ratecode_id.child_bf
+                elif rec.currency_id.id == rec.ratecode_id.scurrency_id.id:
+                    rec.child_bf = rec.ratecode_id.schild_bf
+            else:
+                rec.child_bf = 0.0
 
     # Get default rate code based on ratehead_id
     @api.onchange('ratehead_id')
@@ -2027,7 +2026,7 @@ class ReservationLine(models.Model):
             vals = []
             for rec in range(rooms):
                 vals.append((0, 0, {
-                    'state':self.state,
+                    'state': self.state,
                     'rooms': 1,
                     'nights': self.nights,
                     'group_id': self.group_id.id,

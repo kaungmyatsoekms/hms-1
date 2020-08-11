@@ -117,6 +117,7 @@ class RatecodeDetailCopyWizard(models.TransientModel):
             'end_date' : self.end_date,
             'transaction_id': self.transaction_id.id,
             'currency_id': self.currency_id.id,
+            'scurrency_id': self.scurrency_id.id,
             'roomtype_ids' : self.roomtype_ids,
             'roomtype_id' : self.roomtype_id,
             'normal_price1' : self.normal_price1,

@@ -199,6 +199,82 @@ class Company(models.Model):
     def _default_confirm_id_format(self):
         if not self.confirm_id_format:
             return self.env.ref('base.main_company').confirm_id_format
+    
+    # Sales Tax ID
+    def _default_sale_tax_id(self):
+        if not self.sale_tax_id:
+            return self.env.ref('base.main_company').sale_tax_id
+
+    def _default_show_line_subtotals_tax_selection(self):
+        if not self.show_line_subtotals_tax_selection:
+            return self.env.ref('base.main_company').show_line_subtotals_tax_selection
+
+    def _default_service_charge_type(self):
+        if not self.service_charge_type:
+            return self.env.ref('base.main_company').service_charge_type
+
+    def _default_service_product_id(self):
+        if not self.service_product_id:
+            return self.env.ref('base.main_company').service_product_id
+            
+
+    # # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
+    # Default Get Country
+    def default_get_country(self):
+        country_id = None
+        if self.currency_id:
+            country_id = self.env['res.country'].search([
+                ('currency_id', '=', self.currency_id.id)
+            ])
+        else:
+            country_id = self.env['res.country'].search([('code', '=', "MMR")])
+        return country_id
+    
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  default=default_get_curency,
+                                  readonly=False,
+                                  track_visibility=True,
+                                  help='Second Currency')
+
+    # # Default Get Currency
+    def default_get_curency(self):
+        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
+                                                           ])
+        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
+                                                           ])
+        if mmk_currency_id.active is False:
+            return usd_currency_id
+        else:
+            return mmk_currency_id
+
+    # Default Get Country
+    def default_get_country(self):
+        country_id = None
+        if self.currency_id:
+            country_id = self.env['res.country'].search([
+                ('currency_id', '=', self.currency_id.id)
+            ])
+        else:
+            country_id = self.env['res.country'].search([('code', '=', "MMR")])
+        return country_id
+
+    scurrency_id = fields.Many2one("res.currency",
+                                   "Second Currency",
+                                   default=default_get_curency,
+                                   readonly=False,
+                                   track_visibility=True,
+                                   help='Second Currency')
 
     # # Default Get Currency
     def default_get_curency(self):
@@ -259,7 +335,7 @@ class Company(models.Model):
                                          track_visibility=True)
 
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", readonly=False)
+    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", default=_default_sale_tax_id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -274,17 +350,17 @@ class Company(models.Model):
     show_line_subtotals_tax_selection = fields.Selection([
         ('tax_excluded', 'Tax-Excluded'),
         ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default='tax_excluded',
+        required=True, default=_default_show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
     enable_service_charge = fields.Boolean(string='Service Charges')
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type', default='amount')
+                                           string='Type', default=_default_service_charge_type)
     service_charge = fields.Float(string='Service Charge')
     service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('sale_ok', '=', True), ('type', '=', 'service')]")
-                                                
+                                         domain="[('sale_ok', '=', True),"
+                                                "('type', '=', 'service')]", default=_default_service_product_id)
 
     @api.onchange('show_line_subtotals_tax_selection')
     def _onchange_sale_tax(self):
@@ -427,16 +503,17 @@ class ResConfigSettings(models.TransientModel):
     show_line_subtotals_tax_selection = fields.Selection([
         ('tax_excluded', 'Tax-Excluded'),
         ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default='tax_excluded',
+        required=True,  related="company_id.show_line_subtotals_tax_selection",
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
     enable_service_charge = fields.Boolean(string='Service Charges')
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type', default='amount')
+                                           string='Type', related="company_id.service_charge_type")
     service_charge = fields.Float(string='Service Charge')
     service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('sale_ok', '=', True), ('type', '=', 'service')]")
+                                         domain="[('sale_ok', '=', True),"
+                                                "('type', '=', 'service')]", related="company_id.service_product_id")
     
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):

@@ -399,7 +399,6 @@ class Company(models.Model):
     @api.model
     def create(self, vals):
         crm_type = vals.get('company_channel_type')
-        # crm_type = self.env['hms.company.category'].search([('id','=',crm_type)])
         if not vals.get('favicon'):
             vals['favicon'] = self._get_default_favicon()
         if not vals.get('name') or vals.get('partner_id'):
