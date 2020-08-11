@@ -1,20 +1,5 @@
 <odoo>
     <data>
-        <!-- Rate Code List View Header -->
-        <record id="rate_code_header_view_list" model="ir.ui.view">
-            <field name="name">hms.ratecode.header.list</field>
-            <field name="model">hms.ratecode.header</field>
-            <field name="arch" type="xml">
-                <tree string="Rate Code" import="false">
-                    <field name="rate_category_id"/>
-                    <field name="rate_code"/>
-                    <field name="ratecode_name"/>
-                    <field name="start_date"/>
-                    <field name="end_date"/>
-                </tree>
-            </field>
-        </record>
-
         <!-- Rate Code Header Form View -->
         <record id="rate_code_header_view_form" model="ir.ui.view">
             <field name="name">hms.ratecode.header.form</field>
@@ -30,12 +15,14 @@
                                 <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:50%%"/>
                                 <field name="ratecode_name" placeholder="Description" style="width:50%%"/>
                                 <field name="is_ratecode" invisible='1'/>
+                                <field name="pkg_group_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                             <group>
                                 <field name="start_date" style="width:50%%"/>
                                 <field name="end_date" style="width:50%%"/>
                                 <field name="ratecode_type" style="width:50%%"/>
-                                <field name="pkg_group_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <filed name="currency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="scurrency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>
                         <notebook>
@@ -45,6 +32,21 @@
                         </notebook>
                     </sheet>
                 </form>
+            </field>
+        </record>
+
+        <!-- Rate Code List View Header -->
+        <record id="rate_code_header_view_list" model="ir.ui.view">
+            <field name="name">hms.ratecode.header.list</field>
+            <field name="model">hms.ratecode.header</field>
+            <field name="arch" type="xml">
+                <tree string="Rate Code" import="false">
+                    <field name="rate_category_id"/>
+                    <field name="rate_code"/>
+                    <field name="ratecode_name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </tree>
             </field>
         </record>
 

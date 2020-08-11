@@ -196,7 +196,7 @@
                               Default sales tax for HMS System
                           </div>
                           <div class="content-group mt16">
-                              <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', company_id)]"/>
+                              <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all'))]"/>
                           </div>
                       </div>
                       <div class="mt8">

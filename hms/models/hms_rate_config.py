@@ -48,6 +48,14 @@ class RateCodeHeader(models.Model):
         'hms.package.group',
         string="Package",
         domain="[('property_id', '=?', property_id)]")
+    currency_id = fields.Many2one("res.currency",
+                                  "Main Currency",
+                                  related = "property_id.currency_id", 
+                                  help="Main Currency")
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  related = "property_id.scurrency_id",
+                                  help='Second Currency')
 
     _sql_constraints = [(
         'rate_code_unique',
@@ -111,17 +119,6 @@ class RateCodeDetails(models.Model):
     #     else:
     #         return datetime.today()
 
-    # Default Get Currency
-    def default_get_curency(self):
-        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
-                                                           ])
-        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
-                                                           ])
-        if mmk_currency_id.active is False:
-            return usd_currency_id
-        else:
-            return mmk_currency_id
-
     sequence = fields.Integer('Sequence', default=1)
     ratehead_id = fields.Many2one('hms.ratecode.header',
                                   string="Rate Code Header")
@@ -149,15 +146,12 @@ class RateCodeDetails(models.Model):
         required=True)
     
     currency_id = fields.Many2one("res.currency",
-                                  "Currency",
-                                  default=default_get_curency,
-                                  required=True,
-                                  track_visibility=True)
+                                  "Main Currency",
+                                  related = "property_id.currency_id", 
+                                  help="Main Currency")
     scurrency_id = fields.Many2one("res.currency",
                                   "Second Currency",
-                                  default=default_get_curency,
-                                  readonly=False,
-                                  track_visibility=True,
+                                  related = "property_id.scurrency_id",
                                   help='Second Currency')
     normal_price1 = fields.Float(string="1 Adult",
     digits='Rate Price')
