@@ -633,6 +633,7 @@
                                         <field name="total_room"/>
                                         <field name="tax_id"/>
                                         <field name="price_subtotal" sum="Total"/>
+                                        <field name="service_charge"/>
                                         <field name="price_total" sum="Total"/>
                                         <field name="ref"/>
                                     </tree>

@@ -76,6 +76,10 @@ class HMSTransactionChargeLine(models.Model):
                                  store=True,
                                  readonly=True,
                                  currency_field='always_set_currency_id')
+    service_charge = fields.Monetary(string='Service Charge',
+                                     store=True,
+                                     readonly=True,
+                                     currency_field='always_set_currency_id')
     amount_currency = fields.Monetary(
         string='Amount in Currency',
         store=True,
