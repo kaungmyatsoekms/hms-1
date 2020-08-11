@@ -1,59 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- <template id="report_simple_property">
-        <t t-call = "web.html_container">
-            <t t-call = "web.internal_layout">
-                <div class="page" style="width:100%;">
-                    <table class="table" style="width:100%;">
+    <template id="report_simple_property">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="row">
+                        <div class="col-9" style="float:left;">
+                            <h5>
+                                <strong>
+                                    Properties
+                                </strong>
+                            </h5>
+                        </div>
+                        <div class="col-3" style="float:right;font-size:13px;">
+                            <strong>
+                                <p id="date">
+                                    <script>
+                                        var d = new Date();
+                                        var dd =  d.getDate();
+                                        var mm =  d.getMonth()+1;
+                                        var year = d.getFullYear();
+                                        var seconds = d.getSeconds();
+                                        var minutes = d.getMinutes();
+                                        var hour = d.getHours();
+                                        document.getElementById("date").innerHTML ="Printed Date:  "+ dd+"/"+mm+"/"+year+"\t"+hour+":"+minutes+":"+seconds;
+                                    </script>
+                                </p>
+                            </strong>
+                        </div>
+                    </div>
+                    <table class="table table-condensed" style="width:100%;font-size:14px;background:white;">
                         <thead>
-                            <tr style="text-align:center;">
-                                <th style="width:100%;">
-                                    <h1>Properties</h1>
+                            <tr>
+                                <th style="width:5%;">
+                                    Code
+                                </th>
+                                <th style="width:15%;">
+                                    Building
+                                </th>
+                                <th style="width:15%;">
+                                    Room Type
+                                </th>
+                                <th style="width:7%;">
+                                    Total Bld
+                                </th>
+                                <th style="width:7%;">
+                                    Total Rmty
+                                </th>
+                                <th style="width:7%;">
+                                    Total Rm
+                                </th>
+                                <th style="width:5%;">
+                                    Ph
+                                </th>
+                                <th style="width:5%;">
+                                    Email
+                                </th>
+                                <th style="width:5%;">
+                                    Website
                                 </th>
                             </tr>
                         </thead>
-                    </table>
-                    <table style="width:100%;font-size:15px;background:#f5f5f0;">
-                        <thead>
-                            <tr style="padding:10px;">
-                                <th style="width:12%;text-align:center;height:50px;border:1px solid lightgray;">Name</th>
-                                <th style="width:5%;text-align:center;height:50px;border:1px solid lightgray;">Code</th>
-                                <th style="width:10%;text-align:center;height:50px;border:1px solid lightgray;">Building</th>
-                                <th style="width:10%;text-align:center;height:50px;border:1px solid lightgray;">Room Type</th>
-                                <th style="width:5%;text-align:center;height:50px;border:1px solid lightgray;">Total Building</th>
-                                <th style="width:5%;text-align:center;height:50px;border:1px solid lightgray;">Total RoomType</th>
-                                <th style="width:5%;text-align:center;height:50px;border:1px solid lightgray;">Total Room</th>
-                            </tr>
-                        </thead>
-                        <tbody style="background:white;">
+                        <tbody>
                             <t t-foreach="docs" t-as="o">
+                                <t t-set="property" t-value="property"/>
                                 <tr>
-                                    <td style="text-align:center;height:35px;">
-                                        <t t-esc="o['name']"/>
-                                    </td>
-                                    <td style="text-align:center;height:35px;">
+                                    <td>
                                         <t t-esc="o['code']"/>
                                     </td>
-                                    <td style="text-align:center;height:35px;">
+                                    <td>
                                         <t t-foreach="o.building_ids" t-as="building">
-                                            <t t-esc="hms.building_name"/>
-        ,
+                                            <span t-if="building.building_name != 'ZZZ'" t-field="building.building_name"/>
                                         </t>
                                     </td>
-                                    <td style="text-align:center;height:35px;">
+                                    <td>
                                         <t t-foreach="o.roomtype_ids" t-as="roomtype">
-                                            <t t-esc="roomtype.name"/>
-        ,
+                                            <span t-if="roomtype.code != 'HFO'" t-field="roomtype.name"/>
                                         </t>
                                     </td>
-                                    <td style="text-align:center;height:35px;">
+                                    <td>
                                         <t t-esc="o['building_count']"/>
                                     </td>
-                                    <td style="text-align:center;height:35px;">
+                                    <td>
+                                        <t t-esc="o['roomtype_count']"/>
+                                    </td>
+                                    <td>
                                         <t t-esc="o['room_count']"/>
                                     </td>
-                                    <td style="text-align:center;height:35px;">
-                                        <t t-esc="o['roomtype_count']" />
+                                    <td>
+                                        <t t-esc="o['phone']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="o['email']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="o['website']"/>
                                     </td>
                                 </tr>
                             </t>
@@ -64,7 +105,7 @@
         </t>
     </template>
 
-    <template id="report_hms_property">
+    <!-- <template id="report_hms_property">
         <t t-call="web.basic_layout">
             <div class="page">
                 <t t-foreach = "docs" t-as="property">

@@ -2,7 +2,7 @@ import datetime
 import logging
 
 from odoo import SUPERUSER_ID, _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -214,3 +214,21 @@ class Users(models.Model):
                 vals = {"groups_id": groups}
                 super(Users, user).write(vals)
         return True
+
+# class Groups(models.Model):
+#     _inherit = "res.groups"
+
+#     def write(self, vals):
+#         if 'name' in vals:
+#             if vals['name'].startswith('-'):
+#                 raise UserError(_('The name of the group can not start with "-"'))
+#         # invalidate caches before updating groups, since the recomputation of
+#         # field 'share' depends on method has_group()
+#         # DLE P139
+#         if self.ids:
+#             self.env['ir.model.access'].call_cache_clearing_methods()
+#             self.env['res.users'].has_group.clear_cache(self.env['res.users'])
+
+#         # self.sudo().set_groups_from_roles()
+
+#         return super(Groups, self).write(vals)

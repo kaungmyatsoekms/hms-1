@@ -8,7 +8,7 @@
                 <form string="Rate Code" import="false">
                     <sheet>
                         <separator string="Rate Code" colspan="4" />
-                        <h2><field name="property_id"/></h2>
+                        <h3><field name="property_id"/></h3>
                         <group>
                             <group>
                                 <field name="rate_category_id" style="width:50%%" options="{'no_quick_create': True, 'no_open': True}"/>
@@ -62,7 +62,7 @@
             <field name="arch" type="xml">
                 <form string="Rate Code Details" import="false"> 
                     <sheet>
-                        <h2><field name="property_id" force_save="1"/></h2> 
+                        <h3><field name="property_id" force_save="1"/></h3> 
                         <group>
                             <group>
                                 <field name="season_code"/>
@@ -169,7 +169,7 @@
                                             <b>Property: </b>
                                             <field name="property_id"/>
                                             <br></br>
-                                            <b>     Code: </b>
+                                            <b>Code: </b>
                                             <field name="season_code"/>
                                         </div>
                                         <!-- <t t-foreach="record.roomtype_id.raw_value" t-as="o">

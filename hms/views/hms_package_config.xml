@@ -39,7 +39,7 @@
                                 <field name="rate_attribute" widget="radio" class="oe_edit_only"/>
                                 <field name="reservation_fields_id" options="{'no_create_edit': True,'no_quick_create':True,'no_create':True,'no_open':True}"/>
                                 <field name="Calculation_method"/>
-                                <field name="Fix_price" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                <field name="Fix_price" widget='monetary' attrs="{'invisible': [('reservation_fields_id', '!=', False)]}" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
                                 <field name="posting_rythms"/>
                                 <field name="forecast_next_day"/>
                                 <field name="post_next_day"/>

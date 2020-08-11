@@ -201,6 +201,7 @@ class Property(models.Model):
                                    inverse='_write_night_audit',
                                    help='Night Audit')
     is_manual = fields.Boolean(default=False)
+    is_night_audit = fields.Boolean(default=False, compute="_compute_is_night_audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -365,6 +366,14 @@ class Property(models.Model):
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
+    @api.depends('system_date')
+    def _compute_is_night_audit(self):
+        for rec in self:
+            if rec.system_date > date.today():
+                rec.is_night_audit = True
+            else:
+                rec.is_night_audit = False
+
     @api.depends('is_manual')
     def _compute_night_audit(self):
         for property in self:
@@ -434,9 +443,8 @@ class Property(models.Model):
             rsvn_line.update({'active': False})
 
         out_date_reservations = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id),
-            ('arrival', '<', datetime.today()),
-            '|',('state', '=', 'reservation'),('state', '=', 'booking')
+            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            '|', ('state', '=', 'reservation'), ('state', '=', 'booking')
         ])
         for rsvn in out_date_reservations:
             if len(rsvn.reservation_line_ids) == 0:
@@ -452,8 +460,7 @@ class Property(models.Model):
             no_show_rsvn_line.update({'is_no_show': True})
             # Reservation
         no_show_rsvns = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id),
-            ('arrival', '<', datetime.today()),
+            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
             ('state', '=', 'confirm')
         ])
         for no_show_rsvn in no_show_rsvns:
@@ -483,7 +490,7 @@ class Property(models.Model):
 
         # For System Date Update
 
-        self.system_date = datetime.today()
+        self.system_date = self.system_date + timedelta(days=1)
 
         return
 
@@ -508,9 +515,14 @@ class Property(models.Model):
                     ])
 
                     new_avail_objs = self.env['hms.availability'].create({
-                    'property_id' : avail_obj.property_id.id,
-                    'avail_date' : avail_obj.avail_date + timedelta(days= record.availability),
-                    'total_room' : record.room_count})
+                        'property_id':
+                        avail_obj.property_id.id,
+                        'avail_date':
+                        avail_obj.avail_date +
+                        timedelta(days=record.availability),
+                        'total_room':
+                        record.room_count
+                    })
 
                     for new_avail_obj in new_avail_objs:
 
@@ -518,25 +530,31 @@ class Property(models.Model):
                             rt_avail_obj.update({'active': False})
                             vals = []
                             vals.append((0, 0, {
-                                'availability_id': new_avail_obj.id,
-                                'property_id': new_avail_obj.property_id.id,
-                                'ravail_date': new_avail_obj.avail_date,
-                                'ravail_rmty': rt_avail_obj.ravail_rmty.id,
-                                'color': rt_avail_obj.color,
+                                'availability_id':
+                                new_avail_obj.id,
+                                'property_id':
+                                new_avail_obj.property_id.id,
+                                'ravail_date':
+                                new_avail_obj.avail_date,
+                                'ravail_rmty':
+                                rt_avail_obj.ravail_rmty.id,
+                                'color':
+                                rt_avail_obj.color,
                             }))
                             new_avail_obj.update({'avail_roomtype_ids': vals})
 
         # For Removing Reservation and Reservation Line
         out_date_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()), ('active', '=', True),'|', ('state', '=', 'booking'),('state', '=', 'reservation')
+            ('arrival', '<', datetime.today()), ('active', '=', True), '|',
+            ('state', '=', 'booking'), ('state', '=', 'reservation')
         ])
         for rsvn_line in out_date_rsvn_lines:
             if rsvn_line.property_id.is_manual is False:
                 rsvn_line.update({'active': False})
 
         out_date_reservations = self.env['hms.reservation'].search([
-            ('arrival', '<', datetime.today()),
-            '|',('state', '=', 'booking'),('state', '=', 'reservation')
+            ('arrival', '<', datetime.today()), '|', ('state', '=', 'booking'),
+            ('state', '=', 'reservation')
         ])
         for rsvn in out_date_reservations:
             if rsvn.property_id.is_manual is False:
@@ -545,15 +563,13 @@ class Property(models.Model):
 
         # For No Show Reservation and Reservation Line Update
         no_show_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()),
-            ('state', '=','confirm')
-            ])
+            ('arrival', '<', datetime.today()), ('state', '=', 'confirm')
+        ])
         for no_show_rsvn_line in no_show_rsvn_lines:
             if no_show_rsvn_line.property_id.is_manual is False:
                 no_show_rsvn_line.update({'is_no_show': True})
         no_show_rsvns = self.env['hms.reservation'].search([
-            ('arrival', '<', datetime.today()),
-            ('state', '=', 'confirm')
+            ('arrival', '<', datetime.today()), ('state', '=', 'confirm')
         ])
         for no_show_rsvn in no_show_rsvns:
             if no_show_rsvn.property_id.is_manual is False:
@@ -561,21 +577,20 @@ class Property(models.Model):
                 for line in no_show_rsvn.reservation_line_ids:
                     if line.is_no_show is True:
                         no_show_line_count += 1
-                if len(no_show_rsvn.reservation_line_ids) == no_show_line_count:
+                if len(no_show_rsvn.reservation_line_ids
+                       ) == no_show_line_count:
                     no_show_rsvn.update({'is_no_show': True})
 
         # For removing No Show Reservation and Reservatin Line
         ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('is_no_show', '=', True),
-            ('departure', '<', datetime.today())
+            ('is_no_show', '=', True), ('departure', '<', datetime.today())
         ])
         for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
             if ex_noshow_rsvn_line.property_id.is_manual is False:
                 ex_noshow_rsvn_line.update({'active': False})
 
         ex_noshow_rsvns = self.env['hms.reservation'].search([
-            ('is_no_show', '=', True),
-            ('departure', '<', datetime.today())
+            ('is_no_show', '=', True), ('departure', '<', datetime.today())
         ])
         for ex_noshow_rsvn in ex_noshow_rsvns:
             if ex_noshow_rsvn.property_id.is_manual is False:
@@ -586,7 +601,7 @@ class Property(models.Model):
         property_objs = self.env['hms.property'].search([])
         for record in property_objs:
             if record.is_manual is False:
-                record.system_date = datetime.today()
+                record.system_date = record.system_date + timedelta(days=1)
 
     def set_onboarding_step_done(self, step_name):
         if self[step_name] == 'not_done':
@@ -984,7 +999,7 @@ class Property(models.Model):
             raise ValidationError(
                 _("Total Room cannot be zero or smaller than zero"))
 
-        #Create Sequence for each Property
+    #Create Sequence for each Property
     def create_sequence(self, property):
         if property.gprofile_id_format:
             if property.gprofile_id_format.format_line_id.filtered(
@@ -1272,7 +1287,6 @@ class Property(models.Model):
 
         res = super(Property, self).unlink()
         return res
-
 
 
 class Property_roomtype(models.Model):
@@ -1627,6 +1641,9 @@ class PropertyRoom(models.Model):
     _group = 'roomlocation_id'
 
     is_hfo = fields.Boolean(default=False)
+    is_used = fields.Boolean(default=False,
+                             string="Is Used?",
+                             compute='check_is_used')
     sequence = fields.Integer(default=1)
     zip_type = fields.Boolean(string="Zip?", default=False)
     is_roomtype_fix = fields.Boolean(string="Fixed Type?",
@@ -1656,9 +1673,12 @@ class PropertyRoom(models.Model):
                                   domain="[('id', '=?', building_ids)]",
                                   required=True,
                                   help='Room Building')
+    location_ids = fields.Many2many('hms.roomlocation',
+                                    related="building_id.location_ids")
     roomlocation_id = fields.Many2one('hms.roomlocation',
                                       string="Location",
                                       required=True,
+                                      domain="[('id', '=?', location_ids)]",
                                       help='Location')
     facility_ids = fields.One2many('hms.room.facility',
                                    'propertyroom_id',
@@ -1710,6 +1730,18 @@ class PropertyRoom(models.Model):
          'Room number already exists! Room number must be unique!')
     ]
 
+    @api.depends('room_no')
+    def check_is_used(self):
+        for rec in self:
+            used_in_reservation = self.env['hms.reservation.line'].search([
+                ('property_id', '=', rec.property_id.id),
+                ('room_no', '=', rec.id)
+            ])
+            if used_in_reservation:
+                rec.is_used = True
+            else:
+                rec.is_used = False
+
     # Check HFO Room
     @api.onchange('roomtype_id', 'room_no')
     @api.constrains('roomtype_id', 'room_no')
@@ -1739,14 +1771,9 @@ class PropertyRoom(models.Model):
     # Room location link with Building
     @api.onchange('building_id')
     def onchange_room_location_id(self):
-        location_list = []
-        domain = {}
+        location = self.env['hms.roomlocation']
         for rec in self:
-            if (rec.building_id.location_ids):
-                for location in rec.building_id.location_ids:
-                    location_list.append(location.id)
-                domain = {'roomlocation_id': [('id', 'in', location_list)]}
-                return {'domain': domain}
+            rec.roomlocation_id = location
 
     @api.onchange('roomtype_id')
     def check_is_hfo(self):
@@ -2054,19 +2081,19 @@ class SubGroup(models.Model):
                                                        record.sub_desc)))
         return result
 
-    @api.onchange('property_ids')
-    def default_get_property_id(self):
-        if self.property_ids:
-            if len(self.property_ids) >= 1:
-                self.property_id = self.property_ids[0]._origin.id
-        else:
-            return {
-                'warning': {
-                    'title': _('No Property Permission'),
-                    'message':
-                    _("Please Select Property in User Setting First!")
-                }
-            }
+    # @api.onchange('property_ids')
+    # def default_get_property_id(self):
+    #     if self.property_ids:
+    #         if len(self.property_ids) >= 1:
+    #             self.property_id = self.property_ids[0]._origin.id
+    #     else:
+    #         return {
+    #             'warning': {
+    #                 'title': _('No Property Permission'),
+    #                 'message':
+    #                 _("Please Select Property in User Setting First!")
+    #             }
+    #         }
 
     @api.constrains('sub_group')
     def _check_sub_group(self):
