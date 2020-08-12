@@ -1,17 +1,1 @@
-30/7/20
-1. Edit Rsvn Details
-2. Add In House Details
-
-Need to check
-	all many2one fields is close quick create
-1. close revenue type create=false, no_create_edit=True, edit =true, delete=false
-2. market segment new boolean for is_csv and readonly is_csv is true
-3. market group new boolean for is_csv and readonly is_csv is true
-4. reservation type close (create,edit,delete,no_create_edit) remove menu item
-5. currency form close(create/edit/delete,no_create_edit)
-6. room type is readonly after select from property.
-7. room no code is readonly after create reservation.
-8. room no room view quickcreate close creat & edit also
-9. wrong posting rythms on reservation details
-10. need to be check posting rythms for room charge-> hms.ratecode.details record is blank (line 1799 hms.reservation)
-11. At ratecode details, when edit, room type is blank and we cannot choose 
+1. Property, edit taxes,service charge,

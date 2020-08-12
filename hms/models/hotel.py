@@ -114,6 +114,10 @@ class Property(models.Model):
                                     string='Parent Company',
                                     required=True,
                                     help='Parent Company')
+    company_id = fields.Many2one('res.company',
+                                    string='Hotel Company',
+                                    required=True,
+                                    help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -142,15 +146,13 @@ class Property(models.Model):
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  default=default_get_curency,
+                                  related = "company_id.currency_id",
                                   readonly=False,
-                                  track_visibility=True,
                                   help='Currency')
     scurrency_id = fields.Many2one("res.currency",
                                   "Second Currency",
-                                  default=default_get_curency,
+                                  related = "company_id.scurrency_id",
                                   readonly=False,
-                                  track_visibility=True,
                                   help='Second Currency')
     country_id = fields.Many2one('res.country',
                                  string='Country',
@@ -390,17 +392,17 @@ class Property(models.Model):
     show_line_subtotals_tax_selection = fields.Selection([
         ('tax_excluded', 'Tax-Excluded'),
         ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default=lambda self: self.env.user.company_id.show_line_subtotals_tax_selection,
+        required=True, default= lambda self: self.env.user.company_id.show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
-    enable_service_charge = fields.Boolean(string='Service Charges', default=lambda self: self.env.user.company_id.enable_service_charge)
+    enable_service_charge = fields.Boolean(string='Service Charges',default= lambda self: self.env.user.company_id.enable_service_charge)
     service_charge_type = fields.Selection([('amount', 'Amount'),
                                             ('percentage', 'Percentage')],
-                                           string='Type',default=lambda self: self.env.user.company_id.service_charge_type)
+                                           string='Type',default= lambda self: self.env.user.company_id.service_charge_type)
     service_product_id = fields.Many2one('product.product', string='Service Product',
                                          domain="[('sale_ok', '=', True),"
-                                                "('type', '=', 'service')]", default=lambda self: self.env.user.company_id.service_product_id.id)
-    service_charge = fields.Float(string='Service Charge', default=lambda self: self.env.user.company_id.service_charge)
+                                                "('type', '=', 'service')]", default= lambda self: self.env.user.company_id.service_product_id.id)
+    service_charge = fields.Float(string='Service Charge', default= lambda self: self.env.user.company_id.service_charge)
 
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
