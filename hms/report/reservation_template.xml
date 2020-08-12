@@ -2,11 +2,13 @@
 <odoo>
         <template id="report_reservation_qweb">
                 <t t-call="web.html_container">
-                                <div class="page">
+                        <div class="page">
                                 <!-- title start -->
                                 <div class="row">
                                         <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
-                                                <h1><span t-esc="property_name"/></h1>
+                                                <h1>
+                                                        <span t-esc="property_name"/>
+                                                </h1>
                                                 <h3>Reservation List</h3>
                                         </div>
                                         <div class="column" style="width:18%;float:right;line-height:7pt;margin-top:5px;">
@@ -15,7 +17,7 @@
                                                 </h4>
                                                 <strong>
                                                         <h4 id="date" style="line-height:7pt;">
-                                        Printed Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/>
+                                        Printed Date: <span t-esc="datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')" />
                                                         </h4>
                                                 </strong>
                                         </div>
@@ -90,7 +92,7 @@
                                                 <p t-attf-class="row {{ item_parity }}">
                                                         <div style="margin-top:12px;margin-bottom:5px;">
                                                                 <strong style="border-bottom:1px solid grey;">
-                                                                 Date: <t t-esc="item"/>
+                                                                 Date: <t t-esc="item" />
                                                                 </strong>
                                                         </div>
                                                         <t t-set="current_date" t-value="item"/>
@@ -135,7 +137,7 @@
                                                                                                         <span t-field="info.arrival_flight"/>
                                                                                                 </td>
                                                                                                 <td style="width:5%; solid lightgray;">
-                                                                                                        <span t-esc="'%02d:%02d' %(int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
+                                                                                                        <span t-esc="'%02d:%02d' % (int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
                                                                                                 </td>
                                                                                                 <td style="width:8%; solid lightgray;">
                                                                                                         <span t-field="info.departure"/>
@@ -201,7 +203,7 @@
                                         </tbody>
                                 </table>
                                 <!-- body end -->
-                      </div>
+                        </div>
                 </t>
         </template>
 </odoo>
