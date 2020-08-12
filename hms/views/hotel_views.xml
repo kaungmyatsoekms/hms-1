@@ -262,10 +262,10 @@
                                         </div>
                                         <div class="col-xs-12 col-lg-6 o_setting_box" attrs="{'invisible':[('enable_service_charge','=',False)]}">
                                             <div class="o_setting_left_pane">
-                                                <field name="include_tax"/>
+                                                <field name="svc_include_tax"/>
                                             </div>
                                             <div class="o_setting_right_pane">
-                                                <label for="include_tax"/>
+                                                <label for="svc_include_tax"/>
                                                 <div class="text-muted">
                                                     Service charge will be taxable if enabled
                                                 </div>

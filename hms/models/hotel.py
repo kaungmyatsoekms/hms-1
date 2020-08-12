@@ -411,7 +411,7 @@ class Property(models.Model):
     service_charge = fields.Float(
         string='Service Charge',
         default=lambda self: self.env.user.company_id.service_charge)
-    include_tax = fields.Boolean(string='Include Tax')
+    svc_include_tax = fields.Boolean(string='Include Tax')
     svc_as_line = fields.Boolean(string='Service Charge as Invoice Line')
     disable_popup = fields.Boolean(string='Disable Popup')
     svc_inc_exc = fields.Selection(string='Service Charges Included/Excluded',
