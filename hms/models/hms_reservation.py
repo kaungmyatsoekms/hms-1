@@ -665,19 +665,13 @@ class Reservation(models.Model):
         else:
             self.market = False
 
-    # @api.onchange('reservation_line_ids')
-    # def onchange_is_property_used(self):
-    #     if self.reservation_line_ids:
-    #         self.is_property_used = True
-    #     else:
-    #         self.is_property_used = False
+    @api.onchange('reservation_line_ids')
+    def onchange_is_property_used(self):
+        if self.reservation_line_ids:
+            self.is_property_used = True
+        else:
+            self.is_property_used = False
 
-    # @api.depends("reservation_line_ids")
-    # def compute_is_property_used(self):
-    #     if self.reservation_line_ids:
-    #         self.is_property_used = True
-    #     else:
-    #         self.is_property_used = False
 
     #Create Function
     @api.model

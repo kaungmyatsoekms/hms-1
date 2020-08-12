@@ -1189,6 +1189,37 @@ class Property(models.Model):
                 })
                 room_no += 1
 
+        if res.name:
+            company_obj = self.env['res.company']
+            crm = self.env['hms.company.category'].search([
+                ('code', '=', 'HTL')
+            ]).id
+            company_obj = self.env['res.company'].create({
+                'name': res.name,
+                'street': res.address1,
+                'street2': res.address2,
+                'zip': res.zip,
+                'city': res.city_id.id,
+                'state_id': res.state_id.id,
+                'country_id': res.country_id.id,
+                'email': res.email,
+                'phone': res.phone,
+                'website': res.website,
+                'currency_id': res.currency_id.id,
+                'scurrency_id': res.scurrency_id.id,
+                'company_channel_type': crm,
+            })
+            res.company_id = company_obj.id
+            # company_obj.partner_id.active = False
+
+            user_obj = self.env['res.users'].create({
+                'name': res.code+" Administrator",
+                'login': res.code.lower()+"admin",
+                'company_ids': [(4, company_obj.id), (4,res.hotelgroup_id.id)],
+                'company_id': company_obj.id,
+                'property_id': [(4, res.id)],
+            })
+
         return res
 
     # Write Function

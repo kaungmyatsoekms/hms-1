@@ -62,11 +62,13 @@
                 <field name="name" placeholder="Hotel Name" style="width:50%%"/>
               </h3>
               <h4>
-                <field name="code" style="width:50%%"/>
+                <field name="code" placeholder="Hotel Code" style="width:50%%"/>
               </h4>
               <h4>
-                <field name="hotelgroup_id" style="width:50%%" options="{'no_quick_create': True}"/>
-                <field name="company_id" style="width:50%%" options="{'no_quick_create': True}"/>
+                <field name="hotelgroup_id" placeholder="Hotel Group" style="width:50%%" options="{'no_quick_create': True}"/>
+              </h4>
+              <h4>
+                <field name="company_id" placeholder="Company" style="width:50%%" options="{'no_quick_create': True}"/>
               </h4>
             </div>
             <newline/>
