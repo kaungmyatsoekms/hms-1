@@ -11,4 +11,4 @@ from . import hms_checkin_wizard
 from . import in_house_report_wizard
 from . import hms_confirm_letter_wizard
 from . import hms_move_room_wizard
-from . import account_invoice_send
+from . import hms_invoice_send

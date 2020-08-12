@@ -2250,8 +2250,8 @@ class HMSCashierFolio(models.Model):
             excluded_move_ids = AccountMoveLine.search(AccountMoveLine._get_suspense_moves_domain() + [('move_id', 'in', self.ids)]).mapped('move_id').ids
 
         for move in self:
-            if move in move.line_ids.mapped('full_reconcile_id.exchange_move_id'):
-                raise UserError(_('You cannot reset to draft an exchange difference journal entry.'))
+            # if move in move.line_ids.mapped('full_reconcile_id.exchange_move_id'):
+            #     raise UserError(_('You cannot reset to draft an exchange difference journal entry.'))
             if move.tax_cash_basis_rec_id:
                 raise UserError(_('You cannot reset to draft a tax cash basis journal entry.'))
             if move.restrict_mode_hash_table and move.state == 'posted' and move.id not in excluded_move_ids:
@@ -2270,13 +2270,13 @@ class HMSCashierFolio(models.Model):
             message loaded by default
         """
         self.ensure_one()
-        template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
+        template = self.env.ref('hms.email_template_edi_cashier', raise_if_not_found=False)
         lang = get_lang(self.env)
         if template and template.lang:
             lang = template._render_template(template.lang, 'hms.cashier.folio', self.id)
         else:
             lang = lang.code
-        compose_form = self.env.ref('account.account_invoice_send_wizard_form', raise_if_not_found=False)
+        compose_form = self.env.ref('hms.hms_invoice_send_wizard_form', raise_if_not_found=False)
         ctx = dict(
             default_model='hms.cashier.folio',
             default_res_id=self.id,
@@ -2293,7 +2293,7 @@ class HMSCashierFolio(models.Model):
             'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'form',
-            'res_model': 'account.invoice.send',
+            'res_model': 'hms.invoice.send',
             'views': [(compose_form.id, 'form')],
             'view_id': compose_form.id,
             'target': 'new',
