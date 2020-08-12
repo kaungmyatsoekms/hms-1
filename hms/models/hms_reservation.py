@@ -1182,7 +1182,20 @@ class ReservationLine(models.Model):
         'reservation_line_id',
         "Charges",
         help='Charges')
-
+    amount_untaxed = fields.Monetary(string='Untaxed Amount',
+                                     store=True,
+                                     readonly=True,
+                                     tracking=True,
+                                     compute='_compute_untaxed_amount')
+    amount_total = fields.Monetary(string='Total',
+                                   store=True,
+                                   readonly=True,
+                                   compute='_compute_untaxed_amount')
+    amount_by_group = fields.Binary(string="Tax amount by group")
+    amount_tax = fields.Monetary(string='Tax',
+                                 store=True,
+                                 readonly=True,
+                                 compute='_compute_untaxed_amount')
 
     def name_get(self):
         result = []
@@ -1361,6 +1374,24 @@ class ReservationLine(models.Model):
                     rec.child_bf = rec.ratecode_id.schild_bf
             else:
                 rec.child_bf = 0.0
+
+    # Compute Untaxed Amount
+    @api.depends('room_transaction_line_ids.price_subtotal',
+                 'room_transaction_line_ids.price_total',
+                 'room_transaction_line_ids.tax_amount')
+    def _compute_untaxed_amount(self):
+        for rec in self:
+            total_untaxed = 0.0
+            total = 0.0
+            total_tax = 0.0
+            if rec.room_transaction_line_ids:
+                for line in rec.room_transaction_line_ids:
+                    total_untaxed += line.price_subtotal
+                    total += line.price_total
+                    total_tax += line.tax_amount
+            rec.amount_untaxed = total_untaxed
+            rec.amount_total = total
+            rec.amount_tax = total_tax
 
     # Get default rate code based on ratehead_id
     @api.onchange('ratehead_id')
@@ -2096,17 +2127,24 @@ class ReservationLine(models.Model):
 
     # Create Transaction Charge Lines
     def create_charge_line(self, property_id, transaction_id,
-                           reservation_line_id, rate, total_amount, active,
-                           package_id, transaction_date, total_room, delete,
+                           reservation_line_id, rate, total_amount,
+                           total_amount_exclude, active, package_id,
+                           transaction_date, total_room, delete,
                            rate_attribute):
         currency = reservation_line_id.currency_id
+        tax_id = self.env['account.tax']
+        if transaction_id.trans_tax is True:
+            tax_id = property_id.sale_tax_id.id
+
         vals = []
         vals.append((0, 0, {
             'property_id': property_id.id,
             'transaction_id': transaction_id.id,
             'reservation_line_id': reservation_line_id.id,
-            'rate': rate,
-            'total_amount': total_amount,
+            'price_unit': rate,
+            'price_subtotal': total_amount_exclude,
+            'price_total': total_amount,
+            'tax_amount': total_amount - total_amount_exclude,
             'active': active,
             'package_id': package_id.id,
             'transaction_date': transaction_date,
@@ -2115,18 +2153,25 @@ class ReservationLine(models.Model):
             'rate_attribute': rate_attribute,
             'ref': 'AUTO',
             'currency_id': currency.id,
+            'tax_id': tax_id,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 
     # Update Transaction Charge Lines
     def update_charge_line(self, room_transaction_line_id, transaction_id,
-                           rate, total_amount, active, package_id,
-                           transaction_date, total_room, delete,
+                           rate, total_amount, total_amount_exclude, active,
+                           package_id, transaction_date, total_room, delete,
                            rate_attribute, currency_id):
+        tax_id = self.env['account.tax']
+        if transaction_id.trans_tax is True:
+            tax_id = room_transaction_line_id.property_id.sale_tax_id.id
+
         room_transaction_line_id.update({
             'transaction_id': transaction_id.id,
-            'rate': rate,
-            'total_amount': total_amount,
+            'price_unit': rate,
+            'price_subtotal': total_amount_exclude,
+            'price_total': total_amount,
+            'tax_amount': total_amount - total_amount_exclude,
             'active': active,
             'package_id': package_id.id,
             'transaction_date': transaction_date,
@@ -2135,6 +2180,7 @@ class ReservationLine(models.Model):
             'rate_attribute': rate_attribute,
             'currency_id': currency_id.id,
             'ref': 'AUTO',
+            'tax_id': tax_id,
         })
 
     def get_posting_date(self, reservation_line_id, pkg):
@@ -2182,18 +2228,30 @@ class ReservationLine(models.Model):
                 if transaction_date in posted_dates:
                     rate = res.rate_calculate(pkg, res)
                     total_amount = res.total_amount_calculate(rate, pkg, res)
+                    tax_res = {}
+                    if pkg.transaction_id.trans_tax is True:
+                        tax_res = res.tax_calculate(total_amount, res)
+                    else:
+                        tax_res = {
+                            'total_excluded': total_amount,
+                            'total_included': total_amount
+                        }
                     if total_amount == 0.0 and rate > 0.0:
                         res.create_charge_line(res.property_id,
                                                pkg.transaction_id, res, rate,
-                                               total_amount, False, pkg,
-                                               transaction_date, res.rooms,
-                                               False, pkg.rate_attribute)
+                                               tax_res['total_included'],
+                                               tax_res['total_excluded'],
+                                               False, pkg, transaction_date,
+                                               res.rooms, False,
+                                               pkg.rate_attribute)
                     else:
                         res.create_charge_line(res.property_id,
                                                pkg.transaction_id, res, rate,
-                                               total_amount, True, pkg,
-                                               transaction_date, res.rooms,
-                                               False, pkg.rate_attribute)
+                                               tax_res['total_included'],
+                                               tax_res['total_excluded'], True,
+                                               pkg, transaction_date,
+                                               res.rooms, False,
+                                               pkg.rate_attribute)
         # For Room Charge Transaction
         if check_pkg != 'SS':
             room_charge_objs = self.env[
@@ -2221,12 +2279,25 @@ class ReservationLine(models.Model):
                                                 res.currency_id)
                 else:
                     temp_rate = 0.0
+                tax_res = {}
+                if res.property_id.sale_tax_id and res.ratecode_id.transaction_id.trans_tax is True:
+                    tax_res = res.property_id.sale_tax_id.compute_all(
+                        price_unit=temp_rate)
+                else:
+                    tax_res = {
+                        'total_excluded': temp_rate,
+                        'total_included': temp_rate
+                    }
+                res_subtotal = tax_res['total_excluded']
+                res_total = tax_res['total_included']
 
                 room_rate = temp_rate
-                room_amount = temp_rate * res.rooms
+                room_amount = res_total * res.rooms
+                room_amount_tax_exclude = res_subtotal * res.rooms
                 res.create_charge_line(res.property_id,
                                        res.ratecode_id.transaction_id, res,
-                                       room_rate, room_amount, True, pkg,
+                                       room_rate, room_amount,
+                                       room_amount_tax_exclude, True, pkg,
                                        transaction_date, res.rooms, False,
                                        'INR')
 
@@ -2266,14 +2337,26 @@ class ReservationLine(models.Model):
                         else:
                             temp_rate = 0.0
 
+                        tax_res = {}
+                        if res.property_id.sale_tax_id and res.ratecode_id.transaction_id.trans_tax is True:
+                            tax_res = res.property_id.sale_tax_id.compute_all(
+                                price_unit=temp_rate)
+                        else:
+                            tax_res = {
+                                'total_excluded': temp_rate,
+                                'total_included': temp_rate
+                            }
+                        res_subtotal = tax_res['total_excluded']
+                        res_total = tax_res['total_included']
+
                         room_rate = temp_rate
-                        room_amount = temp_rate * res.rooms
-                        res.update_charge_line(rc,
-                                               res.ratecode_id.transaction_id,
-                                               room_rate, room_amount, True,
-                                               pkg, transaction_date,
-                                               res.rooms, False, 'INR',
-                                               res.currency_id)
+                        room_amount = res_total * res.rooms
+                        room_amount_tax_exclude = res_subtotal * res.rooms
+                        res.update_charge_line(
+                            rc, res.ratecode_id.transaction_id, room_rate,
+                            room_amount, room_amount_tax_exclude, True, pkg,
+                            transaction_date, res.rooms, False, 'INR',
+                            res.currency_id)
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
@@ -2297,20 +2380,33 @@ class ReservationLine(models.Model):
                                     rate = res.rate_calculate(pkg, res)
                                     total_amount = res.total_amount_calculate(
                                         rate, pkg, res)
+                                    tax_res = {}
+                                    if pkg.transaction_id.trans_tax is True:
+                                        tax_res = res.tax_calculate(
+                                            total_amount, res)
+                                    else:
+                                        tax_res = {
+                                            'total_excluded': total_amount,
+                                            'total_included': total_amount
+                                        }
                                     if r.transaction_id.id == pkg.transaction_id.id:
                                         if total_amount == 0.0 and rate > 0.0:
                                             res.update_charge_line(
                                                 r, pkg.transaction_id, rate,
-                                                total_amount, False, pkg,
-                                                transaction_date, res.rooms,
-                                                False, pkg.rate_attribute,
+                                                tax_res['total_included'],
+                                                tax_res['total_excluded'],
+                                                False, pkg, transaction_date,
+                                                res.rooms, False,
+                                                pkg.rate_attribute,
                                                 res.currency_id)
                                         else:
                                             res.update_charge_line(
                                                 r, pkg.transaction_id, rate,
-                                                total_amount, True, pkg,
-                                                transaction_date, res.rooms,
-                                                False, pkg.rate_attribute,
+                                                tax_res['total_included'],
+                                                tax_res['total_excluded'],
+                                                True, pkg, transaction_date,
+                                                res.rooms, False,
+                                                pkg.rate_attribute,
                                                 res.currency_id)
                         else:
                             res.create_line_with_posting_rhythm(
@@ -2339,17 +2435,27 @@ class ReservationLine(models.Model):
                             rate = res.rate_calculate(pkg, res)
                             total_amount = res.total_amount_calculate(
                                 rate, pkg, res)
+                            tax_res = {}
+                            if pkg.transaction_id.trans_tax is True:
+                                tax_res = res.tax_calculate(total_amount, res)
+                            else:
+                                tax_res = {
+                                    'total_excluded': total_amount,
+                                    'total_included': total_amount
+                                }
                             if r.transaction_id.id == pkg.transaction_id.id:
                                 if total_amount == 0.0 and rate > 0.0:
                                     res.update_charge_line(
                                         r, pkg.transaction_id, rate,
-                                        total_amount, False, pkg,
+                                        tax_res['total_included'],
+                                        tax_res['total_excluded'], False, pkg,
                                         transaction_date, res.rooms, False,
                                         pkg.rate_attribute, res.currency_id)
                                 else:
                                     res.update_charge_line(
                                         r, pkg.transaction_id, rate,
-                                        total_amount, True, pkg,
+                                        tax_res['total_included'],
+                                        tax_res['total_excluded'], True, pkg,
                                         transaction_date, res.rooms, False,
                                         pkg.rate_attribute, res.currency_id)
                 else:
@@ -2775,6 +2881,16 @@ class ReservationLine(models.Model):
         elif package_id.calculation_method == 'NEB':
             total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
         return total_amount
+
+    def tax_calculate(self, total_amount, reservation_line_id):
+        res = reservation_line_id
+        tax_res = {}
+        if res.property_id.sale_tax_id:
+            res_subtotal = 0.0
+            res_total = 0.0
+            tax_res = res.property_id.sale_tax_id.compute_all(
+                price_unit=total_amount)
+        return tax_res
 
     @api.onchange('room_type')
     def clear_bed_type(self):

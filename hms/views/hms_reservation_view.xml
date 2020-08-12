@@ -628,14 +628,21 @@
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
                                         <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="rate" />
+                                        <field name="price_unit"/>
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="total_room" />
-                                        <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
-                                        <!-- <field name="price_subtotal"/> -->
+                                        <field name="total_room"/>
+                                        <field name="tax_id"/>
+                                        <field name="price_subtotal" sum="Total"/>
+                                        <field name="service_charge"/>
+                                        <field name="price_total" sum="Total"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>
+                                <group class="oe_subtotal_footer">
+                                    <field name="amount_untaxed"/>
+                                    <field name="amount_tax" colspan="2"/>
+                                    <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                                </group>
                             </page>
                             <page string="Travelling Info">
                                 <group>
@@ -1281,10 +1288,10 @@
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
                                         <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="rate"/>
+                                        <field name="price_unit"/>
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="total_room" />
-                                        <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
+                                        <field name="price_subtotal" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>
@@ -1519,10 +1526,10 @@
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
                                         <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="rate" />
+                                        <!-- <field name="rate"/> -->
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="total_room" />
-                                        <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
+                                        <!-- <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/> -->
                                         <!-- <field name="price_subtotal"/> -->
                                         <field name="ref"/>
                                     </tree>

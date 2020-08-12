@@ -2475,7 +2475,6 @@ class HMSCashierFolio(models.Model):
         return action
 
 
-
 # Cashier Transaction
 class HMSCashierFolioLine(models.Model):
     _name = "hms.cashier.folio.line"
@@ -2489,8 +2488,6 @@ class HMSCashierFolioLine(models.Model):
     transaction_date = fields.Date("Date")
     transaction_time = fields.Datetime("Time", help='Transaction Time')
     transaction_id = fields.Char("Transaction")
-<<<<<<< HEAD
-=======
 
     # ==== Business fields ====
     move_id = fields.Many2one('hms.cashier.folio', string='Journal Entry',
@@ -4117,4 +4114,3 @@ class HMSCashierFolioLine(models.Model):
             ('full_reconcile_id', '=', False),
             ('statement_line_id', '!=', False),
         ]
->>>>>>> b3fd0eb691c552c9388a416f3949ff0236030b7e
