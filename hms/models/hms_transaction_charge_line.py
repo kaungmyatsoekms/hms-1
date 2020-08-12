@@ -68,6 +68,10 @@ class HMSTransactionChargeLine(models.Model):
                                      store=True,
                                      readonly=True,
                                      currency_field='always_set_currency_id')
+    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+                                      store=True,
+                                      readonly=True,
+                                      currency_field='always_set_currency_id')
     price_total = fields.Monetary(string='Total',
                                   store=True,
                                   readonly=True,
@@ -76,10 +80,10 @@ class HMSTransactionChargeLine(models.Model):
                                  store=True,
                                  readonly=True,
                                  currency_field='always_set_currency_id')
-    service_charge = fields.Monetary(string='Service Charge',
-                                     store=True,
-                                     readonly=True,
-                                     currency_field='always_set_currency_id')
+    svc_amount = fields.Monetary(string='Service Charge',
+                                 store=True,
+                                 readonly=True,
+                                 currency_field='always_set_currency_id')
     amount_currency = fields.Monetary(
         string='Amount in Currency',
         store=True,
