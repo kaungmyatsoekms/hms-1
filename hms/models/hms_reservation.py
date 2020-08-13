@@ -2238,12 +2238,7 @@ class ReservationLine(models.Model):
                             subtotal = tax_res['total_excluded'] + svc_res[
                                 'svc_amount']
                     else:
-                        tax_res = {
-                            'total_excluded': total_amount,
-                            'total_included': total_amount
-                        }
-                        total = tax_res['total_included']
-                        subtotal = tax_res['total_excluded']
+                        total = subtotal = svc_res['price_subtotal']
                     if total_amount == 0.0 and rate > 0.0:
                         res.create_charge_line(
                             res.property_id, pkg.transaction_id, res, rate,
@@ -2313,20 +2308,12 @@ class ReservationLine(models.Model):
                         subtotal = tax_res['total_excluded'] + svc_res[
                             'svc_amount']
                 else:
-                    tax_res = {
-                        'total_excluded': room_amount,
-                        'total_included': room_amount,
-                    }
-                    total = tax_res['total_included']
-                    subtotal = tax_res['total_excluded']
-                res_subtotal = subtotal
-                res_total = total
-
+                    total = subtotal = svc_res['price_subtotal']
                 res.create_charge_line(res.property_id,
                                        res.ratecode_id.transaction_id, res,
-                                       room_rate, res_total, res_subtotal,
-                                       True, pkg, transaction_date, res.rooms,
-                                       False, 'INR', svc_res['svc_amount'],
+                                       room_rate, total, subtotal, True, pkg,
+                                       transaction_date, res.rooms, False,
+                                       'INR', svc_res['svc_amount'],
                                        svc_res['subtotal_wo_svc'])
 
     def update_line_with_posting_rhythm(self, reservation_line_id, delete):
@@ -2395,20 +2382,12 @@ class ReservationLine(models.Model):
                                 subtotal = tax_res['total_excluded'] + svc_res[
                                     'svc_amount']
                         else:
-                            tax_res = {
-                                'total_excluded': room_amount,
-                                'total_included': room_amount,
-                            }
-                            total = tax_res['total_included']
-                            subtotal = tax_res['total_excluded']
-                        res_subtotal = subtotal
-                        res_total = total
+                            total = subtotal = svc_res['price_subtotal']
                         res.update_charge_line(
                             rc, res.ratecode_id.transaction_id, room_rate,
-                            res_total, res_subtotal, True, pkg,
-                            transaction_date, res.rooms, False, 'INR',
-                            res.currency_id, svc_res['svc_amount'],
-                            svc_res['subtotal_wo_svc'])
+                            total, subtotal, True, pkg, transaction_date,
+                            res.rooms, False, 'INR', res.currency_id,
+                            svc_res['svc_amount'], svc_res['subtotal_wo_svc'])
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
@@ -2464,12 +2443,8 @@ class ReservationLine(models.Model):
                                                 'total_excluded'] + svc_res[
                                                     'svc_amount']
                                     else:
-                                        tax_res = {
-                                            'total_excluded': total_amount,
-                                            'total_included': total_amount
-                                        }
-                                        total = tax_res['total_included']
-                                        subtotal = tax_res['total_excluded']
+                                        total = subtotal = svc_res[
+                                            'price_subtotal']
                                     if r.transaction_id.id == pkg.transaction_id.id:
                                         if total_amount == 0.0 and rate > 0.0:
                                             res.update_charge_line(
@@ -2544,12 +2519,7 @@ class ReservationLine(models.Model):
                                         'total_excluded'] + svc_res[
                                             'svc_amount']
                             else:
-                                tax_res = {
-                                    'total_excluded': total_amount,
-                                    'total_included': total_amount
-                                }
-                                total = tax_res['total_included']
-                                subtotal = tax_res['total_excluded']
+                                total = subtotal = svc_res['price_subtotal']
                             if r.transaction_id.id == pkg.transaction_id.id:
                                 if total_amount == 0.0 and rate > 0.0:
                                     res.update_charge_line(
@@ -3025,9 +2995,16 @@ class ReservationLine(models.Model):
                             subtotal_wo_svc = total_amount - svc_amount
                             price_subtotal = subtotal_wo_svc
                         else:
-                            svc_amount = (total_amount *
-                                          (100 / (100 + tax_amt + amount))) * (
-                                              amount / 100)
+                            if res.property_id.sale_tax_id.price_include is True:
+                                svc_amount = (total_amount *
+                                              (100 /
+                                               (100 + tax_amt + amount))) * (
+                                                   amount / 100)
+                            else:
+                                svc_amount = (total_amount *
+                                              (100 /
+                                               (100 + amount))) * (amount /
+                                                                   100)
                             subtotal_wo_svc = total_amount - svc_amount
                             price_subtotal = subtotal_wo_svc
                 else:
