@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
         <template id="report_reservation_qweb">
-                <t t-call="web.html_container">
-                        <div class="page">
+                <t t-call="hms.html_container">
+                        <div t-attf-class="header">
+                        <div class="col-12 text-right">
+                        <p class="text-muted text-right">
+                        Page: <span class="page"/> / <span class="topage"/></p>
+                        </div>
+                        </div>
+                        <div class="page" style="width:100%;">
                                 <!-- title start -->
-                                <div class="row">
+                                 <div class="row">
                                         <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
                                                 <h1>
                                                         <span t-esc="property_name"/>
@@ -130,19 +136,19 @@
                                                                                                 <td style="width:5%; solid lightgray;">
                                                                                                         <!-- VIP -->
                                                                                                 </td>
-                                                                                                <td style="width:8%; solid lightgray;">
+                                                                                                <td style="width:6%; solid lightgray;">
                                                                                                         <span t-field="info.arrival"/>
                                                                                                 </td>
-                                                                                                <td style="width:5%; solid lightgray;">
+                                                                                                <td style="width:7%; solid lightgray;">
                                                                                                         <span t-field="info.arrival_flight"/>
                                                                                                 </td>
                                                                                                 <td style="width:5%; solid lightgray;">
                                                                                                         <span t-esc="'%02d:%02d' % (int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
                                                                                                 </td>
-                                                                                                <td style="width:8%; solid lightgray;">
+                                                                                                <td style="width:6%; solid lightgray;">
                                                                                                         <span t-field="info.departure"/>
                                                                                                 </td>
-                                                                                                <td style="width:5%; solid lightgray;">
+                                                                                                <td style="width:7%; solid lightgray;">
                                                                                                         <span t-field="info.dep_flight"/>
                                                                                                 </td>
                                                                                                 <td style="width:5%; solid lightgray;">
@@ -205,5 +211,24 @@
                                 <!-- body end -->
                         </div>
                 </t>
+        </template>
+
+        <template id="html_container">
+                <t t-call="hms.custom_report_layout">
+                <t t-raw="0"/>
+                </t>
+        </template>
+        <template id="custom_report_layout">
+        &lt;!DOCTYPE html&gt;
+        <html>
+        <meta charset="utf-8"/>
+            <body>
+                <div>
+                    <main>
+                        <t t-raw="0"/>
+                    </main>
+                </div>
+            </body>
+        </html>
         </template>
 </odoo>

@@ -100,7 +100,6 @@
         'data/hms.reservation.fields.csv',
         'views/hms_package_config.xml',
         'data/res.lang.csv',
-
         #'views/views.xml',
         # 'views/templates.xml',
     ],
