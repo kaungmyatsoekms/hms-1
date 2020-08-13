@@ -111,9 +111,9 @@
         'views/hms_package_config.xml',
         'data/res.lang.csv',
         'data/hms_color_attribute_data.xml',
-        'report/cashier_mail_template.xml',
-        'wizard/hms_invoice_send_views.xml',
-        'views/hms_cashier_view.xml',
+        # 'report/cashier_mail_template.xml',
+        # 'wizard/hms_invoice_send_views.xml',
+        # 'views/hms_cashier_view.xml',
         
 
         #'views/views.xml',
