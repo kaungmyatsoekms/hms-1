@@ -1200,10 +1200,17 @@ class ReservationLine(models.Model):
                                    readonly=True,
                                    compute='_compute_untaxed_amount')
     amount_by_group = fields.Binary(string="Tax amount by group")
-    amount_tax = fields.Monetary(string='Tax',
+    amount_tax = fields.Monetary(string='Taxes',
                                  store=True,
                                  readonly=True,
                                  compute='_compute_untaxed_amount')
+    # Sale Order & Sale Order Line Fields
+    sale_order_ids = fields.One2many('sale.order',
+                                     'reservation_line_id',
+                                     string='Sale Order')
+    sale_order_line_ids = fields.One2many('sale.order.line',
+                                          'reservation_line_id',
+                                          string='Sale Order Line')
 
     def name_get(self):
         result = []
@@ -2539,6 +2546,40 @@ class ReservationLine(models.Model):
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
             day_count += 1
+
+    # Create Sale Order in Confirm State
+    def create_sale_order(self, reservation_line_id):
+        partner_id = reservation_line_id.guest_id.id
+        date_order = datetime.today().now()
+        pricelist_id = self.env['product.pricelist'].search([
+            ('currency_id', '=', reservation_line_id.currency_id.id)
+        ]).id
+        vals = []
+        vals.append((0, 0, {
+            'partner_id': partner_id,
+            'partner_invoice_id': partner_id,
+            'partner_shipping_id': partner_id,
+            'date_order': date_order,
+            'pricelist_id': pricelist_id,
+        }))
+        reservation_line_id.update({'sale_order_ids': vals})
+
+    # Create Sale Order Line
+    def create_sale_order_line(self, reservation_line_id):
+        order_id = reservation_line_id.sale_order_ids[0].id
+        product_name = reservation_line_id.room_type.name
+        qty = reservation_line_id.rooms
+        vals = []
+        vals.append((
+            0,
+            0,
+            {
+                'order_id': order_id,
+                # 'product_id': ,
+                'name': product_name,
+                'product_uom_qty': qty,
+            }))
+        reservation_line_id.update({'sale_order_line_ids': vals})
 
     @api.model
     def create(self, values):

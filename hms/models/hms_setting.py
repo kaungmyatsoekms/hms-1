@@ -855,3 +855,15 @@ class HMSExcelExtended(models.Model):
 
     excel_file = fields.Binary('Download Report :- ')
     file_name = fields.Char('Excel File', size=64)
+
+
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    reservation_line_id = fields.Many2one('hms.reservation.line')
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    reservation_line_id = fields.Many2one('hms.reservation.line')

@@ -1455,6 +1455,7 @@
                                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>
                                 <field name="trans_unitprice"/>
                                 <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
+                                <field name="product_id"/>
                                 <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_internal" widget="boolean_toggle"/>

@@ -25,7 +25,7 @@
     '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
-        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail', 'sale',
         'web', 'website', 'web_one2many_kanban'
     ],
     "external_dependencies": {
