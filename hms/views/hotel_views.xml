@@ -1,243 +1,18 @@
 <odoo>
     <data>
-
-    <!-- ========== Hotel Property Setup ========== -->
-    <!-- Property Setup Form View -->
-    <record id="property_view_form" model="ir.ui.view">
-      <field name="name">property.view.form</field>
-      <field name="model">hms.property</field>
-      <field name="priority" eval="1"/>
-      <field name="arch" type="xml">
-        <form string="Property" import="false">
-          <header>
-            <field name='is_property' invisible='1'/>
-            <field name='is_night_audit' invisible='1'/>
-            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-          </header>
-          <sheet>
-            <field name="active" invisible="1"/>
-            <field name="is_manual" invisible="1"/>
-            <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-            <div class="oe_button_box" name="button_box">
-              <button name="action_building_count" type="object" class="oe_stat_button" icon="fa-building">
-                <field name="building_count" widget='statinfo'/>
-              </button>
-              <button name="action_room_count" type="object" class="oe_stat_button" icon="fa-trello">
-                <field name="room_count" widget='statinfo'/>
-              </button>
-              <button name="action_room_type_count" type="object" class="oe_stat_button" icon="fa-windows">
-                <field name="roomtype_count" widget='statinfo'/>
-              </button>
-            </div>
-            <separator colspan='1' string="Property"/>
-            <field name="logo" widget="image" class="oe_avatar"/>
-            <div class="oe_title">
-              <h3>
-                <field name="name" placeholder="Hotel Name" style="width:50%%"/>
-              </h3>
-              <h4>
-                <field name="code" placeholder="Hotel Code" style="width:50%%"/>
-              </h4>
-              <h4>
-                <field name="hotelgroup_id" placeholder="Hotel Group" style="width:50%%" options="{'no_quick_create': True}"/>
-              </h4>
-              <h4>
-                <field name="company_id" placeholder="Company" style="width:50%%" options="{'no_quick_create': True}"/>
-              </h4>
-            </div>
-            <newline/>
-            <div class="row mt10 o_settings_container">
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Address</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                      <field name="address1" placeholder="Street..." class="o_address_street" style="width:50%%"/>
-                      <field name="address2" placeholder="Street 2..." class="o_address_street" style="width:50%%"/>
-                      <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}" style="width:50%%"/>
-                      <field name="state_id" class="o_address_state" placeholder="State" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}" style="width:50%%"/>
-                      <field name="city_id" placeholder="City" class="o_address_city" options="{'no_quick_create':True, 'no_open':True}" style="width:50%%"/>
-                      <field name="zip" placeholder="ZIP" class="o_address_zip" style="width:50%%"/>
-                      <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create':True, 'no_open':True}" style="width:50%%"/>
-                    </div>
-                  <span class="o_form_label">Image</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="mt10">
-                      <field name="image"/>
-                    </div>
-                  </div>
-                  <span class="o_form_label" style="width:100%%">Rating</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                    <field name="rating" widget="priority"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Timezone/ System Date</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                      <field name="timezone"/>
-                      <field name="system_date"/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Check In/ Out  Time</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                      <field name="ci_time"/>
-                      <field name="co_time"/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Night Audit</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                      <field name="night_audit" widget="radio"/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Availability</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                        <field name="availability" style="width:33%%"/>
-                        <field name="high_occupancy" style="width:33.5%%"/>
-                        <field name="low_occupancy" style="width:33.5%%"/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Total/ Dummy Rooms</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                        <field name="roomqty" style="width:16.5%%"/>
-                        <field name="dummy_rooms" style="width:16.5%%" force_save="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Phone</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                      <field name="phone" placeholder="Eg. 09123456789....."/>
-                    </div>
-                  <span class="o_form_label">Fax</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                        <field name="fax" placeholder="Eg. 01-123456....."/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Email</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                        <field name="email" placeholder="example@company.com....."/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Website</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                        <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
-                    </div>
-                  </div>
-                  <span class="o_form_label">Social Link</span>
-                  <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="content-group">
-                    <div class="mt10">
-                        <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-              <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
-              <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
-              <field name="creditlimit_ids" context="{'default_property_id' : id}" invisible="1"/>
-              <newline/>
-            </div>
-            <notebook colspan="5">
-              <page string='Contact Information' autofocus="autofocus">
-                <field name="contact_ids" context="{'default_company_type': 'preson', 'default_is_from_hms': True }" mode="kanban"/>
-                <!-- <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/> -->
-              </page>
-              <page string='Buildings (or) Zone'>
-                <div>
-                  <field name="building_ids">
-                    <tree string="Building" limit="10">
-                      <field name="sequence" widget="handle"/>
-                      <field name="building_name"/>
-                      <field name="building_type"/>
-                      <field name="location_ids" widget="many2many_tags"/>
-                      <field name="building_location" optional="hide"/>
-                    </tree>
-                  </field>
-                </div>
-              </page>
-              <page string='Room Type'>
-                <h2> Room Type</h2>
-                <field name="roomtype_ids" context="{'property_id':active_id}">
-                  <tree string="Room Type List" limit='10' >
-                    <field name="sequence" widget="handle"/>
-                    <field name="name"/>
-                    <field name="fix_type"/>
-                    <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
-                    <field name="totalroom"/>
-                  </tree>
-                </field>
-              </page>
-              <page string='Room Number'>
-                <group>
-                  <div>
-                    <field name="propertyroom_ids" context="{'default_property_id' : id}">
-                      <tree limit="10" default_order="room_no">
-                        <field name="is_hfo" invisible="1"/>
-                        <field name="is_propertyroom" invisible="1"/>
-                        <field name="sequence" widget="handle"/>
-                        <field name="room_no" optional="show"/>
-                        <field name="building_id" optional="show"/>
-                        <field name="roomtype_id" optional="show"/>
-                        <field name="bedtype_id" optional="show"/>
-                        <field name="roomlocation_id" optional="show"/>
-                        <field name="room_bedqty" optional="show"/>
-                        <field name="room_extension" optional="show"/>
-                        <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': ['|',('is_hfo', '=', True),('is_propertyroom', '=', False)]}">
-                          <i class="fa fa-paint-brush"></i>
+        <!-- ========== Hotel Property Setup ========== -->
+        <!-- Property Setup Form View -->
+        <record id="property_view_form" model="ir.ui.view">
+            <field name="name">property.view.form</field>
+            <field name="model">hms.property</field>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <form string="Property" import="false">
+                    <header>
+                        <field name='is_property' invisible='1'/>
+                        <field name='is_night_audit' invisible='1'/>
+                        <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
                             <i class="fa fa-paint-brush"></i>
@@ -264,7 +39,21 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                     </header>
-
+                    <sheet>
+                        <field name="active" invisible="1"/>
+                        <field name="is_manual" invisible="1"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_building_count" type="object" class="oe_stat_button" icon="fa-building">
+                                <field name="building_count" widget='statinfo'/>
+                            </button>
+                            <button name="action_room_count" type="object" class="oe_stat_button" icon="fa-trello">
+                                <field name="room_count" widget='statinfo'/>
+                            </button>
+                            <button name="action_room_type_count" type="object" class="oe_stat_button" icon="fa-windows">
+                                <field name="roomtype_count" widget='statinfo'/>
+                            </button>
+                        </div>
                         <separator colspan='1' string="Property"/>
                         <field name="logo" widget="image" class="oe_avatar"/>
                         <div class="oe_title">
@@ -557,175 +346,6 @@
                 </form>
             </field>
         </record>
-
-        <!-- List View of Property -->
-        <record id="property_view_list" model="ir.ui.view">
-            <field name="name">property.view.list</field>
-            <field name="model">hms.property</field>
-            <field name="arch" type="xml">
-                <tree string="Property" import="false">
-                    <field name="name"/>
-                    <field name="code"/>
-                    <field name="timezone"/>
-                    <field name="city_id" optional="show"/>
-                    <field name="state_id" optional="hide"/>
-                    <field name="country_id" optional="show"/>
-                    <field name="phone" optional="show"/>
-                    <field name="email" optional="hide"/>
-                    <field name="website" optional="hide"/>
-                    <field name="rating" optional="show"/>
-                    <field name="logo" optional="hide"/>
-                </tree>
-            </field>
-        </record>
-
-        <!-- Kanban View of Property -->
-        <record id="property_view_kanban" model="ir.ui.view">
-            <field name="name">property.view.kanban</field>
-            <field name="model">hms.property</field>
-            <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" import="false">
-                    <field name="id"/>
-                    <field name="logo"/>
-                    <field name="hotelgroup_id"/>
-                    <field name="name"/>
-                    <field name="code"/>
-                    <field name="city_id"/>
-                    <field name="country_id"/>
-                    <field name="phone"/>
-                    <field name="email"/>
-                    <field name="website"/>
-                    <field name="rating"/>
-                    <field name="timezone"/>
-                    <field name="system_date"/>
-                    <field name="is_property"/>
-                    <field name="is_manual"/>
-                    <field name="is_night_audit"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div class="oe_kanban_global_click">
-                                <div class="o_kanban_image">
-                                    <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
-                                    <field name="system_date"/>
-                                </div>
-                                <!-- <div class="container o_kanban_card_content">
-                  <div class="row o_kanban_card_upper_content">
-                      <div class="col-5 o_kanban_primary_left" name="to_replace_in_sale_crm">
-                          <button type="object" class="btn btn-primary" name="action_primary_channel_button">Company Profile</button>
-                      </div>
-                  </div>
-                </div> -->
-                                <div class="o_dropdown_kanban dropdown" groups="base.group_user">
-                                    <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
-                                        <span class="fa fa-bars fa-lg" />
-                                    </a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                                        <t t-if="widget.editable">
-                                            <li>
-                                                <a type="edit">Edit</a>
-                                            </li>
-                                        </t>
-                                        <t t-if="widget.deletable">
-                                            <li>
-                                                <a type="delete">Delete</a>
-                                            </li>
-                                        </t>
-                                        <t>
-                                            <li>
-                        Profile
-                                                <ul>
-                                                    <li>
-                                                        <a type="object" name="action_companyprofile" context="{'default_property_id' : id}">Company Profile</a>
-                                                    </li>
-                                                    <li>
-                                                        <a type="object">Guest Profile</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                        </t>
-                                        <!-- <li>
-                        <ul class="oe_kanban_colorpicker" data-field="color" />
-                    </li> -->
-                                    </ul>
-                                </div>
-                                <div class="oe_kanban_details">
-                                    <div>
-                                        <field name="name"/>
-                                    </div>
-                                    <div>
-                                        <field name="hotelgroup_id"/>
-                                    </div>
-                                    <div>
-                                        <field name="timezone"/>
-                                    </div>
-                                    <div>
-                                        <field t-if="record.city_id.raw_value" name="city_id"/>
-                                        <field t-if="record.country_id.raw_value" name="country_id"/>
-                                    </div>
-                                    <div t-if="record.phone.raw_value">
-                                        <field name="phone"/>
-                                    </div>
-                                    <div t-if="record.email.raw_value">
-                                        <field name="email"/>
-                                    </div>
-                                    <div t-if="record.website.raw_value">
-                                        <field name="website"/>
-                                    </div>
-                                    <div t-if="record.rating.raw_value">
-                                        <field name="rating" widget='priority'/>
-                                    </div>
-                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
-                                        <i class="fa fa-moon-o"></i>Night Audit
-                                    </button>
-                                </div>
-                            </div>
-                        </t>
-                    </templates>
-                </kanban>
-            </field>
-        </record>
-
-        <!-- <record id="property_view_kanban" model="ir.ui.view">
-      <field name="name">property.view.kanban</field>
-      <field name="model">hms.property</field>
-      <field name="arch" type="xml">
-        <kanban>
-          <field name="id"/>
-          <field name="logo"/>
-          <h1><field name="hotelgroup_id"/></h1>
-          <h2><field name="name"/></h2>
-          <h3><field name="code"/></h3>
-          <field name="city_id"/>
-          <field name="country_id"/>
-          <field name="phone"/>
-          <field name="email"/>
-          <field name="website"/>
-          <field name="rating"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div class="o_kanban_image">
-                  <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
-                  
-                </div>
-                <div class="oe_kanban_details">
-                  <div><field name="name"/></div>
-                  <div><field name="hotelgroup_id"/></div>
-                  <div>
-                    <field t-if="record.city_id.raw_value" name="city_id"/>
-                    <field t-if="record.country_id.raw_value" name="country_id"/>
-                  </div>
-                  <div t-if="record.phone.raw_value"><field name="phone"/></div>
-                  <div t-if="record.email.raw_value"><field name="email"/></div>
-                  <div t-if="record.website.raw_value"><field name="website"/></div>
-                  <div t-if="record.rating.raw_value"><field name="rating" widget='priority'/></div>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record> -->
 
         <!-- Search View of Property -->
         <record model="ir.ui.view" id="view_pms_properites_filter">
