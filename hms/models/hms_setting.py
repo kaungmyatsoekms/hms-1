@@ -857,7 +857,33 @@ class HMSExcelExtended(models.Model):
     file_name = fields.Char('Excel File', size=64)
 
 
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    property_id = fields.Many2one('hms.property', string="Property")
+    group_id = fields.Many2one('res.partner',
+                               string="Group",
+                               domain="[('is_group','=',True)]",
+                               help='Group')
+
+
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     reservation_line_id = fields.Many2one('hms.reservation.line')
+    property_id = fields.Many2one('hms.property', string="Property")
+
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        domain="[('property_id', '=?', property_id)]")
+    package_id = fields.Many2one('hms.package.header', string='Package')
+    transaction_date = fields.Date("Date")
+    ref = fields.Char("Reference")
+    tax_amount = fields.Monetary(string='Tax', store=True, readonly=True)
+    svc_amount = fields.Monetary(string='Service Charge',
+                                 store=True,
+                                 readonly=True)
+    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+                                      store=True,
+                                      readonly=True)

@@ -2547,37 +2547,70 @@ class ReservationLine(models.Model):
 
     # Create Sale Order in Confirm State
     def create_sale_order(self, reservation_line_id):
-        partner_id = reservation_line_id.guest_id.id
+        res = reservation_line_id
+        partner_id = res.guest_id.id
         date_order = datetime.today().now()
         pricelist_id = self.env['product.pricelist'].search([
-            ('currency_id', '=', reservation_line_id.currency_id.id)
+            ('currency_id', '=', res.currency_id.id)
         ]).id
         vals = []
-        vals.append({
-            'partner_id': partner_id,
-            'partner_invoice_id': partner_id,
-            'partner_shipping_id': partner_id,
-            'date_order': date_order,
-            'pricelist_id': pricelist_id,
+        sale_order_obj = self.env['sale.order'].create({
+            'partner_id':
+            partner_id,
+            'partner_invoice_id':
+            partner_id,
+            'partner_shipping_id':
+            partner_id,
+            'date_order':
+            date_order,
+            'pricelist_id':
+            pricelist_id,
+            'property_id':
+            res.property_id.id,
+            'company_id':
+            res.property_id.company_id.id,
+            'group_id':
+            res.group_id.id,
+            'amount_untaxed':
+            res.amount_untaxed,
+            'amount_tax':
+            res.amount_tax,
+            'amount_total':
+            res.amount_total,
         })
-        reservation_line_id.update({'sale_order_id': vals})
+        res.sale_order_id = sale_order_obj.id
+        # res.update({'sale_order_id': vals})
 
     # Create Sale Order Line
-    def create_sale_order_line(self, reservation_line_id):
-        order_id = reservation_line_id.sale_order_id.id
-        product_name = reservation_line_id.room_type.name
-        qty = reservation_line_id.rooms
+    def create_sale_order_line(self, charge_line_id):
+        order_id = charge_line_id.reservation_line_id.sale_order_id.id
+        qty = charge_line_id.total_room
         vals = []
         vals.append((
             0,
             0,
             {
                 'order_id': order_id,
-                # 'product_id': ,
-                'name': product_name,
+                'product_id': charge_line_id.transaction_id.product_id.id,
+                # 'name':
+                # charge_line_id.transaction_id.product_id.product_tmpl_id.name,
                 'product_uom_qty': qty,
+                'reservation_line_id': charge_line_id.reservation_line_id.id,
+                'property_id': charge_line_id.property_id.id,
+                'transaction_id': charge_line_id.transaction_id.id,
+                'package_id': charge_line_id.package_id.id,
+                'transaction_date': charge_line_id.transaction_date,
+                'tax_id': [(4, charge_line_id.tax_id.id)],
+                'price_unit': charge_line_id.price_unit,
+                'price_subtotal': charge_line_id.price_subtotal,
+                'price_total': charge_line_id.price_total,
+                'tax_amount': charge_line_id.tax_amount,
+                'svc_amount': charge_line_id.svc_amount,
+                'subtotal_wo_svc': charge_line_id.subtotal_wo_svc,
+                'ref': charge_line_id.ref,
             }))
-        reservation_line_id.update({'sale_order_line_ids': vals})
+        charge_line_id.reservation_line_id.update(
+            {'sale_order_line_ids': vals})
 
     @api.model
     def create(self, values):
@@ -2607,6 +2640,16 @@ class ReservationLine(models.Model):
                 res.create_line_with_posting_rhythm(res, transaction_date,
                                                     res.additional_pkg_ids)
             day_count += 1
+
+        # Create Sale Order and Sale Order Line
+        charge_line_obj = self.env['hms.room.transaction.charge.line'].search([
+            ('reservation_line_id', '=', res.id)
+        ])
+        if charge_line_obj:
+            res.create_sale_order(res)
+            for obj in charge_line_obj:
+                res.create_sale_order_line(obj)
+
         return res
 
     # Write Function
