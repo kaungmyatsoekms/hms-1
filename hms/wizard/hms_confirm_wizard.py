@@ -116,6 +116,7 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                     'reservation_status': self.reservation_status,
                     'state': status,
                 })
+
         # Check and update confirm state to main reservation
         rec = 0
         for d in reservation_lines.reservation_id.reservation_line_ids:
@@ -140,3 +141,8 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                 ])
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'confirm'})
+
+        # Create Sale Order in Confirm State
+        reservation_lines.create_sale_order(reservation_lines)
+        for rec in reservation_lines:
+            rec.create_sale_order_line(rec)

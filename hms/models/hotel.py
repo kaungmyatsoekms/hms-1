@@ -2313,6 +2313,7 @@ class Transaction(models.Model):
                               compute='_compute_transaction_root',
                               store=True)
     allowed_pkg = fields.Boolean(string="Allow Package?")
+    product_id = fields.Many2one('product.product', string="Product")
 
     _sql_constraints = [(
         'trans_code_unique', 'UNIQUE(property_id, trans_code)',

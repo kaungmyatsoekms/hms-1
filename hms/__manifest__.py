@@ -25,8 +25,13 @@
     '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
+<<<<<<< HEAD
         'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
         'web', 'website', 'web_one2many_kanban','base_accounting_kit','web_tree_no_open'
+=======
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail', 'sale',
+        'web', 'website', 'web_one2many_kanban'
+>>>>>>> ab85484825706873f8134b10f985e2f87a0bd670
     ],
     "external_dependencies": {
         "python": ["graphene"]
