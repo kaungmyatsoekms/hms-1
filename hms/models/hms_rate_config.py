@@ -48,6 +48,14 @@ class RateCodeHeader(models.Model):
         'hms.package.group',
         string="Package",
         domain="[('property_id', '=?', property_id)]")
+    currency_id = fields.Many2one("res.currency",
+                                  "Main Currency",
+                                  related = "property_id.currency_id", 
+                                  help="Main Currency")
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  related = "property_id.scurrency_id",
+                                  help='Second Currency')
 
     _sql_constraints = [(
         'rate_code_unique',
@@ -111,31 +119,22 @@ class RateCodeDetails(models.Model):
     #     else:
     #         return datetime.today()
 
-    # Default Get Currency
-    def default_get_curency(self):
-        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
-                                                           ])
-        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
-                                                           ])
-        if mmk_currency_id.active is False:
-            return usd_currency_id
-        else:
-            return mmk_currency_id
-
     sequence = fields.Integer('Sequence', default=1)
     ratehead_id = fields.Many2one('hms.ratecode.header',
                                   string="Rate Code Header")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  readonly=True, store=True)
+                                  readonly=True,
+                                  store=True)
     season_code = fields.Char(string="Season", size=10, required=True)
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
-    roomtype_id = fields.Many2many('hms.roomtype',
-                                   string="Room Type",
-                                   store=True,
-                                   domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
-                                   required=True)
+    roomtype_id = fields.Many2many(
+        'hms.roomtype',
+        string="Room Type",
+        store=True,
+        domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
+        required=True)
 
     start_date = fields.Date(string="Start Date",
                              required=True,
@@ -147,11 +146,15 @@ class RateCodeDetails(models.Model):
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
         required=True)
+    
     currency_id = fields.Many2one("res.currency",
-                                  "Currency",
-                                  default=default_get_curency,
-                                  required=True,
-                                  track_visibility=True)
+                                  "Main Currency",
+                                  related = "property_id.currency_id", 
+                                  help="Main Currency")
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  related = "property_id.scurrency_id",
+                                  help='Second Currency')
     normal_price1 = fields.Float(string="1 Adult",
     digits='Rate Price')
     normal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
@@ -160,7 +163,7 @@ class RateCodeDetails(models.Model):
     normal_extra = fields.Float(string="Extra", digits='Rate Price')
     weekend_price1 = fields.Float(string="1 Adult", digits='Rate Price')
     weekend_price2 = fields.Float(string="2rd Adult(+)", digits='Rate Price')
-    weekend_price3 = fields.Float(string="3rd Adult(+$)", digits='Rate Price')
+    weekend_price3 = fields.Float(string="3rd Adult(+)", digits='Rate Price')
     weekend_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
     weekend_extra = fields.Float(string="Extra", digits='Rate Price')
     special_price1 = fields.Float(string="1 Adult", digits='Rate Price')
@@ -172,6 +175,24 @@ class RateCodeDetails(models.Model):
     adult_bf = fields.Float(string="Adult Breakfast", digits='Rate Price')
     child_bf = fields.Float(string="Child Breakfast", digits='Rate Price')
     package_id = fields.Char(string="Package")
+    snormal_price1 = fields.Float(string="1 Adult", digits='Rate Price')
+    snormal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
+    snormal_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
+    snormal_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
+    snormal_extra = fields.Float(string="Extra", digits='Rate Price')
+    sweekend_price1 = fields.Float(string="1 Adult", digits='Rate Price')
+    sweekend_price2 = fields.Float(string="2rd Adult(+)", digits='Rate Price')
+    sweekend_price3 = fields.Float(string="3rd Adult(+)", digits='Rate Price')
+    sweekend_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
+    sweekend_extra = fields.Float(string="Extra", digits='Rate Price')
+    sspecial_price1 = fields.Float(string="1 Adult", digits='Rate Price')
+    sspecial_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
+    sspecial_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
+    sspecial_price4 = fields.Float(string="+4 Adult", digits='Rate Price')
+    sspecial_extra = fields.Float(string="Extra", digits='Rate Price')
+    sextra_bed = fields.Float(string="Extra Bed", digits='Rate Price')
+    sadult_bf = fields.Float(string="Adult Breakfast", digits='Rate Price')
+    schild_bf = fields.Float(string="Child Breakfast", digits='Rate Price')
     discount_percent = fields.Float(string="Discount Percentage", default=10.0)
     discount_amount = fields.Float(string="Discount Amount", default=50.0)
 

@@ -18,6 +18,13 @@ class ConfirmLetter(models.TransientModel):
         domain="[('model', '=', 'account.move')]"
         )
 
+    @api.onchange('template_id')
+    def onchange_template_id(self):
+        for wizard in self:
+            if wizard.composer_id:
+                wizard.composer_id.template_id = wizard.template_id.id
+                wizard.composer_id.onchange_template_id_wrapper()
+
     def _send_email(self):
         self.composer_id.send_mail()
 

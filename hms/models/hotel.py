@@ -76,7 +76,7 @@ class Property(models.Model):
     _rec_name = "code"
     _description = "Property"
 
-    # Default Get Currency
+    # # Default Get Currency
     def default_get_curency(self):
         mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
                                                            ])
@@ -141,11 +141,17 @@ class Property(models.Model):
                                help="State")
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
-                                  "Currency",
+                                  "Main Currency",
                                   default=default_get_curency,
                                   readonly=False,
                                   track_visibility=True,
                                   help='Currency')
+    scurrency_id = fields.Many2one("res.currency",
+                                  "Second Currency",
+                                  default=default_get_curency,
+                                  readonly=False,
+                                  track_visibility=True,
+                                  help='Second Currency')
     country_id = fields.Many2one('res.country',
                                  string='Country',
                                  readonly=False,
@@ -201,7 +207,8 @@ class Property(models.Model):
                                    inverse='_write_night_audit',
                                    help='Night Audit')
     is_manual = fields.Boolean(default=False)
-    is_night_audit = fields.Boolean(default=False, compute="_compute_is_night_audit")
+    is_night_audit = fields.Boolean(default=False,
+                                    compute="_compute_is_night_audit")
 
     # state for property onboarding panel
     hms_onboarding_property_state = fields.Selection(
@@ -363,8 +370,65 @@ class Property(models.Model):
         track_visibility=True,
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
 
+    # Tax
+    sale_tax_id = fields.Many2one(
+        'account.tax',
+        string="Default Sale Tax",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.account_sale_tax_id.id)
+    # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
+    # so we can assume exactly one of them will be set, and not the other.
+    # We need both of them to coexist so we can take advantage of automatic group assignation.
+    group_show_line_subtotals_tax_excluded = fields.Boolean(
+        "Show line subtotals without taxes (B2B)",
+        implied_group='account.group_show_line_subtotals_tax_excluded',
+        group='base.group_portal,base.group_user,base.group_public')
+    group_show_line_subtotals_tax_included = fields.Boolean(
+        "Show line subtotals with taxes (B2C)",
+        implied_group='account.group_show_line_subtotals_tax_included',
+        group='base.group_portal,base.group_user,base.group_public')
+    show_line_subtotals_tax_selection = fields.Selection([
+        ('tax_excluded', 'Tax-Excluded'),
+        ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
+        required=True, default=lambda self: self.env.user.company_id.show_line_subtotals_tax_selection,
+        config_parameter='account.show_line_subtotals_tax_selection')
+    # Service Charges
+    enable_service_charge = fields.Boolean(string='Service Charges', default=lambda self: self.env.user.company_id.enable_service_charge)
+    service_charge_type = fields.Selection([('amount', 'Amount'),
+                                            ('percentage', 'Percentage')],
+                                           string='Type',default=lambda self: self.env.user.company_id.service_charge_type)
+    service_product_id = fields.Many2one('product.product', string='Service Product',
+                                         domain="[('sale_ok', '=', True),"
+                                                "('type', '=', 'service')]", default=lambda self: self.env.user.company_id.service_product_id.id)
+    service_charge = fields.Float(string='Service Charge', default=lambda self: self.env.user.company_id.service_charge)
+
+
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
+
+    @api.onchange('show_line_subtotals_tax_selection')
+    def _onchange_sale_tax(self):
+        if self.show_line_subtotals_tax_selection == "tax_excluded":
+            self.update({
+                'group_show_line_subtotals_tax_included': False,
+                'group_show_line_subtotals_tax_excluded': True,
+            })
+        else:
+            self.update({
+                'group_show_line_subtotals_tax_included': True,
+                'group_show_line_subtotals_tax_excluded': False,
+            })
+    
+    @api.onchange('enable_service_charge')
+    def set_config_service_charge(self): 
+        if self.enable_service_charge:
+            if not self.service_product_id:
+                domain = [('sale_ok', '=', True),  ('type', '=', 'service')]
+                self.service_product_id = self.env['product.product'].search(domain, limit=1)
+            self.service_charge = 10.0
+        else:
+            self.service_product_id = False
+            self.service_charge = 0.0
 
     @api.depends('system_date')
     def _compute_is_night_audit(self):

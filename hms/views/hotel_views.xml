@@ -113,8 +113,8 @@
                   <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
                   <div class="content-group">
                     <div class="mt10">
-                      <field name="ci_time"/>
-                      <field name="co_time"/>
+                      <field name="ci_time" style="width:100%%"/>
+                      <field name="co_time" style="width:100%%"/>
                     </div>
                   </div>
                   <span class="o_form_label">Night Audit</span>
@@ -149,34 +149,34 @@
                   <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
                   <div class="content-group">
                     <div class="mt10">
-                      <field name="phone" placeholder="Eg. 09123456789....."/>
+                      <field name="phone" placeholder="Eg. 09123456789....." style="width:100%%"/>
                     </div>
                   <span class="o_form_label">Fax</span>
                   <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
                   <div class="content-group">
                     <div class="mt10">
-                        <field name="fax" placeholder="Eg. 01-123456....."/>
+                        <field name="fax" placeholder="Eg. 01-123456....." style="width:100%%"/>
                     </div>
                   </div>
                   <span class="o_form_label">Email</span>
                   <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
                   <div class="content-group">
                     <div class="mt10">
-                        <field name="email" placeholder="example@company.com....."/>
+                        <field name="email" placeholder="example@company.com....." style="width:100%%"/>
                     </div>
                   </div>
                   <span class="o_form_label">Website</span>
                   <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
                   <div class="content-group">
                     <div class="mt10">
-                        <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
+                        <field name="website" widget="url" placeholder="Eg. www.company.com....." style="width:100%%"/>
                     </div>
                   </div>
                   <span class="o_form_label">Social Link</span>
                   <span title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
                   <div class="content-group">
                     <div class="mt10">
-                        <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
+                        <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....." style="width:100%%"/>
                     </div>
                   </div>
                 </div>

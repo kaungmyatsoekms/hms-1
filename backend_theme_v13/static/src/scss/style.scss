@@ -506,7 +506,7 @@ textarea, select, .o_form_view.o_form_editable .o_form_field_many2manytags,
 }
 
 .o_list_view .table-responsive .o_list_table thead tr:nth-child(1) th {
-    background-color: #d66902;
+    background-color: #978800d2;
     color: white;
     font-weight: 550;
 }
@@ -707,8 +707,4 @@ ul:hover {
     border-color: $brand-secondary !important;
     color: #0b7753;
     background-color: #eee !important;
-}
-
-div.mt10 {
-    width:100%;
 }

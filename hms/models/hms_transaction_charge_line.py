@@ -37,8 +37,6 @@ class HMSTransactionChargeLine(models.Model):
                                           default=get_reservation_line_id)
     rate = fields.Float("Rate", store=True)
     total_amount = fields.Float("Total")
-    price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True,
-        currency_field='always_set_currency_id')
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
@@ -59,6 +57,15 @@ class HMSTransactionChargeLine(models.Model):
     always_set_currency_id = fields.Many2one('res.currency', string='Foreign Currency',
         compute='_compute_always_set_currency_id',
         help="Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one.")
+    # New Fields For Proforma
+    price_unit = fields.Float(string='Unit Price', digits='Product Price')
+    amount_currency = fields.Monetary(string='Amount in Currency', store=True, copy=True,
+        help="The amount expressed in an optional other currency if it is a multi-currency entry.")
+    price_unit = fields.Float(string='Unit Price', digits='Product Price')
+    price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True,
+        currency_field='always_set_currency_id')
+    price_total = fields.Monetary(string='Total', store=True, readonly=True,
+        currency_field='always_set_currency_id')
 
 
     def name_get(self):
