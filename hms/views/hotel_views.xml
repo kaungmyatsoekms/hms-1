@@ -1,5 +1,6 @@
 <odoo>
     <data>
+
         <!-- ========== Hotel Property Setup ========== -->
         <!-- Property Setup Form View -->
         <record id="property_view_form" model="ir.ui.view">
@@ -65,6 +66,9 @@
                             </h4>
                             <h4>
                                 <field name="hotelgroup_id" style="width:50%%" options="{'no_quick_create': True}"/>
+                            </h4>
+                            <h4>
+                                <field name="company_id" style="width:50%%" options="{'no_quick_create': True}"/>
                             </h4>
                         </div>
                         <newline/>
@@ -346,6 +350,174 @@
                 </form>
             </field>
         </record>
+
+        <!-- List View of Property -->
+        <record id="property_view_list" model="ir.ui.view">
+            <field name="name">property.view.list</field>
+            <field name="model">hms.property</field>
+            <field name="arch" type="xml">
+                <tree string="Property" import="false">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="timezone"/>
+                    <field name="city_id" optional="show"/>
+                    <field name="state_id" optional="hide"/>
+                    <field name="country_id" optional="show"/>
+                    <field name="phone" optional="show"/>
+                    <field name="email" optional="hide"/>
+                    <field name="website" optional="hide"/>
+                    <field name="rating" optional="show"/>
+                    <field name="logo" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Kanban View of Property -->
+        <record id="property_view_kanban" model="ir.ui.view">
+            <field name="name">property.view.kanban</field>
+            <field name="model">hms.property</field>
+            <field name="arch" type="xml">
+                <kanban class="oe_background_grey o_kanban_dashboard o_property_kanban" import="false">
+                    <field name="id"/>
+                    <field name="logo"/>
+                    <field name="hotelgroup_id"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="city_id"/>
+                    <field name="country_id"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                    <field name="website"/>
+                    <field name="rating"/>
+                    <field name="timezone"/>
+                    <field name="system_date"/>
+                    <field name="is_property"/>
+                    <field name="is_manual"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
+                                    <field name="system_date"/>
+                                </div>
+                                <!-- <div class="container o_kanban_card_content">
+                  <div class="row o_kanban_card_upper_content">
+                      <div class="col-5 o_kanban_primary_left" name="to_replace_in_sale_crm">
+                          <button type="object" class="btn btn-primary" name="action_primary_channel_button">Company Profile</button>
+                      </div>
+                  </div>
+                </div> -->
+                                <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                    <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                        <span class="fa fa-bars fa-lg" />
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                        <t t-if="widget.editable">
+                                            <li>
+                                                <a type="edit">Edit</a>
+                                            </li>
+                                        </t>
+                                        <t t-if="widget.deletable">
+                                            <li>
+                                                <a type="delete">Delete</a>
+                                            </li>
+                                        </t>
+                                        <t>
+                                            <li>
+                        Profile
+                                                <ul>
+                                                    <li>
+                                                        <a type="object" name="action_companyprofile" context="{'default_property_id' : id}">Company Profile</a>
+                                                    </li>
+                                                    <li>
+                                                        <a type="object">Guest Profile</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </t>
+                                        <!-- <li>
+                        <ul class="oe_kanban_colorpicker" data-field="color" />
+                    </li> -->
+                                    </ul>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <div>
+                                        <field name="name"/>
+                                    </div>
+                                    <div>
+                                        <field name="hotelgroup_id"/>
+                                    </div>
+                                    <div>
+                                        <field name="timezone"/>
+                                    </div>
+                                    <div>
+                                        <field t-if="record.city_id.raw_value" name="city_id"/>
+                                        <field t-if="record.country_id.raw_value" name="country_id"/>
+                                    </div>
+                                    <div t-if="record.phone.raw_value">
+                                        <field name="phone"/>
+                                    </div>
+                                    <div t-if="record.email.raw_value">
+                                        <field name="email"/>
+                                    </div>
+                                    <div t-if="record.website.raw_value">
+                                        <field name="website"/>
+                                    </div>
+                                    <div t-if="record.rating.raw_value">
+                                        <field name="rating" widget='priority'/>
+                                    </div>
+                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                                        <i class="fa fa-moon-o"></i>Night Audit
+                                    </button>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- <record id="property_view_kanban" model="ir.ui.view">
+      <field name="name">property.view.kanban</field>
+      <field name="model">hms.property</field>
+      <field name="arch" type="xml">
+        <kanban>
+          <field name="id"/>
+          <field name="logo"/>
+          <h1><field name="hotelgroup_id"/></h1>
+          <h2><field name="name"/></h2>
+          <h3><field name="code"/></h3>
+          <field name="city_id"/>
+          <field name="country_id"/>
+          <field name="phone"/>
+          <field name="email"/>
+          <field name="website"/>
+          <field name="rating"/>
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click">
+                <div class="o_kanban_image">
+                  <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
+                  
+                </div>
+                <div class="oe_kanban_details">
+                  <div><field name="name"/></div>
+                  <div><field name="hotelgroup_id"/></div>
+                  <div>
+                    <field t-if="record.city_id.raw_value" name="city_id"/>
+                    <field t-if="record.country_id.raw_value" name="country_id"/>
+                  </div>
+                  <div t-if="record.phone.raw_value"><field name="phone"/></div>
+                  <div t-if="record.email.raw_value"><field name="email"/></div>
+                  <div t-if="record.website.raw_value"><field name="website"/></div>
+                  <div t-if="record.rating.raw_value"><field name="rating" widget='priority'/></div>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record> -->
 
         <!-- Search View of Property -->
         <record model="ir.ui.view" id="view_pms_properites_filter">

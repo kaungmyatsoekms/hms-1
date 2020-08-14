@@ -1,20 +1,5 @@
 <odoo>
     <data>
-        <!-- Rate Code List View Header -->
-        <record id="rate_code_header_view_list" model="ir.ui.view">
-            <field name="name">hms.ratecode.header.list</field>
-            <field name="model">hms.ratecode.header</field>
-            <field name="arch" type="xml">
-                <tree string="Rate Code" import="false">
-                    <field name="rate_category_id"/>
-                    <field name="rate_code"/>
-                    <field name="ratecode_name"/>
-                    <field name="start_date"/>
-                    <field name="end_date"/>
-                </tree>
-            </field>
-        </record>
-
         <!-- Rate Code Header Form View -->
         <record id="rate_code_header_view_form" model="ir.ui.view">
             <field name="name">hms.ratecode.header.form</field>
@@ -47,6 +32,21 @@
                         </notebook>
                     </sheet>
                 </form>
+            </field>
+        </record>
+
+        <!-- Rate Code List View Header -->
+        <record id="rate_code_header_view_list" model="ir.ui.view">
+            <field name="name">hms.ratecode.header.list</field>
+            <field name="model">hms.ratecode.header</field>
+            <field name="arch" type="xml">
+                <tree string="Rate Code" import="false">
+                    <field name="rate_category_id"/>
+                    <field name="rate_code"/>
+                    <field name="ratecode_name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </tree>
             </field>
         </record>
 
@@ -192,11 +192,9 @@
             <field name="name">hms.ratecode.details.tree</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-                <h2>
-                    <field name="property_id"/>
-                </h2>
                 <tree name="Rate Code Details" limit="10" import="false">
                     <field name="sequence" widget="handle"/>
+                    <field name="property_id" invisible="1"/>
                     <field name="season_code"/>
                     <field name="roomtype_ids" invisible='1'/>
                     <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" widget="many2many_tags"/>
@@ -246,7 +244,7 @@
                                             <b>Property: </b>
                                             <field name="property_id"/>
                                             <br></br>
-                                            <b>Code: </b>
+                                            <b>     Code: </b>
                                             <field name="season_code"/>
                                         </div>
                                         <!-- <t t-foreach="record.roomtype_id.raw_value" t-as="o">
@@ -267,7 +265,7 @@
                                         </div>
                                         <div>
                                             <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id,'default_currency_id':currency_id}">
-                                                <i class="fa fa-paint-brush"></i>
+                                                <i class="fa fa-paint-brush"></i>Copy Season Code
                                             </button>
                                         </div>
                                     </div>

@@ -38,7 +38,7 @@ class MoveRoomWizard(models.TransientModel):
             return avail_rooms
 
     inhouse_rsvn_line_id = fields.Many2one('hms.reservation.line', default=get_inhouse_rsvn_line_id)
-    property_id = fields.Many2one('hms.property', readonly=True)
+    property_id = fields.Many2one('hms.property', related="inhouse_rsvn_line_id.property_id")
     avail_rooms = fields.Many2many('hms.property.room', default=get_avail_rooms)
     room_no = fields.Many2one('hms.property.room', domain="[('id', '=?', avail_rooms)]", required=True)
 

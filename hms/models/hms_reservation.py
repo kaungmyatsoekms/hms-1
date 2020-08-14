@@ -177,7 +177,7 @@ class Reservation(models.Model):
         help='Contact')
     reservation_type = fields.Many2one('hms.rsvntype',
                                        string="Reservation Type",
-                                        readonly=True,
+                                       readonly=True,
                                        default=2,
                                        store=True,
                                        help='Reservation Type')
@@ -665,13 +665,19 @@ class Reservation(models.Model):
         else:
             self.market = False
 
-    @api.onchange('reservation_line_ids')
-    def onchange_is_property_used(self):
-        if self.reservation_line_ids:
-            self.is_property_used = True
-        else:
-            self.is_property_used = False
+    # @api.onchange('reservation_line_ids')
+    # def onchange_is_property_used(self):
+    #     if self.reservation_line_ids:
+    #         self.is_property_used = True
+    #     else:
+    #         self.is_property_used = False
 
+    # @api.depends("reservation_line_ids")
+    # def compute_is_property_used(self):
+    #     if self.reservation_line_ids:
+    #         self.is_property_used = True
+    #     else:
+    #         self.is_property_used = False
 
     #Create Function
     @api.model
@@ -726,14 +732,15 @@ class Reservation(models.Model):
             values.update({'confirm_no': pf_no})
         res = super(Reservation, self).create(values)
         if res.is_dummy is True:
-            res.create_hfo_room(
-                res.state, res, res.confirm_no, res.property_id.id,
-                res.company_id.id, res.group_id.id, res.guest_id.id,
-                res.roomtype_id.id, res.arrival, res.departure, res.nights,
-                res.market.id, res.source.id, res.reservation_type.id,
-                res.reservation_status.id, res.arrival_flight,
-                res.arrival_flighttime, res.dep_flight, res.dep_flighttime,
-                res.eta, res.etd)
+            res.create_hfo_room(res.state, res, res.confirm_no,
+                                res.property_id.id, res.company_id.id,
+                                res.group_id.id, res.guest_id.id,
+                                res.roomtype_id.id, res.arrival, res.departure,
+                                res.nights, res.market.id, res.source.id,
+                                res.reservation_type.id,
+                                res.reservation_status.id, res.arrival_flight,
+                                res.arrival_flighttime, res.dep_flight,
+                                res.dep_flighttime, res.eta, res.etd)
 
         return res
 
@@ -915,6 +922,7 @@ class Reservation(models.Model):
             'context': ctx,
         }
 
+
 # Reservation Line
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
@@ -1058,7 +1066,8 @@ class ReservationLine(models.Model):
         string="Room Type",
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
         required=True,
-        index=True, help='Room Type')
+        index=True,
+        help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
                                  domain="[('id', '=?', bedtype_ids)]",
@@ -1196,9 +1205,7 @@ class ReservationLine(models.Model):
                                  readonly=True,
                                  compute='_compute_untaxed_amount')
     # Sale Order & Sale Order Line Fields
-    sale_order_ids = fields.One2many('sale.order',
-                                     'reservation_line_id',
-                                     string='Sale Order')
+    sale_order_id = fields.Many2one('sale.order', string='Sale Order')
     sale_order_line_ids = fields.One2many('sale.order.line',
                                           'reservation_line_id',
                                           string='Sale Order Line')
@@ -1447,7 +1454,6 @@ class ReservationLine(models.Model):
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'confirm'})
 
-
     def set_kanban_color(self):
         for record in self:
             color = 0
@@ -1462,35 +1468,6 @@ class ReservationLine(models.Model):
             elif record.state == 'cancel':
                 color = 1
             record.color = color
-    
-    def _compute_required_color(self):
-        color_attribute = self.env['hms.color.attribute'].search([('name', '=','Reservation')])
-        value_ids = color_attribute.value_ids
-        high_color = " "
-        medium_color = " "
-        complete_color = " "
-        for value in value_ids:
-            if value.name =="High":
-                high_color= value.html_color
-            elif value.name == "Medium":
-                medium_color = value.html_color
-            elif value.name == "Complete":
-                complete_color = value.html_color   
-
-        for record in self:
-            room_no = self.env['hms.property.room']
-            guest_name = self.env['res.partner']
-            ratehead_id =self.env['hms.ratecode.header']
-            nationality_id = self.env['hms.nationality']
-            if (record.room_type.code != 'HFO'):
-                if (record.ratehead_id  == ratehead_id):
-                    record.required_color = high_color
-                elif (record.room_no == room_no or record.guest_id == guest_name or record.nationality_id == nationality_id):
-                    record.required_color =  medium_color
-                else:
-                    record.required_color = complete_color 
-            else:
-                record.required_color = complete_color 
 
     def _compute_required_color(self):
         color_attribute = self.env['hms.color.attribute'].search([
@@ -2227,7 +2204,7 @@ class ReservationLine(models.Model):
                     posting_dates.append(post_dates)
                 day_count += 1
         return posting_dates
-    
+
     def create_line_with_posting_rhythm(self, reservation_line_id,
                                         transaction_date, package_ids):
         res = reservation_line_id
@@ -2576,18 +2553,18 @@ class ReservationLine(models.Model):
             ('currency_id', '=', reservation_line_id.currency_id.id)
         ]).id
         vals = []
-        vals.append((0, 0, {
+        vals.append({
             'partner_id': partner_id,
             'partner_invoice_id': partner_id,
             'partner_shipping_id': partner_id,
             'date_order': date_order,
             'pricelist_id': pricelist_id,
-        }))
-        reservation_line_id.update({'sale_order_ids': vals})
+        })
+        reservation_line_id.update({'sale_order_id': vals})
 
     # Create Sale Order Line
     def create_sale_order_line(self, reservation_line_id):
-        order_id = reservation_line_id.sale_order_ids[0].id
+        order_id = reservation_line_id.sale_order_id.id
         product_name = reservation_line_id.room_type.name
         qty = reservation_line_id.rooms
         vals = []
