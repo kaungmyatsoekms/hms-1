@@ -1251,7 +1251,6 @@ class Property(models.Model):
                 'company_channel_type': crm,
             })
             res.company_id = company_obj.id
-            # company_obj.partner_id.active = False
 
             pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
             sale_admin = self.env['ir.model.data'].xmlid_to_res_id('sales_team.group_sale_manager')
@@ -1271,13 +1270,26 @@ class Property(models.Model):
                 (4, pos_admin), (4, sale_admin)]
             })
 
-            user = user_obj
+        if not res.show_line_subtotals_tax_selection:
+            raise UserError(
+                    _("Please choose Line Subtotal Tax Display in Configuration" + "\n"+
+                    "(Tax-Excluded or Tax-Included)"
+                      ))
 
         return res
 
     # Write Function
     def write(self, values):
+        old_roomtype = self.roomtype_ids.ids
         res = super(Property, self).write(values)
+        new_roomtype = self.roomtype_ids.ids
+
+        delected_roomtype = list(set(old_roomtype)- set(new_roomtype))
+
+        for rt in delected_roomtype:
+            to_delete_avail_objs = self.env['hms.roomtype.available'].search([('property_id','=', self.id),('ravail_rmty', '=', rt)])
+            for obj in to_delete_avail_objs:
+                obj.unlink()
 
         if 'code' in values.keys():
             same_code_objs = self.env['ir.sequence'].search([
@@ -1921,9 +1933,11 @@ class PropertyRoom(models.Model):
     # Room location link with Building
     @api.onchange('building_id')
     def onchange_room_location_id(self):
-        location = self.env['hms.roomlocation']
         for rec in self:
-            rec.roomlocation_id = location
+            if rec.roomlocation_id in rec.building_id.location_ids:
+                rec.roomlocation_id = rec.roomlocation_id
+            else:
+                rec.roomlocation_id = False
 
     @api.onchange('roomtype_id')
     def check_is_hfo(self):

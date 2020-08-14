@@ -236,7 +236,7 @@
                         <field name="room_bedqty" optional="show"/>
                         <field name="room_extension" optional="show"/>
                         <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
+                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': ['|',('is_hfo', '=', True),('is_propertyroom', '=', False)]}">
                           <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
@@ -600,6 +600,7 @@
                     <field name="system_date"/>
                     <field name="is_property"/>
                     <field name="is_manual"/>
+                    <field name="is_night_audit"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_global_click">
@@ -673,7 +674,7 @@
                                     <div t-if="record.rating.raw_value">
                                         <field name="rating" widget='priority'/>
                                     </div>
-                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
                                         <i class="fa fa-moon-o"></i>Night Audit
                                     </button>
                                 </div>
