@@ -244,7 +244,7 @@
                                             <b>Property: </b>
                                             <field name="property_id"/>
                                             <br></br>
-                                            <b>     Code: </b>
+                                            <b>Code: </b>
                                             <field name="season_code"/>
                                         </div>
                                         <!-- <t t-foreach="record.roomtype_id.raw_value" t-as="o">

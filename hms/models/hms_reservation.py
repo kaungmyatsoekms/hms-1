@@ -922,7 +922,6 @@ class Reservation(models.Model):
             'context': ctx,
         }
 
-
 # Reservation Line
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"

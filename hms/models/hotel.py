@@ -147,13 +147,12 @@ class Property(models.Model):
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  default=default_get_curency,
+                                  related = "company_id.currency_id",
                                   readonly=False,
-                                  track_visibility=True,
                                   help='Currency')
     scurrency_id = fields.Many2one("res.currency",
                                    "Second Currency",
-                                   default=default_get_curency,
+                                   related = "company_id.scurrency_id",
                                    readonly=False,
                                    track_visibility=True,
                                    help='Second Currency')
