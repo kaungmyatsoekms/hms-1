@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_preview_qweb">
+    <template id="excepted_report_preview_qweb">
         <t t-call="hms.html_container">
-              <div class="header">
+            <div class="header">
                 <div style="text-align:right;color:dimgray;">
                     <p class="text-muted text-right">
                                         Page: <span class="page"/>
 /                    <span class="topage"/>
                 </p>
             </div>
+        </div>
     </div>
     <div class="page" style="width:100%;">
         <!-- title start -->

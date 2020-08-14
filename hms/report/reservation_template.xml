@@ -3,7 +3,7 @@
         <template id="report_reservation_qweb">
                 <t t-call="hms.html_container">
                         <div class="header">
-                                <div class="col-12 text-right">
+                                <div style="text-align:right;color:dimgray;">
                                         <p class="text-muted text-right">
                                         Page: <span class="page"/>/<span class="topage"/>
                                          </p>

@@ -18,7 +18,7 @@
                         </h4>
                         <strong>
                             <h4 id="date" style="line-height:7pt;">
-                                        Printed Date: <span t-esc="datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')" />
+                                Printed Date: <span t-esc="datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')" />
                             </h4>
                         </strong>
                     </div>
