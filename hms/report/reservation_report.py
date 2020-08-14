@@ -153,6 +153,8 @@ class ExpectedArrivalReport(models.AbstractModel):
         property_id = data['form']['property_id']
         arr_date = data['form']['arr_date']
         type_ = data['form']['type_']
+        # property_name = data['form']['property_name']
+        # system_date = data['form']['system_date']
         folio_profile = self.env['hms.reservation.line'].search([
             ('property_id', '=', property_id[0]), ('arrival', '=', arr_date),
             ('reservation_id.type', '=', type_)
@@ -175,6 +177,8 @@ class ExpectedArrivalReport(models.AbstractModel):
             # 'data': data['form'],
             'arr_date': arr_date,
             'property_id': property_id[1],
+            # 'property_name':property_name,
+            # 'system_date':system_date,
             'type_': type_,
             'docs': folio_profile,
             'time': time,

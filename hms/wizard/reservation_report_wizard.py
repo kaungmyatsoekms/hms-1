@@ -55,7 +55,6 @@ class ReservationReportWizard(models.TransientModel):
             'model': 'hms.reservation.line',
             'form': self.read(['property_id', 'date_start', 'date_end','property_name','system_date'])[0]
         }
-
         # ref `module_name.report_id` as reference.
         return self.env.ref('hms.reservation_report').report_action(self,
                                                                     data=data)
@@ -74,9 +73,25 @@ class ExpectedArrReportWizard(models.TransientModel):
     property_id = fields.Many2one('hms.property',
                                   string="Property",
                                   required=True)
+
     arr_date = fields.Date(string='Arrival Date',
                            required=True,
                            default=fields.Date.today)
+                           
+    property_name = fields.Char('Name',  store=True)
+    system_date = fields.Date('System_Date',store=True)
+
+    @api.onchange('property_id')
+    def onchange_name(self):
+        for record in self:
+            record.property_name = record.property_id.name
+
+
+    @api.onchange('property_id')
+    def onchange_systemdate(self):
+        for record in self:
+            record.system_date = record.property_id.system_date
+
     type_ = fields.Selection(
         string='Type',
         selection=[('individual', 'Individual'), ('group', 'Group')],
@@ -88,21 +103,22 @@ class ExpectedArrReportWizard(models.TransientModel):
             'model': 'hms.reservation.line',
             'form': self.read(['property_id', 'arr_date', 'type_'])[0]
         }
-
         # ref `module_name.report_id` as reference.
         return self.env.ref('hms.expected_arrival_report').report_action(
             self, data=data)   
 
-    def get_preview(self):
-        data = {
-            'ids': self.ids,
-            'model': 'hms.reservation.line',
-            'form': self.read(['property_id', 'arr_date', 'type_'])[0]
-        }
+    # def get_preview(self):
+    #     data = {
+    #         'ids': self.ids,
+    #         'model': 'hms.reservation.line',
+    #         'form': self.read(['property_id', 'arr_date', 'type_'])[0]
+    #     }
 
-        # ref `module_name.report_id` as reference.
-        return self.env.ref('hms.expected_arrival_report').report_action(
-            self, data=data)
+    #     # ref `module_name.report_id` as reference.
+    #     return self.env.ref('hms.report_preview_qweb').report_action(
+    #         self, data=data)
+
+
     # @api.depends('is_group')
     # def _compute_type(self):
     #     for partner in self:
