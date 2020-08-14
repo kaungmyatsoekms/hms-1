@@ -16,10 +16,12 @@ class ReservationReportWizard(models.TransientModel):
                            default=fields.Date.today)
     property_name = fields.Char('Name',  store=True)
     system_date = fields.Date('System_Date',store=True)
+
     @api.onchange('property_id')
     def onchange_name(self):
         for record in self:
             record.property_name = record.property_id.name
+
 
     @api.onchange('property_id')
     def onchange_systemdate(self):
@@ -58,6 +60,13 @@ class ReservationReportWizard(models.TransientModel):
         return self.env.ref('hms.reservation_report').report_action(self,
                                                                     data=data)
 
+    def get_preview(self):
+        data={
+            'ids': self.ids,
+            'model':'hms.reservation.line',
+            'form': self.read(['property_id', 'date_start', 'date_end','property_name','system_date'])[0]
+        }
+        return self.env.ref('hms.report_preview_qweb').report_action(self,data=data)
 
 class ExpectedArrReportWizard(models.TransientModel):
     _name = 'hms.expected_arr_report_wizard'
@@ -82,8 +91,18 @@ class ExpectedArrReportWizard(models.TransientModel):
 
         # ref `module_name.report_id` as reference.
         return self.env.ref('hms.expected_arrival_report').report_action(
-            self, data=data)
+            self, data=data)   
 
+    def get_preview(self):
+        data = {
+            'ids': self.ids,
+            'model': 'hms.reservation.line',
+            'form': self.read(['property_id', 'arr_date', 'type_'])[0]
+        }
+
+        # ref `module_name.report_id` as reference.
+        return self.env.ref('hms.expected_arrival_report').report_action(
+            self, data=data)
     # @api.depends('is_group')
     # def _compute_type(self):
     #     for partner in self:

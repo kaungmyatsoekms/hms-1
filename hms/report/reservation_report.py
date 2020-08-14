@@ -91,6 +91,41 @@ class ReservationReport(models.AbstractModel):
             'getList': getList,
         }
 
+class ReservationReportPreview(models.AbstractModel):
+    _name = 'report.hms.report_preview_qweb'
+    _description = 'Reservation Report'
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        self.model = self.env.context.get('active_model')
+        if data is None:
+            data = {}
+        if not docids:
+            docids = data.get('ids', data.get('active_ids'))
+
+        property_id = data['form']['property_id']
+        date_start = data['form']['date_start']
+        date_end = data['form']['date_end']
+        property_name = data['form']['property_name']
+        system_date = data['form']['system_date']
+        folio_profile = self.env['hms.reservation.line'].search([
+            ('property_id', '=', property_id[0]),
+            ('arrival', '>=', date_start), ('departure', '<=', date_end)
+        ])
+        rm_act = self.with_context(data['form'].get('used_context', {}))
+        date_start = datetime.strptime(date_start,'%Y-%m-%d').strftime('%d/%m/%Y')
+        date_end = datetime.strptime(date_end, '%Y-%m-%d').strftime('%d/%m/%Y')
+        return {
+            'doc_ids': docids,
+            'doc_model': 'hms.reservation.line',
+            'date_start': date_start,
+            'date_end': date_end,
+            'property_id': property_id[1],
+            'property_name':property_name,
+            'system_date':system_date,
+            'docs': folio_profile,
+            'time': time,
+        }
 
 class ExpectedArrivalReport(models.AbstractModel):
     """
@@ -145,7 +180,6 @@ class ExpectedArrivalReport(models.AbstractModel):
             'time': time,
             'get_expected_arrival': get_expected_arrival,
         }
-
 
 class PropertyReport(models.AbstractModel):
     _name = 'report.hms.property'

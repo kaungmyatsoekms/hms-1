@@ -90,6 +90,7 @@
         'views/hms_ratecode_view.xml',
         'report/property_template.xml',
         'report/reservation_report.xml',
+        'report/report_preview.xml',
         'wizard/reservation_report_wizard_view.xml',
         'report/reservation_template.xml',
         'report/expected_arrival_template.xml',

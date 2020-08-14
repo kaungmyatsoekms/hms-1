@@ -27,4 +27,12 @@
         <field name="report_name">hms.report_expected_arrival_qweb</field>
     </record>
 
+    <!-- Document Preview -->
+    <report id="preview_report_id" string="Reservation Report Preview" model="hms.reservation.line" report_type="qweb-pdf" name="hms.report_preview_qweb" menu="False"/>
+    <record id="report_preview_qweb" model="ir.actions.report">
+        <field name="name">Reservation Report Preview</field>
+        <field name="model">report.hms.report_preview_qweb</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hms.report_preview_qweb</field>
+    </record>
 </odoo>

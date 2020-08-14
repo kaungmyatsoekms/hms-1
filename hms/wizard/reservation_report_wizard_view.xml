@@ -12,12 +12,11 @@
                     <field name="date_end"/>
                     <field name="property_name" force_save="1" invisible="1"/>
                     <field name="system_date" force_save="1" invisible="1"/>
-
                 </group>
                 <footer>
                     <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
                     <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
-                    <button special="preview document" string= "Document Preview" class="btn-secondary" icon="fa-file"/>
+                    <button name="get_preview" string= "Document Preview" class="btn-secondary" type="object" icon="fa-file"/>
                 </footer>
             </form>
         </field>
@@ -45,7 +44,7 @@
                 <footer>
                     <button name="get_report" string="Get Report" class="btn-primary" type="object" icon="fa-bars"/>
                     <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-close"/>
-                    <button special="preview document" string="Document Preview" class="btn-secondary" icon="fa-file"/>
+                    <button name="get_preview" string= "Document Preview" class="btn-secondary" type="object" icon="fa-file"/>
                 </footer>
             </form>
         </field>
