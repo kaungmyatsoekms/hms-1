@@ -67,6 +67,9 @@
                             <h4>
                                 <field name="hotelgroup_id" style="width:50%%" options="{'no_quick_create': True}"/>
                             </h4>
+                            <h4>
+                                <field name="company_id" style="width:50%%" options="{'no_quick_create': True}"/>
+                            </h4>
                         </div>
                         <newline/>
                         <group colspan="3" col="3">

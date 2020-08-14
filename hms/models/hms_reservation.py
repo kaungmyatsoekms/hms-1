@@ -1205,9 +1205,7 @@ class ReservationLine(models.Model):
                                  readonly=True,
                                  compute='_compute_untaxed_amount')
     # Sale Order & Sale Order Line Fields
-    sale_order_ids = fields.One2many('sale.order',
-                                     'reservation_line_id',
-                                     string='Sale Order')
+    sale_order_id = fields.Many2one('sale.order', string='Sale Order')
     sale_order_line_ids = fields.One2many('sale.order.line',
                                           'reservation_line_id',
                                           string='Sale Order Line')
@@ -2555,18 +2553,18 @@ class ReservationLine(models.Model):
             ('currency_id', '=', reservation_line_id.currency_id.id)
         ]).id
         vals = []
-        vals.append((0, 0, {
+        vals.append({
             'partner_id': partner_id,
             'partner_invoice_id': partner_id,
             'partner_shipping_id': partner_id,
             'date_order': date_order,
             'pricelist_id': pricelist_id,
-        }))
-        reservation_line_id.update({'sale_order_ids': vals})
+        })
+        reservation_line_id.update({'sale_order_id': vals})
 
     # Create Sale Order Line
     def create_sale_order_line(self, reservation_line_id):
-        order_id = reservation_line_id.sale_order_ids[0].id
+        order_id = reservation_line_id.sale_order_id.id
         product_name = reservation_line_id.room_type.name
         qty = reservation_line_id.rooms
         vals = []

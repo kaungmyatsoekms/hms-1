@@ -192,11 +192,9 @@
             <field name="name">hms.ratecode.details.tree</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-                <h2>
-                    <field name="property_id"/>
-                </h2>
                 <tree name="Rate Code Details" limit="10" import="false">
                     <field name="sequence" widget="handle"/>
+                    <field name="property_id" invisible="1"/>
                     <field name="season_code"/>
                     <field name="roomtype_ids" invisible='1'/>
                     <field name="roomtype_id" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}" widget="many2many_tags"/>
