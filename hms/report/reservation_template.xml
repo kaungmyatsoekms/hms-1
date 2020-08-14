@@ -144,7 +144,7 @@
                                                                                                 <span t-field="info.arrival_flight"/>
                                                                                         </td>
                                                                                         <td style="width:5%; solid lightgray;">
-                                                                                                <span t-esc="'%02d:%02d' % (int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)" />
+                                                                                                <span t-esc="'%02d:%02d' % (int(info.arrival_flighttime), info.arrival_flighttime % 1 * 60)"/>
                                                                                         </td>
                                                                                         <td style="width:6%; solid lightgray;">
                                                                                                 <span t-field="info.departure"/>

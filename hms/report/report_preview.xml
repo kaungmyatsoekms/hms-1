@@ -2,505 +2,508 @@
 <odoo>
     <template id="report_preview_qweb">
         <t t-call="hms.html_container">
-              <div class="header">
+            <div class="header">
                 <div style="text-align:right;color:dimgray;">
                     <p class="text-muted text-right">
                                         Page: <span class="page"/>
 /                    <span class="topage"/>
                 </p>
             </div>
-    </div>
-    <div class="page" style="width:100%;">
-        <!-- title start -->
-        <div class="row">
-            <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
-                <h1>
-                    <span t-esc="property_name"/>
-                </h1>
-                <h3>Reservation List</h3>
-            </div>
-            <div class="column" style="width:18%;float:right;line-height:7pt;margin-top:5px;">
-                <h4 style="line-height:1pt;">Report Date: 
-                    <span t-esc="system_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
-                </h4>
-                <strong>
-                    <h4 id="date" style="line-height:7pt;">
-                                                    Printed Date: <span t-esc="datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')" />
-                    </h4>
-                </strong>
-            </div>
         </div>
-        <!-- title end -->
-        <!-- table header start -->
-        <table class="table table-condensed" style="width:100%;border: 3px solid darkgray;font-size:16px;">
-            <thread>
-                <tr>
-                    <th style="width:5%; solid lightgray;">
+        <div class="page" style="width:100%;">
+            <!-- title start -->
+            <div class="row">
+                <div class="column" style="width:50%;float:left;line-height:10pt;margin-top:5px;">
+                    <h1>
+                        <span t-esc="property_name"/>
+                    </h1>
+                    <h3>Reservation List</h3>
+                </div>
+                <div class="column" style="width:18%;float:right;line-height:7pt;margin-top:5px;">
+                    <h4 style="line-height:1pt;">Report Date: 
+                        <span t-esc="system_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
+                    </h4>
+                    <strong>
+                        <h4 id="date" style="line-height:7pt;">
+                                                    Printed Date: <span t-esc="datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')" />
+                        </h4>
+                    </strong>
+                </div>
+            </div>
+            <!-- title end -->
+            <!-- table header start -->
+
+            <table class="table table-condensed" style="width:100%;border: 3px solid darkgray;font-size:16px;">
+                <thread>
+                    <tr>
+                        <th style="width:5%; solid lightgray;">
                                                 Room
-                    </th>
-                    <th style="width:4%; solid lightgray;">
+                        </th>
+                        <th style="width:4%; solid lightgray;">
                                                 Rmty
-                    </th>
-                    <th style="width:3%; solid lightgray;">
+                        </th>
+                        <th style="width:3%; solid lightgray;">
                                                 Rm
-                    </th>
-                    <th style="width:2%; solid lightgray;">
+                        </th>
+                        <th style="width:2%; solid lightgray;">
                                                 Ad
-                    </th>
-                    <th style="width:2%; solid lightgray;">
+                        </th>
+                        <th style="width:2%; solid lightgray;">
                                                 Ch
-                    </th>
-                    <th style="width:12%; solid lightgray;">
+                        </th>
+                        <th style="width:12%; solid lightgray;">
                                                 Guest Name
-                    </th>
-                    <th style="width:8%; solid lightgray;">
+                        </th>
+                        <th style="width:8%; solid lightgray;">
                                                 Book Ref
-                    </th>
-                    <th style="width:4%; solid lightgray;">
+                        </th>
+                        <th style="width:4%; solid lightgray;">
                                                 VIP
-                    </th>
-                    <th style="width:8%; solid lightgray;">
+                        </th>
+                        <th style="width:8%; solid lightgray;">
                                                 Arr.Date
-                    </th>
-                    <th style="width:5%; solid lightgray;">
+                        </th>
+                        <th style="width:5%; solid lightgray;">
                                                 Flight
-                    </th>
-                    <th style="width:5%; solid lightgray;">
+                        </th>
+                        <th style="width:5%; solid lightgray;">
                                                 Time
-                    </th>
-                    <th style="width:8%; solid lightgray;">
+                        </th>
+                        <th style="width:8%; solid lightgray;">
                                                 Dep.Date
-                    </th>
-                    <th style="width:5%; solid lightgray;">
+                        </th>
+                        <th style="width:5%; solid lightgray;">
                                                 Flight
-                    </th>
-                    <th style="width:5%; solid lightgray;">
+                        </th>
+                        <th style="width:5%; solid lightgray;">
                                                 Time
-                    </th>
-                    <th style="width:8%; solid lightgray;">
+                        </th>
+                        <th style="width:8%; solid lightgray;">
                                                 Company
-                    </th>
-                    <th style="width:7%; solid lightgray;">
+                        </th>
+                        <th style="width:7%; solid lightgray;">
                                                 F/O
-                    </th>
-                    <th style="width:14%; solid lightgray;">
+                        </th>
+                        <th style="width:14%; solid lightgray;">
                                                 Remark/ Billing
-                    </th>
-                </tr>
-            </thread>
-        </table>
-        <!-- table header end -->
-        <!-- body start -->
-        <p>
-            <t t-set="rm" t-value="0"></t>
-            <t t-set="ad" t-value="0"></t>
-            <t t-set="sub_rm" t-value="0"></t>
-            <t t-set="sub_ad" t-value="0"></t>
-            <div style="margin-top:12px;margin-bottom:5px;">
-                <strong style="border-bottom:1px solid grey;">
+                        </th>
+                    </tr>
+                </thread>
+            </table>
+            <!-- table header end -->
+            <!-- body start -->
+            <p>
+                <t t-set="rm" t-value="0"></t>
+                <t t-set="ad" t-value="0"></t>
+                <t t-set="sub_rm" t-value="0"></t>
+                <t t-set="sub_ad" t-value="0"></t>
+                <div style="margin-top:12px;margin-bottom:5px;">
+                    <strong style="border-bottom:1px solid grey;">
                                             Date: <t t-esc="date_start" />
-                </strong>
-            </div>
+                    </strong>
+                </div>
 
 
-            <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
-                <tbody style="background:white;padding:3px 3px 3px 3px;">
+                <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
+                    <tbody style="background:white;padding:3px 3px 3px 3px;">
 
-                    <tr>
-                        <td style="width:5%; solid lightgray;">101</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Aung Aung</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-
-                    <tr>
-                        <td style="width:5%; solid lightgray;">102</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Maung Maung</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-
-                    <tr>
-                        <td style="width:5%; solid lightgray;">103</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Tun Tun</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-            <div>
-                <hr></hr>
-                <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
-                    <tbody>
                         <tr>
-                            <td style="width:10%;">
-                                <strong>Sub Total </strong>
+                            <td style="width:5%; solid lightgray;">101</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
                             </td>
-                            <td style="width:3%; solid lightgray;">
-                                <span t-esc="sub_rm"/>
-                                <t t-set="sub_rm" t-value="0"></t>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
                             </td>
-                            <td style="width:3%; solid lightgray;">
-                                <span t-esc="sub_ad"/>
-                                <t t-set="sub_ad" t-value="0"></t>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Aung Aung</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
                             </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
                         </tr>
+
+                        <tr>
+                            <td style="width:5%; solid lightgray;">102</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Maung Maung</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:5%; solid lightgray;">103</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Tun Tun</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
+                        </tr>
+
                     </tbody>
                 </table>
-            </div>
-            <div style="margin-top:12px;margin-bottom:5px;">
-                <strong style="border-bottom:1px solid grey;">
+
+                <div>
+                    <hr></hr>
+                    <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
+                        <tbody>
+                            <tr>
+                                <td style="width:10%;">
+                                    <strong>Sub Total </strong>
+                                </td>
+                                <td style="width:3%; solid lightgray;">
+                                    <span t-esc="sub_rm"/>
+                                    <t t-set="sub_rm" t-value="0"></t>
+                                </td>
+                                <td style="width:3%; solid lightgray;">
+                                    <span t-esc="sub_ad"/>
+                                    <t t-set="sub_ad" t-value="0"></t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top:12px;margin-bottom:5px;">
+                    <strong style="border-bottom:1px solid grey;">
                                             Date: <t t-esc="date_start"/>
-                </strong>
-            </div>
-            <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
-                <tbody style="background:white;padding:3px 3px 3px 3px;">
+                    </strong>
+                </div>
+                <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
+                    <tbody style="background:white;padding:3px 3px 3px 3px;">
 
-                    <tr>
-                        <td style="width:5%; solid lightgray;">105</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Wai Wai</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <t t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-
-                    <tr>
-                        <td style="width:5%; solid lightgray;">109</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Mu Mu</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-
-                    <tr>
-                        <td style="width:5%; solid lightgray;">106</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Aye Aye</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-
-                    <tr>
-                        <td style="width:5%; solid lightgray;">110</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Yu Yu</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">MIA</td>
-                        <td style="width:5%; solid lightgray;">1:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Air Kbz </td>
-                        <td style="width:5%; solid lightgray;">3:00</td>
-                        <td style="width:8%; solid lightgray;">AOC</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div>
-                <hr></hr>
-                <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
-                    <tbody>
                         <tr>
-                            <td style="width:10%;">
-                                <strong>Sub Total </strong>
+                            <td style="width:5%; solid lightgray;">105</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
                             </td>
-                            <td style="width:3%; solid lightgray;">
-                                <span t-esc="sub_rm"/>
-                                <t t-set="sub_rm" t-value="0"></t>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
                             </td>
-                            <td style="width:3%; solid lightgray;">
-                                <span t-esc="sub_ad"/>
-                                <t t-set="sub_ad" t-value="0"></t>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Wai Wai</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
                             </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <t t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:5%; solid lightgray;">109</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Mu Mu</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:5%; solid lightgray;">106</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Aye Aye</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:5%; solid lightgray;">110</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
+                            </td>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Yu Yu</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
+                            </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">MIA</td>
+                            <td style="width:5%; solid lightgray;">1:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Air Kbz </td>
+                            <td style="width:5%; solid lightgray;">3:00</td>
+                            <td style="width:8%; solid lightgray;">AOC</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            <div style="margin-top:12px;margin-bottom:5px;">
-                <strong style="border-bottom:1px solid grey;">
+
+                <div>
+                    <hr></hr>
+                    <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
+                        <tbody>
+                            <tr>
+                                <td style="width:10%;">
+                                    <strong>Sub Total </strong>
+                                </td>
+                                <td style="width:3%; solid lightgray;">
+                                    <span t-esc="sub_rm"/>
+                                    <t t-set="sub_rm" t-value="0"></t>
+                                </td>
+                                <td style="width:3%; solid lightgray;">
+                                    <span t-esc="sub_ad"/>
+                                    <t t-set="sub_ad" t-value="0"></t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top:12px;margin-bottom:5px;">
+                    <strong style="border-bottom:1px solid grey;">
                                             Date: <t t-esc="date_start"/>
-                </strong>
-            </div>
-            <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
-                <tbody style="background:white;padding:3px 3px 3px 3px;">
+                    </strong>
+                </div>
+                <table class="table" style="width:100%;font-size:14px;padding:0px 0px 0px 14px;">
+                    <tbody style="background:white;padding:3px 3px 3px 3px;">
 
-                    <tr>
-                        <td style="width:5%; solid lightgray;">118</td>
-                        <td style="width:4%; solid lightgray;">DLX</td>
-                        <td style="width:3%; solid lightgray;">1
-                            <t t-set="rm" t-value="rm+1"></t>
-                            <t t-set="sub_rm" t-value="sub_rm+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1
-                            <t t-set="ad" t-value="ad+1"></t>
-                            <t t-set="sub_ad" t-value="sub_ad+1"></t>
-                        </td>
-                        <td style="width:2%; solid lightgray;">1</td>
-                        <td style="width:12%; solid lightgray;">Micheal Jordon</td>
-                        <td style="width:8%; solid lightgray;">
-                            <!-- booking reference -->
-                        </td>
-                        <td style="width:5%; solid lightgray;">
-                            <!-- VIP -->
-                        </td>
-                        <td style="width:6%; solid lightgray;">
-                            <t t-esc="date_start"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Madrid</td>
-                        <td style="width:5%; solid lightgray;">12:00</td>
-                        <td style="width:6%; solid lightgray;">
-                            <span t-esc="date_end"/>
-                        </td>
-                        <td style="width:7%; solid lightgray;">Madrid</td>
-                        <td style="width:5%; solid lightgray;">6:00</td>
-                        <td style="width:8%; solid lightgray;">Right Way</td>
-                        <td style="width:7%; solid lightgray;">
-                            <!-- FO -->
-                        </td>
-                        <td style="width:14%; solid lightgray;"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div>
-                <hr></hr>
-                <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
-                    <tbody>
                         <tr>
-                            <td style="width:10%;">
-                                <strong>Sub Total </strong>
+                            <td style="width:5%; solid lightgray;">118</td>
+                            <td style="width:4%; solid lightgray;">DLX</td>
+                            <td style="width:3%; solid lightgray;">1
+                                <t t-set="rm" t-value="rm+1"></t>
+                                <t t-set="sub_rm" t-value="sub_rm+1"></t>
                             </td>
-                            <td style="width:3%; solid lightgray;">
-                                <span t-esc="sub_rm"/>
-                                <t t-set="sub_rm" t-value="0"></t>
+                            <td style="width:2%; solid lightgray;">1
+                                <t t-set="ad" t-value="ad+1"></t>
+                                <t t-set="sub_ad" t-value="sub_ad+1"></t>
                             </td>
-                            <td style="width:3%; solid lightgray;">
-                                <span t-esc="sub_ad"/>
-                                <t t-set="sub_ad" t-value="0"></t>
+                            <td style="width:2%; solid lightgray;">1</td>
+                            <td style="width:12%; solid lightgray;">Micheal Jordon</td>
+                            <td style="width:8%; solid lightgray;">
+                                <!-- booking reference -->
                             </td>
+                            <td style="width:5%; solid lightgray;">
+                                <!-- VIP -->
+                            </td>
+                            <td style="width:6%; solid lightgray;">
+                                <t t-esc="date_start"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Madrid</td>
+                            <td style="width:5%; solid lightgray;">12:00</td>
+                            <td style="width:6%; solid lightgray;">
+                                <span t-esc="date_end"/>
+                            </td>
+                            <td style="width:7%; solid lightgray;">Madrid</td>
+                            <td style="width:5%; solid lightgray;">6:00</td>
+                            <td style="width:8%; solid lightgray;">Right Way</td>
+                            <td style="width:7%; solid lightgray;">
+                                <!-- FO -->
+                            </td>
+                            <td style="width:14%; solid lightgray;"></td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </p>
 
-        <!-- total start -->
-        <hr></hr>
-        <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
-            <tbody>
-                <tr>
-                    <td style="width:10%;">
-                        <strong>Total </strong>
-                    </td>
-                    <td style="width:3%; solid lightgray;">
-                        <span t-esc="rm"/>
-                    </td>
-                    <td style="width:3%; solid lightgray;">
-                        <span t-esc="ad"/>
-                    </td>
-                </tr>
+                <div>
+                    <hr></hr>
+                    <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
+                        <tbody>
+                            <tr>
+                                <td style="width:10%;">
+                                    <strong>Sub Total </strong>
+                                </td>
+                                <td style="width:3%; solid lightgray;">
+                                    <span t-esc="sub_rm"/>
+                                    <t t-set="sub_rm" t-value="0"></t>
+                                </td>
+                                <td style="width:3%; solid lightgray;">
+                                    <span t-esc="sub_ad"/>
+                                    <t t-set="sub_ad" t-value="0"></t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </p>
 
-            </tbody>
-        </table>
-        <!-- total end -->
-        <!-- body end -->
-    </div>
-</t>
+            <!-- total start -->
+            <hr></hr>
+            <table class="table" style="width:16%;padding:0px 0px 0px 5px;">
+                <tbody>
+                    <tr>
+                        <td style="width:10%;">
+                            <strong>Total </strong>
+                        </td>
+                        <td style="width:3%; solid lightgray;">
+                            <span t-esc="rm"/>
+                        </td>
+                        <td style="width:3%; solid lightgray;">
+                            <span t-esc="ad"/>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <!-- total end -->
+            <!-- body end -->
+        </div>
+    </t>
 </template>
 
 </odoo>

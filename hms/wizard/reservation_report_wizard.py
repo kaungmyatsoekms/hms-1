@@ -106,6 +106,16 @@ class ExpectedArrReportWizard(models.TransientModel):
         # ref `module_name.report_id` as reference.
         return self.env.ref('hms.expected_arrival_report').report_action(
             self, data=data)   
+        
+    def get_preview(self):
+        data = {
+            'ids': self.ids,
+            'model': 'hms.reservation.line',
+            'form': self.read(['property_id', 'arr_date', 'type_'])[0]
+        }
+        # ref `module_name.report_id` as reference.
+        return self.env.ref('hms.expected_arrival_report').report_action(
+            self, data=data) 
 
     # def get_preview(self):
     #     data = {
