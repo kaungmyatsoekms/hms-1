@@ -2475,7 +2475,6 @@ class HMSCashierFolio(models.Model):
         return action
 
 
-
 # Cashier Transaction
 class HMSCashierFolioLine(models.Model):
     _name = "hms.cashier.folio.line"

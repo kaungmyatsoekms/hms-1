@@ -35,8 +35,8 @@ class HMSTransactionChargeLine(models.Model):
     reservation_line_id = fields.Many2one("hms.reservation.line",
                                           "Reservation",
                                           default=get_reservation_line_id)
-    rate = fields.Float("Rate", store=True)
-    total_amount = fields.Float("Total")
+    # rate = fields.Float("Rate", store=True)
+    # total_amount = fields.Float("Total")
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
@@ -54,19 +54,43 @@ class HMSTransactionChargeLine(models.Model):
                                   "Currency",
                                   required=True,
                                   track_visibility=True)
-    always_set_currency_id = fields.Many2one('res.currency', string='Foreign Currency',
+    always_set_currency_id = fields.Many2one(
+        'res.currency',
+        string='Foreign Currency',
         compute='_compute_always_set_currency_id',
-        help="Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one.")
+        help=
+        "Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one."
+    )
     # New Fields For Proforma
     price_unit = fields.Float(string='Unit Price', digits='Product Price')
-    amount_currency = fields.Monetary(string='Amount in Currency', store=True, copy=True,
-        help="The amount expressed in an optional other currency if it is a multi-currency entry.")
-    price_unit = fields.Float(string='Unit Price', digits='Product Price')
-    price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True,
-        currency_field='always_set_currency_id')
-    price_total = fields.Monetary(string='Total', store=True, readonly=True,
-        currency_field='always_set_currency_id')
-
+    tax_id = fields.Many2one('account.tax', string='Tax')
+    price_subtotal = fields.Monetary(string='Subtotal',
+                                     store=True,
+                                     readonly=True,
+                                     currency_field='always_set_currency_id')
+    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+                                      store=True,
+                                      readonly=True,
+                                      currency_field='always_set_currency_id')
+    price_total = fields.Monetary(string='Total',
+                                  store=True,
+                                  readonly=True,
+                                  currency_field='always_set_currency_id')
+    tax_amount = fields.Monetary(string='Tax',
+                                 store=True,
+                                 readonly=True,
+                                 currency_field='always_set_currency_id')
+    svc_amount = fields.Monetary(string='Service Charge',
+                                 store=True,
+                                 readonly=True,
+                                 currency_field='always_set_currency_id')
+    amount_currency = fields.Monetary(
+        string='Amount in Currency',
+        store=True,
+        copy=True,
+        help=
+        "The amount expressed in an optional other currency if it is a multi-currency entry."
+    )
 
     def name_get(self):
         result = []
@@ -75,13 +99,12 @@ class HMSTransactionChargeLine(models.Model):
                            "{} ({})".format(record.transaction_date,
                                             record.transaction_id.trans_name)))
         return result
-        
+
     # Compute Currency
     @api.depends('currency_id')
     def _compute_always_set_currency_id(self):
         for line in self:
             line.always_set_currency_id = line.currency_id or line.company_currency_id
-
 
     def name_get(self):
         result = []

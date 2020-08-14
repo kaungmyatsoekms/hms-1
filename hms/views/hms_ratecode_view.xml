@@ -30,12 +30,14 @@
                                 <field name="rate_code" default_focus="1" placeholder="Rate Code " style="width:50%%"/>
                                 <field name="ratecode_name" placeholder="Description" style="width:50%%"/>
                                 <field name="is_ratecode" invisible='1'/>
+                                <field name="pkg_group_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                             <group>
                                 <field name="start_date" style="width:50%%"/>
                                 <field name="end_date" style="width:50%%"/>
                                 <field name="ratecode_type" style="width:50%%"/>
-                                <field name="pkg_group_id" style="width:50%%" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                <filed name="currency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="scurrency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>
                         <notebook>
@@ -60,9 +62,9 @@
             <field name="name">hms.ratecode.details.form</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-                <form string="Rate Code Details" import="false"> 
+                <form string="Rate Code Details" import="false">
                     <sheet>
-                        <field name="property_id" force_save="1"/> 
+                        <field name="property_id" force_save="1"/>
                         <group>
                             <group>
                                 <field name="season_code"/>
@@ -85,22 +87,22 @@
                                     <field name="normal_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price1" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="2 Adult (+)"/>
+                                <label for="normal_price2" string="2 Adult (+)"/>
                                 <div class="o_address_format">
                                     <field name="normal_price2" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price2" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="3 Adult (+)"/>
+                                <label for="normal_price3" string="3 Adult (+)"/>
                                 <div class="o_address_format">
                                     <field name="normal_price3" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price3" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="4 Adult (+)"/>
+                                <label for="normal_price4" string="4 Adult (+)"/>
                                 <div class="o_address_format">
                                     <field name="normal_price4" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_price4" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
                                 </div>
-                                <label for="normal_price1" string="Extra"/>
+                                <label for="normal_extra" string="Extra (+1)"/>
                                 <div class="o_address_format">
                                     <field name="normal_extra" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="snormal_extra" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
@@ -136,7 +138,7 @@
                         </group>
                         <group>
                             <group string="Special">
-                            <label for="special_price1" string="1 Adult"/>
+                                <label for="special_price1" string="1 Adult"/>
                                 <div class="o_address_format">
                                     <field name="special_price1" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:50%%"/>
                                     <field name="sspecial_price1" widget='monetary' options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:50%%"/>
@@ -190,8 +192,10 @@
             <field name="name">hms.ratecode.details.tree</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-                <tree name="Rate Code Details" limit="10" import="false">
+                <h2>
                     <field name="property_id"/>
+                </h2>
+                <tree name="Rate Code Details" limit="10" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="season_code"/>
                     <field name="roomtype_ids" invisible='1'/>
@@ -242,7 +246,7 @@
                                             <b>Property: </b>
                                             <field name="property_id"/>
                                             <br></br>
-                                            <b>     Code: </b>
+                                            <b>Code: </b>
                                             <field name="season_code"/>
                                         </div>
                                         <!-- <t t-foreach="record.roomtype_id.raw_value" t-as="o">

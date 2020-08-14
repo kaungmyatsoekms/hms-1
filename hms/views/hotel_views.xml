@@ -1,216 +1,215 @@
 <odoo>
-  <data>
-
-    <!-- ========== Hotel Property Setup ========== -->
-    <!-- Property Setup Form View -->
-    <record id="property_view_form" model="ir.ui.view">
-      <field name="name">property.view.form</field>
-      <field name="model">hms.property</field>
-      <field name="priority" eval="1"/>
-      <field name="arch" type="xml">
-        <form string="Property" import="false">
-          <header>
-            <field name='is_property' invisible='1'/>
-            <field name='is_night_audit' invisible='1'/>
-            <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-            <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
-              <i class="fa fa-paint-brush"></i>
-            </button>
-          </header>
-          <sheet>
-            <field name="active" invisible="1"/>
-            <field name="is_manual" invisible="1"/>
-            <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-            <div class="oe_button_box" name="button_box">
-              <button name="action_building_count" type="object" class="oe_stat_button" icon="fa-building">
-                <field name="building_count" widget='statinfo'/>
-              </button>
-              <button name="action_room_count" type="object" class="oe_stat_button" icon="fa-trello">
-                <field name="room_count" widget='statinfo'/>
-              </button>
-              <button name="action_room_type_count" type="object" class="oe_stat_button" icon="fa-windows">
-                <field name="roomtype_count" widget='statinfo'/>
-              </button>
-            </div>
-            <separator colspan='1' string="Property"/>
-            <field name="logo" widget="image" class="oe_avatar"/>
-            <div class="oe_title">
-              <h3>
-                <field name="name" placeholder="Hotel Name" style="width:50%%"/>
-              </h3>
-              <h4>
-                <field name="code" placeholder="Hotel Code" style="width:50%%"/>
-              </h4>
-              <h4>
-                <field name="hotelgroup_id" placeholder="Hotel Group" style="width:50%%" options="{'no_quick_create': True}"/>
-              </h4>
-              <h4>
-                <field name="company_id" placeholder="Company" style="width:50%%" options="{'no_quick_create': True}"/>
-              </h4>
-            </div>
-            <newline/>
-            <group colspan="3" col="3">
-              <separator colspan='4' string="Property Information" />
-              <group>
-                <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
-                 <field name="scurrency_id" string="Second Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
-                <label for="address1" string="Address"/>
-                <div class="o_address_format">
-                  <field name="address1" placeholder="Street..." class="o_address_street"/>
-                  <field name="address2" placeholder="Street 2..." class="o_address_street"/>
-                  <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                  <field name="state_id" class="o_address_state" placeholder="State" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
-                  <field name="city_id" placeholder="City" class="o_address_city" options="{'no_quick_create':True, 'no_open':True}"/>
-                  <field name="zip" placeholder="ZIP" class="o_address_zip"/>
-                  <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create':True, 'no_open':True}"/>
-                </div>
-                <label for="image" string="Image"/>
-                <div>
-                  <field name="image"/>
-                </div>
-              </group>
-              <group>
-                <field name="timezone"/>
-                <field name="system_date"/>
-                <field name="ci_time" widget="float_time"/>
-                <field name="co_time" widget="float_time"/>
-                <field name="night_audit" widget="radio"/>
-                <field name="rating" widget="priority"/>
-              </group>
-              <group>
-                <field name="phone" placeholder="Eg. 09123456789....."/>
-                <field name="fax" placeholder="Eg. 01-123456"/>
-                <field name="email" placeholder="example@company.com....."/>
-                <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
-                <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
-                <label for="availability" string="Availability"/>
-                <div class="o_address_format">
-                  <field name="availability" style="width:33%%"/>
-                  <field name="high_occupancy" style="width:33.5%%"/>
-                  <field name="low_occupancy" style="width:33.5%%"/>
-                </div>
-                <label for="roomqty" string="Total / Dummy Rooms"/>
-                <div class="o_address_format">
-                  <field name="roomqty" style="width:16.5%%"/>
-                  <!-- <label for="dummy_rooms" string=" " style="width:0.01em"/> -->
-                  <field name="dummy_rooms" style="width:16.5%%" force_save="1"/>
-                </div>
-              </group>
-              <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
-              <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
-              <field name="creditlimit_ids" context="{'default_property_id' : id}" invisible="1"/>
-              <newline/>
-            </group>
-            <notebook colspan="5">
-              <page string='Contact Information' autofocus="autofocus">
-                <field name="contact_ids" context="{'default_company_type': 'preson', 'default_is_from_hms': True }" mode="kanban"/>
-                <!-- <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/> -->
-              </page>
-              <page string='Buildings (or) Zone'>
-                <div>
-                  <field name="building_ids">
-                    <tree string="Building" limit="10">
-                      <field name="sequence" widget="handle"/>
-                      <field name="building_name"/>
-                      <field name="building_type"/>
-                      <field name="location_ids" widget="many2many_tags"/>
-                      <field name="building_location" optional="hide"/>
-                    </tree>
-                  </field>
-                </div>
-              </page>
-              <page string='Room Type'>
-                <h2> Room Type</h2>
-                <field name="roomtype_ids" context="{'property_id':active_id}">
-                  <tree string="Room Type List" limit='10' >
-                    <field name="sequence" widget="handle"/>
-                    <field name="name"/>
-                    <field name="fix_type"/>
-                    <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
-                    <field name="totalroom"/>
-                  </tree>
-                </field>
-              </page>
-              <page string='Room Number'>
-                <group>
-                  <div>
-                    <field name="propertyroom_ids" context="{'default_property_id' : id}">
-                      <tree limit="10" default_order="room_no">
-                        <field name="is_hfo" invisible="1"/>
-                        <field name="is_propertyroom" invisible="1"/>
-                        <field name="sequence" widget="handle"/>
-                        <field name="room_no" optional="show"/>
-                        <field name="building_id" optional="show"/>
-                        <field name="roomtype_id" optional="show"/>
-                        <field name="bedtype_id" optional="show"/>
-                        <field name="roomlocation_id" optional="show"/>
-                        <field name="room_bedqty" optional="show"/>
-                        <field name="room_extension" optional="show"/>
-                        <field name="roomview_ids" optional="hide"/>
-                        <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': ['|',('is_hfo', '=', True),('is_propertyroom', '=', False)]}">
-                          <i class="fa fa-paint-brush"></i>
+    <data>
+        <!-- ========== Hotel Property Setup ========== -->
+        <!-- Property Setup Form View -->
+        <record id="property_view_form" model="ir.ui.view">
+            <field name="name">property.view.form</field>
+            <field name="model">hms.property</field>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <form string="Property" import="false">
+                    <header>
+                        <field name='is_property' invisible='1'/>
+                        <field name='is_night_audit' invisible='1'/>
+                        <button string="Transaction" name="action_transaction" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
                         </button>
-                      </tree>
-                    </field>
-                  </div>
-                </group>
-              </page>
-              <page string='Market Segment'>
-                <h2>Market Segment</h2>
-                <field name="market_ids">
-                  <tree string="Market Segment" limit='10' >
-                    <field name="sequence" widget="handle"/>
-                    <field name="market_code" />
-                    <field name="market_name" />
-                    <field name="group_id"/>
-                    <field name="options"/>
-                  </tree>
-                </field>
-              </page>
-              <page string='Bank Information'>
-                <!-- <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" context="{'default_property_id' : id}" mode="kanban"/> -->
-                <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
-              </page>
-              <page string='Hotel License'>
-                <group>
-                  <group>
-                    <field name="roomqty" style="width:50%%"/>
-                    <field name="property_license" style="width:50%%"/>
-                  </group>
-                </group>
-              </page>
-              <page string="Configuration">
-                <group>
-                  <group string="Fixed Code Integration">
-                    <field name="property_code_len"/>
-                    <field name="building_code_len"/>
-                    <field name="location_code_len"/>
-                    <field name="roomtype_code_len"/>
-                  </group>
-                  <!-- <group string="Define Lease Terms">
+                        <button string="Package" name="action_newpackage" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Package Group" name="action_package_group" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Weekends" name="action_weekend" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Special Days" name="action_specialday" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Rate Code" name="action_newratecode" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Allotment" name="action_allotment" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Credit Limit" name="action_creditlimit" type="object" context="{'default_property_id' : id}" class="btn btn-primary" attrs="{'invisible': [('is_property', '=', False)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                    </header>
+                    <sheet>
+                        <field name="active" invisible="1"/>
+                        <field name="is_manual" invisible="1"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_building_count" type="object" class="oe_stat_button" icon="fa-building">
+                                <field name="building_count" widget='statinfo'/>
+                            </button>
+                            <button name="action_room_count" type="object" class="oe_stat_button" icon="fa-trello">
+                                <field name="room_count" widget='statinfo'/>
+                            </button>
+                            <button name="action_room_type_count" type="object" class="oe_stat_button" icon="fa-windows">
+                                <field name="roomtype_count" widget='statinfo'/>
+                            </button>
+                        </div>
+                        <separator colspan='1' string="Property"/>
+                        <field name="logo" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <h3>
+                                <field name="name" placeholder="Hotel Name" style="width:50%%"/>
+                            </h3>
+                            <h4>
+                                <field name="code" style="width:50%%"/>
+                            </h4>
+                            <h4>
+                                <field name="hotelgroup_id" style="width:50%%" options="{'no_quick_create': True}"/>
+                            </h4>
+                            <h4>
+                                <field name="company_id" style="width:50%%" options="{'no_quick_create': True}"/>
+                            </h4>
+                        </div>
+                        <newline/>
+                        <group colspan="3" col="3">
+                            <separator colspan='4' string="Property Information" />
+                            <group>
+                                <field name="currency_id" string="Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
+                                <field name="scurrency_id" string="Second Currency" required="1" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" />
+                                <label for="address1" string="Address"/>
+                                <div class="o_address_format">
+                                    <field name="address1" placeholder="Street..." class="o_address_street"/>
+                                    <field name="address2" placeholder="Street 2..." class="o_address_street"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="city_id" placeholder="City" class="o_address_city" options="{'no_quick_create':True, 'no_open':True}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create':True, 'no_open':True}"/>
+                                </div>
+                                <label for="image" string="Image"/>
+                                <div>
+                                    <field name="image"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="timezone"/>
+                                <field name="system_date"/>
+                                <field name="ci_time" widget="float_time"/>
+                                <field name="co_time" widget="float_time"/>
+                                <field name="night_audit" widget="radio"/>
+                                <field name="rating" widget="priority"/>
+                            </group>
+                            <group>
+                                <field name="phone" placeholder="Eg. 09123456789....."/>
+                                <field name="fax" placeholder="Eg. 01-123456"/>
+                                <field name="email" placeholder="example@company.com....."/>
+                                <field name="website" widget="url" placeholder="Eg. www.company.com....."/>
+                                <field name="sociallink" widget="url" placeholder="Eg. Facebook Link ....."/>
+                                <label for="availability" string="Availability"/>
+                                <div class="o_address_format">
+                                    <field name="availability" style="width:33%%"/>
+                                    <field name="high_occupancy" style="width:33.5%%"/>
+                                    <field name="low_occupancy" style="width:33.5%%"/>
+                                </div>
+                                <label for="roomqty" string="Total / Dummy Rooms"/>
+                                <div class="o_address_format">
+                                    <field name="roomqty" style="width:16.5%%"/>
+                                    <!-- <label for="dummy_rooms" string=" " style="width:0.01em"/> -->
+                                    <field name="dummy_rooms" style="width:16.5%%" force_save="1"/>
+                                </div>
+                            </group>
+                            <field name="package_ids" context="{'default_property_id' : id}" invisible="1"/>
+                            <field name="transaction_ids" context="{'default_property_id' : id}" invisible="1"/>
+                            <field name="creditlimit_ids" context="{'default_property_id' : id}" invisible="1"/>
+                            <newline/>
+                        </group>
+                        <notebook colspan="5">
+                            <page string='Contact Information' autofocus="autofocus">
+                                <field name="contact_ids" context="{'default_company_type': 'preson', 'default_is_from_hms': True }" mode="kanban"/>
+                                <!-- <field name="contact_ids" context="{'form_view_ref':'hms.view_partner_contact_form', 'default_company_type' : 'person'}" mode="kanban"/> -->
+                            </page>
+                            <page string='Buildings (or) Zone'>
+                                <div>
+                                    <field name="building_ids">
+                                        <tree string="Building" limit="10">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="building_name"/>
+                                            <field name="building_type"/>
+                                            <field name="location_ids" widget="many2many_tags"/>
+                                            <field name="building_location" optional="hide"/>
+                                        </tree>
+                                    </field>
+                                </div>
+                            </page>
+                            <page string='Room Type'>
+                                <h2> Room Type</h2>
+                                <field name="roomtype_ids" context="{'property_id':active_id}">
+                                    <tree string="Room Type List" limit='10' >
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="fix_type"/>
+                                        <field name="bed_type" attrs="{'invisible': [('fix_type','=', True)]}" widget="many2many_tags"/>
+                                        <field name="totalroom"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string='Room Number'>
+                                <group>
+                                    <div>
+                                        <field name="propertyroom_ids" context="{'default_property_id' : id}">
+                                            <tree limit="10" default_order="room_no">
+                                                <field name="is_hfo" invisible="1"/>
+                                                <field name="is_propertyroom" invisible="1"/>
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="room_no" optional="show"/>
+                                                <field name="building_id" optional="show"/>
+                                                <field name="roomtype_id" optional="show"/>
+                                                <field name="bedtype_id" optional="show"/>
+                                                <field name="roomlocation_id" optional="show"/>
+                                                <field name="room_bedqty" optional="show"/>
+                                                <field name="room_extension" optional="show"/>
+                                                <field name="roomview_ids" optional="hide"/>
+                                                <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
+                                                    <i class="fa fa-paint-brush"></i>
+                                                </button>
+                                            </tree>
+                                        </field>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string='Market Segment'>
+                                <h2>Market Segment</h2>
+                                <field name="market_ids">
+                                    <tree string="Market Segment" limit='10' >
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="market_code" />
+                                        <field name="market_name" />
+                                        <field name="group_id"/>
+                                        <field name="options"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string='Bank Information'>
+                                <!-- <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" context="{'default_property_id' : id}" mode="kanban"/> -->
+                                <field name="bankinfo_ids" attrs="{'invisible': [('is_property', '=', False)]}" mode="kanban"/>
+                            </page>
+                            <page string='Hotel License'>
+                                <group>
+                                    <group>
+                                        <field name="roomqty" style="width:50%%"/>
+                                        <field name="property_license" style="width:50%%"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Configuration">
+                                <group>
+                                    <group string="Fixed Code Integration">
+                                        <field name="property_code_len"/>
+                                        <field name="building_code_len"/>
+                                        <field name="location_code_len"/>
+                                        <field name="roomtype_code_len"/>
+                                    </group>
+                                    <!-- <group string="Define Lease Terms">
                     <field name="new_lease_term" widget="selection"/>
                     <field name="extend_lease_term" widget="selection"/>
                     <field name="terminate_days"/>
@@ -229,83 +228,119 @@
                    <group string="API Information">
                     <field name="api_integration" string="MIMS Integration"/>
                   </group> -->
-                </group>
-                <group string="Service Charges / Taxes">
-                  <div class="row mt16 o_settings_container">
-                    <!-- Service Charges-->
-                    <div class="col-xs-12 col-lg-4 o_setting_box" >
-                      <div class="o_setting_left_pane">
-                          <field name="enable_service_charge"/>
-                      </div>
-                      <div class="o_setting_right_pane">
-                          <label for="enable_service_charge"/>
-                          <div class="text-muted">
-                              Allow service charges on orders
-                          </div>
-                          <div class="content-group " attrs="{'invisible':[('enable_service_charge','=',False)]}">
-                              <div class="row">
-                                  <label for="service_charge_type" class="col-lg-3 o_light_label"/>
-                                  <field name="service_charge_type" widget="radio" options="{'horizontal': true}"
-                                          class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                              </div>
-                              <div class="row mt16">
-                                  <label for="service_product_id" class="col-lg-3 o_light_label"/>
-                                  <field name="service_product_id"
-                                          attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                              </div>
-                              <div class="row">
-                                  <label for="service_charge" class="col-lg-3 o_light_label"/>
-                                  <field name="service_charge"/>
-                              </div>
-                          </div>
-                      </div>
-                    </div>
-                    <!-- Taxes-->
-                    <div class="col-12 col-lg-4 o_setting_box" title="This tax is applied to any new product created in the catalog.">
-                        <div class="o_setting_right_pane">
-                            <div>
-                                <label string="Default Sales Tax" for="sale_tax_id"/>
-                                <div class="text-muted">
-                                    Default sales tax for HMS System
-                                </div>
-                                <div class="content-group mt16">
-                                    <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', id)]"/>
-                                </div>
-                            </div>
-                            <div class="mt8">
-                                <button name="%(account.action_tax_form)d" icon="fa-arrow-right" type="action" string="Taxes" class="btn-link"/>
-                            </div>
+                                </group>
+                                <group string="Service Charges">
+                                    <div class="row mt16 o_settings_container">
+                                        <!-- Service Charges-->
+                                        <div class="col-xs-12 col-lg-6 o_setting_box">
+                                            <div class="o_setting_left_pane">
+                                                <field name="enable_service_charge"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="enable_service_charge"/>
+                                                <div class="text-muted">
+                                                    Allow service charges on orders
+                                                </div>
+                                                <div class="content-group " attrs="{'invisible':[('enable_service_charge','=',False)]}">
+                                                    <div class="row">
+                                                        <label for="svc_inc_exc" class="col-lg-3 o_light_label"/>
+                                                        <field name="is_include" invisible="1"/>
+                                                        <field name="svc_inc_exc" widget="radio" options="{'horizontal': true}" class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="service_charge_type" class="col-lg-3 o_light_label"/>
+                                                        <field name="service_charge_type" widget="radio" options="{'horizontal': true}" class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
+                                                    </div>
+                                                    <div class="row mt16">
+                                                        <label for="service_product_id" class="col-lg-3 o_light_label"/>
+                                                        <field name="service_product_id" attrs="{'required':[('enable_service_charge','=',True)]}"/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="service_charge" class="col-lg-3 o_light_label"/>
+                                                        <field name="service_charge"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-lg-6 o_setting_box" attrs="{'invisible':[('enable_service_charge','=',False)]}">
+                                            <div class="o_setting_left_pane">
+                                                <field name="svc_include_tax"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="svc_include_tax"/>
+                                                <div class="text-muted">
+                                                    Service charge will be taxable if enabled
+                                                </div>
+                                            </div>
+                                            <div class="o_setting_left_pane">
+                                                <field name="svc_as_line"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="svc_as_line"/>
+                                                <div class="text-muted">
+                                                    Service charge will be added as product line and not in total
+                                                </div>
+                                            </div>
+                                            <div class="o_setting_left_pane">
+                                                <field name="disable_popup"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="disable_popup"/>
+                                                <div class="text-muted">
+                                                    Service Charges are not mentioned on Bill if enabled
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </group>
+                                <group string="Taxes">
+                                    <div class="row mt16 o_settings_container">
+                                        <!-- Taxes-->
+                                        <div class="col-12 col-lg-6 o_setting_box" title="This tax is applied to any new product created in the catalog.">
+                                            <div class="o_setting_right_pane">
+                                                <div>
+                                                    <label string="Default Sales Tax" for="sale_tax_id"/>
+                                                    <div class="text-muted">
+                                                            Default sales tax for HMS System
+                                                    </div>
+                                                    <div class="content-group mt16">
+                                                        <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', id)]"/>
+                                                    </div>
+                                                </div>
+                                                <div class="mt8">
+                                                    <button name="%(account.action_tax_form)d" icon="fa-arrow-right" type="action" string="Taxes" class="btn-link"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Tax Included or Excluded-->
+                                        <div class="col-12 col-lg-6 o_setting_box">
+                                            <div class="o_setting_left_pane">
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="show_line_subtotals_tax_selection"/>
+                                                <div class="text-muted">
+                                                    Line subtotals tax display
+                                                </div>
+                                                <div class="mt16">
+                                                    <field name="show_line_subtotals_tax_selection" class="o_light_label" widget="radio"/>
+                                                    <field name="group_show_line_subtotals_tax_excluded" invisible="1"/>
+                                                    <field name="group_show_line_subtotals_tax_included" invisible="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string='Internal Notes'>
+                                <field name="comments" placeholder="Internal notes..."/>
+                            </page>
+                        </notebook>
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="message_ids" widget="mail_thread"/>
                         </div>
-                    </div>
-                    <!-- Tax Included or Excluded-->
-                      <div class="col-12 col-lg-4 o_setting_box">
-                        <div class="o_setting_left_pane">
-                        </div>
-                        <div class="o_setting_right_pane">
-                            <label for="show_line_subtotals_tax_selection"/>
-                            <div class="text-muted">
-                                Line subtotals tax display
-                            </div>
-                            <div class="mt16">
-                                <field name="show_line_subtotals_tax_selection" class="o_light_label" widget="radio"/>
-                                <field name="group_show_line_subtotals_tax_excluded" invisible="1"/>
-                                <field name="group_show_line_subtotals_tax_included" invisible="1"/>
-                            </div>
-                        </div>
-                      </div>
-                  </div>
-                  </group>
-              </page>
-              <page string='Internal Notes'>
-                <field name="comments" placeholder="Internal notes..."/>
-              </page>
-            </notebook>
-            <div class="oe_chatter">
-              <field name="message_follower_ids" widget="mail_followers"/>
-              <field name="message_ids" widget="mail_thread"/>
-            </div>
-          </sheet>
-          <!-- <footer>
+                    </sheet>
+                    <!-- <footer>
             <div class="oe_chatter">
               <field name="message_follower_ids" widget="mail_followers"/>
               <field name="message_ids" widget="mail_thread"/>
@@ -441,48 +476,6 @@
                 </kanban>
             </field>
         </record>
-
-        <!-- <record id="property_view_kanban" model="ir.ui.view">
-      <field name="name">property.view.kanban</field>
-      <field name="model">hms.property</field>
-      <field name="arch" type="xml">
-        <kanban>
-          <field name="id"/>
-          <field name="logo"/>
-          <h1><field name="hotelgroup_id"/></h1>
-          <h2><field name="name"/></h2>
-          <h3><field name="code"/></h3>
-          <field name="city_id"/>
-          <field name="country_id"/>
-          <field name="phone"/>
-          <field name="email"/>
-          <field name="website"/>
-          <field name="rating"/>
-          <templates>
-            <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div class="o_kanban_image">
-                  <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
-                  
-                </div>
-                <div class="oe_kanban_details">
-                  <div><field name="name"/></div>
-                  <div><field name="hotelgroup_id"/></div>
-                  <div>
-                    <field t-if="record.city_id.raw_value" name="city_id"/>
-                    <field t-if="record.country_id.raw_value" name="country_id"/>
-                  </div>
-                  <div t-if="record.phone.raw_value"><field name="phone"/></div>
-                  <div t-if="record.email.raw_value"><field name="email"/></div>
-                  <div t-if="record.website.raw_value"><field name="website"/></div>
-                  <div t-if="record.rating.raw_value"><field name="rating" widget='priority'/></div>
-                </div>
-              </div>
-            </t>
-          </templates>
-        </kanban>
-      </field>
-    </record> -->
 
         <!-- Search View of Property -->
         <record model="ir.ui.view" id="view_pms_properites_filter">
@@ -1423,6 +1416,7 @@
                                 <field name="trans_name" placeholder="Eg. Room Charge ....."/>
                                 <field name="trans_unitprice"/>
                                 <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
+                                <field name="product_id"/>
                                 <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_internal" widget="boolean_toggle"/>

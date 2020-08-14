@@ -40,7 +40,7 @@
                                 <field name="rate_attribute" widget="radio" class="oe_edit_only"/>
                                 <field name="reservation_fields_id" options="{'no_create_edit': True,'no_quick_create':True,'no_create':True,'no_open':True}"/>
                                 <field name="calculation_method"/>
-                                <label for="normal_price1" string="Price"/>
+                                <label for="fix_price" string="Price"/>
                                 <div class="o_address_format">
                                     <field name="fix_price" widget='monetary' attrs="{'invisible': [('reservation_fields_id', '!=', False)]}" options="{'currency_field': 'currency_id', 'field_digits': True}" style="width:45%%"/>
                                     <field name="sfix_price" widget='monetary' attrs="{'invisible': [('reservation_fields_id', '!=', False)]}" options="{'currency_field': 'scurrency_id', 'field_digits': True}" style="width:45%%"/>
