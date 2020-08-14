@@ -264,21 +264,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                     </header>
-                    <sheet>
-                        <field name="active" invisible="1"/>
-                        <field name="is_manual" invisible="1"/>
-                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                        <div class="oe_button_box" name="button_box">
-                            <button name="action_building_count" type="object" class="oe_stat_button" icon="fa-building">
-                                <field name="building_count" widget='statinfo'/>
-                            </button>
-                            <button name="action_room_count" type="object" class="oe_stat_button" icon="fa-trello">
-                                <field name="room_count" widget='statinfo'/>
-                            </button>
-                            <button name="action_room_type_count" type="object" class="oe_stat_button" icon="fa-windows">
-                                <field name="roomtype_count" widget='statinfo'/>
-                            </button>
-                        </div>
+
                         <separator colspan='1' string="Property"/>
                         <field name="logo" widget="image" class="oe_avatar"/>
                         <div class="oe_title">
