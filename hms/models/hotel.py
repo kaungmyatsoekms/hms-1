@@ -117,7 +117,7 @@ class Property(models.Model):
     company_id = fields.Many2one(
         'res.company',
         string='Hotel Company',
-        #  readonly=True,
+        readonly=True,
         help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
@@ -1233,72 +1233,49 @@ class Property(models.Model):
 
         if res.name:
             company_obj = self.env['res.company']
-            crm = self.env['hms.company.category'].search([('code', '=', 'HTL')
-                                                           ]).id
+            crm = self.env['hms.company.category'].search([
+                ('code', '=', 'HTL')
+            ]).id
             company_obj = self.env['res.company'].create({
-                'name':
-                res.name,
-                'street':
-                res.address1,
-                'street2':
-                res.address2,
-                'zip':
-                res.zip,
-                'city':
-                res.city_id.id,
-                'state_id':
-                res.state_id.id,
-                'country_id':
-                res.country_id.id,
-                'email':
-                res.email,
-                'phone':
-                res.phone,
-                'website':
-                res.website,
-                'currency_id':
-                res.currency_id.id,
-                'scurrency_id':
-                res.scurrency_id.id,
-                'company_channel_type':
-                crm,
+                'name': res.name,
+                'street': res.address1,
+                'street2': res.address2,
+                'zip': res.zip,
+                'city': res.city_id.id,
+                'state_id': res.state_id.id,
+                'country_id': res.country_id.id,
+                'email': res.email,
+                'phone': res.phone,
+                'website': res.website,
+                'currency_id': res.currency_id.id,
+                'scurrency_id': res.scurrency_id.id,
+                'company_channel_type': crm,
             })
             res.company_id = company_obj.id
 
-            pos_admin = self.env['ir.model.data'].xmlid_to_res_id(
-                'point_of_sale.group_pos_manager')
-            sale_admin = self.env['ir.model.data'].xmlid_to_res_id(
-                'sales_team.group_sale_manager')
-            contact = self.env['ir.model.data'].xmlid_to_res_id(
-                'base.group_partner_manager')
-            setting = self.env['ir.model.data'].xmlid_to_res_id(
-                'base.group_system')
-            internal_user = self.env['ir.model.data'].xmlid_to_res_id(
-                'base.group_user')
-            property = self.env['ir.model.data'].xmlid_to_res_id(
-                'hms.group_property_manager')
-            reservation = self.env['ir.model.data'].xmlid_to_res_id(
-                'hms.group_reservation_manager')
+            pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
+            sale_admin = self.env['ir.model.data'].xmlid_to_res_id('sales_team.group_sale_manager')
+            contact = self.env['ir.model.data'].xmlid_to_res_id('base.group_partner_manager')
+            setting = self.env['ir.model.data'].xmlid_to_res_id('base.group_system')
+            internal_user = self.env['ir.model.data'].xmlid_to_res_id('base.group_user')
+            property = self.env['ir.model.data'].xmlid_to_res_id('hms.group_property_manager')
+            reservation = self.env['ir.model.data'].xmlid_to_res_id('hms.group_reservation_manager')
 
             user_obj = self.env['res.users'].create({
-                'name':
-                res.code + " Administrator",
-                'login':
-                res.code.lower() + "admin",
-                'company_ids': [(4, company_obj.id),
-                                (4, res.hotelgroup_id.id)],
-                'company_id':
-                company_obj.id,
+                'name': res.code+" Administrator",
+                'login': res.code.lower()+"admin",
+                'company_ids': [(4, company_obj.id), (4,res.hotelgroup_id.id)],
+                'company_id': company_obj.id,
                 'property_id': [(4, res.id)],
-                'groups_id': [(4, property), (4, reservation),
-                              (4, internal_user), (4, setting), (4, contact),
-                              (4, pos_admin), (4, sale_admin)]
+                'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
+                (4, pos_admin), (4, sale_admin)]
             })
 
         if not res.show_line_subtotals_tax_selection:
             raise UserError(
-                _("Please choose Line Subtotal Tax Display in Configuration" +
-                  "\n" + "(Tax-Excluded or Tax-Included)"))
+                    _("Please choose Line Subtotal Tax Display in Configuration" + "\n"+
+                    "(Tax-Excluded or Tax-Included)"
+                      ))
 
         return res
 

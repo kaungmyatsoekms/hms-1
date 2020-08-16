@@ -392,6 +392,7 @@
                     <field name="system_date"/>
                     <field name="is_property"/>
                     <field name="is_manual"/>
+                    <field name="is_night_audit"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_global_click">
@@ -465,7 +466,7 @@
                                     <div t-if="record.rating.raw_value">
                                         <field name="rating" widget='priority'/>
                                     </div>
-                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|',('is_manual', '=', False),('is_property', '=', False)]}">
+                                    <button string="Night Audit" confirm="Do you want to run Night Audit Now?" type="object" name="action_night_audit" class="btn btn-primary" attrs="{'invisible': ['|','|',('is_manual', '=', False),('is_property', '=', False),('is_night_audit', '=', True)]}">
                                         <i class="fa fa-moon-o"></i>Night Audit
                                     </button>
                                 </div>
