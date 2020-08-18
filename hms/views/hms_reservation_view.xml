@@ -494,6 +494,7 @@
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
+                        <field name="sale_order_id" invisible="1"/>
                         <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -648,31 +649,6 @@
                                     </tree>
                                 </field>
                                 <group class="oe_subtotal_footer oe_right" colspan="2">
-                                    <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                    <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                                        <label for="amount_total"/>
-                                    </div>
-                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                </group>
-                            </page>
-                            <page string="Order Lines">
-                                <field name="sale_order_line_ids">
-                                    <tree string="Sales Order Lines" editable="bottom">
-                                        <field name="sequence" widget="handle"/>
-                                        <field name="company_id" invisible="1"/>
-                                        <field name="product_id" context="{'company_id': parent.company_id, 'default_description_sale': name}" domain="[('sale_ok', '=', True)]" widget="product_configurator"/>
-                                        <field name="name" widget="section_and_note_text" optional="show"/>
-                                        <field name="product_uom_qty"/>
-                                        <field name="price_unit"/>
-                                        <field name="tax_id" widget="many2many_tags" options="{'no_create': True}" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" optional="show"/>
-                                        <field name="price_tax" widget="monetary"/>
-                                        <field name="svc_amount"/>
-                                        <field name="price_subtotal" widget="monetary"/>
-                                        <field name="price_total" widget="monetary"/>
-                                    </tree>
-                                </field>
-                                <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
                                     <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
                                     <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
                                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
