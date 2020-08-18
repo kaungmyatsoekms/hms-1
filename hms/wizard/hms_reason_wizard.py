@@ -171,7 +171,7 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'arrive_reason_id':
                     d.arrive_reason_id,
                 })
-                d.sale_order_id.write({'state': 'cancel'})
+                d.sale_order_id.action_cancel()
         # Update Status & Flag for Group
         reservations.write({
             'reason_id': self.reason_id,
@@ -235,7 +235,7 @@ class HMSCancelReasonLineWizard(models.TransientModel):
             })
         reservation_lines.copy_cancel_record()
         # Update Sale Order State
-        reservation_lines.sale_order_id.write({'state': 'cancel'})
+        reservation_lines.sale_order_id.action_cancel()
         # Check All Reservation lines are same state, update main group to state
         rec = 0
         confirm = 0

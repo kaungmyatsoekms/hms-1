@@ -54,7 +54,7 @@ class HMSRsvnConfirmWizard(models.TransientModel):
                     'reservation_status': self.reservation_status,
                     'state': status,
                 })
-                d.sale_order_id.write({'state': 'sale'})
+                d.sale_order_id.action_confirm()
 
         # Update Reservation
         reservations.write({
@@ -118,7 +118,8 @@ class HMSRsvnConfirmLineWizard(models.TransientModel):
                     'state': status,
                 })
         # Update Sale Order State
-        reservation_lines.sale_order_id.write({'state': 'sale'})
+        # reservation_lines.sale_order_id.write({'state': 'sale'})
+        reservation_lines.sale_order_id.action_confirm()
 
         # Check and update confirm state to main reservation
         rec = 0

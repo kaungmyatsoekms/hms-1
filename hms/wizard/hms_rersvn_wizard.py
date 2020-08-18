@@ -37,11 +37,12 @@ class HMSRersvnWizard(models.TransientModel):
         if (self.reservation_type.rsvn_name == 'Confirmed'):
             state = 'confirm'
             for rec in reservations.reservation_line_ids:
-                rec.sale_order_id.write({'state': 'sale'})
+                rec.sale_order_id.action_draft()
+                rec.sale_order_id.action_confirm()
         else:
             state = 'reservation'
             for rec in reservations.reservation_line_ids:
-                rec.sale_order_id.write({'state': 'draft'})
+                rec.sale_order_id.action_draft()
         for d in reservations.reservation_line_ids:
             if d.state == 'cancel':
                 #Update Availability
@@ -107,10 +108,11 @@ class HMSRersvnLineWizard(models.TransientModel):
         state = ''
         if (self.reservation_type.rsvn_name == 'Confirmed'):
             state = 'confirm'
-            reservation_lines.sale_order_id.write({'state': 'sale'})
+            reservation_lines.sale_order_id.action_draft()
+            reservation_lines.sale_order_id.action_confirm()
         else:
             state = 'reservation'
-            reservation_lines.sale_order_id.write({'state': 'draft'})
+            reservation_lines.sale_order_id.action_draft()
 
         for d in reservation_lines:
             if d.state == 'cancel':
