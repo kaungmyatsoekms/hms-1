@@ -860,9 +860,9 @@ class HMSExcelExtended(models.Model):
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
+    reservation_line_id = fields.Many2one('hms.reservation.line')
     property_id = fields.Many2one('hms.property',
-                                  string="Property",
-                                  readonly=True)
+                                  string="Property")
     group_id = fields.Many2one('res.partner',
                                string="Group",
                                domain="[('is_group','=',True)]",
@@ -870,6 +870,73 @@ class SaleOrder(models.Model):
     service_charge = fields.Monetary(string="Service Charges",
                                      store=True,
                                      readonly=True)
+    @api.model
+    def create(self, vals):
+        if vals.get('name', _('New')) == _('New'):
+            # seq_date = None
+            # if 'date_order' in vals:
+            #     seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
+            # if 'company_id' in vals:
+            #     vals['name'] = self.env['ir.sequence'].with_context(force_company=vals['company_id']).next_by_code(
+            #         'sale.order', sequence_date=seq_date) or _('New')
+            # else:
+            #     vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
+
+            property_id = vals['property_id']
+            property_id = self.env['hms.property'].search([('id', '=', property_id)])
+
+            if self.env.user.company_id.soprofile_id_format:
+                format_ids = self.env['hms.format.detail'].search(
+                    [('format_id', '=',
+                      self.env.user.company_id.soprofile_id_format.id)],
+                    order='position_order asc')
+            val = []
+            for ft in format_ids:
+                if ft.value_type == 'dynamic':
+                    if property_id.code and ft.dynamic_value == 'property code':
+                        val.append(property_id.code)
+                if ft.value_type == 'fix':
+                    val.append(ft.fix_value)
+                if ft.value_type == 'digit':
+                    sequent_ids = self.env['ir.sequence'].search([
+                        ('code', '=',
+                         self.env.user.company_id.soprofile_id_format.code)
+                    ])
+                    sequent_ids.write({'padding': ft.digit_value})
+                if ft.value_type == 'datetime':
+                    mon = yrs = ''
+                    if ft.datetime_value == 'MM':
+                        mon = datetime.today().month
+                        val.append(mon)
+                    if ft.datetime_value == 'MMM':
+                        mon = datetime.today().strftime('%b')
+                        val.append(mon)
+                    if ft.datetime_value == 'YY':
+                        yrs = datetime.today().strftime("%y")
+                        val.append(yrs)
+                    if ft.datetime_value == 'YYYY':
+                        yrs = datetime.today().strftime("%Y")
+                        val.append(yrs)
+            p_no_pre = ''
+            if len(val) > 0:
+                for l in range(len(val)):
+                    p_no_pre += str(val[l])
+            p_no = ''
+            p_no += self.env['ir.sequence'].\
+                    next_by_code(property_id.code + property_id.soprofile_id_format.code) or 'New'
+            pf_no = p_no_pre + p_no
+
+            vals['name'] = pf_no
+
+        # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
+        if any(f not in vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
+            partner = self.env['res.partner'].browse(vals.get('partner_id'))
+            addr = partner.address_get(['delivery', 'invoice'])
+            vals['partner_invoice_id'] = vals.setdefault('partner_invoice_id', addr['invoice'])
+            vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
+            vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
+        result = super(SaleOrder, self).create(vals)
+        return result
 
 
 class SaleOrderLine(models.Model):
@@ -921,3 +988,112 @@ class SaleOrderLine(models.Model):
         #     'price_subtotal':
         #     taxes['total_excluded'],
         # })
+
+
+class AccountMove(models.Model):
+    _inherit = "account.move"
+    _description = "Journal Entries"
+
+    property_id = fields.Many2one('hms.property', "Property")
+    invoice_sequence_number_next = fields.Char(string='Next Number')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # OVERRIDE
+        if any('state' in vals and vals.get('state') == 'posted' for vals in vals_list):
+            raise UserError(_('You cannot create a move already in the posted state. Please create a draft move and post it after.'))
+
+        for v in vals_list:
+            property_id = v['property_id']
+            property_id = self.env['hms.property'].search([('id', '=', property_id)])
+
+            if self.env.user.company_id.ivprofile_id_format:
+                format_ids = self.env['hms.format.detail'].search(
+                    [('format_id', '=',
+                        self.env.user.company_id.ivprofile_id_format.id)],
+                    order='position_order asc')
+            val = []
+            for ft in format_ids:
+                if ft.value_type == 'dynamic':
+                    if property_id.code and ft.dynamic_value == 'property code':
+                        val.append(property_id.code)
+                if ft.value_type == 'fix':
+                    val.append(ft.fix_value)
+                if ft.value_type == 'digit':
+                    sequent_ids = self.env['ir.sequence'].search([
+                        ('code', '=',
+                            self.env.user.company_id.ivprofile_id_format.code)
+                    ])
+                    sequent_ids.write({'padding': ft.digit_value})
+                if ft.value_type == 'datetime':
+                    mon = yrs = ''
+                    if ft.datetime_value == 'MM':
+                        mon = datetime.today().month
+                        val.append(mon)
+                    if ft.datetime_value == 'MMM':
+                        mon = datetime.today().strftime('%b')
+                        val.append(mon)
+                    if ft.datetime_value == 'YY':
+                        yrs = datetime.today().strftime("%y")
+                        val.append(yrs)
+                    if ft.datetime_value == 'YYYY':
+                        yrs = datetime.today().strftime("%Y")
+                        val.append(yrs)
+            p_no_pre = ''
+            if len(val) > 0:
+                for l in range(len(val)):
+                    p_no_pre += str(val[l])
+            p_no = ''
+            p_no += self.env['ir.sequence'].\
+                    next_by_code(property_id.code + property_id.ivprofile_id_format.code) or 'New'
+            pf_no = p_no_pre + p_no
+
+            v['name'] = pf_no
+
+        vals_list = self._move_autocomplete_invoice_lines_create(vals_list)
+        return super(AccountMove, self).create(vals_list)
+
+    @api.depends('state', 'journal_id', 'date', 'invoice_date')
+    def _compute_invoice_sequence_number_next(self):
+        """ computes the prefix of the number that will be assigned to the first invoice/bill/refund of a journal, in order to
+        let the user manually change it.
+        """
+        #Check user group.
+        system_user = self.env.is_system()
+        if not system_user:
+            self.invoice_sequence_number_next_prefix = False
+            self.invoice_sequence_number_next = False
+            return
+
+        # Check moves being candidates to set a custom number next.
+        moves = self.filtered(lambda move: move.is_invoice() and move.name == '/')
+        if not moves:
+            self.invoice_sequence_number_next_prefix = False
+            self.invoice_sequence_number_next = False
+            return
+
+        treated = self.browse()
+        for key, group in groupby(moves, key=lambda move: (move.journal_id, move._get_sequence())):
+            journal, sequence = key
+            domain = [('journal_id', '=', journal.id), ('state', '=', 'posted')]
+            if self.ids:
+                domain.append(('id', 'not in', self.ids))
+            if journal.type == 'sale':
+                domain.append(('type', 'in', ('out_invoice', 'out_refund')))
+            elif journal.type == 'purchase':
+                domain.append(('type', 'in', ('in_invoice', 'in_refund')))
+            else:
+                continue
+            if self.search_count(domain):
+                continue
+
+            # for move in group:
+            #     sequence_date = move.date or move.invoice_date
+            #     prefix, dummy = sequence._get_prefix_suffix(date=sequence_date, date_range=sequence_date)
+            #     number_next = sequence._get_current_sequence(sequence_date=sequence_date).number_next_actual
+            #     move.invoice_sequence_number_next_prefix = prefix
+            #     move.invoice_sequence_number_next = '%%0%sd' % sequence.padding % number_next
+            #     treated |= move
+        remaining = (self - treated)
+        remaining.invoice_sequence_number_next_prefix = False
+        remaining.invoice_sequence_number_next = False

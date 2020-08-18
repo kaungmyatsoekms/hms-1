@@ -199,6 +199,16 @@ class Company(models.Model):
     def _default_confirm_id_format(self):
         if not self.confirm_id_format:
             return self.env.ref('base.main_company').confirm_id_format
+
+    # Sale Order ID Format
+    def _default_soprofile_id_format(self):
+        if not self.soprofile_id_format:
+            return self.env.ref('base.main_company').soprofile_id_format
+
+    # Invoice ID Format
+    def _default_ivprofile_id_format(self):
+        if not self.ivprofile_id_format:
+            return self.env.ref('base.main_company').ivprofile_id_format     
     
     # Sales Tax ID
     def _default_sale_tax_id(self):
@@ -217,64 +227,6 @@ class Company(models.Model):
         if not self.service_product_id:
             return self.env.ref('base.main_company').service_product_id
             
-
-    # # Default Get Currency
-    def default_get_curency(self):
-        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
-                                                           ])
-        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
-                                                           ])
-        if mmk_currency_id.active is False:
-            return usd_currency_id
-        else:
-            return mmk_currency_id
-
-    # Default Get Country
-    def default_get_country(self):
-        country_id = None
-        if self.currency_id:
-            country_id = self.env['res.country'].search([
-                ('currency_id', '=', self.currency_id.id)
-            ])
-        else:
-            country_id = self.env['res.country'].search([('code', '=', "MMR")])
-        return country_id
-    
-    scurrency_id = fields.Many2one("res.currency",
-                                  "Second Currency",
-                                  default=default_get_curency,
-                                  readonly=False,
-                                  track_visibility=True,
-                                  help='Second Currency')
-
-    # # Default Get Currency
-    def default_get_curency(self):
-        mmk_currency_id = self.env['res.currency'].search([('name', '=', 'MMK')
-                                                           ])
-        usd_currency_id = self.env['res.currency'].search([('name', '=', 'USD')
-                                                           ])
-        if mmk_currency_id.active is False:
-            return usd_currency_id
-        else:
-            return mmk_currency_id
-
-    # Default Get Country
-    def default_get_country(self):
-        country_id = None
-        if self.currency_id:
-            country_id = self.env['res.country'].search([
-                ('currency_id', '=', self.currency_id.id)
-            ])
-        else:
-            country_id = self.env['res.country'].search([('code', '=', "MMR")])
-        return country_id
-
-    scurrency_id = fields.Many2one("res.currency",
-                                   "Second Currency",
-                                   default=default_get_curency,
-                                   readonly=False,
-                                   track_visibility=True,
-                                   help='Second Currency')
 
     # # Default Get Currency
     def default_get_curency(self):
@@ -333,6 +285,14 @@ class Company(models.Model):
                                          'Group Profile ID Format',
                                          default=_default_gprofile_id_format,
                                          track_visibility=True)
+    soprofile_id_format = fields.Many2one('hms.format',
+                                            'Sale Order No Format',
+                                            default=_default_soprofile_id_format,
+                                            track_visibility=True)
+    ivprofile_id_format = fields.Many2one('hms.format',
+                                            'Invoice No Format',
+                                            default=_default_ivprofile_id_format,
+                                            track_visibility=True)                                            
 
     # Tax
     sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", default=_default_sale_tax_id)
@@ -486,6 +446,16 @@ class ResConfigSettings(models.TransientModel):
         'hms.format',
         'Group Profile ID Format',
         related="company_id.gprofile_id_format",
+        track_visibility=True)
+    soprofile_id_format = fields.Many2one(
+        'hms.format',
+        'Sale Order No Format',
+        related="company_id.soprofile_id_format",
+        track_visibility=True)
+    ivprofile_id_format = fields.Many2one(
+        'hms.format',
+        'Invoice No Format',
+        related="company_id.ivprofile_id_format",
         track_visibility=True)
     # Tax
     sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", related='company_id.account_sale_tax_id', readonly=False)

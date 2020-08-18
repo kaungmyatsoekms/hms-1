@@ -53,6 +53,8 @@
                     <field name="cprofile_id_format" widget="selection"/>
                     <field name="gprofile_id_format" widget="selection"/>
                     <field name="confirm_id_format" widget="selection"/>
+                    <field name="soprofile_id_format" widget="selection"/>
+                    <field name="ivprofile_id_format" widget="selection"/>
                   </group>
                   <!-- <field name="cancellation_id_format" widget="selection"/> -->
                 </group>
