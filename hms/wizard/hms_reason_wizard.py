@@ -233,6 +233,8 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 'room_no': room_no,
             })
         reservation_lines.copy_cancel_record()
+        # Update Sale Order State
+        reservation_lines.sale_order_id.write({'state': 'cancel'})
         # Check All Reservation lines are same state, update main group to state
         rec = 0
         confirm = 0
