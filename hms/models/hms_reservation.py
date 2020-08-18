@@ -509,6 +509,15 @@ class Reservation(models.Model):
             rec._state_update_forecast(state, property_id, arrival, departure,
                                        room_type, rooms, reduce, status)
             rec.write({'state': status})
+            # Create Sale Order and Sale Order Line
+            charge_line_obj = self.env[
+                'hms.room.transaction.charge.line'].search([
+                    ('reservation_line_id', '=', rec.id)
+                ])
+            if charge_line_obj:
+                rec.create_sale_order(rec, so_state='draft')
+                for obj in charge_line_obj:
+                    rec.create_sale_order_line(obj)
 
     def checkin_status(self):
         for rec in self:
@@ -1099,6 +1108,7 @@ class ReservationLine(models.Model):
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         string="Rate Code",
+        required=True,
         domain=
         "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
     )
@@ -1113,6 +1123,7 @@ class ReservationLine(models.Model):
                                    related='ratehead_id.ratecode_details')
     ratecode_id = fields.Many2one(
         'hms.ratecode.details',
+        required=True,
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )
@@ -2545,38 +2556,108 @@ class ReservationLine(models.Model):
             day_count += 1
 
     # Create Sale Order in Confirm State
-    def create_sale_order(self, reservation_line_id):
-        partner_id = reservation_line_id.guest_id.id
+    def create_sale_order(self, reservation_line_id, so_state):
+        res = reservation_line_id
+        partner_id = res.guest_id.id
         date_order = datetime.today().now()
         pricelist_id = self.env['product.pricelist'].search([
-            ('currency_id', '=', reservation_line_id.currency_id.id)
+            ('currency_id', '=', res.currency_id.id)
         ]).id
-        vals = []
-        vals.append({
-            'partner_id': partner_id,
-            'partner_invoice_id': partner_id,
-            'partner_shipping_id': partner_id,
-            'date_order': date_order,
-            'pricelist_id': pricelist_id,
+        sale_order_obj = self.env['sale.order'].create({
+            'state':
+            so_state,
+            'partner_id':
+            partner_id,
+            'partner_invoice_id':
+            partner_id,
+            'partner_shipping_id':
+            partner_id,
+            'date_order':
+            date_order,
+            'pricelist_id':
+            pricelist_id,
+            'property_id':
+            res.property_id.id,
+            'company_id':
+            res.property_id.company_id.id,
+            'group_id':
+            res.group_id.id,
+            'amount_untaxed':
+            res.amount_untaxed,
+            'amount_tax':
+            res.amount_tax,
+            'amount_total':
+            res.amount_total,
         })
-        reservation_line_id.update({'sale_order_id': vals})
+        res.sale_order_id = sale_order_obj.id
 
     # Create Sale Order Line
-    def create_sale_order_line(self, reservation_line_id):
-        order_id = reservation_line_id.sale_order_id.id
-        product_name = reservation_line_id.room_type.name
-        qty = reservation_line_id.rooms
+    def create_sale_order_line(self, charge_line_id):
+        order_id = charge_line_id.reservation_line_id.sale_order_id.id
+        qty = charge_line_id.total_room
+        name = charge_line_id.transaction_id.product_id.product_tmpl_id.name
         vals = []
-        vals.append((
-            0,
-            0,
-            {
-                'order_id': order_id,
-                # 'product_id': ,
-                'name': product_name,
-                'product_uom_qty': qty,
-            }))
-        reservation_line_id.update({'sale_order_line_ids': vals})
+        vals.append((0, 0, {
+            'order_id':
+            order_id,
+            'product_id':
+            charge_line_id.transaction_id.product_id.id,
+            'name':
+            name,
+            'product_uom_qty':
+            qty,
+            'reservation_line_id':
+            charge_line_id.reservation_line_id.id,
+            'property_id':
+            charge_line_id.property_id.id,
+            'transaction_id':
+            charge_line_id.transaction_id.id,
+            'package_id':
+            charge_line_id.package_id.id,
+            'transaction_date':
+            charge_line_id.transaction_date,
+            'tax_id': [(4, charge_line_id.tax_id.id)],
+            'price_unit':
+            charge_line_id.price_unit,
+            'price_subtotal':
+            charge_line_id.price_subtotal,
+            'price_total':
+            charge_line_id.price_total,
+            'price_tax':
+            charge_line_id.tax_amount,
+            'svc_amount':
+            charge_line_id.svc_amount,
+            'subtotal_wo_svc':
+            charge_line_id.subtotal_wo_svc,
+            'ref':
+            charge_line_id.ref,
+        }))
+        charge_line_id.reservation_line_id.update(
+            {'sale_order_line_ids': vals})
+
+    def action_view_sale_order(self):
+        sale_orders = self.mapped('sale_order_id')
+        action = self.env.ref('sale.action_orders').read()[0]
+        if len(sale_orders) > 1:
+            action['domain'] = [('id', 'in', sale_orders.ids)]
+        elif len(sale_orders) == 1:
+            form_view = [(self.env.ref('hms.view_order_form_extension').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = sale_orders.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_type': 'out_sale_order',
+        }
+        return action
 
     @api.model
     def create(self, values):
@@ -2606,6 +2687,21 @@ class ReservationLine(models.Model):
                 res.create_line_with_posting_rhythm(res, transaction_date,
                                                     res.additional_pkg_ids)
             day_count += 1
+
+        # Create Sale Order and Sale Order Line
+        charge_line_obj = self.env['hms.room.transaction.charge.line'].search([
+            ('reservation_line_id', '=', res.id)
+        ])
+        if res.state in ['reservation', 'confirm'
+                         ] and charge_line_obj and not res.sale_order_id:
+            if res.state == 'reservation':
+                so_state = 'draft'
+            else:
+                so_state = 'sale'
+            res.create_sale_order(res, so_state)
+            for obj in charge_line_obj:
+                res.create_sale_order_line(obj)
+
         return res
 
     # Write Function

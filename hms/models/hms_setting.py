@@ -857,7 +857,67 @@ class HMSExcelExtended(models.Model):
     file_name = fields.Char('Excel File', size=64)
 
 
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  readonly=True)
+    group_id = fields.Many2one('res.partner',
+                               string="Group",
+                               domain="[('is_group','=',True)]",
+                               help='Group')
+    service_charge = fields.Monetary(string="Service Charges",
+                                     store=True,
+                                     readonly=True)
+
+
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     reservation_line_id = fields.Many2one('hms.reservation.line')
+    property_id = fields.Many2one('hms.property', string="Property")
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        domain="[('property_id', '=?', property_id)]")
+    package_id = fields.Many2one('hms.package.header', string='Package')
+    transaction_date = fields.Date("Date")
+    ref = fields.Char("Reference")
+    svc_amount = fields.Monetary(string='Service Charge',
+                                 store=True,
+                                 readonly=True)
+    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+                                      store=True,
+                                      readonly=True)
+    price_unit = fields.Float('Unit Price',
+                              required=True,
+                              digits='Product Price',
+                              default=0.0)
+    price_subtotal = fields.Monetary(string='Subtotal',
+                                     readonly=True,
+                                     store=True)
+    price_tax = fields.Float(string='Total Tax', readonly=True, store=True)
+    price_total = fields.Monetary(string='Total', readonly=True, store=True)
+
+    @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id')
+    def _compute_amount(self):
+        """
+        Compute the amounts of the SO line.
+        """
+        # for line in self:
+        # price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+        # taxes = line.tax_id.compute_all(
+        #     price,
+        #     line.order_id.currency_id,
+        #     line.product_uom_qty,
+        #     product=line.product_id,
+        #     partner=line.order_id.partner_shipping_id)
+        # line.update({
+        #     'price_tax':
+        #     sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+        #     'price_total':
+        #     taxes['total_included'],
+        #     'price_subtotal':
+        #     taxes['total_excluded'],
+        # })

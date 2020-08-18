@@ -1273,9 +1273,8 @@ class Property(models.Model):
 
         if not res.show_line_subtotals_tax_selection:
             raise UserError(
-                    _("Please choose Line Subtotal Tax Display in Configuration" + "\n"+
-                    "(Tax-Excluded or Tax-Included)"
-                      ))
+                _("Please choose Line Subtotal Tax Display in Configuration" +
+                  "\n" + "(Tax-Excluded or Tax-Included)"))
 
         return res
 

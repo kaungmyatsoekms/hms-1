@@ -50,12 +50,12 @@ class RateCodeHeader(models.Model):
         domain="[('property_id', '=?', property_id)]")
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  related = "property_id.currency_id", 
+                                  related="property_id.currency_id",
                                   help="Main Currency")
     scurrency_id = fields.Many2one("res.currency",
-                                  "Second Currency",
-                                  related = "property_id.scurrency_id",
-                                  help='Second Currency')
+                                   "Second Currency",
+                                   related="property_id.scurrency_id",
+                                   help='Second Currency')
 
     _sql_constraints = [(
         'rate_code_unique',
@@ -145,18 +145,17 @@ class RateCodeDetails(models.Model):
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
-        required=True)
-    
+        required=False)
+
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  related = "property_id.currency_id", 
+                                  related="property_id.currency_id",
                                   help="Main Currency")
     scurrency_id = fields.Many2one("res.currency",
-                                  "Second Currency",
-                                  related = "property_id.scurrency_id",
-                                  help='Second Currency')
-    normal_price1 = fields.Float(string="1 Adult",
-    digits='Rate Price')
+                                   "Second Currency",
+                                   related="property_id.scurrency_id",
+                                   help='Second Currency')
+    normal_price1 = fields.Float(string="1 Adult", digits='Rate Price')
     normal_price2 = fields.Float(string="+2 Adult", digits='Rate Price')
     normal_price3 = fields.Float(string="+3 Adult", digits='Rate Price')
     normal_price4 = fields.Float(string="+4 Adult", digits='Rate Price')

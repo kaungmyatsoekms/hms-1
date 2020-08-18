@@ -46,7 +46,7 @@
                             <field name="last_name" attrs="{'invisible': [('is_guest','!=', True)], 'required': [('is_guest', '=', True)]}" placeholder="Last Name"/>
                             <field name="middle_name" attrs="{'invisible': [('is_guest','!=', True)]}" placeholder="Middle Name"/>
                             <field name="first_name" attrs="{'invisible': ['|', ('is_guest','!=', True),('is_company', '=', True)]}" placeholder="First Name"/>
-                            <field name="title" placeholder="Title" options='{"no_quick_create": True, "no_open": True}' attrs="{'invisible': ['|', ('is_company', '=', True),('is_group', '=', True)]}"/> 
+                            <field name="title" placeholder="Title" options='{"no_quick_create": True, "no_open": True}' attrs="{'invisible': ['|', ('is_company', '=', True),('is_group', '=', True)]}"/>
                             <field name="gender" attrs="{'invisible': ['|',('is_guest','!=', True)]}"/>
                             <field name="dob" attrs="{'invisible': ['|',('is_guest','!=', True)]}"/>
                             <field name="father" attrs="{'invisible': ['|', ('is_company', '=', True), ('is_guest','!=', True)]}" placeholder="Father Name"/>
