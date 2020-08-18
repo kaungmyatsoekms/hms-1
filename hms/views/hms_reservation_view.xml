@@ -494,6 +494,7 @@
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
+                        <field name="sale_order_id" invisible="1"/>
                         <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
