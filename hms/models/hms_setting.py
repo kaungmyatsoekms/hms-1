@@ -902,10 +902,17 @@ class SaleOrderLine(models.Model):
                               digits='Product Price',
                               default=0.0)
     price_subtotal = fields.Monetary(string='Subtotal',
+                                     compute='_compute_amount',
                                      readonly=True,
                                      store=True)
-    price_tax = fields.Float(string='Total Tax', readonly=True, store=True)
-    price_total = fields.Monetary(string='Total', readonly=True, store=True)
+    price_tax = fields.Float(string='Total Tax',
+                             compute='_compute_amount',
+                             readonly=True,
+                             store=True)
+    price_total = fields.Monetary(string='Total',
+                                  compute='_compute_amount',
+                                  readonly=True,
+                                  store=True)
 
     @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id')
     def _compute_amount(self):

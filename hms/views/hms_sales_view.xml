@@ -54,8 +54,8 @@
                                 <field name="svc_amount" readonly="1"/>
                                 <field name="tax_id" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
                                 <field name="price_tax" widget="monetary" readonly="1"/>
-                                <field name="price_subtotal" widget="monetary" readonly="1" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                <field name="price_total" widget="monetary" readonly="1" groups="account.group_show_line_subtotals_tax_included"/>
+                                <field name="price_subtotal" widget="monetary" readonly="1"/>
+                                <field name="price_total" widget="monetary" readonly="1"/>
                                 <field name="discount" invisible="1"/>
                                 <field name="state" invisible="1"/>
                                 <field name="invoice_status" invisible="1"/>

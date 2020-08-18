@@ -54,6 +54,7 @@ class HMSRsvnUnconfirmWizard(models.TransientModel):
                     'reservation_status': self.reservation_status,
                     'state': status,
                 })
+                d.sale_order_id.write({'state': 'draft'})
         reservations.write({
             'reservation_type': self.reservation_type,
             'reservation_status': self.reservation_status,

@@ -171,6 +171,7 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'arrive_reason_id':
                     d.arrive_reason_id,
                 })
+                d.sale_order_id.write({'state': 'cancel'})
         # Update Status & Flag for Group
         reservations.write({
             'reason_id': self.reason_id,

@@ -23,6 +23,10 @@
                         <field name="child_bfpax"/>
                     </group>
                 </group>
+                <!-- <p>
+                    You need to create invoice when the guest is checked-in if there is no invoices!
+                </p>
+                <button name="%(sale.action_view_sale_advance_payment_inv)d" string="Create Invoice" type="action" class="btn-primary"/> -->
                 <footer>
                     <button name="action_checkin_line_wiz" string="OK" type="object" context="{'active_id':active_id}" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>

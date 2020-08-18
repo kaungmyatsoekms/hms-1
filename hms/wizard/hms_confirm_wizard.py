@@ -54,6 +54,7 @@ class HMSRsvnConfirmWizard(models.TransientModel):
                     'reservation_status': self.reservation_status,
                     'state': status,
                 })
+                d.sale_order_id.write({'state': 'sale'})
 
         # Update Reservation
         reservations.write({
