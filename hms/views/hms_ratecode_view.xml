@@ -192,9 +192,6 @@
             <field name="name">hms.ratecode.details.tree</field>
             <field name="model">hms.ratecode.details</field>
             <field name="arch" type="xml">
-                <h2>
-                    <field name="property_id"/>
-                </h2>
                 <tree name="Rate Code Details" limit="10" import="false">
                     <field name="sequence" widget="handle"/>
                     <field name="season_code"/>

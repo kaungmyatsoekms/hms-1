@@ -116,7 +116,7 @@ class Property(models.Model):
                                     help='Parent Company')
     company_id = fields.Many2one('res.company',
                                     string='Hotel Company',
-                                    required=True,
+                                    readonly=True,
                                     help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
@@ -372,6 +372,12 @@ class Property(models.Model):
         "Group Profile ID Format",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
+    soprofile_id_format = fields.Many2one('hms.format', "Sale Order No Format",
+                                        track_visibility=True,
+                                        default=lambda self: self.env.user.company_id.soprofile_id_format.id)
+    ivprofile_id_format = fields.Many2one('hms.format', "Invoice No Format",
+                                        track_visibility=True,
+                                        default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
 
     # Tax
     sale_tax_id = fields.Many2one(
@@ -393,7 +399,6 @@ class Property(models.Model):
     show_line_subtotals_tax_selection = fields.Selection(
         [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
         string="Line Subtotals Tax Display",
-        required=True,
         default=lambda self: self.env.user.company_id.
         show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
@@ -1137,6 +1142,42 @@ class Property(models.Model):
                     property.code + property.confirm_id_format.code,
                     'code':
                     property.code + property.confirm_id_format.code,
+                    'padding':
+                    padding.digit_value,
+                    'company_id':
+                    False,
+                    'use_date_range':
+                    True,
+                })
+        if property.soprofile_id_format:
+            if property.soprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "dynamic"
+            ).dynamic_value == "property code":
+                padding = property.soprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "digit")
+                self.env['ir.sequence'].create({
+                    'name':
+                    property.code + property.soprofile_id_format.code,
+                    'code':
+                    property.code + property.soprofile_id_format.code,
+                    'padding':
+                    padding.digit_value,
+                    'company_id':
+                    False,
+                    'use_date_range':
+                    True,
+                })
+        if property.ivprofile_id_format:
+            if property.ivprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "dynamic"
+            ).dynamic_value == "property code":
+                padding = property.ivprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "digit")
+                self.env['ir.sequence'].create({
+                    'name':
+                    property.code + property.ivprofile_id_format.code,
+                    'code':
+                    property.code + property.ivprofile_id_format.code,
                     'padding':
                     padding.digit_value,
                     'company_id':
