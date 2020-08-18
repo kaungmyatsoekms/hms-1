@@ -868,8 +868,15 @@ class SaleOrder(models.Model):
                                domain="[('is_group','=',True)]",
                                help='Group')
     service_charge = fields.Monetary(string="Service Charges",
-                                     store=True,
+                                     compute='_compute_service_charges',
                                      readonly=True)
+
+    @api.depends('order_line.svc_amount')
+    def _compute_service_charges(self):
+        svc = 0.0
+        for rec in self.order_line:
+            svc += rec.svc_amount
+        self.service_charge = svc
 
 
 class SaleOrderLine(models.Model):
