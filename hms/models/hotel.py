@@ -114,11 +114,10 @@ class Property(models.Model):
                                     string='Parent Company',
                                     required=True,
                                     help='Parent Company')
-    company_id = fields.Many2one(
-        'res.company',
-        string='Hotel Company',
-        #  readonly=True,
-        help='Hotel Company')
+    company_id = fields.Many2one('res.company',
+                                    string='Hotel Company',
+                                    readonly=True,
+                                    help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -147,13 +146,12 @@ class Property(models.Model):
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  default=default_get_curency,
+                                  related = "company_id.currency_id",
                                   readonly=False,
-                                  track_visibility=True,
                                   help='Currency')
     scurrency_id = fields.Many2one("res.currency",
                                    "Second Currency",
-                                   default=default_get_curency,
+                                   related = "company_id.scurrency_id",
                                    readonly=False,
                                    track_visibility=True,
                                    help='Second Currency')
@@ -374,6 +372,12 @@ class Property(models.Model):
         "Group Profile ID Format",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
+    soprofile_id_format = fields.Many2one('hms.format', "Sale Order No Format",
+                                        track_visibility=True,
+                                        default=lambda self: self.env.user.company_id.soprofile_id_format.id)
+    ivprofile_id_format = fields.Many2one('hms.format', "Invoice No Format",
+                                        track_visibility=True,
+                                        default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
 
     # Tax
     sale_tax_id = fields.Many2one(
@@ -395,7 +399,6 @@ class Property(models.Model):
     show_line_subtotals_tax_selection = fields.Selection(
         [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
         string="Line Subtotals Tax Display",
-        required=True,
         default=lambda self: self.env.user.company_id.
         show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
@@ -1146,6 +1149,42 @@ class Property(models.Model):
                     'use_date_range':
                     True,
                 })
+        if property.soprofile_id_format:
+            if property.soprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "dynamic"
+            ).dynamic_value == "property code":
+                padding = property.soprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "digit")
+                self.env['ir.sequence'].create({
+                    'name':
+                    property.code + property.soprofile_id_format.code,
+                    'code':
+                    property.code + property.soprofile_id_format.code,
+                    'padding':
+                    padding.digit_value,
+                    'company_id':
+                    False,
+                    'use_date_range':
+                    True,
+                })
+        if property.ivprofile_id_format:
+            if property.ivprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "dynamic"
+            ).dynamic_value == "property code":
+                padding = property.ivprofile_id_format.format_line_id.filtered(
+                    lambda x: x.value_type == "digit")
+                self.env['ir.sequence'].create({
+                    'name':
+                    property.code + property.ivprofile_id_format.code,
+                    'code':
+                    property.code + property.ivprofile_id_format.code,
+                    'padding':
+                    padding.digit_value,
+                    'company_id':
+                    False,
+                    'use_date_range':
+                    True,
+                })
 
     # Create function
     @api.model
@@ -1234,66 +1273,42 @@ class Property(models.Model):
 
         if res.name:
             company_obj = self.env['res.company']
-            crm = self.env['hms.company.category'].search([('code', '=', 'HTL')
-                                                           ]).id
+            crm = self.env['hms.company.category'].search([
+                ('code', '=', 'HTL')
+            ]).id
             company_obj = self.env['res.company'].create({
-                'name':
-                res.name,
-                'street':
-                res.address1,
-                'street2':
-                res.address2,
-                'zip':
-                res.zip,
-                'city':
-                res.city_id.id,
-                'state_id':
-                res.state_id.id,
-                'country_id':
-                res.country_id.id,
-                'email':
-                res.email,
-                'phone':
-                res.phone,
-                'website':
-                res.website,
-                'currency_id':
-                res.currency_id.id,
-                'scurrency_id':
-                res.scurrency_id.id,
-                'company_channel_type':
-                crm,
+                'name': res.name,
+                'street': res.address1,
+                'street2': res.address2,
+                'zip': res.zip,
+                'city': res.city_id.id,
+                'state_id': res.state_id.id,
+                'country_id': res.country_id.id,
+                'email': res.email,
+                'phone': res.phone,
+                'website': res.website,
+                'currency_id': res.currency_id.id,
+                'scurrency_id': res.scurrency_id.id,
+                'company_channel_type': crm,
             })
             res.company_id = company_obj.id
 
-            pos_admin = self.env['ir.model.data'].xmlid_to_res_id(
-                'point_of_sale.group_pos_manager')
-            sale_admin = self.env['ir.model.data'].xmlid_to_res_id(
-                'sales_team.group_sale_manager')
-            contact = self.env['ir.model.data'].xmlid_to_res_id(
-                'base.group_partner_manager')
-            setting = self.env['ir.model.data'].xmlid_to_res_id(
-                'base.group_system')
-            internal_user = self.env['ir.model.data'].xmlid_to_res_id(
-                'base.group_user')
-            property = self.env['ir.model.data'].xmlid_to_res_id(
-                'hms.group_property_manager')
-            reservation = self.env['ir.model.data'].xmlid_to_res_id(
-                'hms.group_reservation_manager')
+            pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
+            sale_admin = self.env['ir.model.data'].xmlid_to_res_id('sales_team.group_sale_manager')
+            contact = self.env['ir.model.data'].xmlid_to_res_id('base.group_partner_manager')
+            setting = self.env['ir.model.data'].xmlid_to_res_id('base.group_system')
+            internal_user = self.env['ir.model.data'].xmlid_to_res_id('base.group_user')
+            property = self.env['ir.model.data'].xmlid_to_res_id('hms.group_property_manager')
+            reservation = self.env['ir.model.data'].xmlid_to_res_id('hms.group_reservation_manager')
 
             user_obj = self.env['res.users'].create({
-                'name':
-                res.code + " Administrator",
-                'login':
-                res.code.lower() + "admin",
-                'company_ids': [(4, company_obj.id),
-                                (4, res.hotelgroup_id.id)],
-                'company_id':
-                company_obj.id,
+                'name': res.code+" Administrator",
+                'login': res.code.lower()+"admin",
+                'company_ids': [(4, company_obj.id), (4,res.hotelgroup_id.id)],
+                'company_id': company_obj.id,
                 'property_id': [(4, res.id)],
-                'groups_id': [(4, property), (4, reservation),
-                              (4, internal_user), (4, setting), (4, contact),
-                              (4, pos_admin), (4, sale_admin)]
+                'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
+                (4, pos_admin), (4, sale_admin)]
             })
 
         if not res.show_line_subtotals_tax_selection:
