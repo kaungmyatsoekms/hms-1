@@ -177,7 +177,7 @@ class Reservation(models.Model):
         help='Contact')
     reservation_type = fields.Many2one('hms.rsvntype',
                                        string="Reservation Type",
-                                        readonly=True,
+                                       readonly=True,
                                        default=2,
                                        store=True,
                                        help='Reservation Type')
@@ -509,6 +509,15 @@ class Reservation(models.Model):
             rec._state_update_forecast(state, property_id, arrival, departure,
                                        room_type, rooms, reduce, status)
             rec.write({'state': status})
+            # Create Sale Order and Sale Order Line
+            charge_line_obj = self.env[
+                'hms.room.transaction.charge.line'].search([
+                    ('reservation_line_id', '=', rec.id)
+                ])
+            if charge_line_obj:
+                rec.create_sale_order(rec, so_state='draft')
+                for obj in charge_line_obj:
+                    rec.create_sale_order_line(obj)
 
     def checkin_status(self):
         for rec in self:
@@ -665,13 +674,19 @@ class Reservation(models.Model):
         else:
             self.market = False
 
-    @api.onchange('reservation_line_ids')
-    def onchange_is_property_used(self):
-        if self.reservation_line_ids:
-            self.is_property_used = True
-        else:
-            self.is_property_used = False
+    # @api.onchange('reservation_line_ids')
+    # def onchange_is_property_used(self):
+    #     if self.reservation_line_ids:
+    #         self.is_property_used = True
+    #     else:
+    #         self.is_property_used = False
 
+    # @api.depends("reservation_line_ids")
+    # def compute_is_property_used(self):
+    #     if self.reservation_line_ids:
+    #         self.is_property_used = True
+    #     else:
+    #         self.is_property_used = False
 
     #Create Function
     @api.model
@@ -726,14 +741,15 @@ class Reservation(models.Model):
             values.update({'confirm_no': pf_no})
         res = super(Reservation, self).create(values)
         if res.is_dummy is True:
-            res.create_hfo_room(
-                res.state, res, res.confirm_no, res.property_id.id,
-                res.company_id.id, res.group_id.id, res.guest_id.id,
-                res.roomtype_id.id, res.arrival, res.departure, res.nights,
-                res.market.id, res.source.id, res.reservation_type.id,
-                res.reservation_status.id, res.arrival_flight,
-                res.arrival_flighttime, res.dep_flight, res.dep_flighttime,
-                res.eta, res.etd)
+            res.create_hfo_room(res.state, res, res.confirm_no,
+                                res.property_id.id, res.company_id.id,
+                                res.group_id.id, res.guest_id.id,
+                                res.roomtype_id.id, res.arrival, res.departure,
+                                res.nights, res.market.id, res.source.id,
+                                res.reservation_type.id,
+                                res.reservation_status.id, res.arrival_flight,
+                                res.arrival_flighttime, res.dep_flight,
+                                res.dep_flighttime, res.eta, res.etd)
 
         return res
 
@@ -1058,7 +1074,8 @@ class ReservationLine(models.Model):
         string="Room Type",
         domain="[('id', '=?', roomtype_ids),('id','!=',1)]",
         required=True,
-        index=True, help='Room Type')
+        index=True,
+        help='Room Type')
     bedtype_ids = fields.Many2many('hms.bedtype', related="room_type.bed_type")
     bedtype_id = fields.Many2one('hms.bedtype',
                                  domain="[('id', '=?', bedtype_ids)]",
@@ -1091,6 +1108,7 @@ class ReservationLine(models.Model):
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         string="Rate Code",
+        required=True,
         domain=
         "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
     )
@@ -1105,6 +1123,7 @@ class ReservationLine(models.Model):
                                    related='ratehead_id.ratecode_details')
     ratecode_id = fields.Many2one(
         'hms.ratecode.details',
+        required=True,
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )
@@ -1196,9 +1215,7 @@ class ReservationLine(models.Model):
                                  readonly=True,
                                  compute='_compute_untaxed_amount')
     # Sale Order & Sale Order Line Fields
-    sale_order_ids = fields.One2many('sale.order',
-                                     'reservation_line_id',
-                                     string='Sale Order')
+    sale_order_id = fields.Many2one('sale.order', string='Sale Order')
     sale_order_line_ids = fields.One2many('sale.order.line',
                                           'reservation_line_id',
                                           string='Sale Order Line')
@@ -1447,7 +1464,6 @@ class ReservationLine(models.Model):
                 if hfo_reservation:
                     hfo_reservation.write({'state': 'confirm'})
 
-
     def set_kanban_color(self):
         for record in self:
             color = 0
@@ -1462,35 +1478,6 @@ class ReservationLine(models.Model):
             elif record.state == 'cancel':
                 color = 1
             record.color = color
-    
-    def _compute_required_color(self):
-        color_attribute = self.env['hms.color.attribute'].search([('name', '=','Reservation')])
-        value_ids = color_attribute.value_ids
-        high_color = " "
-        medium_color = " "
-        complete_color = " "
-        for value in value_ids:
-            if value.name =="High":
-                high_color= value.html_color
-            elif value.name == "Medium":
-                medium_color = value.html_color
-            elif value.name == "Complete":
-                complete_color = value.html_color   
-
-        for record in self:
-            room_no = self.env['hms.property.room']
-            guest_name = self.env['res.partner']
-            ratehead_id =self.env['hms.ratecode.header']
-            nationality_id = self.env['hms.nationality']
-            if (record.room_type.code != 'HFO'):
-                if (record.ratehead_id  == ratehead_id):
-                    record.required_color = high_color
-                elif (record.room_no == room_no or record.guest_id == guest_name or record.nationality_id == nationality_id):
-                    record.required_color =  medium_color
-                else:
-                    record.required_color = complete_color 
-            else:
-                record.required_color = complete_color 
 
     def _compute_required_color(self):
         color_attribute = self.env['hms.color.attribute'].search([
@@ -2227,7 +2214,7 @@ class ReservationLine(models.Model):
                     posting_dates.append(post_dates)
                 day_count += 1
         return posting_dates
-    
+
     def create_line_with_posting_rhythm(self, reservation_line_id,
                                         transaction_date, package_ids):
         res = reservation_line_id
@@ -2569,38 +2556,108 @@ class ReservationLine(models.Model):
             day_count += 1
 
     # Create Sale Order in Confirm State
-    def create_sale_order(self, reservation_line_id):
-        partner_id = reservation_line_id.guest_id.id
+    def create_sale_order(self, reservation_line_id, so_state):
+        res = reservation_line_id
+        partner_id = res.guest_id.id
         date_order = datetime.today().now()
         pricelist_id = self.env['product.pricelist'].search([
-            ('currency_id', '=', reservation_line_id.currency_id.id)
+            ('currency_id', '=', res.currency_id.id)
         ]).id
-        vals = []
-        vals.append((0, 0, {
-            'partner_id': partner_id,
-            'partner_invoice_id': partner_id,
-            'partner_shipping_id': partner_id,
-            'date_order': date_order,
-            'pricelist_id': pricelist_id,
-        }))
-        reservation_line_id.update({'sale_order_ids': vals})
+        sale_order_obj = self.env['sale.order'].create({
+            'state':
+            so_state,
+            'partner_id':
+            partner_id,
+            'partner_invoice_id':
+            partner_id,
+            'partner_shipping_id':
+            partner_id,
+            'date_order':
+            date_order,
+            'pricelist_id':
+            pricelist_id,
+            'property_id':
+            res.property_id.id,
+            'company_id':
+            res.property_id.company_id.id,
+            'group_id':
+            res.group_id.id,
+            'amount_untaxed':
+            res.amount_untaxed,
+            'amount_tax':
+            res.amount_tax,
+            'amount_total':
+            res.amount_total,
+        })
+        res.sale_order_id = sale_order_obj.id
 
     # Create Sale Order Line
-    def create_sale_order_line(self, reservation_line_id):
-        order_id = reservation_line_id.sale_order_ids[0].id
-        product_name = reservation_line_id.room_type.name
-        qty = reservation_line_id.rooms
+    def create_sale_order_line(self, charge_line_id):
+        order_id = charge_line_id.reservation_line_id.sale_order_id.id
+        qty = charge_line_id.total_room
+        name = charge_line_id.transaction_id.product_id.product_tmpl_id.name
         vals = []
-        vals.append((
-            0,
-            0,
-            {
-                'order_id': order_id,
-                # 'product_id': ,
-                'name': product_name,
-                'product_uom_qty': qty,
-            }))
-        reservation_line_id.update({'sale_order_line_ids': vals})
+        vals.append((0, 0, {
+            'order_id':
+            order_id,
+            'product_id':
+            charge_line_id.transaction_id.product_id.id,
+            'name':
+            name,
+            'product_uom_qty':
+            qty,
+            'reservation_line_id':
+            charge_line_id.reservation_line_id.id,
+            'property_id':
+            charge_line_id.property_id.id,
+            'transaction_id':
+            charge_line_id.transaction_id.id,
+            'package_id':
+            charge_line_id.package_id.id,
+            'transaction_date':
+            charge_line_id.transaction_date,
+            'tax_id': [(4, charge_line_id.tax_id.id)],
+            'price_unit':
+            charge_line_id.price_unit,
+            'price_subtotal':
+            charge_line_id.price_subtotal,
+            'price_total':
+            charge_line_id.price_total,
+            'price_tax':
+            charge_line_id.tax_amount,
+            'svc_amount':
+            charge_line_id.svc_amount,
+            'subtotal_wo_svc':
+            charge_line_id.subtotal_wo_svc,
+            'ref':
+            charge_line_id.ref,
+        }))
+        charge_line_id.reservation_line_id.update(
+            {'sale_order_line_ids': vals})
+
+    def action_view_sale_order(self):
+        sale_orders = self.mapped('sale_order_id')
+        action = self.env.ref('sale.action_orders').read()[0]
+        if len(sale_orders) > 1:
+            action['domain'] = [('id', 'in', sale_orders.ids)]
+        elif len(sale_orders) == 1:
+            form_view = [(self.env.ref('hms.view_order_form_extension').id,
+                          'form')]
+            if 'views' in action:
+                action['views'] = form_view + [
+                    (state, view)
+                    for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = sale_orders.id
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_type': 'out_sale_order',
+        }
+        return action
 
     @api.model
     def create(self, values):
@@ -2630,6 +2687,21 @@ class ReservationLine(models.Model):
                 res.create_line_with_posting_rhythm(res, transaction_date,
                                                     res.additional_pkg_ids)
             day_count += 1
+
+        # Create Sale Order and Sale Order Line
+        charge_line_obj = self.env['hms.room.transaction.charge.line'].search([
+            ('reservation_line_id', '=', res.id)
+        ])
+        if res.state in ['reservation', 'confirm'
+                         ] and charge_line_obj and not res.sale_order_id:
+            if res.state == 'reservation':
+                so_state = 'draft'
+            else:
+                so_state = 'sale'
+            res.create_sale_order(res, so_state)
+            for obj in charge_line_obj:
+                res.create_sale_order_line(obj)
+
         return res
 
     # Write Function

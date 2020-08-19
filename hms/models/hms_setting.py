@@ -399,6 +399,7 @@ class Company(models.Model):
     @api.model
     def create(self, vals):
         crm_type = vals.get('company_channel_type')
+        # crm_type = self.env['hms.company.category'].search([('id','=',crm_type)])
         if not vals.get('favicon'):
             vals['favicon'] = self._get_default_favicon()
         if not vals.get('name') or vals.get('partner_id'):
@@ -867,7 +868,7 @@ class SaleOrder(models.Model):
                                domain="[('is_group','=',True)]",
                                help='Group')
     service_charge = fields.Monetary(string="Service Charges",
-                                     store=True,
+                                     compute='_compute_service_charges',
                                      readonly=True)
     @api.model
     def create(self, vals):
@@ -937,6 +938,13 @@ class SaleOrder(models.Model):
         result = super(SaleOrder, self).create(vals)
         return result
 
+    @api.depends('order_line.svc_amount')
+    def _compute_service_charges(self):
+        svc = 0.0
+        for rec in self.order_line:
+            svc += rec.svc_amount
+        self.service_charge = svc
+
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
@@ -961,10 +969,17 @@ class SaleOrderLine(models.Model):
                               digits='Product Price',
                               default=0.0)
     price_subtotal = fields.Monetary(string='Subtotal',
+                                     compute='_compute_amount',
                                      readonly=True,
                                      store=True)
-    price_tax = fields.Float(string='Total Tax', readonly=True, store=True)
-    price_total = fields.Monetary(string='Total', readonly=True, store=True)
+    price_tax = fields.Float(string='Total Tax',
+                             compute='_compute_amount',
+                             readonly=True,
+                             store=True)
+    price_total = fields.Monetary(string='Total',
+                                  compute='_compute_amount',
+                                  readonly=True,
+                                  store=True)
 
     @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id')
     def _compute_amount(self):
@@ -1003,7 +1018,8 @@ class AccountMove(models.Model):
             raise UserError(_('You cannot create a move already in the posted state. Please create a draft move and post it after.'))
 
         for v in vals_list:
-            property_id = v['property_id']
+            property_id = v.get('property_id')
+            # property_id = v['property_id']
             property_id = self.env['hms.property'].search([('id', '=', property_id)])
 
             if self.env.user.company_id.ivprofile_id_format:

@@ -383,6 +383,7 @@ class Property(models.Model):
     sale_tax_id = fields.Many2one(
         'account.tax',
         string="Default Sale Tax",
+        required=True,
         track_visibility=True,
         default=lambda self: self.env.user.company_id.account_sale_tax_id.id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
@@ -1313,24 +1314,14 @@ class Property(models.Model):
 
         if not res.show_line_subtotals_tax_selection:
             raise UserError(
-                    _("Please choose Line Subtotal Tax Display in Configuration" + "\n"+
-                    "(Tax-Excluded or Tax-Included)"
-                      ))
+                _("Please choose Line Subtotal Tax Display in Configuration" +
+                  "\n" + "(Tax-Excluded or Tax-Included)"))
 
         return res
 
     # Write Function
     def write(self, values):
-        old_roomtype = self.roomtype_ids.ids
         res = super(Property, self).write(values)
-        new_roomtype = self.roomtype_ids.ids
-
-        delected_roomtype = list(set(old_roomtype)- set(new_roomtype))
-
-        for rt in delected_roomtype:
-            to_delete_avail_objs = self.env['hms.roomtype.available'].search([('property_id','=', self.id),('ravail_rmty', '=', rt)])
-            for obj in to_delete_avail_objs:
-                obj.unlink()
 
         if 'code' in values.keys():
             same_code_objs = self.env['ir.sequence'].search([
@@ -1974,11 +1965,9 @@ class PropertyRoom(models.Model):
     # Room location link with Building
     @api.onchange('building_id')
     def onchange_room_location_id(self):
+        location = self.env['hms.roomlocation']
         for rec in self:
-            if rec.roomlocation_id in rec.building_id.location_ids:
-                rec.roomlocation_id = rec.roomlocation_id
-            else:
-                rec.roomlocation_id = False
+            rec.roomlocation_id = location
 
     @api.onchange('roomtype_id')
     def check_is_hfo(self):
@@ -2368,7 +2357,9 @@ class Transaction(models.Model):
                               compute='_compute_transaction_root',
                               store=True)
     allowed_pkg = fields.Boolean(string="Allow Package?")
-    product_id = fields.Many2one('product.product', string="Product")
+    product_id = fields.Many2one('product.product',
+                                 string="Product",
+                                 readonly=True)
 
     _sql_constraints = [(
         'trans_code_unique', 'UNIQUE(property_id, trans_code)',
@@ -2381,6 +2372,58 @@ class Transaction(models.Model):
             result.append((record.id, "({}) {}".format(record.trans_code,
                                                        record.trans_name)))
         return result
+
+    def create_product_template(self, transaction_id):
+        res = transaction_id
+        prodcut_name = product_id = prod_ids = prod_id = product_tmp_id = None
+        ref_code = ''
+        prodcut_name = res.subgroup_name
+        if res.subgroup_id:
+            ref_code = res.revtype_id.rev_code + res.subgroup_id.sub_group
+        else:
+            ref_code = res.revtype_id.rev_code
+        prod_ids = self.env['product.template'].search([
+            ('name', '=', prodcut_name),
+            ('company_id', '=', res.property_id.company_id.id)
+        ])
+        prod_id = self.env['product.product'].search([('product_tmpl_id', '=',
+                                                       prod_ids.id)])
+        if not prod_ids:
+            val = {
+                'name': prodcut_name,
+                'sale_ok': True,
+                'taxes_id': [(4, res.property_id.sale_tax_id.id)],
+                'company_id': res.property_id.company_id.id,
+                'default_code': ref_code,
+            }
+            product_tmp_id = self.env['product.template'].create(val)
+            product_tmp_ids = self.env['product.product'].search([
+                ('product_tmpl_id', '=', product_tmp_id.id)
+            ])
+            if not product_tmp_ids:
+                product_id = self.env['product.product'].create(
+                    {'product_tmpl_id': product_tmp_id.id})
+            product_id = product_tmp_ids or product_id
+        else:
+            product_id = prod_id
+        return product_id
+
+    @api.model
+    def create(self, values):
+        res = super(Transaction, self).create(values)
+        product_id = None
+        product_id = res.create_product_template(res)
+        res.product_id = product_id.id
+        return res
+
+    # Write Function
+    def write(self, values):
+        product_id = None
+        res = super(Transaction, self).write(values)
+        if 'revtype_id' in values.keys() or 'subgroup_id' in values.keys():
+            product_id = self.create_product_template(self)
+            self.product_id = product_id.id
+        return res
 
     @api.onchange('revtype_id')
     def onchange_revtype_name(self):
