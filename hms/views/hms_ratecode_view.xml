@@ -21,7 +21,7 @@
                                 <field name="start_date" style="width:50%%"/>
                                 <field name="end_date" style="width:50%%"/>
                                 <field name="ratecode_type" style="width:50%%"/>
-                                <filed name="currency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
+                                <field name="currency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="scurrency_id" style="width:50%%" options="{'no_create': True, 'no_quick_create':True, 'no_create_edit':True, 'no_open':True}"/>
                             </group>
                         </group>

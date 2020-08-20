@@ -861,8 +861,7 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
 
     reservation_line_id = fields.Many2one('hms.reservation.line')
-    property_id = fields.Many2one('hms.property',
-                                  string="Property")
+    property_id = fields.Many2one('hms.property', string="Property")
     group_id = fields.Many2one('res.partner',
                                string="Group",
                                domain="[('is_group','=',True)]",
@@ -870,6 +869,7 @@ class SaleOrder(models.Model):
     service_charge = fields.Monetary(string="Service Charges",
                                      compute='_compute_service_charges',
                                      readonly=True)
+
     @api.model
     def create(self, vals):
         if vals.get('name', _('New')) == _('New'):
@@ -883,7 +883,8 @@ class SaleOrder(models.Model):
             #     vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
 
             property_id = vals['property_id']
-            property_id = self.env['hms.property'].search([('id', '=', property_id)])
+            property_id = self.env['hms.property'].search([('id', '=',
+                                                            property_id)])
 
             if self.env.user.company_id.soprofile_id_format:
                 format_ids = self.env['hms.format.detail'].search(
@@ -929,12 +930,17 @@ class SaleOrder(models.Model):
             vals['name'] = pf_no
 
         # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
-        if any(f not in vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
+        if any(f not in vals for f in
+               ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
             partner = self.env['res.partner'].browse(vals.get('partner_id'))
             addr = partner.address_get(['delivery', 'invoice'])
-            vals['partner_invoice_id'] = vals.setdefault('partner_invoice_id', addr['invoice'])
-            vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
-            vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
+            vals['partner_invoice_id'] = vals.setdefault(
+                'partner_invoice_id', addr['invoice'])
+            vals['partner_shipping_id'] = vals.setdefault(
+                'partner_shipping_id', addr['delivery'])
+            vals['pricelist_id'] = vals.setdefault(
+                'pricelist_id', partner.property_product_pricelist
+                and partner.property_product_pricelist.id)
         result = super(SaleOrder, self).create(vals)
         return result
 
@@ -1014,17 +1020,21 @@ class AccountMove(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         # OVERRIDE
-        if any('state' in vals and vals.get('state') == 'posted' for vals in vals_list):
-            raise UserError(_('You cannot create a move already in the posted state. Please create a draft move and post it after.'))
+        if any('state' in vals and vals.get('state') == 'posted'
+               for vals in vals_list):
+            raise UserError(
+                _('You cannot create a move already in the posted state. Please create a draft move and post it after.'
+                  ))
 
         for v in vals_list:
-            property_id = v['property_id']
-            property_id = self.env['hms.property'].search([('id', '=', property_id)])
+            property_id = v.get('property_id')
+            property_id = self.env['hms.property'].search([('id', '=',
+                                                            property_id)])
 
             if self.env.user.company_id.ivprofile_id_format:
                 format_ids = self.env['hms.format.detail'].search(
                     [('format_id', '=',
-                        self.env.user.company_id.ivprofile_id_format.id)],
+                      self.env.user.company_id.ivprofile_id_format.id)],
                     order='position_order asc')
             val = []
             for ft in format_ids:
@@ -1036,7 +1046,7 @@ class AccountMove(models.Model):
                 if ft.value_type == 'digit':
                     sequent_ids = self.env['ir.sequence'].search([
                         ('code', '=',
-                            self.env.user.company_id.ivprofile_id_format.code)
+                         self.env.user.company_id.ivprofile_id_format.code)
                     ])
                     sequent_ids.write({'padding': ft.digit_value})
                 if ft.value_type == 'datetime':
@@ -1080,16 +1090,20 @@ class AccountMove(models.Model):
             return
 
         # Check moves being candidates to set a custom number next.
-        moves = self.filtered(lambda move: move.is_invoice() and move.name == '/')
+        moves = self.filtered(
+            lambda move: move.is_invoice() and move.name == '/')
         if not moves:
             self.invoice_sequence_number_next_prefix = False
             self.invoice_sequence_number_next = False
             return
 
         treated = self.browse()
-        for key, group in groupby(moves, key=lambda move: (move.journal_id, move._get_sequence())):
+        for key, group in groupby(moves,
+                                  key=lambda move:
+                                  (move.journal_id, move._get_sequence())):
             journal, sequence = key
-            domain = [('journal_id', '=', journal.id), ('state', '=', 'posted')]
+            domain = [('journal_id', '=', journal.id),
+                      ('state', '=', 'posted')]
             if self.ids:
                 domain.append(('id', 'not in', self.ids))
             if journal.type == 'sale':
