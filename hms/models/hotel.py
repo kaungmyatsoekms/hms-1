@@ -116,7 +116,6 @@ class Property(models.Model):
                                     help='Parent Company')
     company_id = fields.Many2one('res.company',
                                     string='Hotel Company',
-                                    readonly=True,
                                     help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
@@ -1273,27 +1272,35 @@ class Property(models.Model):
                 room_no += 1
 
         if res.name:
+            company = self.env['res.company'].search([('name', '=', res.name)])
             company_obj = self.env['res.company']
             crm = self.env['hms.company.category'].search([
                 ('code', '=', 'HTL')
             ]).id
-            company_obj = self.env['res.company'].create({
-                'name': res.name,
-                'street': res.address1,
-                'street2': res.address2,
-                'zip': res.zip,
-                'city': res.city_id.id,
-                'state_id': res.state_id.id,
-                'country_id': res.country_id.id,
-                'email': res.email,
-                'phone': res.phone,
-                'website': res.website,
-                'currency_id': res.currency_id.id,
-                'scurrency_id': res.scurrency_id.id,
-                'company_channel_type': crm,
-            })
-            res.company_id = company_obj.id
 
+            if not company:
+                company_obj = self.env['res.company'].create({
+                    'name': res.name,
+                    'street': res.address1,
+                    'street2': res.address2,
+                    'zip': res.zip,
+                    'city': res.city_id.id,
+                    'state_id': res.state_id.id,
+                    'country_id': res.country_id.id,
+                    'email': res.email,
+                    'phone': res.phone,
+                    'website': res.website,
+                    'currency_id': res.currency_id.id,
+                    'scurrency_id': res.scurrency_id.id,
+                    'company_channel_type': crm,
+                })
+                res.company_id = company_obj.id
+
+            else:
+                res.company_id = company.id
+                res.currency_id = company.currency_id.id
+                res.scurrency_id = company.scurrency_id.id
+            
             pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
             sale_admin = self.env['ir.model.data'].xmlid_to_res_id('sales_team.group_sale_manager')
             contact = self.env['ir.model.data'].xmlid_to_res_id('base.group_partner_manager')
@@ -1305,8 +1312,8 @@ class Property(models.Model):
             user_obj = self.env['res.users'].create({
                 'name': res.code+" Administrator",
                 'login': res.code.lower()+"admin",
-                'company_ids': [(4, company_obj.id), (4,res.hotelgroup_id.id)],
-                'company_id': company_obj.id,
+                'company_ids': [(4, company.id or company_obj.id), (4,res.hotelgroup_id.id)],
+                'company_id': company.id,
                 'property_id': [(4, res.id)],
                 'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
                 (4, pos_admin), (4, sale_admin)]

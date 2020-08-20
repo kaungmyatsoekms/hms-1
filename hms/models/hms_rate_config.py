@@ -126,7 +126,12 @@ class RateCodeDetails(models.Model):
                                   string="Property",
                                   readonly=True,
                                   store=True)
-    season_code = fields.Char(string="Season", size=10, required=True)
+    season_code = fields.Selection([('low', "Low"),
+                                    ('normal', "Normal"),
+                                    ('high', "High")],
+                                    required=True,
+                                   string="Season Code",
+                                   help='Season Code')
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="property_id.roomtype_ids")
     roomtype_id = fields.Many2many(
