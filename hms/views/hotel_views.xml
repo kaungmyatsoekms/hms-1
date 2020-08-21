@@ -169,7 +169,7 @@
                                                 <field name="room_bedqty" optional="show"/>
                                                 <field name="room_extension" optional="show"/>
                                                 <field name="roomview_ids" optional="hide"/>
-                                                <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': [('is_hfo', '=', True)]}">
+                                                <button string="Copy" name="%(action_roomno_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id' : id}" attrs="{'invisible': ['|',('is_hfo', '=', True),('is_propertyroom', '=', False)]}">
                                                     <i class="fa fa-paint-brush"></i>
                                                 </button>
                                             </tree>

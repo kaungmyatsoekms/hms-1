@@ -115,9 +115,8 @@ class Property(models.Model):
                                     required=True,
                                     help='Parent Company')
     company_id = fields.Many2one('res.company',
-                                 string='Hotel Company',
-                                 readonly=True,
-                                 help='Hotel Company')
+                                    string='Hotel Company',
+                                    help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -387,6 +386,7 @@ class Property(models.Model):
     sale_tax_id = fields.Many2one(
         'account.tax',
         string="Default Sale Tax",
+        required=True,
         track_visibility=True,
         default=lambda self: self.env.user.company_id.account_sale_tax_id.id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
@@ -1276,15 +1276,13 @@ class Property(models.Model):
                 room_no += 1
 
         if res.name:
+            company = self.env['res.company'].search([('name', '=', res.name)])
             company_obj = self.env['res.company']
-            company_obj = self.env['res.company'].search([
-            ('name', '=', res.name)
-            ])
-            if not company_obj:
-        
-                crm = self.env['hms.company.category'].search([
-                    ('code', '=', 'HTL')
-                ]).id
+            crm = self.env['hms.company.category'].search([
+                ('code', '=', 'HTL')
+            ]).id
+
+            if not company:
                 company_obj = self.env['res.company'].create({
                     'name': res.name,
                     'street': res.address1,
@@ -1300,8 +1298,13 @@ class Property(models.Model):
                     'scurrency_id': res.scurrency_id.id,
                     'company_channel_type': crm,
                 })
-            res.company_id = company_obj.id
+                res.company_id = company_obj.id
 
+            else:
+                res.company_id = company.id
+                res.currency_id = company.currency_id.id
+                res.scurrency_id = company.scurrency_id.id
+            
             pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
             sale_admin = self.env['ir.model.data'].xmlid_to_res_id('sales_team.group_sale_manager')
             contact = self.env['ir.model.data'].xmlid_to_res_id('base.group_partner_manager')
@@ -1313,8 +1316,8 @@ class Property(models.Model):
             user_obj = self.env['res.users'].create({
                 'name': res.code+" Administrator",
                 'login': res.code.lower()+"admin",
-                'company_ids': [(4, company_obj.id), (4,res.hotelgroup_id.id)],
-                'company_id': company_obj.id,
+                'company_ids': [(4, company.id or company_obj.id), (4,res.hotelgroup_id.id)],
+                'company_id': company.id,
                 'property_id': [(4, res.id)],
                 'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
                 (4, pos_admin), (4, sale_admin)]
