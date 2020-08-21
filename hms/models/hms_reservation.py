@@ -2636,60 +2636,6 @@ class ReservationLine(models.Model):
         charge_line_id.reservation_line_id.update(
             {'sale_order_line_ids': vals})
 
-    # Update Sale Order
-    def update_sale_order(self, reservation_line_id):
-        res = reservation_line_id
-        partner_id = res.guest_id.id
-        date_order = datetime.today().now()
-        pricelist_id = self.env['product.pricelist'].search([
-            ('currency_id', '=', res.currency_id.id)
-        ]).id
-        res.sale_order_id.update({
-            'partner_id': partner_id,
-            'partner_invoice_id': partner_id,
-            'partner_shipping_id': partner_id,
-            'date_order': date_order,
-            'pricelist_id': pricelist_id,
-            'property_id': res.property_id.id,
-            'company_id': res.property_id.company_id.id,
-            'group_id': res.group_id.id,
-            'amount_untaxed': res.amount_untaxed,
-            'amount_tax': res.amount_tax,
-            'amount_total': res.amount_total,
-        })
-
-    # Update Sale Order Line
-    def update_sale_order_line(self, reservation_line_id, charge_line_id):
-        reservation_line_id.sale_order_line_ids.update({
-            'property_id':
-            charge_line_id.property_id.id,
-            'product_id':
-            charge_line_id.transaction_id.product_id.id,
-            'name':
-            charge_line_id.transaction_id.product_id.product_tmpl_id.name,
-            'product_uom_qty':
-            charge_line_id.total_room,
-            'transaction_id':
-            charge_line_id.transaction_id.id,
-            'package_id':
-            charge_line_id.package_id.id,
-            'transaction_date':
-            charge_line_id.transaction_date,
-            'tax_id': [(4, charge_line_id.tax_id.id)],
-            'price_unit':
-            charge_line_id.price_unit,
-            'price_subtotal':
-            charge_line_id.price_subtotal,
-            'price_total':
-            charge_line_id.price_total,
-            'price_tax':
-            charge_line_id.tax_amount,
-            'svc_amount':
-            charge_line_id.svc_amount,
-            'subtotal_wo_svc':
-            charge_line_id.subtotal_wo_svc,
-        })
-
     def action_view_sale_order(self):
         sale_orders = self.mapped('sale_order_id')
         action = self.env.ref('sale.action_orders').read()[0]
@@ -2998,17 +2944,19 @@ class ReservationLine(models.Model):
                         })
                     for pkg in self.additional_pkg_ids:
                         self.update_additional_packages(self, True, pkg)
-                # Update Sale Order and Sale Order Line
+                # Change Sale Order State to Cancel and Create New SO and SO line
                 charge_line_objs = self.env[
                     'hms.room.transaction.charge.line'].search([
                         ('reservation_line_id', '=', self.id)
                     ])
                 if charge_line_objs:
-                    for so_line in self.sale_order_id.order_line:
-                        so_line.unlink()
-                    self.update_sale_order(self)
-                    for charge_line in charge_line_objs:
-                        self.create_sale_order_line(charge_line)
+                    self.sale_order_id.action_cancel()
+                    self.create_sale_order(self, so_state='draft')
+                    for obj in charge_line_objs:
+                        self.create_sale_order_line(obj)
+                    if self.state == 'confirm':
+                        self.sale_order_id.action_confirm()
+
         return res
 
     # Unlink Function
