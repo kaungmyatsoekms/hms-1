@@ -515,7 +515,7 @@ class Reservation(models.Model):
                     ('reservation_line_id', '=', rec.id)
                 ])
             if charge_line_obj:
-                rec.create_sale_order(rec, so_state='draft')
+                rec.create_sale_order(rec)
                 for obj in charge_line_obj:
                     rec.create_sale_order_line(obj)
 
@@ -2557,7 +2557,7 @@ class ReservationLine(models.Model):
             day_count += 1
 
     # Create Sale Order
-    def create_sale_order(self, reservation_line_id, so_state):
+    def create_sale_order(self, reservation_line_id):
         res = reservation_line_id
         partner_id = res.guest_id.id
         date_order = datetime.today().now()
@@ -2566,7 +2566,7 @@ class ReservationLine(models.Model):
         ]).id
         sale_order_obj = self.env['sale.order'].create({
             'state':
-            so_state,
+            'draft',
             'partner_id':
             partner_id,
             'partner_invoice_id':
@@ -2695,14 +2695,11 @@ class ReservationLine(models.Model):
         ])
         if res.state in ['reservation', 'confirm'
                          ] and charge_line_obj and not res.sale_order_id:
-            if res.state == 'reservation':
-                so_state = 'draft'
-            else:
-                so_state = 'sale'
-            res.create_sale_order(res, so_state)
+            res.create_sale_order(res)
             for obj in charge_line_obj:
                 res.create_sale_order_line(obj)
-
+            if res.state == 'confirm':
+                res.sale_order_id.action_confirm()
         return res
 
     # Write Function
@@ -2951,7 +2948,7 @@ class ReservationLine(models.Model):
                     ])
                 if charge_line_objs:
                     self.sale_order_id.action_cancel()
-                    self.create_sale_order(self, so_state='draft')
+                    self.create_sale_order(self)
                     for obj in charge_line_objs:
                         self.create_sale_order_line(obj)
                     if self.state == 'confirm':
