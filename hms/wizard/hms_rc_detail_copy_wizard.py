@@ -43,7 +43,7 @@ class RatecodeDetailCopyWizard(models.TransientModel):
                                   readonly=True)
     scurrency_id = fields.Many2one("res.currency",
                                   "Second Currency",
-                                  readonly=False,
+                                  readonly=True,
                                   track_visibility=True,
                                   help='Second Currency')
     normal_price1 = fields.Float(string="1 Adult")

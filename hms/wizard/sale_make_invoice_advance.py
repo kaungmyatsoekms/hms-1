@@ -13,6 +13,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
             'type': 'out_invoice',
             'invoice_origin': order.name,
             'invoice_user_id': order.user_id.id,
+            'property_id': order.property_id.id,
             'narration': order.note,
             'partner_id': order.partner_invoice_id.id,
             'fiscal_position_id': order.fiscal_position_id.id or order.partner_id.property_account_position_id.id,
@@ -27,7 +28,6 @@ class SaleAdvancePaymentInv(models.TransientModel):
             'source_id': order.source_id.id,
             'invoice_line_ids': [(0, 0, {
                 'name': name,
-                'property_id':order.property_id.id,
                 'price_unit': amount,
                 'quantity': 1.0,
                 'product_id': self.product_id.id,
@@ -40,19 +40,3 @@ class SaleAdvancePaymentInv(models.TransientModel):
         }
 
         return invoice_vals
-
-    def _prepare_so_line(self, order, analytic_tag_ids, tax_ids, amount):
-        so_values = {
-            'name': _('Down Payment: %s') % (time.strftime('%m %Y'),),
-            'price_unit': amount,
-            'property_id': order.property_id.id,
-            'product_uom_qty': 0.0,
-            'order_id': order.id,
-            'discount': 0.0,
-            'product_uom': self.product_id.uom_id.id,
-            'product_id': self.product_id.id,
-            'analytic_tag_ids': analytic_tag_ids,
-            'tax_id': [(6, 0, tax_ids)],
-            'is_downpayment': True,
-        }
-        return so_values
