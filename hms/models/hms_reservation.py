@@ -1108,7 +1108,7 @@ class ReservationLine(models.Model):
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         string="Rate Code",
-        required=True,
+        # required=True,
         domain=
         "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
     )
@@ -1123,7 +1123,7 @@ class ReservationLine(models.Model):
                                    related='ratehead_id.ratecode_details')
     ratecode_id = fields.Many2one(
         'hms.ratecode.details',
-        required=True,
+        # required=True,
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )

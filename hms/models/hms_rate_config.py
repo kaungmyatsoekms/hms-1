@@ -145,7 +145,7 @@ class RateCodeDetails(models.Model):
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
-        required=False)
+        required=True)
 
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",

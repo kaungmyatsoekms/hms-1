@@ -115,9 +115,9 @@ class Property(models.Model):
                                     required=True,
                                     help='Parent Company')
     company_id = fields.Many2one('res.company',
-                                    string='Hotel Company',
-                                    readonly=True,
-                                    help='Hotel Company')
+                                 string='Hotel Company',
+                                 readonly=True,
+                                 help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -146,12 +146,12 @@ class Property(models.Model):
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  related = "company_id.currency_id",
+                                  related="company_id.currency_id",
                                   readonly=False,
                                   help='Currency')
     scurrency_id = fields.Many2one("res.currency",
                                    "Second Currency",
-                                   related = "company_id.scurrency_id",
+                                   related="company_id.scurrency_id",
                                    readonly=False,
                                    track_visibility=True,
                                    help='Second Currency')
@@ -372,12 +372,16 @@ class Property(models.Model):
         "Group Profile ID Format",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
-    soprofile_id_format = fields.Many2one('hms.format', "Sale Order No Format",
-                                        track_visibility=True,
-                                        default=lambda self: self.env.user.company_id.soprofile_id_format.id)
-    ivprofile_id_format = fields.Many2one('hms.format', "Invoice No Format",
-                                        track_visibility=True,
-                                        default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
+    soprofile_id_format = fields.Many2one(
+        'hms.format',
+        "Sale Order No Format",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.soprofile_id_format.id)
+    ivprofile_id_format = fields.Many2one(
+        'hms.format',
+        "Invoice No Format",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
 
     # Tax
     sale_tax_id = fields.Many2one(
