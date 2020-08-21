@@ -25,7 +25,7 @@
     '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
-        'base', 'point_of_sale', 'graphql_base', 'contacts', 'uom', 'account', 'mail','sale',
+        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail','sale_management',
         'web', 'website', 'web_one2many_kanban','web_tree_no_open','l10n_mm_coa'
     ],
     "external_dependencies": {
@@ -112,6 +112,9 @@
         'views/hms_package_config.xml',
         'data/res.lang.csv',
         'data/hms_color_attribute_data.xml',
+        # 'report/cashier_mail_template.xml',
+        # 'wizard/hms_invoice_send_views.xml',
+        # 'views/hms_cashier_view.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',

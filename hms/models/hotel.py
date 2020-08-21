@@ -145,12 +145,12 @@ class Property(models.Model):
     zip = fields.Char(change_default=True)
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
-                                  related = "company_id.currency_id",
+                                  related="company_id.currency_id",
                                   readonly=False,
                                   help='Currency')
     scurrency_id = fields.Many2one("res.currency",
                                    "Second Currency",
-                                   related = "company_id.scurrency_id",
+                                   related="company_id.scurrency_id",
                                    readonly=False,
                                    track_visibility=True,
                                    help='Second Currency')
@@ -371,12 +371,16 @@ class Property(models.Model):
         "Group Profile ID Format",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.gprofile_id_format.id)
-    soprofile_id_format = fields.Many2one('hms.format', "Sale Order No Format",
-                                        track_visibility=True,
-                                        default=lambda self: self.env.user.company_id.soprofile_id_format.id)
-    ivprofile_id_format = fields.Many2one('hms.format', "Invoice No Format",
-                                        track_visibility=True,
-                                        default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
+    soprofile_id_format = fields.Many2one(
+        'hms.format',
+        "Sale Order No Format",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.soprofile_id_format.id)
+    ivprofile_id_format = fields.Many2one(
+        'hms.format',
+        "Invoice No Format",
+        track_visibility=True,
+        default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
 
     # Tax
     sale_tax_id = fields.Many2one(
@@ -513,14 +517,14 @@ class Property(models.Model):
         # For Forecast Update
         avail_objs = self.env['hms.availability'].search([
             ('property_id', '=', self.id),
-            ('avail_date', '<', datetime.today())
+            ('avail_date', '<', self.system_date)
         ])
 
         for avail_obj in avail_objs:
             avail_obj.update({'active': False})
             rt_avail_objs = self.env['hms.roomtype.available'].search([
                 ('property_id', '=', self.id),
-                ('ravail_date', '<=', datetime.today()),
+                ('ravail_date', '<=', self.system_date),
                 ('availability_id', '=', avail_obj.id)
             ])
 
@@ -547,7 +551,7 @@ class Property(models.Model):
 
         # For Removing Reservation and Reservation Line Update
         out_date_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            ('property_id', '=', self.id), ('arrival', '<', self.system_date),
             ('active', '=', True), '|', ('state', '=', 'booking'),
             ('state', '=', 'reservation')
         ])
@@ -555,7 +559,7 @@ class Property(models.Model):
             rsvn_line.update({'active': False})
 
         out_date_reservations = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            ('property_id', '=', self.id), ('arrival', '<', self.system_date),
             '|', ('state', '=', 'reservation'), ('state', '=', 'booking')
         ])
         for rsvn in out_date_reservations:
@@ -565,14 +569,14 @@ class Property(models.Model):
         # For No Show Reservation and Reservation Line Update
         # Reservation Line
         no_show_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            ('property_id', '=', self.id), ('arrival', '<', self.system_date),
             ('state', '=', 'confirm')
         ])
         for no_show_rsvn_line in no_show_rsvn_lines:
             no_show_rsvn_line.update({'is_no_show': True})
             # Reservation
         no_show_rsvns = self.env['hms.reservation'].search([
-            ('property_id', '=', self.id), ('arrival', '<', datetime.today()),
+            ('property_id', '=', self.id), ('arrival', '<', self.system_date),
             ('state', '=', 'confirm')
         ])
         for no_show_rsvn in no_show_rsvns:
@@ -587,14 +591,14 @@ class Property(models.Model):
         # Reservation Lines
         ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
             ('property_id', '=', self.id), ('is_no_show', '=', True),
-            ('departure', '<', datetime.today())
+            ('departure', '<', self.system_date)
         ])
         for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
             ex_noshow_rsvn_line.update({'active': False})
             # Reservation
         ex_noshow_rsvns = self.env['hms.reservation'].search([
             ('property_id', '=', self.id), ('is_no_show', '=', True),
-            ('departure', '<', datetime.today())
+            ('departure', '<', self.system_date)
         ])
         for ex_noshow_rsvn in ex_noshow_rsvns:
             if len(ex_noshow_rsvn.reservation_line_ids) == 0:
@@ -603,7 +607,7 @@ class Property(models.Model):
         # For removing Ratecode Details
         ex_rc_details = self.env['hms.ratecode.details'].search([
             ('property_id', '=', self.id),
-            ('end_date', '<', datetime.today())
+            ('end_date', '<', self.system_date)
         ])
         for ex_rc_detail in ex_rc_details:
             ex_rc_detail.update({'active': False})
@@ -623,14 +627,14 @@ class Property(models.Model):
             if record.is_manual is False:
                 avail_objs = self.env['hms.availability'].search([
                     ('property_id', '=', record.id),
-                    ('avail_date', '<=', datetime.today())
+                    ('avail_date', '<=', self.system_date)
                 ])
 
                 for avail_obj in avail_objs:
                     avail_obj.update({'active': False})
                     rt_avail_objs = self.env['hms.roomtype.available'].search([
                         ('property_id', '=', record.id),
-                        ('ravail_date', '<=', datetime.today()),
+                        ('ravail_date', '<=', self.system_date),
                         ('availability_id', '=', avail_obj.id)
                     ])
 
@@ -665,7 +669,7 @@ class Property(models.Model):
 
         # For Removing Reservation and Reservation Line
         out_date_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()), ('active', '=', True), '|',
+            ('arrival', '<', self.system_date), ('active', '=', True), '|',
             ('state', '=', 'booking'), ('state', '=', 'reservation')
         ])
         for rsvn_line in out_date_rsvn_lines:
@@ -673,7 +677,7 @@ class Property(models.Model):
                 rsvn_line.update({'active': False})
 
         out_date_reservations = self.env['hms.reservation'].search([
-            ('arrival', '<', datetime.today()), '|', ('state', '=', 'booking'),
+            ('arrival', '<', self.system_date), '|', ('state', '=', 'booking'),
             ('state', '=', 'reservation')
         ])
         for rsvn in out_date_reservations:
@@ -683,13 +687,13 @@ class Property(models.Model):
 
         # For No Show Reservation and Reservation Line Update
         no_show_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()), ('state', '=', 'confirm')
+            ('arrival', '<', self.system_date), ('state', '=', 'confirm')
         ])
         for no_show_rsvn_line in no_show_rsvn_lines:
             if no_show_rsvn_line.property_id.is_manual is False:
                 no_show_rsvn_line.update({'is_no_show': True})
         no_show_rsvns = self.env['hms.reservation'].search([
-            ('arrival', '<', datetime.today()), ('state', '=', 'confirm')
+            ('arrival', '<', self.system_date), ('state', '=', 'confirm')
         ])
         for no_show_rsvn in no_show_rsvns:
             if no_show_rsvn.property_id.is_manual is False:
@@ -703,14 +707,14 @@ class Property(models.Model):
 
         # For removing No Show Reservation and Reservatin Line
         ex_noshow_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('is_no_show', '=', True), ('departure', '<', datetime.today())
+            ('is_no_show', '=', True), ('departure', '<', self.system_date)
         ])
         for ex_noshow_rsvn_line in ex_noshow_rsvn_lines:
             if ex_noshow_rsvn_line.property_id.is_manual is False:
                 ex_noshow_rsvn_line.update({'active': False})
 
         ex_noshow_rsvns = self.env['hms.reservation'].search([
-            ('is_no_show', '=', True), ('departure', '<', datetime.today())
+            ('is_no_show', '=', True), ('departure', '<', self.system_date)
         ])
         for ex_noshow_rsvn in ex_noshow_rsvns:
             if ex_noshow_rsvn.property_id.is_manual is False:
@@ -719,7 +723,7 @@ class Property(models.Model):
 
         # For removing Ratecode Details
         ex_rc_details = self.env['hms.ratecode.details'].search([
-            ('end_date', '<', datetime.today())
+            ('end_date', '<', self.system_date)
         ])
         for ex_rc_detail in ex_rc_details:
             if ex_rc_detail.is_manual is False:
@@ -1329,7 +1333,7 @@ class Property(models.Model):
                 'name': res.code+" Administrator",
                 'login': res.code.lower()+"admin",
                 'company_ids': [(4, company.id or company_obj.id), (4,res.hotelgroup_id.id)],
-                'company_id': company.id,
+                'company_id': company.id or company_obj.id,
                 'property_id': [(4, res.id)],
                 'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
                 (4, pos_admin), (4, sale_admin)]
