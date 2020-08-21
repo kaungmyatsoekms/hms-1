@@ -1018,7 +1018,7 @@ class AccountMove(models.Model):
             raise UserError(_('You cannot create a move already in the posted state. Please create a draft move and post it after.'))
 
         for v in vals_list:
-            property_id = v['property_id']
+            property_id = v.get('property_id')
             property_id = self.env['hms.property'].search([('id', '=', property_id)])
 
             if self.env.user.company_id.ivprofile_id_format:

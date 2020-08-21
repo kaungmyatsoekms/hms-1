@@ -1273,24 +1273,29 @@ class Property(models.Model):
 
         if res.name:
             company_obj = self.env['res.company']
-            crm = self.env['hms.company.category'].search([
-                ('code', '=', 'HTL')
-            ]).id
-            company_obj = self.env['res.company'].create({
-                'name': res.name,
-                'street': res.address1,
-                'street2': res.address2,
-                'zip': res.zip,
-                'city': res.city_id.id,
-                'state_id': res.state_id.id,
-                'country_id': res.country_id.id,
-                'email': res.email,
-                'phone': res.phone,
-                'website': res.website,
-                'currency_id': res.currency_id.id,
-                'scurrency_id': res.scurrency_id.id,
-                'company_channel_type': crm,
-            })
+            company_obj = self.env['res.company'].search([
+            ('name', '=', res.name)
+            ])
+            if not company_obj:
+        
+                crm = self.env['hms.company.category'].search([
+                    ('code', '=', 'HTL')
+                ]).id
+                company_obj = self.env['res.company'].create({
+                    'name': res.name,
+                    'street': res.address1,
+                    'street2': res.address2,
+                    'zip': res.zip,
+                    'city': res.city_id.id,
+                    'state_id': res.state_id.id,
+                    'country_id': res.country_id.id,
+                    'email': res.email,
+                    'phone': res.phone,
+                    'website': res.website,
+                    'currency_id': res.currency_id.id,
+                    'scurrency_id': res.scurrency_id.id,
+                    'company_channel_type': crm,
+                })
             res.company_id = company_obj.id
 
             pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
