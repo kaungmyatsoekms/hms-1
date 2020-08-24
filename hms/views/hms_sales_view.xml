@@ -8,8 +8,8 @@
                 <xpath expr="//form/sheet/group[1]" position="replace">
                     <group>
                         <group>
-                            <field name="has_due" invisible="1"/>
-                            <field name="is_warning" invisible="1"/>
+                            <!-- <field name="has_due" invisible="1"/>
+                            <field name="is_warning" invisible="1"/> -->
                             <field name="property_id" string="Property"/>
                             <field name="partner_id" string="Guest Name" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}" options='{"always_reload": True}'/>
                             <field name="partner_invoice_id" invisible="1" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options='{"always_reload": True}'/>
@@ -129,8 +129,8 @@
                         <group id="header_left_group">
                             <field name="property_id"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="has_due" invisible="1"/>
-                            <field name="is_warning" invisible="1"/>
+                            <!-- <field name="has_due" invisible="1"/>
+                            <field name="is_warning" invisible="1"/> -->
                             <field name="journal_id" invisible="1"/>
                             <div class="o_td_label">
                                 <label for="partner_id" string="Customer" style="font-weight:bold;"

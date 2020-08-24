@@ -2,7 +2,7 @@
 <odoo noupdate="1">
     <!-- Account Tax Group -->
     <record id="hms_configurable_chart_template" model="account.chart.template">
-        <field name="name">HMS Account Chart Template</field>
+        <field name="name">Account Chart Template</field>
         <field name="code_digits">6</field>
         <field name="bank_account_code_prefix">1014</field>
         <field name="cash_account_code_prefix">1015</field>
