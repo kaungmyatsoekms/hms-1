@@ -869,6 +869,7 @@ class SaleOrder(models.Model):
     service_charge = fields.Monetary(string="Service Charges",
                                      compute='_compute_service_charges',
                                      readonly=True)
+
     @api.model
     def create(self, vals):
         if vals.get('name', _('New')) == _('New'):
@@ -882,7 +883,8 @@ class SaleOrder(models.Model):
             #     vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
 
             property_id = vals['property_id']
-            property_id = self.env['hms.property'].search([('id', '=', property_id)])
+            property_id = self.env['hms.property'].search([('id', '=',
+                                                            property_id)])
 
             if self.env.user.company_id.soprofile_id_format:
                 format_ids = self.env['hms.format.detail'].search(
@@ -928,12 +930,17 @@ class SaleOrder(models.Model):
             vals['name'] = pf_no
 
         # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
-        if any(f not in vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
+        if any(f not in vals for f in
+               ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
             partner = self.env['res.partner'].browse(vals.get('partner_id'))
             addr = partner.address_get(['delivery', 'invoice'])
-            vals['partner_invoice_id'] = vals.setdefault('partner_invoice_id', addr['invoice'])
-            vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
-            vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
+            vals['partner_invoice_id'] = vals.setdefault(
+                'partner_invoice_id', addr['invoice'])
+            vals['partner_shipping_id'] = vals.setdefault(
+                'partner_shipping_id', addr['delivery'])
+            vals['pricelist_id'] = vals.setdefault(
+                'pricelist_id', partner.property_product_pricelist
+                and partner.property_product_pricelist.id)
         result = super(SaleOrder, self).create(vals)
         return result
 

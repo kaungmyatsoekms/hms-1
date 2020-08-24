@@ -487,18 +487,21 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.show_line_subtotals_tax_selection",
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
-    enable_service_charge = fields.Boolean(string='Service Charges')
+    enable_service_charge = fields.Boolean(string='Service Charges',
+                                           store=True)
     service_charge_type = fields.Selection(
         [('amount', 'Amount'), ('percentage', 'Percentage')],
         string='Type',
-        related="company_id.service_charge_type")
-    service_charge = fields.Float(string='Service Charge')
+        related="company_id.service_charge_type",
+        store=True)
+    service_charge = fields.Float(string='Service Charge', store=True)
     service_product_id = fields.Many2one(
         'product.product',
         string='Service Product',
         domain="[('sale_ok', '=', True),"
         "('type', '=', 'service')]",
-        related="company_id.service_product_id")
+        related="company_id.service_product_id",
+        store=True)
 
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):
