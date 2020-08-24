@@ -607,11 +607,7 @@ class Property(models.Model):
         # For removing Ratecode Details
         ex_rc_details = self.env['hms.ratecode.details'].search([
             ('property_id', '=', self.id),
-<<<<<<< HEAD
-            ('end_date', '<', datetime.today())
-=======
             ('end_date', '<', self.system_date)
->>>>>>> 5acc8f32c50f63df6feff6c260232d22b4c66745
         ])
         for ex_rc_detail in ex_rc_details:
             ex_rc_detail.update({'active': False})
@@ -727,11 +723,7 @@ class Property(models.Model):
 
         # For removing Ratecode Details
         ex_rc_details = self.env['hms.ratecode.details'].search([
-<<<<<<< HEAD
-            ('end_date', '<', datetime.today())
-=======
             ('end_date', '<', self.system_date)
->>>>>>> 5acc8f32c50f63df6feff6c260232d22b4c66745
         ])
         for ex_rc_detail in ex_rc_details:
             if ex_rc_detail.is_manual is False:
