@@ -952,33 +952,57 @@ class SaleOrder(models.Model):
         """
         self.ensure_one()
         # ensure a correct context for the _get_default_journal method and company-dependent fields
-        self = self.with_context(default_company_id=self.company_id.id, force_company=self.company_id.id)
-        journal = self.env['account.move'].with_context(default_type='out_invoice')._get_default_journal()
+        self = self.with_context(default_company_id=self.company_id.id,
+                                 force_company=self.company_id.id)
+        journal = self.env['account.move'].with_context(
+            default_type='out_invoice')._get_default_journal()
         if not journal:
-            raise UserError(_('Please define an accounting sales journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
+            raise UserError(
+                _('Please define an accounting sales journal for the company %s (%s).'
+                  ) % (self.company_id.name, self.company_id.id))
 
         invoice_vals = {
-            'ref': self.client_order_ref or '',
-            'type': 'out_invoice',
-            'narration': self.note,
-            'property_id': self.property_id.id,
-            'currency_id': self.pricelist_id.currency_id.id,
-            'campaign_id': self.campaign_id.id,
-            'medium_id': self.medium_id.id,
-            'source_id': self.source_id.id,
-            'invoice_user_id': self.user_id and self.user_id.id,
-            'team_id': self.team_id.id,
-            'partner_id': self.partner_invoice_id.id,
-            'partner_shipping_id': self.partner_shipping_id.id,
-            'invoice_partner_bank_id': self.company_id.partner_id.bank_ids[:1].id,
-            'fiscal_position_id': self.fiscal_position_id.id or self.partner_invoice_id.property_account_position_id.id,
-            'journal_id': journal.id,  # company comes from the journal
-            'invoice_origin': self.name,
-            'invoice_payment_term_id': self.payment_term_id.id,
-            'invoice_payment_ref': self.reference,
+            'property_id':
+            self.property_id.id,
+            'group_id':
+            self.group_id.id,
+            'ref':
+            self.client_order_ref or '',
+            'type':
+            'out_invoice',
+            'narration':
+            self.note,
+            'currency_id':
+            self.pricelist_id.currency_id.id,
+            'campaign_id':
+            self.campaign_id.id,
+            'medium_id':
+            self.medium_id.id,
+            'source_id':
+            self.source_id.id,
+            'invoice_user_id':
+            self.user_id and self.user_id.id,
+            'team_id':
+            self.team_id.id,
+            'partner_id':
+            self.partner_invoice_id.id,
+            'partner_shipping_id':
+            self.partner_shipping_id.id,
+            'invoice_partner_bank_id':
+            self.company_id.partner_id.bank_ids[:1].id,
+            'fiscal_position_id':
+            self.fiscal_position_id.id
+            or self.partner_invoice_id.property_account_position_id.id,
+            'journal_id':
+            journal.id,  # company comes from the journal
+            'invoice_origin':
+            self.name,
+            'invoice_payment_term_id':
+            self.payment_term_id.id,
+            'invoice_payment_ref':
+            self.reference,
             'transaction_ids': [(6, 0, self.transaction_ids.ids)],
             'invoice_line_ids': [],
-            'company_id': self.company_id.id,
         }
         return invoice_vals
 
@@ -1040,13 +1064,54 @@ class SaleOrderLine(models.Model):
         #     taxes['total_excluded'],
         # })
 
+    def _prepare_invoice_line(self):
+        """
+        Prepare the dict of values to create the new invoice line for a sales order line.
+
+        :param qty: float quantity to invoice
+        """
+        self.ensure_one()
+        res = {
+            'display_type': self.display_type,
+            'sequence': self.sequence,
+            'name': self.name,
+            'product_id': self.product_id.id,
+            'product_uom_id': self.product_uom.id,
+            'quantity': self.qty_to_invoice,
+            'discount': self.discount,
+            'price_unit': self.price_unit,
+            'tax_ids': [(6, 0, self.tax_id.ids)],
+            'analytic_account_id': self.order_id.analytic_account_id.id,
+            'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)],
+            'sale_line_ids': [(4, self.id)],
+            # start custom adding new field create
+            'property_id': self.property_id.id,
+            'partner_id': self.order_partner_id.id,
+            'transaction_date': self.transaction_date,
+            'transaction_id': self.transaction_id.id,
+            'package_id': self.package_id.id,
+            'currency_id': self.currency_id.id,
+            'tax_amount': self.price_tax,
+            'svc_amount': self.svc_amount,
+            'subtotal_wo_svc': self.subtotal_wo_svc,
+            'price_subtotal': self.price_subtotal,
+            'price_total': self.price_total,
+        }
+        if self.display_type:
+            res['account_id'] = False
+        return res
+
 
 class AccountMove(models.Model):
     _inherit = "account.move"
     _description = "Journal Entries"
 
-    property_id = fields.Many2one('hms.property', "Property")
+    property_id = fields.Many2one('hms.property', "Property", readonly=True)
     invoice_sequence_number_next = fields.Char(string='Next Number')
+    group_id = fields.Many2one('res.partner',
+                               string="Group",
+                               domain="[('is_group','=',True)]",
+                               help='Group')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -1156,3 +1221,22 @@ class AccountMove(models.Model):
         remaining = (self - treated)
         remaining.invoice_sequence_number_next_prefix = False
         remaining.invoice_sequence_number_next = False
+
+
+class AccountMoveLine(models.Model):
+    _inherit = "account.move.line"
+
+    property_id = fields.Many2one('hms.property', "Property", readonly=True)
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        domain="[('property_id', '=?', property_id)]")
+    package_id = fields.Many2one('hms.package.header', string='Package')
+    transaction_date = fields.Date("Date")
+    tax_amount = fields.Monetary(string='Total Tax', store=True, readonly=True)
+    svc_amount = fields.Monetary(string='Service Charge',
+                                 store=True,
+                                 readonly=True)
+    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+                                      store=True,
+                                      readonly=True)
