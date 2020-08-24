@@ -235,6 +235,7 @@
                     <field name="end_date"/>
                     <field name="id"/>
                     <field name="currency_id"/>
+                    <field name="scurrency_id"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">
@@ -242,10 +243,11 @@
                                     <div class="oe_kanban_details">
                                         <div>
                                             <b>Property: </b>
-                                            <field name="property_id"/>
+                                            <b><field name="property_id"/></b>
                                             <br></br>
                                             <b>Code: </b>
-                                            <field name="season_code"/>
+                                            <b><field name="season_code"/></b>
+                                            <b><field name="roomtype_id"/></b>
                                         </div>
                                         <!-- <t t-foreach="record.roomtype_id.raw_value" t-as="o">
                                             <div>
@@ -253,19 +255,18 @@
                                                 <t t-esc="o.code"/>
                                             </div>
                                         </t> -->
-                                        <span class="oe_kanban_list_many2many">
-                                            <field name="roomtype_id"/>
-                                        </span>
+
+                                            <b><field name="roomtype_id"/></b>
                                         <div>
                                             <b>From: </b>
-                                            <field name="start_date"/>
+                                            <b><field name="start_date"/></b>
                                             &#x2063;
                                             <b>To: </b>
-                                            <field name="end_date"/>
+                                            <b><field name="end_date"/></b>
                                         </div>
                                         <div>
-                                            <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id,'default_currency_id':currency_id}">
-                                                <i class="fa fa-paint-brush"></i>Copy Season Code
+                                            <button string="Copy Season Code" name="%(action_rc_detail_copy_wiz)d" type="action" class="btn btn-primary" context="{'default_property_id':property_id,'default_currency_id':currency_id,'default_scurrency_id':scurrency_id}">
+                                                <i class="fa fa-copy"></i>Copy
                                             </button>
                                         </div>
                                     </div>

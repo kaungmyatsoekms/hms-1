@@ -20,7 +20,12 @@ class RatecodeDetailCopyWizard(models.TransientModel):
     ratehead_id = fields.Many2one('hms.ratecode.header',related="ratecode_detail_id.ratehead_id")
     property_id = fields.Many2one('hms.property',
                                   readonly=True)
-    season_code = fields.Char(string="Season", required=True)
+    season_code = fields.Selection([('low', "Low"),
+                                    ('normal', "Normal"),
+                                    ('high', "High")],
+                                    required=True,
+                                   string="Season Code",
+                                   help='Season Code')
     roomtype_ids = fields.Many2many("hms.roomtype",
                                     related="ratecode_detail_id.roomtype_ids")
     roomtype_id = fields.Many2many('hms.roomtype',
@@ -35,10 +40,10 @@ class RatecodeDetailCopyWizard(models.TransientModel):
         related="ratecode_detail_id.transaction_id")
     currency_id = fields.Many2one("res.currency",
                                   "Currency",
-                                  required=True)
+                                  readonly=True)
     scurrency_id = fields.Many2one("res.currency",
                                   "Second Currency",
-                                  readonly=False,
+                                  readonly=True,
                                   track_visibility=True,
                                   help='Second Currency')
     normal_price1 = fields.Float(string="1 Adult")

@@ -456,7 +456,7 @@
         <record id="base.main_company" model="res.company">
             <field name="name">Zando Technology</field>
             <field name="partner_id" ref="base.main_partner"/>
-            <field name="currency_id" ref="base.EUR"/>
+            <field name="currency_id" ref="base.MMK"/>
             <field name="profile_id_format" ref="pms_format_id1"/>
             <field name="cprofile_id_format" ref="pms_format_id2"/>
             <field name="gprofile_id_format" ref="pms_format_id3"/>

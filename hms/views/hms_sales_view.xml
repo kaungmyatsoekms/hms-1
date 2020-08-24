@@ -8,8 +8,8 @@
                 <xpath expr="//form/sheet/group[1]" position="replace">
                     <group>
                         <group>
-                            <!-- <field name="has_due" invisible="1"/> -->
-                            <!-- <field name="is_warning" invisible="1"/> -->
+                            <!-- <field name="has_due" invisible="1"/>
+                            <field name="is_warning" invisible="1"/> -->
                             <field name="property_id" string="Property"/>
                             <field name="partner_id" string="Guest Name" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}" options='{"always_reload": True}'/>
                             <field name="partner_invoice_id" invisible="1" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options='{"always_reload": True}'/>
@@ -84,7 +84,7 @@
                                             'readonly': [('state', 'in', ('sale','done', 'cancel'))],
                                             'required': [('display_type', '=', False)],
                                         }" context="{'company_id': parent.company_id}" groups="uom.group_uom" options='{"no_open": True}' invisible="1"/>
-                                <field name="customer_lead" optional="hide" attrs="{'readonly': [('parent.state', 'not in', ['draft', 'sent'])]}"/>
+                                <field name="customer_lead" attrs="{'readonly': [('parent.state', 'not in', ['draft', 'sent'])]}" invisible="1"/>
                                 <field name="price_unit" widget="monetary" readonly="1"/>
                                 <field name="svc_amount" readonly="1"/>
                                 <field name="tax_id" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" optional="show"/>
@@ -129,8 +129,8 @@
                         <group id="header_left_group">
                             <field name="property_id"/>
                             <field name="currency_id" invisible="1"/>
-                            <!-- <field name="has_due" invisible="1"/> -->
-                            <!-- <field name="is_warning" invisible="1"/> -->
+                            <!-- <field name="has_due" invisible="1"/>
+                            <field name="is_warning" invisible="1"/> -->
                             <field name="journal_id" invisible="1"/>
                             <div class="o_td_label">
                                 <label for="partner_id" string="Customer" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>

@@ -137,6 +137,7 @@ class Reservation(models.Model):
     guest_id = fields.Many2one('res.partner',
                                string="Guest",
                                domain="[('is_guest','=',True)]",
+                               required=True,
                                help='Guest')
     roomtype_id = fields.Many2one('hms.roomtype', default=1)
     arrival = fields.Date(string="Arrival Date",
@@ -1003,6 +1004,7 @@ class ReservationLine(models.Model):
     guest_id = fields.Many2one('res.partner',
                                string="Guest Name",
                                domain="[('is_guest','=',True)]",
+                               required=True,
                                help="GuestName")
     nationality_id = fields.Many2one('hms.nationality',
                                      string="Guest Nationality")
@@ -1109,7 +1111,7 @@ class ReservationLine(models.Model):
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         string="Rate Code",
-        # required=True,
+        required=True,
         domain=
         "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
     )
@@ -1124,7 +1126,7 @@ class ReservationLine(models.Model):
                                    related='ratehead_id.ratecode_details')
     ratecode_id = fields.Many2one(
         'hms.ratecode.details',
-        # required=True,
+        required=True,
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )

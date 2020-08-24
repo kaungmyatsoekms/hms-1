@@ -631,7 +631,8 @@
                             <page string="Charges">
                                 <field name='room_transaction_line_ids' context="{'default_property_id': property_id, 'reservation_line_id': id}">
                                     <tree editable="bottom" class="tree_no_open" default_order="transaction_date,transaction_id">
-                                        <field name="property_id" invisible="1"/>
+                                        <field name="reservation_line_id" invisible="1"/>
+                                        <field name="property_id"/>
                                         <field name="transaction_date"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
@@ -642,7 +643,7 @@
                                         <field name="subtotal_wo_svc"/>
                                         <field name="svc_amount"/>
                                         <field name="price_subtotal" sum="Total"/>
-                                        <field name="tax_id"/>
+                                        <field name="tax_id" domain="[('type_tax_use', 'in', ('sale', 'all'))]"/>
                                         <field name="tax_amount"/>
                                         <field name="price_total" sum="Total"/>
                                         <field name="ref"/>
