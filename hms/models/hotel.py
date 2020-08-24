@@ -604,6 +604,14 @@ class Property(models.Model):
             if len(ex_noshow_rsvn.reservation_line_ids) == 0:
                 ex_noshow_rsvn.update({'active': False})
 
+        # For removing Ratecode Details
+        ex_rc_details = self.env['hms.ratecode.details'].search([
+            ('property_id', '=', self.id),
+            ('end_date', '<', datetime.today())
+        ])
+        for ex_rc_detail in ex_rc_details:
+            ex_rc_detail.update({'active': False})
+
         # For System Date Update
 
         self.system_date = self.system_date + timedelta(days=1)
@@ -712,6 +720,14 @@ class Property(models.Model):
             if ex_noshow_rsvn.property_id.is_manual is False:
                 if len(ex_noshow_rsvn.reservation_line_ids) == 0:
                     ex_noshow_rsvn.update({'active': False})
+
+        # For removing Ratecode Details
+        ex_rc_details = self.env['hms.ratecode.details'].search([
+            ('end_date', '<', datetime.today())
+        ])
+        for ex_rc_detail in ex_rc_details:
+            if ex_rc_detail.is_manual is False:
+                ex_rc_detail.update({'active': False})
 
         # For System Date Update
         property_objs = self.env['hms.property'].search([])
@@ -1317,7 +1333,7 @@ class Property(models.Model):
                 'name': res.code+" Administrator",
                 'login': res.code.lower()+"admin",
                 'company_ids': [(4, company.id or company_obj.id), (4,res.hotelgroup_id.id)],
-                'company_id': company.id,
+                'company_id': company.id or company_obj.id,
                 'property_id': [(4, res.id)],
                 'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
                 (4, pos_admin), (4, sale_admin)]
