@@ -2161,14 +2161,12 @@ class ReservationLine(models.Model):
                            transaction_date, total_room, total_qty, delete,
                            rate_attribute):
         currency = reservation_line_id.currency_id
-        tax_id = self.env['account.tax']
-        svc_id = self.env['account.tax']
-
+        taxes = []
         if transaction_id.trans_svc is True:
-            svc_id = property_id.sale_svc_id.id
-
+            taxes.append(property_id.sale_svc_id.id)
         if transaction_id.trans_tax is True:
-            tax_id = property_id.sale_tax_id.id
+            taxes.append(property_id.sale_tax_id.id)
+
         vals = []
         vals.append((0, 0, {
             'property_id': property_id.id,
@@ -2184,7 +2182,7 @@ class ReservationLine(models.Model):
             'rate_attribute': rate_attribute,
             'ref': 'AUTO',
             'currency_id': currency.id,
-            'tax_ids': [(4, svc_id), (4, tax_id)],
+            'tax_ids': taxes,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 
@@ -2193,13 +2191,11 @@ class ReservationLine(models.Model):
                            rate, active, package_id, transaction_date,
                            total_room, total_qty, delete, rate_attribute,
                            currency_id):
-        tax_id = self.env['account.tax']
-        svc_id = self.env['account.tax']
-
+        taxes = []
         if transaction_id.trans_svc is True:
-            svc_id = room_transaction_line_id.property_id.sale_svc_id.id
+            taxes.append(room_transaction_line_id.property_id.sale_svc_id.id)
         if transaction_id.trans_tax is True:
-            tax_id = room_transaction_line_id.property_id.sale_tax_id.id
+            taxes.append(room_transaction_line_id.property_id.sale_tax_id.id)
 
         room_transaction_line_id.update({
             'transaction_id': transaction_id.id,
@@ -2213,7 +2209,7 @@ class ReservationLine(models.Model):
             'rate_attribute': rate_attribute,
             'currency_id': currency_id.id,
             'ref': 'AUTO',
-            'tax_ids': [(4, svc_id), (4, tax_id)],
+            'tax_ids': taxes,
         })
 
     def get_posting_date(self, reservation_line_id, pkg):

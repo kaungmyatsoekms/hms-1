@@ -1366,7 +1366,7 @@
                                 <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
                                 <field name="product_id"/>
                                 <field name="enable_service_charge" invisible="1"/>
-                                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': ['|', ('revtype_name', '=', 'Payment'), ('enable_service_charge', '=', False)]}"/>
                                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_internal" widget="boolean_toggle"/>
                                 <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>

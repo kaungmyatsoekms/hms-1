@@ -416,6 +416,14 @@ class Property(models.Model):
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
+    @api.onchange('enable_service_charge')
+    def onchange_service_charge(self):
+        for rec in self:
+            if rec.enable_service_charge == False:
+                rec.svc_include_tax = rec.sale_svc_id.include_base_amount = rec.sale_svc_id = rec.disable_popup = False
+                for t in rec._origin.transaction_ids:
+                    t.write({'trans_svc': False})
+
     @api.onchange('svc_include_tax')
     def onchange_include_base_amount(self):
         for rec in self:
@@ -424,14 +432,6 @@ class Property(models.Model):
                     rec.sale_svc_id.include_base_amount = True
                 else:
                     rec.sale_svc_id.include_base_amount = False
-
-    # @api.onchange('enable_service_charge')
-    # def onchange_transaction_svc(self):
-    #     for rec in self:
-    #         if rec.enable_service_charge == False:
-    #             if rec.transaction_ids:
-    #                 for transaction in rec.transaction_ids:
-    #                     transaction.write({'trans_svc': False})
 
     @api.onchange('show_line_subtotals_tax_selection')
     def _onchange_sale_tax(self):
@@ -2358,7 +2358,7 @@ class Transaction(models.Model):
     ],
                                        string="Utilities")
     enable_service_charge = fields.Boolean(
-        'Enable Svc', related='property_id.enable_service_charge')
+        'Enable SVC', related='property_id.enable_service_charge')
     trans_svc = fields.Boolean(string="Service Charge")
     trans_tax = fields.Boolean(string="Tax")
     trans_internal = fields.Boolean(string="Internal Use")
