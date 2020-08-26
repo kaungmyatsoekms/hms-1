@@ -381,7 +381,6 @@ class Property(models.Model):
         "Invoice No Format",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
-
     # Tax
     sale_tax_id = fields.Many2one(
         'account.tax',
@@ -410,56 +409,29 @@ class Property(models.Model):
     enable_service_charge = fields.Boolean(
         string='Service Charges',
         default=lambda self: self.env.user.company_id.enable_service_charge)
-    service_charge_type = fields.Selection(
-        [('amount', 'Amount'), ('percentage', 'Percentage')],
-        string='Type',
-        default=lambda self: self.env.user.company_id.service_charge_type)
-    service_product_id = fields.Many2one(
-        'product.product',
-        string='Service Product',
-        domain="[('sale_ok', '=', True),"
-        "('type', '=', 'service')]",
-        default=lambda self: self.env.user.company_id.service_product_id.id)
-    service_charge = fields.Float(
-        string='Service Charge',
-        default=lambda self: self.env.user.company_id.service_charge)
     svc_include_tax = fields.Boolean(string='Include Tax')
-    svc_as_line = fields.Boolean(string='Service Charge as Invoice Line')
     disable_popup = fields.Boolean(string='Disable Popup')
-    svc_inc_exc = fields.Selection(string='Service Charges Included/Excluded',
-                                   selection=[('included', 'Svc-Included'),
-                                              ('excluded', 'Svc-Excluded')],
-                                   compute='_compute_svc_include_exclude',
-                                   inverse='_write_svc_include_exclude',
-                                   track_visibility=True,
-                                   help='Service Charges Included or Excluded')
-    is_include = fields.Boolean(string="Is Included", default=False)
-    # Service
-    sale_svc_id = fields.Many2one(
-        'account.tax',
-        string="Sals Svc Chg")
+    sale_svc_id = fields.Many2one('account.tax', string="Service Charge")
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
-    # Radio Button for Service Charge Include/Exclude
-    @api.depends('is_include')
-    def _compute_svc_include_exclude(self):
+    @api.onchange('svc_include_tax')
+    def onchange_include_base_amount(self):
         for rec in self:
-            if rec.is_include or self._context.get(
-                    'default_svc_inc_exc') == 'included':
-                rec.svc_inc_exc = 'included'
-                rec.is_include = True
-            else:
-                rec.svc_inc_exc = 'excluded'
+            if rec.sale_svc_id:
+                if rec.svc_include_tax == True:
+                    rec.sale_svc_id.include_base_amount = True
+                else:
+                    rec.sale_svc_id.include_base_amount = False
 
-    def _write_svc_include_exclude(self):
-        for rec in self:
-            rec.is_include = rec.svc_inc_exc == 'included'
-
-    @api.onchange('svc_inc_exc')
-    def onchange_svc_inc_exc(self):
-        self.is_include = (self.svc_inc_exc == 'included')
+    # @api.onchange('enable_service_charge')
+    # def onchange_transaction_svc(self):
+    #     for rec in self:
+    #         if rec.enable_service_charge == False:
+    #             if rec.transaction_ids:
+    #                 for transaction in rec.transaction_ids:
+    #                     transaction.write({'trans_svc': False})
 
     @api.onchange('show_line_subtotals_tax_selection')
     def _onchange_sale_tax(self):
@@ -473,18 +445,6 @@ class Property(models.Model):
                 'group_show_line_subtotals_tax_included': True,
                 'group_show_line_subtotals_tax_excluded': False,
             })
-
-    @api.onchange('enable_service_charge')
-    def set_config_service_charge(self):
-        if self.enable_service_charge:
-            if not self.service_product_id:
-                domain = [('sale_ok', '=', True), ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(
-                    domain, limit=1)
-            self.service_charge = 10.0
-        else:
-            self.service_product_id = False
-            self.service_charge = 0.0
 
     @api.depends('system_date')
     def _compute_is_night_audit(self):
@@ -2398,11 +2358,8 @@ class Transaction(models.Model):
     ],
                                        string="Utilities")
     enable_service_charge = fields.Boolean(
-        'Enable Svc',
-        related='property_id.enable_service_charge',
-        readonly=False)
-    trans_svc = fields.Boolean(
-        string="Service Charge")  #compute='_compute_trans_svc',store=True
+        'Enable Svc', related='property_id.enable_service_charge')
+    trans_svc = fields.Boolean(string="Service Charge")
     trans_tax = fields.Boolean(string="Tax")
     trans_internal = fields.Boolean(string="Internal Use")
     trans_minus = fields.Boolean(string="Minus Nature")
@@ -2431,12 +2388,6 @@ class Transaction(models.Model):
             result.append((record.id, "({}) {}".format(record.trans_code,
                                                        record.trans_name)))
         return result
-
-    @api.depends('enable_service_charge')
-    def _compute_trans_svc(self):
-        for rec in self:
-            if rec.enable_service_charge is False:
-                rec.trans_svc = False
 
     def create_product_template(self, transaction_id):
         res = transaction_id

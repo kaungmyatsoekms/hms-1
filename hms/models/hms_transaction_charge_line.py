@@ -35,8 +35,6 @@ class HMSTransactionChargeLine(models.Model):
     reservation_line_id = fields.Many2one("hms.reservation.line",
                                           "Reservation",
                                           default=get_reservation_line_id)
-    # rate = fields.Float("Rate", store=True)
-    # total_amount = fields.Float("Total")
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
@@ -44,6 +42,7 @@ class HMSTransactionChargeLine(models.Model):
         related="reservation_line_id.package_id.package_ids")
     package_id = fields.Many2one('hms.package.header', string='Package')
     total_room = fields.Integer('Rooms', related="reservation_line_id.rooms")
+    total_qty = fields.Integer('Total Quantity')
     transaction_date = fields.Date("Date")
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
@@ -61,63 +60,25 @@ class HMSTransactionChargeLine(models.Model):
         help=
         "Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one."
     )
-    # New Fields For Proforma
     price_unit = fields.Float(string='Unit Price', digits='Product Price')
     tax_ids = fields.Many2many('account.tax',
                                string='Taxes',
                                help="Taxes that apply on the base amount")
-    tax_line_id = fields.Many2one(
-        'account.tax',
-        string='Originator Tax',
-        ondelete='restrict',
-        store=True,
-        compute='_compute_tax_line_id',
-        help="Indicates that this journal item is a tax line")
-    tax_group_id = fields.Many2one(
-        related='tax_line_id.tax_group_id',
-        string='Originator tax group',
-        readonly=True,
-        store=True,
-        help='technical field for widget tax-group-custom-field')
-    tax_repartition_line_id = fields.Many2one(
-        comodel_name='account.tax.repartition.line',
-        string="Originator Tax Repartition Line",
-        ondelete='restrict',
-        readonly=True,
-        help=
-        "Tax repartition line that caused the creation of this move line, if any"
-    )
     price_subtotal = fields.Monetary(string='Subtotal',
                                      store=True,
                                      readonly=True,
-                                     currency_field='always_set_currency_id')
-    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
-                                      store=True,
-                                      readonly=True,
-                                      currency_field='always_set_currency_id')
+                                     currency_field='always_set_currency_id',
+                                     compute='_compute_amount')
     price_total = fields.Monetary(string='Total',
                                   store=True,
                                   readonly=True,
-                                  currency_field='always_set_currency_id')
-    tax_amount = fields.Monetary(string='Tax',
+                                  currency_field='always_set_currency_id',
+                                  compute='_compute_amount')
+    tax_amount = fields.Monetary(string='SVC & TAX',
                                  store=True,
                                  readonly=True,
-                                 currency_field='always_set_currency_id')
-    svc_amount = fields.Monetary(string='Service Charge',
-                                 store=True,
-                                 readonly=True,
-                                 currency_field='always_set_currency_id')
-    amount_currency = fields.Monetary(
-        string='Amount in Currency',
-        store=True,
-        copy=True,
-        help=
-        "The amount expressed in an optional other currency if it is a multi-currency entry."
-    )
-    tax_base_amount = fields.Monetary(string="Base Amount",
-                                      store=True,
-                                      readonly=True,
-                                      currency_field='always_set_currency_id')
+                                 currency_field='always_set_currency_id',
+                                 compute='_compute_amount')
 
     def name_get(self):
         result = []
@@ -127,16 +88,27 @@ class HMSTransactionChargeLine(models.Model):
                                             record.transaction_id.trans_name)))
         return result
 
-    @api.depends('tax_repartition_line_id.invoice_tax_id',
-                 'tax_repartition_line_id.refund_tax_id')
-    def _compute_tax_line_id(self):
-        """ tax_line_id is computed as the tax linked to the repartition line creating
-        the move.
+    @api.depends('total_qty', 'price_unit', 'tax_ids')
+    def _compute_amount(self):
         """
-        for record in self:
-            rep_line = record.tax_repartition_line_id
-            # A constraint on account.tax.repartition.line ensures both those fields are mutually exclusive
-            record.tax_line_id = rep_line.invoice_tax_id or rep_line.refund_tax_id
+        Compute the amounts of the transaction charge line.
+        """
+        for line in self:
+            # price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+            price = line.price_unit
+            taxes = line.tax_ids.compute_all(
+                price,
+                line.currency_id,
+                line.total_qty,
+                partner=line.reservation_line_id.guest_id)
+            line.update({
+                'tax_amount':
+                sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+                'price_total':
+                taxes['total_included'],
+                'price_subtotal':
+                taxes['total_excluded'],
+            })
 
     # Compute Currency
     @api.depends('currency_id')

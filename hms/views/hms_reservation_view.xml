@@ -640,20 +640,17 @@
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="price_unit"/>
                                         <field name="total_room"/>
-                                        <field name="subtotal_wo_svc" invisible="1"/>
-                                        <field name="svc_amount" invisible="1"/>
-                                        <field name="price_subtotal" sum="Total"/>
-                                        <field name="tax_line_id" readonly='1' invisible="1" attrs="{'invisible': [('tax_line_id', '=', False)]}"/>
+                                        <field name="total_qty" invisible="1"/>
+                                        <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
                                         <field name="tax_ids" domain="[('type_tax_use', 'in', ('sale', 'all'))]" widget="many2many_tags"/>
-                                        <field name="tax_amount"/>
-                                        <field name="price_total" sum="Total"/>
+                                        <field name="tax_amount" optional="hide"/>
+                                        <field name="price_total" sum="Total" groups="account.group_show_line_subtotals_tax_included"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>
                                 <group class="oe_subtotal_footer oe_right" colspan="2">
                                     <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
                                     <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
-                                    <!-- <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/> -->
                                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                                         <label for="amount_total"/>
                                     </div>

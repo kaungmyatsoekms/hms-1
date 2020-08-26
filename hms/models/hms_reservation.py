@@ -513,14 +513,14 @@ class Reservation(models.Model):
                                        room_type, rooms, reduce, status)
             rec.write({'state': status})
             # Create Sale Order and Sale Order Line
-            charge_line_obj = self.env[
-                'hms.room.transaction.charge.line'].search([
-                    ('reservation_line_id', '=', rec.id)
-                ])
-            if charge_line_obj:
-                rec.create_sale_order(rec)
-                for obj in charge_line_obj:
-                    rec.create_sale_order_line(obj)
+            # charge_line_obj = self.env[
+            #     'hms.room.transaction.charge.line'].search([
+            #         ('reservation_line_id', '=', rec.id)
+            #     ])
+            # if charge_line_obj:
+            #     rec.create_sale_order(rec)
+            #     for obj in charge_line_obj:
+            #         rec.create_sale_order_line(obj)
 
     def checkin_status(self):
         for rec in self:
@@ -1245,7 +1245,7 @@ class ReservationLine(models.Model):
                 price_reduce = line.price_unit
                 taxes = line.tax_ids.compute_all(
                     price_reduce,
-                    quantity=line.total_room,
+                    quantity=line.total_qty,
                     product=line.transaction_id.product_id,
                     partner=order.guest_id)['taxes']
                 for tax in line.tax_ids:
@@ -1265,62 +1265,6 @@ class ReservationLine(models.Model):
                 fmt(l[1]['base']),
                 len(res),
             ) for l in res]
-
-    # @api.depends('room_transaction_line_ids.price_subtotal',
-    #              'room_transaction_line_ids.tax_base_amount',
-    #              'room_transaction_line_ids.tax_line_id', 'guest_id',
-    #              'currency_id')
-    # def _compute_invoice_taxes_by_group(self):
-    #     ''' Helper to get the taxes grouped according their account.tax.group.
-    #     This method is only used when printing the invoice.
-    #     '''
-    #     for move in self:
-    #         lang_env = move.with_context(lang=move.guest_id.lang).env
-    #         tax_lines = move.room_transaction_line_ids.filtered(
-    #             lambda line: line.tax_line_id)
-    #         res = {}
-    #         # There are as many tax line as there are repartition lines
-    #         done_taxes = set()
-    #         for line in tax_lines:
-    #             res.setdefault(line.tax_line_id.tax_group_id, {
-    #                 'base': 0.0,
-    #                 'amount': 0.0
-    #             })
-    #             res[line.tax_line_id.
-    #                 tax_group_id]['amount'] += line.price_subtotal
-    #             tax_key_add_base = tuple(
-    #                 move._get_tax_key_for_group_add_base(line))
-    #             if tax_key_add_base not in done_taxes:
-    #                 if line.currency_id != self.property_id.currency_id:
-    #                     amount = self.property_id.currency_id._convert(
-    #                         line.tax_base_amount, line.currency_id,
-    #                         self.property_id.company_id, line.transaction_date
-    #                         or fields.Date.today())
-    #                 else:
-    #                     amount = line.tax_base_amount
-    #                 res[line.tax_line_id.tax_group_id]['base'] += amount
-    #                 # The base should be added ONCE
-    #                 done_taxes.add(tax_key_add_base)
-    #         res = sorted(res.items(), key=lambda l: l[0].sequence)
-    #         move.amount_by_group = [
-    #             (group.name, amounts['amount'], amounts['base'],
-    #              formatLang(lang_env,
-    #                         amounts['amount'],
-    #                         currency_obj=move.currency_id),
-    #              formatLang(lang_env,
-    #                         amounts['base'],
-    #                         currency_obj=move.currency_id), len(res), group.id)
-    #             for group, amounts in res
-    #         ]
-
-    # @api.model
-    # def _get_tax_key_for_group_add_base(self, line):
-    #     """
-    #     Useful for _compute_invoice_taxes_by_group
-    #     must be consistent with _get_tax_grouping_key_from_tax_line
-    #      @return list
-    #     """
-    #     return [line.tax_line_id.id]
 
     # Compute Room Rate based on Pax
     def _check_rate(self, check_date, pax, rate, property_id, currency_id):
@@ -2002,8 +1946,6 @@ class ReservationLine(models.Model):
                 'nights': int(days)
             })
 
-    # @api.onchange('reservation_id')
-    # def onchange_hfo_arrival(self):
     @api.onchange('arrival', 'departure', 'room_type', 'rooms')
     def onchange_roomtype(self):
         for rec in self:
@@ -2215,10 +2157,9 @@ class ReservationLine(models.Model):
 
     # Create Transaction Charge Lines
     def create_charge_line(self, property_id, transaction_id,
-                           reservation_line_id, rate, total_amount,
-                           total_amount_exclude, active, package_id,
-                           transaction_date, total_room, delete,
-                           rate_attribute, svc_amount, subtotal_wo_svc):
+                           reservation_line_id, rate, active, package_id,
+                           transaction_date, total_room, total_qty, delete,
+                           rate_attribute):
         currency = reservation_line_id.currency_id
         tax_id = self.env['account.tax']
         svc_id = self.env['account.tax']
@@ -2234,15 +2175,11 @@ class ReservationLine(models.Model):
             'transaction_id': transaction_id.id,
             'reservation_line_id': reservation_line_id.id,
             'price_unit': rate,
-            'price_subtotal': total_amount_exclude,
-            'price_total': total_amount,
-            'tax_amount': total_amount - total_amount_exclude,
-            'svc_amount': svc_amount,
-            'subtotal_wo_svc': subtotal_wo_svc,
             'active': active,
             'package_id': package_id.id,
             'transaction_date': transaction_date,
             'total_room': total_room,
+            'total_qty': total_qty,
             'delete': delete,
             'rate_attribute': rate_attribute,
             'ref': 'AUTO',
@@ -2253,10 +2190,9 @@ class ReservationLine(models.Model):
 
     # Update Transaction Charge Lines
     def update_charge_line(self, room_transaction_line_id, transaction_id,
-                           rate, total_amount, total_amount_exclude, active,
-                           package_id, transaction_date, total_room, delete,
-                           rate_attribute, currency_id, svc_amount,
-                           subtotal_wo_svc):
+                           rate, active, package_id, transaction_date,
+                           total_room, total_qty, delete, rate_attribute,
+                           currency_id):
         tax_id = self.env['account.tax']
         svc_id = self.env['account.tax']
 
@@ -2268,15 +2204,11 @@ class ReservationLine(models.Model):
         room_transaction_line_id.update({
             'transaction_id': transaction_id.id,
             'price_unit': rate,
-            'price_subtotal': total_amount_exclude,
-            'price_total': total_amount,
-            'tax_amount': total_amount - total_amount_exclude,
-            'svc_amount': svc_amount,
-            'subtotal_wo_svc': subtotal_wo_svc,
             'active': active,
             'package_id': package_id.id,
             'transaction_date': transaction_date,
             'total_room': total_room,
+            'total_qty': total_qty,
             'delete': delete,
             'rate_attribute': rate_attribute,
             'currency_id': currency_id.id,
@@ -2328,47 +2260,20 @@ class ReservationLine(models.Model):
                 posted_dates = res.get_posting_date(res, pkg)
                 if transaction_date in posted_dates:
                     rate = res.rate_calculate(pkg, res)
-                    total_amount = res.total_amount_calculate(rate, pkg, res)
-                    svc_res = {}
-                    if pkg.transaction_id.trans_svc is True:
-                        svc_res = res.service_calculate(
-                            total_amount, res, pkg.transaction_id)
-                    else:
-                        svc_res = {
-                            'subtotal_wo_svc': total_amount,
-                            'price_subtotal': total_amount,
-                            'svc_amount': 0.0,
-                        }
-                    tax_res = {}
-                    total = 0.0
-                    subtotal = 0.0
-                    if pkg.transaction_id.trans_tax is True:
-                        if res.property_id.svc_include_tax is True:
-                            tax_res = res.tax_calculate(
-                                svc_res['price_subtotal'], res)
-                            total = tax_res['total_included']
-                            subtotal = tax_res['total_excluded']
-                        else:
-                            tax_res = res.tax_calculate(
-                                svc_res['subtotal_wo_svc'], res)
-                            total = tax_res['total_included'] + svc_res[
-                                'svc_amount']
-                            subtotal = tax_res['total_excluded'] + svc_res[
-                                'svc_amount']
-                    else:
-                        total = subtotal = svc_res['price_subtotal']
+                    total_qty = res.total_qty_calculate(pkg, res)
+                    total_amount = rate * total_qty
                     if total_amount == 0.0 and rate > 0.0:
-                        res.create_charge_line(
-                            res.property_id, pkg.transaction_id, res, rate,
-                            total, subtotal, False, pkg, transaction_date,
-                            res.rooms, False, pkg.rate_attribute,
-                            svc_res['svc_amount'], svc_res['subtotal_wo_svc'])
+                        res.create_charge_line(res.property_id,
+                                               pkg.transaction_id, res, rate,
+                                               False, pkg, transaction_date,
+                                               res.rooms, total_qty, False,
+                                               pkg.rate_attribute)
                     else:
-                        res.create_charge_line(
-                            res.property_id, pkg.transaction_id, res, rate,
-                            total, subtotal, True, pkg, transaction_date,
-                            res.rooms, False, pkg.rate_attribute,
-                            svc_res['svc_amount'], svc_res['subtotal_wo_svc'])
+                        res.create_charge_line(res.property_id,
+                                               pkg.transaction_id, res, rate,
+                                               True, pkg, transaction_date,
+                                               res.rooms, total_qty, False,
+                                               pkg.rate_attribute)
         # For Room Charge Transaction
         if check_pkg != 'SS':
             room_charge_objs = self.env[
@@ -2398,41 +2303,10 @@ class ReservationLine(models.Model):
                     temp_rate = 0.0
                 room_rate = temp_rate
                 room_amount = room_rate * res.rooms
-                svc_res = {}
-                if res.ratecode_id.transaction_id.trans_svc is True:
-                    svc_res = res.service_calculate(
-                        room_amount, res, res.ratecode_id.transaction_id)
-                else:
-                    svc_res = {
-                        'subtotal_wo_svc': room_amount,
-                        'price_subtotal': room_amount,
-                        'svc_amount': 0.0,
-                    }
-
-                tax_res = {}
-                total = 0.0
-                subtotal = 0.0
-                if res.property_id.sale_tax_id and res.ratecode_id.transaction_id.trans_tax is True:
-                    if res.property_id.svc_include_tax is True:
-                        tax_res = res.property_id.sale_tax_id.compute_all(
-                            price_unit=svc_res['price_subtotal'])
-                        total = tax_res['total_included']
-                        subtotal = tax_res['total_excluded']
-                    else:
-                        tax_res = res.property_id.sale_tax_id.compute_all(
-                            price_unit=svc_res['subtotal_wo_svc'])
-                        total = tax_res['total_included'] + svc_res[
-                            'svc_amount']
-                        subtotal = tax_res['total_excluded'] + svc_res[
-                            'svc_amount']
-                else:
-                    total = subtotal = svc_res['price_subtotal']
                 res.create_charge_line(res.property_id,
                                        res.ratecode_id.transaction_id, res,
-                                       room_rate, total, subtotal, True, pkg,
-                                       transaction_date, res.rooms, False,
-                                       'INR', svc_res['svc_amount'],
-                                       svc_res['subtotal_wo_svc'])
+                                       room_rate, True, pkg, transaction_date,
+                                       res.rooms, res.rooms, False, 'INR')
 
     def update_line_with_posting_rhythm(self, reservation_line_id, delete):
         res = reservation_line_id
@@ -2440,8 +2314,6 @@ class ReservationLine(models.Model):
         for rec in range(res.nights):
             transaction_date = res.arrival + timedelta(days=day_count)
             if res.package_id:
-                total_amount_include = 0.0
-                total_room_rate = 0.0
                 room_charge_objs = self.env[
                     'hms.room.transaction.charge.line'].search([
                         ('property_id', '=', res.property_id.id),
@@ -2471,41 +2343,12 @@ class ReservationLine(models.Model):
                             temp_rate = 0.0
                         room_rate = temp_rate
                         room_amount = room_rate * res.rooms
-                        svc_res = {}
-                        if res.ratecode_id.transaction_id.trans_svc is True:
-                            svc_res = res.service_calculate(
-                                room_amount, res,
-                                res.ratecode_id.transaction_id)
-                        else:
-                            svc_res = {
-                                'subtotal_wo_svc': room_amount,
-                                'price_subtotal': room_amount,
-                                'svc_amount': 0.0,
-                            }
-
-                        tax_res = {}
-                        total = 0.0
-                        subtotal = 0.0
-                        if res.property_id.sale_tax_id and res.ratecode_id.transaction_id.trans_tax is True:
-                            if res.property_id.svc_include_tax is True:
-                                tax_res = res.property_id.sale_tax_id.compute_all(
-                                    price_unit=svc_res['price_subtotal'])
-                                total = tax_res['total_included']
-                                subtotal = tax_res['total_excluded']
-                            else:
-                                tax_res = res.property_id.sale_tax_id.compute_all(
-                                    price_unit=svc_res['subtotal_wo_svc'])
-                                total = tax_res['total_included'] + svc_res[
-                                    'svc_amount']
-                                subtotal = tax_res['total_excluded'] + svc_res[
-                                    'svc_amount']
-                        else:
-                            total = subtotal = svc_res['price_subtotal']
-                        res.update_charge_line(
-                            rc, res.ratecode_id.transaction_id, room_rate,
-                            total, subtotal, True, pkg, transaction_date,
-                            res.rooms, False, 'INR', res.currency_id,
-                            svc_res['svc_amount'], svc_res['subtotal_wo_svc'])
+                        res.update_charge_line(rc,
+                                               res.ratecode_id.transaction_id,
+                                               room_rate, True, pkg,
+                                               transaction_date, res.rooms,
+                                               res.rooms, False, 'INR',
+                                               res.currency_id)
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
@@ -2527,61 +2370,25 @@ class ReservationLine(models.Model):
                                 posted_dates = res.get_posting_date(res, pkg)
                                 if transaction_date in posted_dates:
                                     rate = res.rate_calculate(pkg, res)
-                                    total_amount = res.total_amount_calculate(
-                                        rate, pkg, res)
-                                    svc_res = {}
-                                    if pkg.transaction_id.trans_svc is True:
-                                        svc_res = res.service_calculate(
-                                            total_amount, res,
-                                            pkg.transaction_id)
-                                    else:
-                                        svc_res = {
-                                            'subtotal_wo_svc': total_amount,
-                                            'price_subtotal': total_amount,
-                                            'svc_amount': 0.0,
-                                        }
-                                    tax_res = {}
-                                    total = 0.0
-                                    subtotal = 0.0
-                                    if pkg.transaction_id.trans_tax is True:
-                                        if res.property_id.svc_include_tax is True:
-                                            tax_res = res.tax_calculate(
-                                                svc_res['price_subtotal'], res)
-                                            total = tax_res['total_included']
-                                            subtotal = tax_res[
-                                                'total_excluded']
-                                        else:
-                                            tax_res = res.tax_calculate(
-                                                svc_res['subtotal_wo_svc'],
-                                                res)
-                                            total = tax_res[
-                                                'total_included'] + svc_res[
-                                                    'svc_amount']
-                                            subtotal = tax_res[
-                                                'total_excluded'] + svc_res[
-                                                    'svc_amount']
-                                    else:
-                                        total = subtotal = svc_res[
-                                            'price_subtotal']
+                                    total_qty = res.total_qty_calculate(
+                                        pkg, res)
+                                    total_amount = rate * total_qty
+
                                     if r.transaction_id.id == pkg.transaction_id.id:
                                         if total_amount == 0.0 and rate > 0.0:
                                             res.update_charge_line(
                                                 r, pkg.transaction_id, rate,
-                                                total, subtotal, False, pkg,
-                                                transaction_date, res.rooms,
-                                                False, pkg.rate_attribute,
-                                                res.currency_id,
-                                                svc_res['svc_amount'],
-                                                svc_res['subtotal_wo_svc'])
+                                                False, pkg, transaction_date,
+                                                res.rooms, total_qty, False,
+                                                pkg.rate_attribute,
+                                                res.currency_id)
                                         else:
                                             res.update_charge_line(
                                                 r, pkg.transaction_id, rate,
-                                                total, subtotal, True, pkg,
-                                                transaction_date, res.rooms,
-                                                False, pkg.rate_attribute,
-                                                res.currency_id,
-                                                svc_res['svc_amount'],
-                                                svc_res['subtotal_wo_svc'])
+                                                True, pkg, transaction_date,
+                                                res.rooms, total_qty, False,
+                                                pkg.rate_attribute,
+                                                res.currency_id)
                         else:
                             res.create_line_with_posting_rhythm(
                                 res, transaction_date, pkg)
@@ -2607,165 +2414,28 @@ class ReservationLine(models.Model):
                         posted_dates = res.get_posting_date(res, pkg)
                         if transaction_date in posted_dates:
                             rate = res.rate_calculate(pkg, res)
-                            total_amount = res.total_amount_calculate(
-                                rate, pkg, res)
-                            svc_res = {}
-                            if pkg.transaction_id.trans_svc is True:
-                                svc_res = res.service_calculate(
-                                    total_amount, res, pkg.transaction_id)
-                            else:
-                                svc_res = {
-                                    'subtotal_wo_svc': total_amount,
-                                    'price_subtotal': total_amount,
-                                    'svc_amount': 0.0,
-                                }
-                            tax_res = {}
-                            total = 0.0
-                            subtotal = 0.0
-                            if pkg.transaction_id.trans_tax is True:
-                                if res.property_id.svc_include_tax is True:
-                                    tax_res = res.tax_calculate(
-                                        svc_res['price_subtotal'], res)
-                                    total = tax_res['total_included']
-                                    subtotal = tax_res['total_excluded']
-                                else:
-                                    tax_res = res.tax_calculate(
-                                        svc_res['subtotal_wo_svc'], res)
-                                    total = tax_res['total_included'] + svc_res[
-                                        'svc_amount']
-                                    subtotal = tax_res[
-                                        'total_excluded'] + svc_res[
-                                            'svc_amount']
-                            else:
-                                total = subtotal = svc_res['price_subtotal']
+                            total_qty = res.total_qty_calculate(pkg, res)
+                            total_amount = rate * total_qty
                             if r.transaction_id.id == pkg.transaction_id.id:
                                 if total_amount == 0.0 and rate > 0.0:
                                     res.update_charge_line(
-                                        r, pkg.transaction_id, rate, total,
-                                        subtotal, False, pkg, transaction_date,
-                                        res.rooms, False, pkg.rate_attribute,
-                                        res.currency_id, svc_res['svc_amount'],
-                                        svc_res['subtotal_wo_svc'])
+                                        r, pkg.transaction_id, rate, False,
+                                        pkg, transaction_date, res.rooms,
+                                        total_qty, False, pkg.rate_attribute,
+                                        res.currency_id)
                                 else:
                                     res.update_charge_line(
-                                        r, pkg.transaction_id, rate, total,
-                                        subtotal, True, pkg, transaction_date,
-                                        res.rooms, False, pkg.rate_attribute,
-                                        res.currency_id, svc_res['svc_amount'],
-                                        svc_res['subtotal_wo_svc'])
+                                        r, pkg.transaction_id, rate, True, pkg,
+                                        transaction_date, res.rooms, total_qty,
+                                        False, pkg.rate_attribute,
+                                        res.currency_id)
                 else:
                     res.create_line_with_posting_rhythm(
                         res, transaction_date, pkg)
             day_count += 1
 
-    # Create Sale Order
-    def create_sale_order(self, reservation_line_id):
-        res = reservation_line_id
-        partner_id = res.guest_id.id
-        date_order = datetime.today().now()
-        pricelist_id = self.env['product.pricelist'].search([
-            ('currency_id', '=', res.currency_id.id)
-        ]).id
-        sale_order_obj = self.env['sale.order'].create({
-            'state':
-            'draft',
-            'partner_id':
-            partner_id,
-            'partner_invoice_id':
-            partner_id,
-            'partner_shipping_id':
-            partner_id,
-            'date_order':
-            date_order,
-            'pricelist_id':
-            pricelist_id,
-            'property_id':
-            res.property_id.id,
-            'company_id':
-            res.property_id.company_id.id,
-            'group_id':
-            res.group_id.id,
-            'amount_untaxed':
-            res.amount_untaxed,
-            'amount_tax':
-            res.amount_tax,
-            'amount_total':
-            res.amount_total,
-        })
-        res.sale_order_id = sale_order_obj.id
-
-    # Create Sale Order Line
-    def create_sale_order_line(self, charge_line_id):
-        order_id = charge_line_id.reservation_line_id.sale_order_id.id
-        qty = charge_line_id.total_room
-        name = charge_line_id.transaction_id.product_id.product_tmpl_id.name
-        vals = []
-        vals.append((0, 0, {
-            'order_id':
-            order_id,
-            'product_id':
-            charge_line_id.transaction_id.product_id.id,
-            'name':
-            name,
-            'product_uom_qty':
-            qty,
-            'reservation_line_id':
-            charge_line_id.reservation_line_id.id,
-            'property_id':
-            charge_line_id.property_id.id,
-            'transaction_id':
-            charge_line_id.transaction_id.id,
-            'package_id':
-            charge_line_id.package_id.id,
-            'transaction_date':
-            charge_line_id.transaction_date,
-            'tax_id':
-            charge_line_id.tax_ids,
-            'price_unit':
-            charge_line_id.price_unit,
-            'price_subtotal':
-            charge_line_id.price_subtotal,
-            'price_total':
-            charge_line_id.price_total,
-            'price_tax':
-            charge_line_id.tax_amount,
-            'svc_amount':
-            charge_line_id.svc_amount,
-            'subtotal_wo_svc':
-            charge_line_id.subtotal_wo_svc,
-            'ref':
-            charge_line_id.ref,
-        }))
-        charge_line_id.reservation_line_id.update(
-            {'sale_order_line_ids': vals})
-
-    def action_view_sale_order(self):
-        sale_orders = self.mapped('sale_order_id')
-        action = self.env.ref('sale.action_orders').read()[0]
-        if len(sale_orders) > 1:
-            action['domain'] = [('id', 'in', sale_orders.ids)]
-        elif len(sale_orders) == 1:
-            form_view = [(self.env.ref('hms.view_order_form_extension').id,
-                          'form')]
-            if 'views' in action:
-                action['views'] = form_view + [
-                    (state, view)
-                    for state, view in action['views'] if view != 'form'
-                ]
-            else:
-                action['views'] = form_view
-            action['res_id'] = sale_orders.id
-        else:
-            action = {'type': 'ir.actions.act_window_close'}
-
-        context = {
-            'default_type': 'out_sale_order',
-        }
-        return action
-
     @api.model
     def create(self, values):
-        # _logger.info(values)
         res = super(ReservationLine, self).create(values)
 
         state = res.state
@@ -2791,18 +2461,6 @@ class ReservationLine(models.Model):
                 res.create_line_with_posting_rhythm(res, transaction_date,
                                                     res.additional_pkg_ids)
             day_count += 1
-
-        # Create Sale Order and Sale Order Line
-        charge_line_obj = self.env['hms.room.transaction.charge.line'].search([
-            ('reservation_line_id', '=', res.id)
-        ])
-        if res.state in ['reservation', 'confirm'
-                         ] and charge_line_obj and not res.sale_order_id:
-            res.create_sale_order(res)
-            for obj in charge_line_obj:
-                res.create_sale_order_line(obj)
-            if res.state == 'confirm':
-                res.sale_order_id.action_confirm()
         return res
 
     # Write Function
@@ -3044,19 +2702,6 @@ class ReservationLine(models.Model):
                         })
                     for pkg in self.additional_pkg_ids:
                         self.update_additional_packages(self, True, pkg)
-                # Change Sale Order State to Cancel and Create New SO and SO line
-                charge_line_objs = self.env[
-                    'hms.room.transaction.charge.line'].search([
-                        ('reservation_line_id', '=', self.id)
-                    ])
-                if charge_line_objs:
-                    self.sale_order_id.action_cancel()
-                    self.create_sale_order(self)
-                    for obj in charge_line_objs:
-                        self.create_sale_order_line(obj)
-                    if self.state == 'confirm':
-                        self.sale_order_id.action_confirm()
-
         return res
 
     # Unlink Function
@@ -3193,103 +2838,33 @@ class ReservationLine(models.Model):
                 rate = package_id.sfix_price
         return rate
 
-    def total_amount_calculate(self, rate, package_id, reservation_line_id):
-        total_amount = 0.0
+    def total_qty_calculate(self, package_id, reservation_line_id):
+        total_qty = 0
         if package_id.calculation_method == 'FIX':
-            total_amount = rate * reservation_line_id.rooms
+            total_qty = reservation_line_id.rooms
         elif package_id.calculation_method == 'PA':
-            total_amount = rate * reservation_line_id.pax * reservation_line_id.rooms
+            total_qty = reservation_line_id.pax * reservation_line_id.rooms
         elif package_id.calculation_method == 'PC':
-            total_amount = rate * reservation_line_id.child * reservation_line_id.rooms
+            total_qty = reservation_line_id.child * reservation_line_id.rooms
         elif package_id.calculation_method == 'CBP':
-            total_amount = rate * reservation_line_id.child_bfpax * reservation_line_id.rooms
+            total_qty = reservation_line_id.child_bfpax * reservation_line_id.rooms
         elif package_id.calculation_method == 'NEB':
-            total_amount = rate * reservation_line_id.extrabed * reservation_line_id.rooms
+            total_qty = reservation_line_id.extrabed * reservation_line_id.rooms
+        return total_qty
+
+    def total_amount_calculate(self, rate, package_id, reservation_line_id):
+        total_amount = 0
+        if package_id.calculation_method == 'FIX':
+            total_amount = rate
+        elif package_id.calculation_method == 'PA':
+            total_amount = rate * reservation_line_id.pax
+        elif package_id.calculation_method == 'PC':
+            total_amount = rate * reservation_line_id.child
+        elif package_id.calculation_method == 'CBP':
+            total_amount = rate * reservation_line_id.child_bfpax
+        elif package_id.calculation_method == 'NEB':
+            total_amount = rate * reservation_line_id.extrabed
         return total_amount
-
-    def service_calculate(self, total_amount, reservation_line_id,
-                          transaction_id):
-        res = reservation_line_id
-        subtotal = 0.0
-        svc_amount = 0.0
-        subtotal_wo_svc = 0.0
-        price_subtotal = 0.0
-        tax_amt = res.property_id.sale_tax_id.amount
-        svc_res = {}
-        if res.property_id.enable_service_charge is True:
-            amount = res.property_id.service_charge
-            if res.property_id.svc_inc_exc == 'included':
-                if transaction_id.trans_tax is True:
-                    if res.property_id.svc_include_tax is True:
-                        tax_res = res.tax_calculate(total_amount, res)
-                        total_amount_exclude = tax_res['total_excluded']
-                        if res.property_id.sale_tax_id.price_include is True:
-                            subtotal = total_amount
-                        else:
-                            subtotal = tax_res['total_excluded']
-                        if res.property_id.service_charge_type == 'amount':
-                            svc_amount = amount
-                            subtotal_wo_svc = total_amount_exclude - svc_amount
-                            price_subtotal = subtotal
-                        else:
-                            svc_amount = (total_amount_exclude *
-                                          (100 /
-                                           (100 + amount))) * (amount / 100)
-                            subtotal_wo_svc = total_amount_exclude - svc_amount
-                            price_subtotal = subtotal
-                    else:
-                        if res.property_id.service_charge_type == 'amount':
-                            svc_amount = amount
-                            subtotal_wo_svc = total_amount - svc_amount
-                            price_subtotal = subtotal_wo_svc
-                        else:
-                            if res.property_id.sale_tax_id.price_include is True:
-                                svc_amount = (total_amount *
-                                              (100 /
-                                               (100 + tax_amt + amount))) * (
-                                                   amount / 100)
-                            else:
-                                svc_amount = (total_amount *
-                                              (100 /
-                                               (100 + amount))) * (amount /
-                                                                   100)
-                            subtotal_wo_svc = total_amount - svc_amount
-                            price_subtotal = subtotal_wo_svc
-                else:
-                    if res.property_id.service_charge_type == 'amount':
-                        svc_amount = amount
-                        subtotal_wo_svc = total_amount - svc_amount
-                        price_subtotal = total_amount
-                    else:
-                        svc_amount = (total_amount *
-                                      (100 / (100 + amount))) * (amount / 100)
-                        subtotal_wo_svc = total_amount - svc_amount
-                        price_subtotal = total_amount
-            else:
-                if res.property_id.service_charge_type == 'amount':
-                    svc_amount = amount
-                    subtotal_wo_svc = total_amount
-                    price_subtotal = subtotal_wo_svc + svc_amount
-                else:
-                    svc_amount = total_amount * (amount / 100)
-                    subtotal_wo_svc = total_amount
-                    price_subtotal = subtotal_wo_svc + svc_amount
-            svc_res = {
-                'subtotal_wo_svc': subtotal_wo_svc,
-                'price_subtotal': price_subtotal,
-                'svc_amount': svc_amount,
-            }
-        return svc_res
-
-    def tax_calculate(self, total_amount, reservation_line_id):
-        res = reservation_line_id
-        tax_res = {}
-        if res.property_id.sale_tax_id:
-            res_subtotal = 0.0
-            res_total = 0.0
-            tax_res = res.property_id.sale_tax_id.compute_all(
-                price_unit=total_amount)
-        return tax_res
 
     @api.onchange('room_type')
     def clear_bed_type(self):
