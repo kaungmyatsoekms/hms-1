@@ -232,7 +232,11 @@
                                                     Allow service charges on orders
                                                 </div>
                                                 <div class="content-group " attrs="{'invisible':[('enable_service_charge','=',False)]}">
-                                                    <div class="row">
+                                                    <div class="row mt16">
+                                                        <label for="sale_svc_id" class="col-lg-3 o_light_label"/>
+                                                        <field name="sale_svc_id" attrs="{'required':[('enable_service_charge','=',True)]}"/>
+                                                    </div>
+                                                    <!-- <div class="row">
                                                         <label for="svc_inc_exc" class="col-lg-3 o_light_label"/>
                                                         <field name="is_include" invisible="1"/>
                                                         <field name="svc_inc_exc" widget="radio" options="{'horizontal': true}" class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
@@ -248,7 +252,7 @@
                                                     <div class="row">
                                                         <label for="service_charge" class="col-lg-3 o_light_label"/>
                                                         <field name="service_charge"/>
-                                                    </div>
+                                                    </div> -->
                                                 </div>
                                             </div>
                                         </div>
@@ -262,7 +266,7 @@
                                                     Service charge will be taxable if enabled
                                                 </div>
                                             </div>
-                                            <div class="o_setting_left_pane">
+                                            <!-- <div class="o_setting_left_pane">
                                                 <field name="svc_as_line"/>
                                             </div>
                                             <div class="o_setting_right_pane">
@@ -270,7 +274,7 @@
                                                 <div class="text-muted">
                                                     Service charge will be added as product line and not in total
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="o_setting_left_pane">
                                                 <field name="disable_popup"/>
                                             </div>
@@ -1401,6 +1405,7 @@
                                 <field name="trans_unitprice"/>
                                 <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
                                 <field name="product_id"/>
+                                <field name="enable_service_charge"/>
                                 <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_internal" widget="boolean_toggle"/>

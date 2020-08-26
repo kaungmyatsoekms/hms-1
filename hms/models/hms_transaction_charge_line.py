@@ -63,7 +63,30 @@ class HMSTransactionChargeLine(models.Model):
     )
     # New Fields For Proforma
     price_unit = fields.Float(string='Unit Price', digits='Product Price')
-    tax_id = fields.Many2one('account.tax', string='Tax')
+    tax_ids = fields.Many2many('account.tax',
+                               string='Taxes',
+                               help="Taxes that apply on the base amount")
+    tax_line_id = fields.Many2one(
+        'account.tax',
+        string='Originator Tax',
+        ondelete='restrict',
+        store=True,
+        compute='_compute_tax_line_id',
+        help="Indicates that this journal item is a tax line")
+    tax_group_id = fields.Many2one(
+        related='tax_line_id.tax_group_id',
+        string='Originator tax group',
+        readonly=True,
+        store=True,
+        help='technical field for widget tax-group-custom-field')
+    tax_repartition_line_id = fields.Many2one(
+        comodel_name='account.tax.repartition.line',
+        string="Originator Tax Repartition Line",
+        ondelete='restrict',
+        readonly=True,
+        help=
+        "Tax repartition line that caused the creation of this move line, if any"
+    )
     price_subtotal = fields.Monetary(string='Subtotal',
                                      store=True,
                                      readonly=True,
@@ -91,6 +114,10 @@ class HMSTransactionChargeLine(models.Model):
         help=
         "The amount expressed in an optional other currency if it is a multi-currency entry."
     )
+    tax_base_amount = fields.Monetary(string="Base Amount",
+                                      store=True,
+                                      readonly=True,
+                                      currency_field='always_set_currency_id')
 
     def name_get(self):
         result = []
@@ -99,6 +126,17 @@ class HMSTransactionChargeLine(models.Model):
                            "{} ({})".format(record.transaction_date,
                                             record.transaction_id.trans_name)))
         return result
+
+    @api.depends('tax_repartition_line_id.invoice_tax_id',
+                 'tax_repartition_line_id.refund_tax_id')
+    def _compute_tax_line_id(self):
+        """ tax_line_id is computed as the tax linked to the repartition line creating
+        the move.
+        """
+        for record in self:
+            rep_line = record.tax_repartition_line_id
+            # A constraint on account.tax.repartition.line ensures both those fields are mutually exclusive
+            record.tax_line_id = rep_line.invoice_tax_id or rep_line.refund_tax_id
 
     # Compute Currency
     @api.depends('currency_id')

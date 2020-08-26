@@ -203,10 +203,13 @@ class RateCodeDetails(models.Model):
     def name_get(self):
         result = []
         for record in self:
+            # this line is to get the string of season code
+            season_code = dict(self._fields['season_code'].selection).get(
+                self.season_code)
             result.append(
                 (record.id,
                  "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".
-                 format(record.season_code, record.start_date, record.end_date,
+                 format(season_code, record.start_date, record.end_date,
                         record.normal_price1, record.normal_price2,
                         record.normal_price3, record.normal_price4,
                         record.normal_extra)))

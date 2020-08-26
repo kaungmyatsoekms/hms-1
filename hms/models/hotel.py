@@ -434,6 +434,10 @@ class Property(models.Model):
                                    track_visibility=True,
                                    help='Service Charges Included or Excluded')
     is_include = fields.Boolean(string="Is Included", default=False)
+    # Service
+    sale_svc_id = fields.Many2one(
+        'account.tax',
+        string="Sals Svc Chg")
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
@@ -2393,7 +2397,12 @@ class Transaction(models.Model):
         ('N', 'No'),
     ],
                                        string="Utilities")
-    trans_svc = fields.Boolean(string="Service Charge")
+    enable_service_charge = fields.Boolean(
+        'Enable Svc',
+        related='property_id.enable_service_charge',
+        readonly=False)
+    trans_svc = fields.Boolean(
+        string="Service Charge")  #compute='_compute_trans_svc',store=True
     trans_tax = fields.Boolean(string="Tax")
     trans_internal = fields.Boolean(string="Internal Use")
     trans_minus = fields.Boolean(string="Minus Nature")
@@ -2422,6 +2431,12 @@ class Transaction(models.Model):
             result.append((record.id, "({}) {}".format(record.trans_code,
                                                        record.trans_name)))
         return result
+
+    @api.depends('enable_service_charge')
+    def _compute_trans_svc(self):
+        for rec in self:
+            if rec.enable_service_charge is False:
+                rec.trans_svc = False
 
     def create_product_template(self, transaction_id):
         res = transaction_id
