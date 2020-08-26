@@ -516,6 +516,9 @@
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
+                        <button string="Pro Forma" type="object" name="action_proforma_send" class="brn btn-primary" >
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>

@@ -1,15 +1,107 @@
-from odoo import models, fields, api, tools, _
-from odoo.exceptions import UserError
+from odoo import api, fields, models, _
+from odoo.exceptions import RedirectWarning, UserError, ValidationError, AccessError
+from odoo.tools import float_is_zero, float_compare, safe_eval, date_utils, email_split, email_escape_char, email_re
+from odoo.tools.misc import formatLang, format_date, get_lang
 
+from datetime import date, timedelta
+from itertools import groupby
+from itertools import zip_longest
+from hashlib import sha256
+from json import dumps
+
+import json
+import re
+
+#forbidden fields
+INTEGRITY_HASH_MOVE_FIELDS = ('date', 'journal_id', 'company_id')
+INTEGRITY_HASH_LINE_FIELDS = ('debit', 'credit', 'account_id', 'partner_id')
+
+
+def calc_check_digits(number):
+    """Calculate the extra digits that should be appended to the number to make it a valid number.
+    Source: python-stdnum iso7064.mod_97_10.calc_check_digits
+    """
+    number_base10 = ''.join(str(int(x, 36)) for x in number)
+    checksum = int(number_base10) % 97
+    return '%02d' % ((98 - 100 * checksum) % 97)
 
 # Cashier Transaction
 class HMSCashierFolio(models.Model):
     _name = "hms.cashier.folio"
     _description = "Cashier Transaction"
+    _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
     _order = 'sequence, name'
+
+    @api.model
+    def _get_default_journal(self):
+        ''' Get the default journal.
+        It could either be passed through the context using the 'default_journal_id' key containing its id,
+        either be determined by the default type.
+        '''
+        move_type = self._context.get('default_type', 'entry')
+        journal_type = 'general'
+        if move_type in self.get_sale_types(include_receipts=True):
+            journal_type = 'sale'
+        elif move_type in self.get_purchase_types(include_receipts=True):
+            journal_type = 'purchase'
+
+        if self._context.get('default_journal_id'):
+            journal = self.env['account.journal'].browse(self._context['default_journal_id'])
+
+            if move_type != 'entry' and journal.type != journal_type:
+                raise UserError(_("Cannot create an invoice of type %s with a journal having %s as type.") % (move_type, journal.type))
+        else:
+            company_id = self._context.get('force_company', self._context.get('default_company_id', self.env.company.id))
+            domain = [('company_id', '=', company_id), ('type', '=', journal_type)]
+
+            journal = None
+            if self._context.get('default_currency_id'):
+                currency_domain = domain + [('currency_id', '=', self._context['default_currency_id'])]
+                journal = self.env['account.journal'].search(currency_domain, limit=1)
+
+            if not journal:
+                journal = self.env['account.journal'].search(domain, limit=1)
+
+            if not journal:
+                error_msg = _('Please define an accounting miscellaneous journal in your company')
+                if journal_type == 'sale':
+                    error_msg = _('Please define an accounting sale journal in your company')
+                elif journal_type == 'purchase':
+                    error_msg = _('Please define an accounting purchase journal in your company')
+                raise UserError(error_msg)
+        return journal
+
+    @api.model
+    def _get_default_invoice_date(self):
+        return fields.Date.today() if self._context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') else False
+
+    @api.model
+    def _get_default_currency(self):
+        ''' Get the default currency from either the journal, either the default journal's company. '''
+        journal = self._get_default_journal()
+        return journal.currency_id or journal.company_id.currency_id
+
+    @api.model
+    def _get_default_invoice_incoterm(self):
+        ''' Get the default incoterm for invoice. '''
+        return self.env.company.incoterm_id
+
+    # ==== Business fields ====
 
     sequence = fields.Integer("Sequence")
     active = fields.Boolean("Active", default=True)
+    name = fields.Char(string='Number', required=True, readonly=True, copy=False, default='/')
+    date = fields.Date(string='Date', required=True, index=True, readonly=True,
+        states={'draft': [('readonly', False)]},
+        default=fields.Date.context_today)
+    ref = fields.Char(string='Reference', copy=False)
+    narration = fields.Text(string='Internal Note')
+    state = fields.Selection(selection=[
+            ('draft', 'Draft'),
+            ('posted', 'Posted'),
+            ('cancel', 'Cancelled')
+        ], string='Status', required=True, readonly=True, copy=False, tracking=True,
+        default='draft')
     reservation_line_id = fields.Many2one("hms.reservation.line",
                                 store=True)
     # room_no = fields.Many2one('Room No')

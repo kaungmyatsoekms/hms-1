@@ -42,4 +42,14 @@
         <field name="report_name">hms.report_in_house_qweb</field>
     </record>
 
+    <report 
+        id="action_report_proforma"
+        string="Quotation / Order"
+        model="hms.reservation.line" 
+        report_type="qweb-pdf"
+        file="hms.report_proforma" 
+        name="hms.report_proforma"
+        print_report_name="(object.state in ('booking', 'reservation') and 'Quotation - %s' % (object.confirm_no)) or 'Order - %s' % (object.confirm_no)"
+    />
+
 </odoo>
