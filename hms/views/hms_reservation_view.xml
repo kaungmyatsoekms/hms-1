@@ -224,8 +224,9 @@
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="ratecode_id" string="Rate Code" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" invisible="1"/>
+                                        <field name="ratecode_id" string="Rate Code" optional="hide" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="discount"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="nationality_id" invisible="1"/>
@@ -494,7 +495,6 @@
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
-                        <field name="sale_order_id" invisible="1"/>
                         <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -520,11 +520,11 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
+                            <!-- <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">Sale Order</span>
                                 </div>
-                            </button>
+                            </button> -->
                         </div>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
@@ -624,6 +624,7 @@
                                     <field name="extrabed_amount" style="width: 50%"/>
                                 </div>
                                 <field name="rate_nett" style="width:50%%"/>
+                                <field name="discount"/>
                             </group>
                         </group>
                         <hr></hr>
@@ -641,9 +642,10 @@
                                         <field name="price_unit"/>
                                         <field name="total_room"/>
                                         <field name="total_qty" invisible="1"/>
-                                        <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <field name="discount"/>
                                         <field name="tax_ids" domain="[('type_tax_use', 'in', ('sale', 'all'))]" widget="many2many_tags"/>
                                         <field name="tax_amount" optional="hide"/>
+                                        <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
                                         <field name="price_total" sum="Total" groups="account.group_show_line_subtotals_tax_included"/>
                                         <field name="ref"/>
                                     </tree>

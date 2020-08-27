@@ -79,6 +79,14 @@ class HMSTransactionChargeLine(models.Model):
                                  readonly=True,
                                  currency_field='always_set_currency_id',
                                  compute='_compute_amount')
+    discount = fields.Float(string='Discount (%)',
+                            digits='Discount',
+                            default=0.0)
+    price_reduce = fields.Float(compute='_get_price_reduce',
+                                string='Price Reduce',
+                                digits='Product Price',
+                                readonly=True,
+                                store=True)
 
     def name_get(self):
         result = []
@@ -88,14 +96,19 @@ class HMSTransactionChargeLine(models.Model):
                                             record.transaction_id.trans_name)))
         return result
 
-    @api.depends('total_qty', 'price_unit', 'tax_ids')
+    @api.depends('price_unit', 'discount')
+    def _get_price_reduce(self):
+        for line in self:
+            line.price_reduce = line.price_unit * (1.0 - line.discount / 100.0)
+
+    @api.depends('total_qty', 'discount', 'price_unit', 'tax_ids')
     def _compute_amount(self):
         """
         Compute the amounts of the transaction charge line.
         """
         for line in self:
-            # price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            price = line.price_unit
+            price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+            # price = line.price_unit
             taxes = line.tax_ids.compute_all(
                 price,
                 line.currency_id,

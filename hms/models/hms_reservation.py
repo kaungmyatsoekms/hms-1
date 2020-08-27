@@ -1209,22 +1209,20 @@ class ReservationLine(models.Model):
                                      store=True,
                                      readonly=True,
                                      tracking=True,
-                                     compute='_compute_untaxed_amount')
-    amount_total = fields.Monetary(string='Total',
-                                   store=True,
-                                   readonly=True,
-                                   compute='_compute_untaxed_amount')
+                                     compute='_compute_amount_all')
     amount_by_group = fields.Binary(string="Tax amount by group",
                                     compute='_amount_by_group')
     amount_tax = fields.Monetary(string='Taxes',
                                  store=True,
                                  readonly=True,
-                                 compute='_compute_untaxed_amount')
-    # Sale Order & Sale Order Line Fields
-    sale_order_id = fields.Many2one('sale.order', string='Sale Order')
-    sale_order_line_ids = fields.One2many('sale.order.line',
-                                          'reservation_line_id',
-                                          string='Sale Order Line')
+                                 compute='_compute_amount_all')
+    amount_total = fields.Monetary(string='Total',
+                                   store=True,
+                                   readonly=True,
+                                   compute='_compute_amount_all')
+    discount = fields.Float(string='Discount (%)',
+                            digits='Discount',
+                            default=0.0)
 
     def name_get(self):
         result = []
@@ -1241,8 +1239,8 @@ class ReservationLine(models.Model):
                           currency_obj=currency)
             res = {}
             for line in order.room_transaction_line_ids:
-                # price_reduce = line.price_unit * (1.0 - line.discount / 100.0)
-                price_reduce = line.price_unit
+                price_reduce = line.price_unit * (1.0 - line.discount / 100.0)
+                # price_reduce = line.price_unit
                 taxes = line.tax_ids.compute_all(
                     price_reduce,
                     quantity=line.total_qty,
@@ -1393,13 +1391,15 @@ class ReservationLine(models.Model):
         return room_rate
 
     # Compute Room Rate based on Pax
-    @api.depends('ratecode_id')
+    @api.depends('ratehead_id')
     def _compute_room_rate(self):
         for rec in self:
-            rec.room_rate = rec._check_rate(rec.arrival, rec.pax,
-                                            rec.ratecode_id,
-                                            rec.property_id.id,
-                                            rec.currency_id)
+            room_rate = 0.0
+            room_rate = rec._check_rate(rec.arrival, rec.pax, rec.ratecode_id,
+                                        rec.property_id.id, rec.currency_id)
+            rec.update({
+                'room_rate': room_rate,
+            })
 
     # Compute Rate Nett
     @api.depends('package_id')
@@ -1437,23 +1437,20 @@ class ReservationLine(models.Model):
             else:
                 rec.child_bf = 0.0
 
-    # Compute Untaxed Amount
-    @api.depends('room_transaction_line_ids.price_subtotal',
-                 'room_transaction_line_ids.price_total',
-                 'room_transaction_line_ids.tax_amount')
-    def _compute_untaxed_amount(self):
+    # Compute All Amount
+    @api.depends('room_transaction_line_ids.price_total')
+    def _compute_amount_all(self):
         for rec in self:
-            total_untaxed = 0.0
-            total = 0.0
-            total_tax = 0.0
             if rec.room_transaction_line_ids:
+                amount_untaxed = amount_tax = 0.0
                 for line in rec.room_transaction_line_ids:
-                    total_untaxed += line.price_subtotal
-                    total += line.price_total
-                    total_tax += line.tax_amount
-            rec.amount_untaxed = total_untaxed
-            rec.amount_total = total
-            rec.amount_tax = total_tax
+                    amount_untaxed += line.price_subtotal
+                    amount_tax += line.tax_amount
+                rec.update({
+                    'amount_untaxed': amount_untaxed,
+                    'amount_tax': amount_tax,
+                    'amount_total': amount_untaxed + amount_tax,
+                })
 
     # Get default rate code based on ratehead_id
     @api.onchange('ratehead_id')
@@ -2183,6 +2180,7 @@ class ReservationLine(models.Model):
             'ref': 'AUTO',
             'currency_id': currency.id,
             'tax_ids': taxes,
+            'discount': reservation_line_id.discount,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 
@@ -2198,18 +2196,32 @@ class ReservationLine(models.Model):
             taxes.append(room_transaction_line_id.property_id.sale_tax_id.id)
 
         room_transaction_line_id.update({
-            'transaction_id': transaction_id.id,
-            'price_unit': rate,
-            'active': active,
-            'package_id': package_id.id,
-            'transaction_date': transaction_date,
-            'total_room': total_room,
-            'total_qty': total_qty,
-            'delete': delete,
-            'rate_attribute': rate_attribute,
-            'currency_id': currency_id.id,
-            'ref': 'AUTO',
-            'tax_ids': taxes,
+            'transaction_id':
+            transaction_id.id,
+            'price_unit':
+            rate,
+            'active':
+            active,
+            'package_id':
+            package_id.id,
+            'transaction_date':
+            transaction_date,
+            'total_room':
+            total_room,
+            'total_qty':
+            total_qty,
+            'delete':
+            delete,
+            'rate_attribute':
+            rate_attribute,
+            'currency_id':
+            currency_id.id,
+            'ref':
+            'AUTO',
+            'tax_ids':
+            taxes,
+            'discount':
+            room_transaction_line_id.reservation_line_id.discount,
         })
 
     def get_posting_date(self, reservation_line_id, pkg):
@@ -2645,7 +2657,8 @@ class ReservationLine(models.Model):
         ) or 'arrival' in values.keys() or 'departure' in values.keys(
         ) or 'room_type' in values.keys() or 'nights' in values.keys(
         ) or 'pax' in values.keys() or 'child' in values.keys(
-        ) or 'extrabed' in values.keys() or 'child_bfpax' in values.keys():
+        ) or 'extrabed' in values.keys() or 'child_bfpax' in values.keys(
+        ) or 'discount' in values.keys():
             # If No Records >>> Create Room Transaction Charge Lines
             if not self.room_transaction_line_ids:
                 day_count = 0
@@ -2996,9 +3009,10 @@ class CancelReservation(models.Model):
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type)]"
     )
-    room_rate = fields.Float("Room Rate",
-                             compute='_compute_room_rate',
-                             help='Room Rate')
+    room_rate = fields.Float(
+        "Room Rate",
+        #  compute='_compute_room_rate',
+        help='Room Rate')
     updown_amt = fields.Float("Updown Amount", help='Updown Amount')
     updown_pc = fields.Float("Updown PC", help='Updown Percentage')
     package_id = fields.Many2one(

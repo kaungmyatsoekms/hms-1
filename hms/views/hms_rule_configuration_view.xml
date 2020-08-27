@@ -1,267 +1,245 @@
 <odoo>
-  <data>
-    <record id="res_rule_view_form" model="ir.ui.view">
-      <field name="name">res.config.settings.view.form</field>
-      <field name="model">res.config.settings</field>
-      <field name="priority" eval="11"/>
-      <field name="inherit_id" ref="base.res_config_settings_view_form" />
-      <field name="arch" type="xml">
-        <xpath expr="//div[hasclass('settings')]" position="inside">
-          <div class="app_settings_block" data-string="HMS" string="HMS" data-key="HMS">
-            <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Fixed Code Integration</h4>
-            <div class="row mt16 o_settings_container">
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Maximum Property Code Length</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the maximum property code length
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16">
-                      <field name="property_code_len" style="width: 100%;"/>
+    <data>
+        <record id="res_rule_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="11"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('settings')]" position="inside">
+                    <div class="app_settings_block" data-string="HMS" string="HMS" data-key="HMS">
+                        <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Fixed Code Integration</h4>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Maximum Property Code Length</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the maximum property code length
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="property_code_len" style="width: 100%;"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Maximum Building Code Length</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Building code length
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="building_code_len" style="width: 100%;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Floor (or) Zone Code Length</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Floor (or) Zone code length
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="location_code_len" style="width: 100%;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Maximum Room Type Code Length</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Room Type code length
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <field name="roomtype_code_len" style="width: 100%;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Confirm ID Format</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Confirmation No format
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 ">
+                                            <field name="confirm_id_format" style="width: 100%;" />
+                                            <field name="company_id" invisible="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Guest Profile ID Format</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Guest Profile ID format
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 ">
+                                            <field name="profile_id_format" style="width: 100%;" />
+                                            <field name="company_id" invisible="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Company Profile ID Format</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Company Profile ID format
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 ">
+                                            <field name="cprofile_id_format" style="width: 100%;" />
+                                            <field name="company_id" invisible="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Group Profile ID Format</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Group Profile ID format
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 ">
+                                            <field name="gprofile_id_format" style="width: 100%;" />
+                                            <field name="company_id" invisible="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Sale Order No Format</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Sale Order No format
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 ">
+                                            <field name="soprofile_id_format" style="width: 100%;" />
+                                            <field name="company_id" invisible="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Invoice No Format</span>
+                                    <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+                                    <div class="text-muted">
+                                        Define the Invoice No format
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 ">
+                                            <field name="ivprofile_id_format" style="width: 100%;" />
+                                            <field name="company_id" invisible="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Service Charges / Taxes</h4>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-xs-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="enable_service_charge"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="enable_service_charge"/>
+                                    <div class="text-muted">
+                                        Allow service charges on orders
+                                    </div>
+                                    <div class="content-group mt16" attrs="{'invisible':[('enable_service_charge', '=', False)]}">
+                                        <field name="sale_svc_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', company_id)]" attrs="{'required':[('enable_service_charge','=',True)]}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-lg-6 o_setting_box" attrs="{'invisible':['|', ('enable_service_charge', '=', False), ('sale_svc_id', '=', False)]}">
+                                <div class="o_setting_left_pane">
+                                    <field name="svc_include_tax"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="svc_include_tax"/>
+                                    <div class="text-muted">
+                                        Service charge will be taxable if enabled
+                                    </div>
+                                </div>
+                                <div class="o_setting_left_pane">
+                                    <field name="disable_popup"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="disable_popup"/>
+                                    <div class="text-muted">
+                                        Service Charges are not mentioned on Bill if enabled
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_setting_box" title="This tax is applied to any new product created in the catalog.">
+                                <div class="o_setting_right_pane">
+                                    <div>
+                                        <label string="Default Sales Tax" for="sale_tax_id"/>
+                                        <div class="text-muted">
+                                            Default sales tax for HMS System
+                                        </div>
+                                        <div class="content-group mt16">
+                                            <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', company_id)]"/>
+                                        </div>
+                                    </div>
+                                    <div class="mt8">
+                                        <button name="%(account.action_tax_form)d" icon="fa-arrow-right" type="action" string="Taxes" class="btn-link"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="show_line_subtotals_tax_selection"/>
+                                    <div class="text-muted">
+                                        Line subtotals tax display
+                                    </div>
+                                    <div class="mt16">
+                                        <field name="show_line_subtotals_tax_selection" class="o_light_label" widget="radio"/>
+                                        <field name="group_show_line_subtotals_tax_excluded" invisible="1"/>
+                                        <field name="group_show_line_subtotals_tax_included" invisible="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Maximum Building Code Length</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Building code length
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16">
-                      <field name="building_code_len" style="width: 100%;" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Floor (or) Zone Code Length</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Floor (or) Zone code length
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16">
-                      <field name="location_code_len" style="width: 100%;" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Maximum Room Type Code Length</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Room Type code length
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16">
-                      <field name="roomtype_code_len" style="width: 100%;" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Confirm ID Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Confirmation No format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="confirm_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Cancellation No Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Cancellation No format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="cancellation_id_format" style="width: 100%;"/>
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Guest Profile ID Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Guest Profile ID format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="profile_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Company Profile ID Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Company Profile ID format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="cprofile_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Group Profile ID Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Group Profile ID format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="gprofile_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Sale Order No Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Sale Order No format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="soprofile_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Invoice No Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define the Invoice No format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="ivprofile_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_right_pane">
-                  <span class="o_form_label">Share No Format</span>
-                  <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-                  <div class="text-muted">
-                    Define Share No format
-                  </div>
-                  <div class="content-group">
-                    <div class="mt16 ">
-                      <field name="share_id_format" style="width: 100%;" />
-                      <field name="company_id" invisible="1"/>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
-            </div>
-            <h4 style="background-color:#e6e6e6;padding: 5px 5px 5px 15px;">Service Charges / Taxes</h4>
-            <div class="row mt16 o_settings_container">
-              <!-- Service Charges-->
-              <div class="col-xs-12 col-lg-4 o_setting_box">
-                <div class="o_setting_left_pane">
-                  <field name="enable_service_charge"/>
-                </div>
-                <div class="o_setting_right_pane">
-                  <label for="enable_service_charge"/>
-                  <div class="text-muted">
-                        Allow service charges on orders
-                  </div>
-                  <div class="content-group " attrs="{'invisible':[('enable_service_charge','=',False)]}">
-                    <div class="row">
-                      <label for="service_charge_type" class="col-lg-3 o_light_label"/>
-                      <field name="service_charge_type" widget="radio" options="{'horizontal': true}" class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                    </div>
-                    <div class="row mt16">
-                      <label for="service_product_id" class="col-lg-3 o_light_label"/>
-                      <field name="service_product_id" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                    </div>
-                    <div class="row">
-                      <label for="service_charge" class="col-lg-3 o_light_label"/>
-                      <field name="service_charge"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Taxes-->
-              <div class="col-12 col-lg-4 o_setting_box" title="This tax is applied to any new product created in the catalog.">
-                <div class="o_setting_right_pane">
-                  <div>
-                    <label string="Default Sales Tax" for="sale_tax_id"/>
-                    <div class="text-muted">
-                              Default sales tax for HMS System
-                    </div>
-                    <div class="content-group mt16">
-                      <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all'))]"/>
-                    </div>
-                  </div>
-                  <div class="mt8">
-                    <button name="%(account.action_tax_form)d" icon="fa-arrow-right" type="action" string="Taxes" class="btn-link"/>
-                  </div>
-                </div>
-              </div>
-              <!-- Tax Included or Excluded-->
-              <div class="col-12 col-lg-4 o_setting_box">
-                <div class="o_setting_left_pane">
-                </div>
-                <div class="o_setting_right_pane">
-                  <label for="show_line_subtotals_tax_selection"/>
-                  <div class="text-muted">
-                          Line subtotals tax display
-                  </div>
-                  <div class="mt16">
-                    <field name="show_line_subtotals_tax_selection" class="o_light_label" widget="radio"/>
-                    <field name="group_show_line_subtotals_tax_excluded" invisible="1"/>
-                    <field name="group_show_line_subtotals_tax_included" invisible="1"/>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </xpath>
-      </field>
-    </record>
-    <record id="action_property_config_settings" model="ir.actions.act_window">
-      <field name="name">Settings</field>
-      <field name="type">ir.actions.act_window</field>
-      <field name="res_model">res.config.settings</field>
-      <field name="view_id" ref="res_rule_view_form"/>
-      <field name="view_mode">form</field>
-      <field name="target">inline</field>
-      <field name="context">{'module' : 'HMS'}</field>
-    </record>
-    <menuitem id="menu_property_general_settings" name="Settings" parent="hms_menu_setting" sequence="0" action="action_property_config_settings"/>
-  </data>
+                </xpath>
+            </field>
+        </record>
+        <record id="action_property_config_settings" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_id" ref="res_rule_view_form"/>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'HMS'}</field>
+        </record>
+        <menuitem id="menu_property_general_settings" name="Settings" parent="hms_menu_setting" sequence="0" action="action_property_config_settings"/>
+    </data>
 </odoo>
