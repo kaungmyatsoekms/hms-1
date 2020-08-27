@@ -116,6 +116,9 @@ class Reservation(models.Model):
                                  index=True,
                                  default=(lambda *a: time.strftime(dt)),
                                  help='Date Ordered')
+    system_date = fields.Date("System Date",
+                              related="property_id.system_date",
+                              help='System Date')
     type = fields.Selection(string='Type',
                             selection=[('individual', 'Individual'),
                                        ('group', 'Group')],
@@ -935,6 +938,7 @@ class Reservation(models.Model):
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
     _description = "Reservation Line"
+    _inherit = ['mail.thread']
 
     def get_rooms(self):
         if self._context.get('rooms') != False:

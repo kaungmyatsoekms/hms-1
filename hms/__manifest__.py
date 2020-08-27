@@ -118,6 +118,7 @@
         'report/mail_data.xml',
         'report/proforma_template.xml',
         'wizard/hms_pro_forma_invoice_view.xml',
+        'wizard/hms_proforma_report_wizard_view.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',
