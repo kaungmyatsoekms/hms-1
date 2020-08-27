@@ -485,6 +485,31 @@
             </field>
         </record>
 
+        <!-- Transaction Charge Line Tree View -->
+        <record id="charge_line_view_tree" model="ir.ui.view">
+            <field name="name">charge.line.view.tree</field>
+            <field name="model">hms.room.transaction.charge.line</field>
+            <field name="arch" type="xml">
+                <tree string="Room Transaction Charge Line" create="false" import="false" delete="false">
+                    <field name="property_id"/>
+                    <field name="transaction_date"/>
+                    <field name="transaction_id"/>
+                    <field name="total_room"/>
+                    <field name="price_unit"/>
+                    <field name="tax_ids" widget="many2many_tags"/>
+                    <field name="discount"/>
+                    <field name="price_total"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="charge_line_action_window" model="ir.actions.act_window">
+            <field name="name">Room Transaction Charge Line</field>
+            <field name="res_model">hms.room.transaction.charge.line</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[('reservation_line_id', '=', active_id)]</field>
+        </record>
+
         <!--Reservation Line-->
         <!-- Reservation Line Form View -->
         <record id="reservation_line_view_form" model="ir.ui.view">
@@ -516,16 +541,19 @@
                         <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
+                        <button string="Split Invoice" name="%(hms.charge_line_action_window)d" type="action" class="btn btn-primary">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                            <!-- <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
+                        <!-- <div class="oe_button_box" name="button_box">
+                            <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">Sale Order</span>
                                 </div>
-                            </button> -->
-                        </div>
+                            </button>
+                        </div> -->
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
                             <h2>
@@ -888,7 +916,6 @@
             <field name="context">{'group_by':['property_id','arrival:year']}</field>
             <field name="search_view_id" ref="view_hms_reservation_line_search"/>
         </record>
-        <!-- ('state','!=','cancel') -->
 
         <!-- Reason Type View Form-->
         <record id="reason_type_view_form" model="ir.ui.view">

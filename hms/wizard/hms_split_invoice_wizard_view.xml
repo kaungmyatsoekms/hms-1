@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="split_invoice_wizard_form" model="ir.ui.view">
+            <field name="name">split.invoice.wizard.form</field>
+            <field name="model">hms.split_invoice</field>
+            <field name="arch" type="xml">
+                <form string="Split Invoice">
+                    <group>
+                        <group>
+                            <field name="guest_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" context="{'default_company_type' : 'guest'}"/>
+                        </group>
+                        <group>
+                            <field name="company_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" context="{'default_company_type' : 'company'}"/>
+                        </group>
+                    </group>
+                    <p style="font-weight:bold;font-color:#ff0000;">
+                        Are you sure you want to split the bill?
+                    </p>
+                    <footer>
+                        <button name="action_split_invoice" string="Split Invoice" type="object" context="{'active_id':active_id}" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Split Invoice" id="action_split_invoice" res_model="hms.split_invoice" binding_model="hms.room.transaction.charge.line" binding_views="list" view_mode="form" target="new"/>
+    </data>
+</odoo>
