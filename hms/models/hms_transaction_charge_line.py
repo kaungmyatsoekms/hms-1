@@ -79,12 +79,12 @@ class HMSTransactionChargeLine(models.Model):
                                  readonly=True,
                                  currency_field='always_set_currency_id',
                                  compute='_compute_amount')
-    discount = fields.Float(string='Discount (%)',
-                            digits='Discount',
-                            default=0.0)
-    price_reduce = fields.Float(compute='_get_price_reduce',
-                                string='Price Reduce',
-                                digits='Product Price',
+    updown_rate = fields.Float(string='Up/Down Rate',
+                               digits='Up/Down',
+                               default=0.0)
+    update_price = fields.Float(compute='_get_update_price',
+                                string='Price Update',
+                                digits='Price Update',
                                 readonly=True,
                                 store=True)
 
@@ -96,19 +96,26 @@ class HMSTransactionChargeLine(models.Model):
                                             record.transaction_id.trans_name)))
         return result
 
-    @api.depends('price_unit', 'discount')
-    def _get_price_reduce(self):
+    @api.depends('price_unit', 'updown_rate')
+    def _get_update_price(self):
         for line in self:
-            line.price_reduce = line.price_unit * (1.0 - line.discount / 100.0)
+            if line.reservation_line_id.updown_rate != 0.0:
+                if line.reservation_line_id.updown_method == 'pc':
+                    line.update_price = line.price_unit * (
+                        1.0 + line.updown_rate / 100.0)
+                else:
+                    line.update_price = line.price_unit + line.updown_rate
 
-    @api.depends('total_qty', 'discount', 'price_unit', 'tax_ids')
+    @api.depends('total_qty', 'updown_rate', 'price_unit', 'tax_ids')
     def _compute_amount(self):
         """
         Compute the amounts of the transaction charge line.
         """
         for line in self:
-            price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            # price = line.price_unit
+            if line.reservation_line_id.updown_method == 'pc':
+                price = line.price_unit * (1.0 + line.updown_rate / 100.0)
+            else:
+                price = line.price_unit + line.updown_rate
             taxes = line.tax_ids.compute_all(
                 price,
                 line.currency_id,

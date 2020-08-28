@@ -226,7 +226,6 @@
                                         <field name="ratehead_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="ratecode_id" string="Rate Code" optional="hide" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="discount"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
                                         <field name="nationality_id" invisible="1"/>
@@ -497,7 +496,7 @@
                     <field name="total_room"/>
                     <field name="price_unit"/>
                     <field name="tax_ids" widget="many2many_tags"/>
-                    <field name="discount"/>
+                    <field name="updown_rate"/>
                     <field name="price_total"/>
                 </tree>
             </field>
@@ -538,7 +537,7 @@
                         <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
+                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <button string="Split Invoice" name="%(hms.charge_line_action_window)d" type="action" class="btn btn-primary">
@@ -633,13 +632,7 @@
                                 <field name="allotment_id" placeholder="Allotment"/>
                                 <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                <label for="room_rate" string="Room Rate"/>
-                                <div class="o_address_format">
-                                    <field name="room_rate" style="width:33%%"/>
-                                    <field name="updown_amt" style="width:33%%"/>
-                                    <field name="updown_pc" style="width:33%%"/>
-                                </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <field name="room_rate"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -652,7 +645,12 @@
                                     <field name="extrabed_amount" style="width: 50%"/>
                                 </div>
                                 <field name="rate_nett" style="width:50%%"/>
-                                <field name="discount"/>
+                                <label for="updown_method" string="Up/Down Method"/>
+                                <div class="address_format">
+                                    <field name="updown_method" style="width:50%%"/>
+                                    <field name="updown_rate" style="width:50%%" attrs="{'invisible': [('updown_method', '=', False)]}"/>
+                                </div>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id': 2}" options="{'no_quick_create': True, 'no_create_edit': True}" attrs="{'invisible': [('updown_rate', '=', 0.00)]}"/>
                             </group>
                         </group>
                         <hr></hr>
@@ -670,7 +668,7 @@
                                         <field name="price_unit"/>
                                         <field name="total_room"/>
                                         <field name="total_qty" invisible="1"/>
-                                        <field name="discount"/>
+                                        <field name="updown_rate"/>
                                         <field name="tax_ids" domain="[('type_tax_use', 'in', ('sale', 'all'))]" widget="many2many_tags"/>
                                         <field name="tax_amount" optional="hide"/>
                                         <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
@@ -1301,12 +1299,8 @@
                                 <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="additional_pkg_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
-                                <div class="o_address_format">
-                                    <field name="room_rate" style="width:33%%"/>
-                                    <field name="updown_amt" style="width:33%%"/>
-                                    <field name="updown_pc" style="width:33%%"/>
-                                </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <field name="room_rate"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -1538,12 +1532,8 @@
                                 <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
-                                <div class="o_address_format">
-                                    <field name="room_rate" style="width:33%%"/>
-                                    <field name="updown_amt" style="width:33%%"/>
-                                    <field name="updown_pc" style="width:33%%"/>
-                                </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <field name="room_rate"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>

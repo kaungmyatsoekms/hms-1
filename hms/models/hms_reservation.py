@@ -797,6 +797,30 @@ class Reservation(models.Model):
                 vals = []
                 for record in range(room - 1):
                     vals.append((0, 0, {
+                        'property_id':
+                        resv_line.property_id.id,
+                        'reservation_id':
+                        self.id,
+                        'confirm_no':
+                        self.confirm_no,
+                        'reservation_user_id':
+                        resv_line.reservation_user_id.id,
+                        'currency_id':
+                        resv_line.currency_id.id,
+                        'system_date':
+                        resv_line.system_date,
+                        'is_cancel':
+                        resv_line.is_cancel,
+                        'is_no_show':
+                        resv_line.is_no_show,
+                        'is_roomtype_fix':
+                        resv_line.is_roomtype_fix,
+                        'is_arrival_today':
+                        resv_line.is_arrival_today,
+                        'required_color':
+                        resv_line.required_color,
+                        'color':
+                        resv_line.color,
                         'state':
                         resv_line.state,
                         'rooms':
@@ -809,6 +833,8 @@ class Reservation(models.Model):
                         resv_line.guest_id.id,
                         'company_id':
                         resv_line.company_id.id,
+                        'nationality_id':
+                        resv_line.nationality_id.id,
                         'arrival':
                         resv_line.arrival,
                         'departure':
@@ -835,22 +861,24 @@ class Reservation(models.Model):
                         resv_line.etd,
                         'room_type':
                         resv_line.room_type.id,
+                        'bedtype_id':
+                        resv_line.bedtype_id.id,
                         'pax':
                         resv_line.pax,
                         'child':
                         resv_line.child,
+                        'ratehead_id':
+                        resv_line.ratehead_id.id,
                         'ratecode_id':
                         resv_line.ratecode_id.id,
                         'room_rate':
                         resv_line.room_rate,
-                        'updown_amt':
-                        resv_line.updown_amt,
-                        'updown_pc':
-                        resv_line.updown_pc,
                         'reason_id':
                         resv_line.reason_id.id,
                         'package_id':
                         resv_line.package_id.id,
+                        'additional_pkg_ids':
+                        resv_line.additional_pkg_ids,
                         'rate_nett':
                         resv_line.rate_nett,
                         'fo_remark':
@@ -895,6 +923,14 @@ class Reservation(models.Model):
                         resv_line.visa_issue,
                         'visa_expire':
                         resv_line.visa_expire,
+                        'updown_method':
+                        resv_line.updown_method,
+                        'updown_rate':
+                        resv_line.updown_rate,
+                        'discount_reason_id':
+                        resv_line.discount_reason_id.id,
+                        'specialrequest_id':
+                        resv_line.specialrequest_id.id,
                     }))
                 self.update({'reservation_line_ids': vals})
 
@@ -1135,8 +1171,6 @@ class ReservationLine(models.Model):
     room_rate = fields.Float("Room Rate",
                              compute='_compute_room_rate',
                              help="Included Rate")
-    updown_amt = fields.Float("Updown Amount", help='Updown Amount')
-    updown_pc = fields.Float("Updown PC", help='Updown Percentage')
     reason_id = fields.Many2one('hms.reason',
                                 string="Reason",
                                 domain="[('type_id', '=', 1)]",
@@ -1220,9 +1254,12 @@ class ReservationLine(models.Model):
                                    store=True,
                                    readonly=True,
                                    compute='_compute_amount_all')
-    discount = fields.Float(string='Discount (%)',
-                            digits='Discount',
-                            default=0.0)
+    updown_method = fields.Selection([('amt', "Amount"), ('pc', "Percentage")],
+                                     string="Up/Down Method",
+                                     help='Up/Down Method')
+    updown_rate = fields.Float(string='Up/Down Rate',
+                               digits='Discount',
+                               default=0.0)
 
     def name_get(self):
         result = []
@@ -1230,6 +1267,12 @@ class ReservationLine(models.Model):
             result.append((record.id, "{} - {}".format(record.room_type.name,
                                                        record.rooms)))
         return result
+
+    @api.onchange('updown_method')
+    def onchange_updown_amount(self):
+        for rec in self:
+            if rec.updown_method is False:
+                rec.updown_rate = 0.0
 
     def _amount_by_group(self):
         for order in self:
@@ -1239,10 +1282,13 @@ class ReservationLine(models.Model):
                           currency_obj=currency)
             res = {}
             for line in order.room_transaction_line_ids:
-                price_reduce = line.price_unit * (1.0 - line.discount / 100.0)
-                # price_reduce = line.price_unit
+                if line.reservation_line_id.updown_method == 'pc':
+                    update_price = line.price_unit * (1.0 +
+                                                      line.updown_rate / 100.0)
+                else:
+                    update_price = line.price_unit + line.updown_rate
                 taxes = line.tax_ids.compute_all(
-                    price_reduce,
+                    update_price,
                     quantity=line.total_qty,
                     product=line.transaction_id.product_id,
                     partner=order.guest_id)['taxes']
@@ -1702,10 +1748,6 @@ class ReservationLine(models.Model):
                 self.ratecode_id.id,
                 'room_rate':
                 self.room_rate,
-                'updown_amt':
-                self.updown_amt,
-                'updown_pc':
-                self.updown_pc,
                 'allotment_id':
                 self.allotment_id,
                 'rate_nett':
@@ -2084,12 +2126,25 @@ class ReservationLine(models.Model):
             vals = []
             for rec in range(rooms):
                 vals.append((0, 0, {
+                    'property_id': self.property_id.id,
+                    'reservation_id': self.reservation_id.id,
+                    'confirm_no': self.confirm_no,
+                    'reservation_user_id': self.reservation_user_id.id,
+                    'currency_id': self.currency_id.id,
+                    'system_date': self.system_date,
+                    'is_cancel': self.is_cancel,
+                    'is_no_show': self.is_no_show,
+                    'is_roomtype_fix': self.is_roomtype_fix,
+                    'is_arrival_today': self.is_arrival_today,
+                    'required_color': self.required_color,
+                    'color': self.color,
                     'state': self.state,
                     'rooms': 1,
                     'nights': self.nights,
                     'group_id': self.group_id.id,
                     'guest_id': self.guest_id.id,
                     'company_id': self.company_id.id,
+                    'nationality_id': self.nationality_id.id,
                     'arrival': self.arrival,
                     'departure': self.departure,
                     'arrival_flight': self.arrival_flight,
@@ -2106,12 +2161,13 @@ class ReservationLine(models.Model):
                     'bedtype_id': self.bedtype_id.id,
                     'pax': self.pax,
                     'child': self.child,
+                    'ratehead_id': self.ratehead_id.id,
                     'ratecode_id': self.ratecode_id.id,
                     'room_rate': self.room_rate,
-                    'updown_amt': self.updown_amt,
-                    'updown_pc': self.updown_pc,
                     'reason_id': self.reason_id.id,
                     'package_id': self.package_id.id,
+                    'additional_pkg_ids': self.additional_pkg_ids,
+                    'allotment_id': self.allotment_id,
                     'rate_nett': self.rate_nett,
                     'fo_remark': self.fo_remark,
                     'hk_remark': self.hk_remark,
@@ -2134,6 +2190,10 @@ class ReservationLine(models.Model):
                     'visa_type': self.visa_type,
                     'visa_issue': self.visa_issue,
                     'visa_expire': self.visa_expire,
+                    'updown_method': self.updown_method,
+                    'updown_rate': self.updown_rate,
+                    'discount_reason_id': self.discount_reason_id.id,
+                    'specialrequest_id': self.specialrequest_id.id,
                 }))
             self.reservation_id.update({'reservation_line_ids': vals})
         # return {
@@ -2180,7 +2240,7 @@ class ReservationLine(models.Model):
             'ref': 'AUTO',
             'currency_id': currency.id,
             'tax_ids': taxes,
-            'discount': reservation_line_id.discount,
+            'updown_rate': reservation_line_id.updown_rate,
         }))
         reservation_line_id.update({'room_transaction_line_ids': vals})
 
@@ -2220,8 +2280,8 @@ class ReservationLine(models.Model):
             'AUTO',
             'tax_ids':
             taxes,
-            'discount':
-            room_transaction_line_id.reservation_line_id.discount,
+            'updown_rate':
+            room_transaction_line_id.reservation_line_id.updown_rate,
         })
 
     def get_posting_date(self, reservation_line_id, pkg):
@@ -2658,7 +2718,8 @@ class ReservationLine(models.Model):
         ) or 'room_type' in values.keys() or 'nights' in values.keys(
         ) or 'pax' in values.keys() or 'child' in values.keys(
         ) or 'extrabed' in values.keys() or 'child_bfpax' in values.keys(
-        ) or 'discount' in values.keys():
+        ) or 'updown_method' in values.keys() or 'updown_rate' in values.keys(
+        ):
             # If No Records >>> Create Room Transaction Charge Lines
             if not self.room_transaction_line_ids:
                 day_count = 0
@@ -3013,8 +3074,6 @@ class CancelReservation(models.Model):
         "Room Rate",
         #  compute='_compute_room_rate',
         help='Room Rate')
-    updown_amt = fields.Float("Updown Amount", help='Updown Amount')
-    updown_pc = fields.Float("Updown PC", help='Updown Percentage')
     package_id = fields.Many2one(
         'hms.package.group',
         related="ratecode_id.ratehead_id.pkg_group_id",
