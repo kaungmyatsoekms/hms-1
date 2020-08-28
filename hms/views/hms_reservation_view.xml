@@ -528,6 +528,12 @@
                                     <span class="o_stat_text">Sale Order</span>
                                 </div>
                             </button>
+                            <button name="preview_proforma_invoice" type="object" class="oe_stat_button" icon="fa-dollar">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Preview</span>
+                                    <span class="o_stat_text">Invoice</span>
+                                </div>
+                            </button>
                         </div>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">

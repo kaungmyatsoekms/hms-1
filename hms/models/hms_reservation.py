@@ -9,6 +9,7 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
 import pytz
 import calendar
 from odoo.tools.misc import formatLang, format_date, get_lang
+from werkzeug.urls import url_encode
 
 
 class HMSReason(models.Model):
@@ -938,7 +939,7 @@ class Reservation(models.Model):
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
     _description = "Reservation Line"
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread','portal.mixin', 'mail.activity.mixin']
 
     def get_rooms(self):
         if self._context.get('rooms') != False:
@@ -3181,6 +3182,14 @@ class ReservationLine(models.Model):
             tax_res = res.property_id.sale_tax_id.compute_all(
                 price_unit=total_amount)
         return tax_res
+
+    def preview_proforma_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'self',
+            'url': self.get_portal_url(),
+        }
 
     @api.onchange('room_type')
     def clear_bed_type(self):
