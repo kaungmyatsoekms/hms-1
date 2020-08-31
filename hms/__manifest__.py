@@ -94,6 +94,7 @@
         'views/action_manager.xml',
         'data/hms.reasontype.csv',
         'data/hms.reason.csv',
+        'views/hms_cashier_view.xml',
         'views/hms_managment_report.xml',
         'wizard/hms_rc_detail_copy_wizard_view.xml',
         'views/hms_ratecode_view.xml',
@@ -116,7 +117,6 @@
         'wizard/hms_split_invoice_wizard_view.xml',
         # 'report/cashier_mail_template.xml',
         # 'wizard/hms_invoice_send_views.xml',
-        # 'views/hms_cashier_view.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',
