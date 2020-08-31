@@ -478,6 +478,10 @@ class Property(models.Model):
     # Night Audit Manual Action
     def action_night_audit(self):
 
+        # For System Date Update
+
+        self.system_date = self.system_date + timedelta(days=1)
+
         # For Forecast Update
         avail_objs = self.env['hms.availability'].search([
             ('property_id', '=', self.id),
@@ -575,14 +579,17 @@ class Property(models.Model):
         for ex_rc_detail in ex_rc_details:
             ex_rc_detail.update({'active': False})
 
-        # For System Date Update
-
-        self.system_date = self.system_date + timedelta(days=1)
 
         return
 
     @api.model
     def action_night_audit_auto(self):
+
+        # For System Date Update
+        property_objs = self.env['hms.property'].search([])
+        for record in property_objs:
+            if record.is_manual is False:
+                record.system_date = record.system_date + timedelta(days=1)
 
         # For Forecast Update
         property_objs = self.env['hms.property'].search([])
@@ -692,11 +699,6 @@ class Property(models.Model):
             if ex_rc_detail.is_manual is False:
                 ex_rc_detail.update({'active': False})
 
-        # For System Date Update
-        property_objs = self.env['hms.property'].search([])
-        for record in property_objs:
-            if record.is_manual is False:
-                record.system_date = record.system_date + timedelta(days=1)
 
     def set_onboarding_step_done(self, step_name):
         if self[step_name] == 'not_done':

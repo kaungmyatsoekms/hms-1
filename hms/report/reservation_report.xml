@@ -42,4 +42,20 @@
         <field name="report_name">hms.report_in_house_qweb</field>
     </record>
 
+    <!-- Custom Report for Proforma -->
+    <report 
+        id="proforma_report_id" string="Pro-Forma Report" model="hms.reservation.line" report_type="qweb-pdf" file="hms.hms_proforma" name="hms.hms_proforma"
+        print_report_name="'Proforma - %s' % (object.confirm_no)"/>
+    <record id="proforma_report" model="ir.actions.report">
+        <field name="name">Proforma Report</field>
+        <field name="model">report.hms.report_hms_pro_forma</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hms.report_hms_pro_forma</field>
+    </record>
+
+    <!-- Custom Report for Confirm Letter -->
+    <report 
+        id="confirm_letter_report" string="Confirm Letter" model="hms.reservation" report_type="qweb-pdf" file="hms.report_confirm_letter" name="hms.report_confirm_letter"
+        print_report_name="'Confirm Letter-%s' % (object.confirm_no)"/>
+
 </odoo>

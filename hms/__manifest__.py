@@ -25,9 +25,8 @@
     '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
-        'base', 'graphql_base', 'contacts', 'uom', 'account', 'mail',
-        'sale_management', 'web', 'website', 'web_one2many_kanban',
-        'web_tree_no_open', 'l10n_mm_coa'
+        'base','graphql_base', 'contacts', 'uom', 'account', 'mail',
+        'web', 'website', 'web_one2many_kanban','base_accounting_kit','web_tree_no_open','l10n_mm_coa'
     ],
     "external_dependencies": {
         "python": ["graphene"]
@@ -87,6 +86,8 @@
         'wizard/hms_checkin_wizard_view.xml',
         'wizard/hms_move_room_wizard_view.xml',
         'report/confirm_letter_template.xml',
+        'report/reservation_report.xml',
+        'report/mail_data.xml',
         'wizard/hms_confirm_letter_wizard_view.xml',
         # 'views/hms_sales_view.xml',
         'views/hms_reservation_view.xml',
@@ -101,7 +102,6 @@
         'wizard/property_report_wizard_view.xml',
         'wizard/reservation_report_wizard_view.xml',
         'wizard/in_house_report_wizard_view.xml',
-        'report/reservation_report.xml',
         'report/property_template.xml',
         'report/reservation_template.xml',
         'report/expected_arrival_template.xml',
@@ -114,9 +114,13 @@
         'views/hms_package_config.xml',
         'data/res.lang.csv',
         'data/hms_color_attribute_data.xml',
+        'report/cashier_mail_template.xml',
+        'wizard/hms_invoice_send_views.xml',
+        'views/hms_cashier_view.xml',
+        'report/proforma_template.xml',
+        'wizard/hms_pro_forma_invoice_view.xml',
+        'wizard/hms_proforma_report_wizard_view.xml',
         'wizard/hms_split_invoice_wizard_view.xml',
-        # 'report/cashier_mail_template.xml',
-        # 'wizard/hms_invoice_send_views.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',
