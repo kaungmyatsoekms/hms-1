@@ -11,7 +11,7 @@
                     <field name="email_from" invisible="1" />
                     <field name="mail_server_id" invisible="1"/>
                     <div name="mail_form">
-                    <!-- attrs="{'invisible': [('is_email', '=', False)]}" -->
+                        <!-- attrs="{'invisible': [('is_email', '=', False)]}" -->
                         <!-- visible wizard -->
                         <div attrs="{'invisible': [('composition_mode', '=', 'mass_mail')]}">
                             <group>
@@ -22,8 +22,7 @@
                                         <span>the selected records</span>
                                     </span>
                                     <span>Followers of the document and</span>
-                                    <field name="partner_ids" widget="many2many_tags_email" placeholder="Add contacts to notify..."
-                                        context="{'force_email':True, 'show_email':True}" attrs="{'invisible': [('composition_mode', '=', 'mass_mail')]}"/>
+                                    <field name="partner_ids" widget="many2many_tags_email" placeholder="Add contacts to notify..." context="{'force_email':True, 'show_email':True}" attrs="{'invisible': [('composition_mode', '=', 'mass_mail')]}"/>
                                 </div>
                                 <field name="subject" placeholder="Subject..." attrs="{'required': [('composition_mode', '=', 'comment')]}"/>
                             </group>
@@ -34,30 +33,20 @@
                                 <field name="attachment_ids" widget="many2many_binary" string="Attach a file" nolabel="1" colspan="2" attrs="{'invisible': [('composition_mode', '=', 'mass_mail')]}"/>
                             </group>
                             <group>
-                                <field name="template_id" options="{'no_create': True, 'no_edit': True}"
-                                    context="{'default_model': 'hms.reservation'}"/>
+                                <field name="template_id" options="{'no_create': True, 'no_edit': True}" context="{'default_model': 'hms.reservation'}"/>
                             </group>
                         </group>
                     </div>
 
                     <footer>
-                        <button string="Send Confirm Letter"
-                            name="action_confirm_letter" type="object" class="send_and_print btn-primary o_mail_send"/>
+                        <button string="Send Confirm Letter" name="action_confirm_letter" type="object" class="send_and_print btn-primary o_mail_send"/>
                         <button string="Cancel" class="btn-secondary" special="cancel" />
                     </footer>
                 </form>
             </field>
         </record>
 
-       <act_window
-            name="action_confirm_letter"
-            id="confirm_letter"
-            res_model="hms.confirm_letter"
-            binding_model="hms.reservation"
-            binding_views="list"
-            view_mode="form"
-            target="new"
-            context="{
+        <act_window name="action_confirm_letter" id="confirm_letter" res_model="hms.confirm_letter" binding_model="hms.reservation" binding_views="list" view_mode="form" target="new" context="{
                 'default_template_id': ref('hms.confirm_letter_template')}"/>
 
     </data>

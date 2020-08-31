@@ -8,8 +8,8 @@
                 <xpath expr="//form/sheet/group[1]" position="replace">
                     <group>
                         <group>
-                            <field name="has_due" invisible="1"/>
-                            <field name="is_warning" invisible="1"/>
+                            <!-- <field name="has_due" invisible="1"/>
+                            <field name="is_warning" invisible="1"/> -->
                             <field name="property_id" string="Property"/>
                             <field name="partner_id" string="Guest Name" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}" options='{"always_reload": True}'/>
                             <field name="partner_invoice_id" invisible="1" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options='{"always_reload": True}'/>
@@ -84,13 +84,13 @@
                                             'readonly': [('state', 'in', ('sale','done', 'cancel'))],
                                             'required': [('display_type', '=', False)],
                                         }" context="{'company_id': parent.company_id}" groups="uom.group_uom" options='{"no_open": True}' invisible="1"/>
-                                <field name="customer_lead" optional="hide" attrs="{'readonly': [('parent.state', 'not in', ['draft', 'sent'])]}"/>
+                                <field name="customer_lead" attrs="{'readonly': [('parent.state', 'not in', ['draft', 'sent'])]}" invisible="1"/>
                                 <field name="price_unit" widget="monetary" readonly="1"/>
                                 <field name="svc_amount" readonly="1"/>
                                 <field name="tax_id" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" optional="show"/>
                                 <field name="price_tax" widget="monetary" readonly="1"/>
-                                <field name="price_subtotal" widget="monetary" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                <field name="price_total" widget="monetary" groups="account.group_show_line_subtotals_tax_included"/>
+                                <field name="price_subtotal" widget="monetary"/>
+                                <field name="price_total" widget="monetary"/>
                                 <field name="discount" string="Disc.%" groups="product.group_discount_per_so_line" invisible="1"/>
                                 <field name="state" invisible="1"/>
                                 <field name="invoice_status" invisible="1"/>
@@ -105,12 +105,12 @@
                             </group>
                             <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
                                 <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
                                 <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                                     <label for="amount_total"/>
                                 </div>
                                 <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                <field name="service_charge" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                <!-- <field name="service_charge" widget='monetary' options="{'currency_field': 'currency_id'}"/> -->
                             </group>
                             <div class="oe_clear"/>
                         </group>
@@ -129,17 +129,14 @@
                         <group id="header_left_group">
                             <field name="property_id"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="has_due" invisible="1"/>
-                            <field name="is_warning" invisible="1"/>
+                            <!-- <field name="has_due" invisible="1"/>
+                            <field name="is_warning" invisible="1"/> -->
                             <field name="journal_id" invisible="1"/>
                             <div class="o_td_label">
-                                <label for="partner_id" string="Customer" style="font-weight:bold;"
-                                        attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
-                                <label for="partner_id" string="Vendor" style="font-weight:bold;"
-                                        attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_receipt'))]}"/>
+                                <label for="partner_id" string="Customer" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
+                                <label for="partner_id" string="Vendor" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_receipt'))]}"/>
                             </div>
-                            <field name="partner_id" widget="res_partner_many2one" nolabel="1"
-                                    context="{
+                            <field name="partner_id" widget="res_partner_many2one" nolabel="1" context="{
                                         'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,
                                         'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
                             <field name="group_id" options='{"no_quick_create": True, "no_create_edit": True, "no_open": True}'/>
@@ -178,7 +175,7 @@
                                 <field name="transaction_id"/>
                                 <field name="package_id" invisible="1"/>
                                 <field name="move_name" invisible="1"/>
-                                <field name="product_id" invisible="1" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+                                <field name="product_id" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
                                 <field name="name" widget="section_and_note_text" attrs="{'required': [('parent.type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
                                 <field name="account_id" groups="account.group_account_user" domain="[('deprecated', '=', False), ('user_type_id.type', 'not in', ('receivable', 'payable')), ('company_id', '=', parent.company_id)]" attrs="{'required': [('display_type', '=', False)]}"/>
                                 <field name="analytic_account_id" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting" optional="show"/>
@@ -191,8 +188,10 @@
                                 <field name="subtotal_wo_svc"/>
                                 <field name="tax_ids" widget="many2many_tags" domain="[('type_tax_use', '=?', parent.invoice_filter_type_domain), ('company_id', '=', parent.company_id)]" context="{'append_type_to_tax_name': not parent.invoice_filter_type_domain}" options="{'no_create': True}" optional="show"/>
                                 <field name="tax_amount"/>
-                                <field name="price_subtotal" string="Subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                <field name="price_total" string="Total" groups="account.group_show_line_subtotals_tax_included"/>
+                                <field name="price_subtotal" string="Subtotal"/>
+                                <!-- groups="account.group_show_line_subtotals_tax_excluded" -->
+                                <field name="price_total" string="Total"/>
+                                <!-- groups="account.group_show_line_subtotals_tax_included" -->
                                 <!-- Others fields -->
                                 <field name="partner_id" invisible="1"/>
                                 <field name="amount_currency" invisible="1"/>

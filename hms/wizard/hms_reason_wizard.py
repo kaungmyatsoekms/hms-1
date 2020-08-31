@@ -118,10 +118,6 @@ class HMSCancelReasonWizard(models.TransientModel):
                     d.ratecode_id.id,
                     'room_rate':
                     d.room_rate,
-                    'updown_amt':
-                    d.updown_amt,
-                    'updown_pc':
-                    d.updown_pc,
                     'package_id':
                     d.package_id.id,
                     'allotment_id':
@@ -171,7 +167,6 @@ class HMSCancelReasonWizard(models.TransientModel):
                     'arrive_reason_id':
                     d.arrive_reason_id,
                 })
-                d.sale_order_id.action_cancel()
         # Update Status & Flag for Group
         reservations.write({
             'reason_id': self.reason_id,
@@ -234,8 +229,6 @@ class HMSCancelReasonLineWizard(models.TransientModel):
                 'room_no': room_no,
             })
         reservation_lines.copy_cancel_record()
-        # Update Sale Order State
-        reservation_lines.sale_order_id.action_cancel()
         # Check All Reservation lines are same state, update main group to state
         rec = 0
         confirm = 0

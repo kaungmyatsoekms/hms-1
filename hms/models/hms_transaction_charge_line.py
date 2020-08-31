@@ -35,8 +35,6 @@ class HMSTransactionChargeLine(models.Model):
     reservation_line_id = fields.Many2one("hms.reservation.line",
                                           "Reservation",
                                           default=get_reservation_line_id)
-    # rate = fields.Float("Rate", store=True)
-    # total_amount = fields.Float("Total")
     active = fields.Boolean(default=True)
     delete = fields.Boolean(default=False)
     package_ids = fields.Many2many(
@@ -44,6 +42,7 @@ class HMSTransactionChargeLine(models.Model):
         related="reservation_line_id.package_id.package_ids")
     package_id = fields.Many2one('hms.package.header', string='Package')
     total_room = fields.Integer('Rooms', related="reservation_line_id.rooms")
+    total_qty = fields.Integer('Total Quantity')
     transaction_date = fields.Date("Date")
     rate_attribute = fields.Selection(RATE_ATTRIBUTE,
                                       string="Attribute",
@@ -61,36 +60,33 @@ class HMSTransactionChargeLine(models.Model):
         help=
         "Technical field used to compute the monetary field. As currency_id is not a required field, we need to use either the foreign currency, either the company one."
     )
-    # New Fields For Proforma
     price_unit = fields.Float(string='Unit Price', digits='Product Price')
-    tax_id = fields.Many2one('account.tax', string='Tax')
+    tax_ids = fields.Many2many('account.tax',
+                               string='Svc & Taxes',
+                               help="Taxes that apply on the base amount")
     price_subtotal = fields.Monetary(string='Subtotal',
                                      store=True,
                                      readonly=True,
-                                     currency_field='always_set_currency_id')
-    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
-                                      store=True,
-                                      readonly=True,
-                                      currency_field='always_set_currency_id')
+                                     currency_field='always_set_currency_id',
+                                     compute='_compute_amount')
     price_total = fields.Monetary(string='Total',
                                   store=True,
                                   readonly=True,
-                                  currency_field='always_set_currency_id')
-    tax_amount = fields.Monetary(string='Tax',
+                                  currency_field='always_set_currency_id',
+                                  compute='_compute_amount')
+    tax_amount = fields.Monetary(string='SVC & TAX',
                                  store=True,
                                  readonly=True,
-                                 currency_field='always_set_currency_id')
-    svc_amount = fields.Monetary(string='Service Charge',
-                                 store=True,
-                                 readonly=True,
-                                 currency_field='always_set_currency_id')
-    amount_currency = fields.Monetary(
-        string='Amount in Currency',
-        store=True,
-        copy=True,
-        help=
-        "The amount expressed in an optional other currency if it is a multi-currency entry."
-    )
+                                 currency_field='always_set_currency_id',
+                                 compute='_compute_amount')
+    updown_rate = fields.Float(string='Up/Down Rate',
+                               digits='Up/Down',
+                               default=0.0)
+    update_price = fields.Float(compute='_get_update_price',
+                                string='Price Update',
+                                digits='Price Update',
+                                readonly=True,
+                                store=True)
 
     def name_get(self):
         result = []
@@ -99,6 +95,40 @@ class HMSTransactionChargeLine(models.Model):
                            "{} ({})".format(record.transaction_date,
                                             record.transaction_id.trans_name)))
         return result
+
+    @api.depends('price_unit', 'updown_rate')
+    def _get_update_price(self):
+        for line in self:
+            if line.reservation_line_id.updown_rate != 0.0:
+                if line.reservation_line_id.updown_method == 'pc':
+                    line.update_price = line.price_unit * (
+                        1.0 + line.updown_rate / 100.0)
+                else:
+                    line.update_price = line.price_unit + line.updown_rate
+
+    @api.depends('total_qty', 'updown_rate', 'price_unit', 'tax_ids')
+    def _compute_amount(self):
+        """
+        Compute the amounts of the transaction charge line.
+        """
+        for line in self:
+            if line.reservation_line_id.updown_method == 'pc':
+                price = line.price_unit * (1.0 + line.updown_rate / 100.0)
+            else:
+                price = line.price_unit + line.updown_rate
+            taxes = line.tax_ids.compute_all(
+                price,
+                line.currency_id,
+                line.total_qty,
+                partner=line.reservation_line_id.guest_id)
+            line.update({
+                'tax_amount':
+                sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+                'price_total':
+                taxes['total_included'],
+                'price_subtotal':
+                taxes['total_excluded'],
+            })
 
     # Compute Currency
     @api.depends('currency_id')

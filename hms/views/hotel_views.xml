@@ -216,7 +216,6 @@
                                         <field name="confirm_id_format" widget="selection"/>
                                         <field name="soprofile_id_format" widget="selection"/>
                                         <field name="ivprofile_id_format" widget="selection"/>
-                                        <!-- <field name="cancellation_id_format" widget="selection"/> -->
                                     </group>
                                 </group>
                                 <group string="Service Charges">
@@ -231,28 +230,12 @@
                                                 <div class="text-muted">
                                                     Allow service charges on orders
                                                 </div>
-                                                <div class="content-group " attrs="{'invisible':[('enable_service_charge','=',False)]}">
-                                                    <div class="row">
-                                                        <label for="svc_inc_exc" class="col-lg-3 o_light_label"/>
-                                                        <field name="is_include" invisible="1"/>
-                                                        <field name="svc_inc_exc" widget="radio" options="{'horizontal': true}" class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                                                    </div>
-                                                    <div class="row">
-                                                        <label for="service_charge_type" class="col-lg-3 o_light_label"/>
-                                                        <field name="service_charge_type" widget="radio" options="{'horizontal': true}" class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                                                    </div>
-                                                    <div class="row mt16">
-                                                        <label for="service_product_id" class="col-lg-3 o_light_label"/>
-                                                        <field name="service_product_id" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                                                    </div>
-                                                    <div class="row">
-                                                        <label for="service_charge" class="col-lg-3 o_light_label"/>
-                                                        <field name="service_charge"/>
-                                                    </div>
+                                                <div class="content-group mt16" attrs="{'invisible':[('enable_service_charge', '=', False)]}">
+                                                    <field name="sale_svc_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', company_id)]" attrs="{'required':[('enable_service_charge','=',True)]}"/>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-xs-12 col-lg-6 o_setting_box" attrs="{'invisible':[('enable_service_charge','=',False)]}">
+                                        <div class="col-xs-12 col-lg-6 o_setting_box" attrs="{'invisible':['|', ('enable_service_charge', '=', False), ('sale_svc_id', '=', False)]}">
                                             <div class="o_setting_left_pane">
                                                 <field name="svc_include_tax"/>
                                             </div>
@@ -260,15 +243,6 @@
                                                 <label for="svc_include_tax"/>
                                                 <div class="text-muted">
                                                     Service charge will be taxable if enabled
-                                                </div>
-                                            </div>
-                                            <div class="o_setting_left_pane">
-                                                <field name="svc_as_line"/>
-                                            </div>
-                                            <div class="o_setting_right_pane">
-                                                <label for="svc_as_line"/>
-                                                <div class="text-muted">
-                                                    Service charge will be added as product line and not in total
                                                 </div>
                                             </div>
                                             <div class="o_setting_left_pane">
@@ -291,10 +265,10 @@
                                                 <div>
                                                     <label string="Default Sales Tax" for="sale_tax_id"/>
                                                     <div class="text-muted">
-                                                            Default sales tax for HMS System
+                                                        Default sales tax for HMS System
                                                     </div>
                                                     <div class="content-group mt16">
-                                                        <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', id)]"/>
+                                                        <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', company_id)]"/>
                                                     </div>
                                                 </div>
                                                 <div class="mt8">
@@ -384,13 +358,6 @@
                                     <img t-att-src="kanban_image('hms.property','logo',record.id.raw_value)" alt="image"/>
                                     <field name="system_date"/>
                                 </div>
-                                <!-- <div class="container o_kanban_card_content">
-                  <div class="row o_kanban_card_upper_content">
-                      <div class="col-5 o_kanban_primary_left" name="to_replace_in_sale_crm">
-                          <button type="object" class="btn btn-primary" name="action_primary_channel_button">Company Profile</button>
-                      </div>
-                  </div>
-                </div> -->
                                 <div class="o_dropdown_kanban dropdown" groups="base.group_user">
                                     <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
                                         <span class="fa fa-bars fa-lg" />
@@ -408,7 +375,7 @@
                                         </t>
                                         <t>
                                             <li>
-                        Profile
+                                                Profile
                                                 <ul>
                                                     <li>
                                                         <a type="object" name="action_companyprofile" context="{'default_property_id' : id}">Company Profile</a>
@@ -419,9 +386,6 @@
                                                 </ul>
                                             </li>
                                         </t>
-                                        <!-- <li>
-                        <ul class="oe_kanban_colorpicker" data-field="color" />
-                    </li> -->
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_details">
@@ -1401,7 +1365,8 @@
                                 <field name="trans_unitprice"/>
                                 <field name="trans_utilities" attrs="{'invisible': [('revtype_name', '=', 'Payment')],'required': [('revtype_name', '!=', 'Payment')]}"/>
                                 <field name="product_id"/>
-                                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
+                                <field name="enable_service_charge" invisible="1"/>
+                                <field name="trans_svc" widget="boolean_toggle" attrs="{'invisible': ['|', ('revtype_name', '=', 'Payment'), ('enable_service_charge', '=', False)]}"/>
                                 <field name="trans_tax" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>
                                 <field name="trans_internal" widget="boolean_toggle"/>
                                 <field name="trans_minus" widget="boolean_toggle" attrs="{'invisible': [('revtype_name', '=', 'Payment')]}"/>

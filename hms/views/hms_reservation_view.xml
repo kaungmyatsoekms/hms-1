@@ -224,7 +224,7 @@
                                         <field name="pax"/>
                                         <field name="child"/>
                                         <field name="ratehead_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="ratecode_id" string="Rate Code" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" invisible="1"/>
+                                        <field name="ratecode_id" string="Rate Code" optional="hide" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
@@ -484,6 +484,31 @@
             </field>
         </record>
 
+        <!-- Transaction Charge Line Tree View -->
+        <record id="charge_line_view_tree" model="ir.ui.view">
+            <field name="name">charge.line.view.tree</field>
+            <field name="model">hms.room.transaction.charge.line</field>
+            <field name="arch" type="xml">
+                <tree string="Room Transaction Charge Line" create="false" import="false" delete="false">
+                    <field name="property_id"/>
+                    <field name="transaction_date"/>
+                    <field name="transaction_id"/>
+                    <field name="total_room"/>
+                    <field name="price_unit"/>
+                    <field name="tax_ids" widget="many2many_tags"/>
+                    <field name="updown_rate"/>
+                    <field name="price_total"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="charge_line_action_window" model="ir.actions.act_window">
+            <field name="name">Room Transaction Charge Line</field>
+            <field name="res_model">hms.room.transaction.charge.line</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[('reservation_line_id', '=', active_id)]</field>
+        </record>
+
         <!--Reservation Line-->
         <!-- Reservation Line Form View -->
         <record id="reservation_line_view_form" model="ir.ui.view">
@@ -494,7 +519,6 @@
                     <header>
                         <field name="is_arrival_today" invisible="1"/>
                         <field name="is_roomtype_fix" invisible="1"/>
-                        <field name="sale_order_id" invisible="1"/>
                         <button string="Confirm" name="%(action_confirm_line_wiz)d" type="action" class="btn btn-primary" attrs="{'invisible': [('state', 'in', ('booking', 'confirm', 'cancel', 'checkin'))]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -513,19 +537,22 @@
                         <button string="Cancel Check-In" name="action_cancel_checkin" type="object" class="btn btn-primary" attrs="{'invisible': [('state', '!=', 'checkin')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Split" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
+                        <button string="Split" confirm="Do you want to Split Reservation?" type="object" name="action_split" class="btn btn-primary" attrs="{'invisible': ['|', ('rooms', '&lt;', 2), ('state', 'in', ('booking', 'reservation', 'cancel', 'checkin'))]}">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <button string="Split Invoice" name="%(hms.charge_line_action_window)d" type="action" class="btn btn-primary">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
+                        <!-- <div class="oe_button_box" name="button_box">
                             <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">Sale Order</span>
                                 </div>
                             </button>
-                        </div>
+                        </div> -->
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
                             <h2>
@@ -605,13 +632,7 @@
                                 <field name="allotment_id" placeholder="Allotment"/>
                                 <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                <label for="room_rate" string="Room Rate"/>
-                                <div class="o_address_format">
-                                    <field name="room_rate" style="width:33%%"/>
-                                    <field name="updown_amt" style="width:33%%"/>
-                                    <field name="updown_pc" style="width:33%%"/>
-                                </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <field name="room_rate"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -624,6 +645,12 @@
                                     <field name="extrabed_amount" style="width: 50%"/>
                                 </div>
                                 <field name="rate_nett" style="width:50%%"/>
+                                <label for="updown_method" string="Up/Down Method"/>
+                                <div class="address_format">
+                                    <field name="updown_method" style="width:50%%"/>
+                                    <field name="updown_rate" style="width:50%%" attrs="{'invisible': [('updown_method', '=', False)]}"/>
+                                </div>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id': 2}" options="{'no_quick_create': True, 'no_create_edit': True}" attrs="{'invisible': [('updown_rate', '=', 0.00)]}"/>
                             </group>
                         </group>
                         <hr></hr>
@@ -631,6 +658,7 @@
                             <page string="Charges">
                                 <field name='room_transaction_line_ids' context="{'default_property_id': property_id, 'reservation_line_id': id}">
                                     <tree editable="bottom" class="tree_no_open" default_order="transaction_date,transaction_id">
+                                        <field name="reservation_line_id" invisible="1"/>
                                         <field name="property_id" invisible="1"/>
                                         <field name="transaction_date"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
@@ -639,18 +667,18 @@
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="price_unit"/>
                                         <field name="total_room"/>
-                                        <field name="subtotal_wo_svc"/>
-                                        <field name="svc_amount"/>
-                                        <field name="price_subtotal" sum="Total"/>
-                                        <field name="tax_id"/>
-                                        <field name="tax_amount"/>
-                                        <field name="price_total" sum="Total"/>
+                                        <field name="total_qty" invisible="1"/>
+                                        <field name="updown_rate"/>
+                                        <field name="tax_ids" domain="[('type_tax_use', 'in', ('sale', 'all'))]" widget="many2many_tags"/>
+                                        <field name="tax_amount" optional="hide"/>
+                                        <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <field name="price_total" sum="Total" groups="account.group_show_line_subtotals_tax_included"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>
                                 <group class="oe_subtotal_footer oe_right" colspan="2">
                                     <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                    <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
                                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                                         <label for="amount_total"/>
                                     </div>
@@ -886,7 +914,6 @@
             <field name="context">{'group_by':['property_id','arrival:year']}</field>
             <field name="search_view_id" ref="view_hms_reservation_line_search"/>
         </record>
-        <!-- ('state','!=','cancel') -->
 
         <!-- Reason Type View Form-->
         <record id="reason_type_view_form" model="ir.ui.view">
@@ -1272,12 +1299,8 @@
                                 <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="additional_pkg_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
-                                <div class="o_address_format">
-                                    <field name="room_rate" style="width:33%%"/>
-                                    <field name="updown_amt" style="width:33%%"/>
-                                    <field name="updown_pc" style="width:33%%"/>
-                                </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <field name="room_rate"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -1509,12 +1532,8 @@
                                 <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
-                                <div class="o_address_format">
-                                    <field name="room_rate" style="width:33%%"/>
-                                    <field name="updown_amt" style="width:33%%"/>
-                                    <field name="updown_pc" style="width:33%%"/>
-                                </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}" attrs="{'invisible': [('updown_amt','&gt;=',0.00),('updown_pc','&gt;=',0.00)]}"/>
+                                <field name="room_rate"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>

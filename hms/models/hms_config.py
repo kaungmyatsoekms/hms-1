@@ -208,8 +208,8 @@ class Company(models.Model):
     # Invoice ID Format
     def _default_ivprofile_id_format(self):
         if not self.ivprofile_id_format:
-            return self.env.ref('base.main_company').ivprofile_id_format     
-    
+            return self.env.ref('base.main_company').ivprofile_id_format
+
     # Sales Tax ID
     def _default_sale_tax_id(self):
         if not self.sale_tax_id:
@@ -217,16 +217,8 @@ class Company(models.Model):
 
     def _default_show_line_subtotals_tax_selection(self):
         if not self.show_line_subtotals_tax_selection:
-            return self.env.ref('base.main_company').show_line_subtotals_tax_selection
-
-    def _default_service_charge_type(self):
-        if not self.service_charge_type:
-            return self.env.ref('base.main_company').service_charge_type
-
-    def _default_service_product_id(self):
-        if not self.service_product_id:
-            return self.env.ref('base.main_company').service_product_id
-            
+            return self.env.ref(
+                'base.main_company').show_line_subtotals_tax_selection
 
     # # Default Get Currency
     def default_get_curency(self):
@@ -249,13 +241,13 @@ class Company(models.Model):
         else:
             country_id = self.env['res.country'].search([('code', '=', "MMR")])
         return country_id
-    
+
     scurrency_id = fields.Many2one("res.currency",
-                                  "Second Currency",
-                                  default=default_get_curency,
-                                  readonly=False,
-                                  track_visibility=True,
-                                  help='Second Currency')
+                                   "Second Currency",
+                                   default=default_get_curency,
+                                   readonly=False,
+                                   track_visibility=True,
+                                   help='Second Currency')
 
     property_code_len = fields.Integer("Property Code Length",
                                        default=8,
@@ -286,16 +278,17 @@ class Company(models.Model):
                                          default=_default_gprofile_id_format,
                                          track_visibility=True)
     soprofile_id_format = fields.Many2one('hms.format',
-                                            'Sale Order No Format',
-                                            default=_default_soprofile_id_format,
-                                            track_visibility=True)
+                                          'Sale Order No Format',
+                                          default=_default_soprofile_id_format,
+                                          track_visibility=True)
     ivprofile_id_format = fields.Many2one('hms.format',
-                                            'Invoice No Format',
-                                            default=_default_ivprofile_id_format,
-                                            track_visibility=True)                                            
-
+                                          'Invoice No Format',
+                                          default=_default_ivprofile_id_format,
+                                          track_visibility=True)
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", default=_default_sale_tax_id)
+    sale_tax_id = fields.Many2one('account.tax',
+                                  string="Default Sale Tax",
+                                  default=_default_sale_tax_id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -307,20 +300,32 @@ class Company(models.Model):
         "Show line subtotals with taxes (B2C)",
         implied_group='account.group_show_line_subtotals_tax_included',
         group='base.group_portal,base.group_user,base.group_public')
-    show_line_subtotals_tax_selection = fields.Selection([
-        ('tax_excluded', 'Tax-Excluded'),
-        ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True, default=_default_show_line_subtotals_tax_selection,
+    show_line_subtotals_tax_selection = fields.Selection(
+        [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
+        string="Line Subtotals Tax Display",
+        required=True,
+        default=_default_show_line_subtotals_tax_selection,
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
     enable_service_charge = fields.Boolean(string='Service Charges')
-    service_charge_type = fields.Selection([('amount', 'Amount'),
-                                            ('percentage', 'Percentage')],
-                                           string='Type', default=_default_service_charge_type)
-    service_charge = fields.Float(string='Service Charge')
-    service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('sale_ok', '=', True),"
-                                                "('type', '=', 'service')]", default=_default_service_product_id)
+    svc_include_tax = fields.Boolean(string='Include Tax')
+    disable_popup = fields.Boolean(string='Disable Popup')
+    sale_svc_id = fields.Many2one('account.tax', string="Service Charge")
+
+    @api.onchange('enable_service_charge')
+    def onchange_service_charge(self):
+        for rec in self:
+            if rec.enable_service_charge == False:
+                rec.svc_include_tax = rec.sale_svc_id.include_base_amount = rec.sale_svc_id = rec.disable_popup = False
+
+    @api.onchange('svc_include_tax')
+    def onchange_include_base_amount(self):
+        for rec in self:
+            if rec.sale_svc_id:
+                if rec.svc_include_tax == True:
+                    rec.sale_svc_id.include_base_amount = True
+                else:
+                    rec.sale_svc_id.include_base_amount = False
 
     @api.onchange('show_line_subtotals_tax_selection')
     def _onchange_sale_tax(self):
@@ -334,17 +339,6 @@ class Company(models.Model):
                 'group_show_line_subtotals_tax_included': True,
                 'group_show_line_subtotals_tax_excluded': False,
             })
-
-    @api.onchange('enable_service_charge')
-    def set_config_service_charge(self):
-        if self.enable_service_charge:
-            if not self.service_product_id:
-                domain = [('sale_ok', '=', True),  ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(domain, limit=1)
-            self.service_charge = 10.0
-        else:
-            self.service_product_id = False
-            self.service_charge = 0.0
 
 
 class ColorAttribute(models.Model):
@@ -415,7 +409,7 @@ class ResConfigSettings(models.TransientModel):
     def get_company_id(self):
         if not self.company_id:
             return self.env.user.company_id
-    
+
     company_id = fields.Many2one('res.company', default=get_company_id)
     property_code_len = fields.Integer("Property Code Length",
                                        related="company_id.property_code_len",
@@ -458,7 +452,10 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.ivprofile_id_format",
         track_visibility=True)
     # Tax
-    sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", related='company_id.account_sale_tax_id', readonly=False)
+    sale_tax_id = fields.Many2one('account.tax',
+                                  string="Default Sale Tax",
+                                  related='company_id.sale_tax_id',
+                                  readonly=False)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -470,21 +467,34 @@ class ResConfigSettings(models.TransientModel):
         "Show line subtotals with taxes (B2C)",
         implied_group='account.group_show_line_subtotals_tax_included',
         group='base.group_portal,base.group_user,base.group_public')
-    show_line_subtotals_tax_selection = fields.Selection([
-        ('tax_excluded', 'Tax-Excluded'),
-        ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
-        required=True,  related="company_id.show_line_subtotals_tax_selection",
+    show_line_subtotals_tax_selection = fields.Selection(
+        [('tax_excluded', 'Tax-Excluded'), ('tax_included', 'Tax-Included')],
+        string="Line Subtotals Tax Display",
+        required=True,
+        related="company_id.show_line_subtotals_tax_selection",
         config_parameter='account.show_line_subtotals_tax_selection')
     # Service Charges
-    enable_service_charge = fields.Boolean(string='Service Charges')
-    service_charge_type = fields.Selection([('amount', 'Amount'),
-                                            ('percentage', 'Percentage')],
-                                           string='Type', related="company_id.service_charge_type")
-    service_charge = fields.Float(string='Service Charge')
-    service_product_id = fields.Many2one('product.product', string='Service Product',
-                                         domain="[('sale_ok', '=', True),"
-                                                "('type', '=', 'service')]", related="company_id.service_product_id")
-    
+    enable_service_charge = fields.Boolean(string='Service Charges',
+                                           store=True)
+    svc_include_tax = fields.Boolean(string='Include Tax')
+    disable_popup = fields.Boolean(string='Disable Popup')
+    sale_svc_id = fields.Many2one('account.tax', string="Service Charge")
+
+    @api.onchange('enable_service_charge')
+    def onchange_service_charge(self):
+        for rec in self:
+            if rec.enable_service_charge == False:
+                rec.svc_include_tax = rec.sale_svc_id.include_base_amount = rec.sale_svc_id = rec.disable_popup = False
+
+    @api.onchange('svc_include_tax')
+    def onchange_include_base_amount(self):
+        for rec in self:
+            if rec.sale_svc_id:
+                if rec.svc_include_tax == True:
+                    rec.sale_svc_id.include_base_amount = True
+                else:
+                    rec.sale_svc_id.include_base_amount = False
+
     @api.onchange('property_code_len')
     def onchange_property_code_len(self):
         if self.property_code_len:
@@ -537,17 +547,6 @@ class ResConfigSettings(models.TransientModel):
                 'group_show_line_subtotals_tax_included': True,
                 'group_show_line_subtotals_tax_excluded': False,
             })
-
-    @api.onchange('enable_service_charge')
-    def set_config_service_charge(self):
-        if self.enable_service_charge:
-            if not self.service_product_id:
-                domain = [('sale_ok', '=', True),  ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(domain, limit=1)
-            self.service_charge = 10.0
-        else:
-            self.service_product_id = False
-            self.service_charge = 0.0
 
     # Write Function
     def write(self, values):
