@@ -477,7 +477,7 @@
         <!-- ('type', '=', 'out_invoice')
         'default_type': 'out_invoice' -->
 
-        <menuitem id="hms_menu_cashier" name="Cashier" parent="hotel_menu_root" sequence="6"/>
+        <menuitem id="hms_menu_cashier" name="Cashier" parent="hotel_menu_root" sequence="3"/>
         <menuitem id="cashier_menu" name="Cashier" parent="hms_menu_cashier" sequence="1" action="action_cashier_folio"/>
         <!-- MENU ITEMS -->
         <!-- <menuitem id="hms_cashier" name="Cashier" parent="hotel_menu_root" sequence="10"/>

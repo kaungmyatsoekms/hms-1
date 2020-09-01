@@ -47,7 +47,6 @@ class RateCodeHeader(models.Model):
     pkg_group_id = fields.Many2one(
         'hms.package.group',
         string="Package",
-        required=True,
         domain="[('property_id', '=?', property_id)]")
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
@@ -102,6 +101,10 @@ class RateCodeHeader(models.Model):
             res.rate_category_id.rate_header_ids._update_property_ratecodeheader(
                 rate_category_id, property_id, start_date, end_date, rate_code,
                 ratecode_name, create)
+
+            if not res.pkg_group_id:
+                raise UserError(
+                    _("Please choose a Package"))
 
         return res
 
