@@ -3,11 +3,32 @@ from odoo.addons.mail.wizard.mail_compose_message import _reopen
 from odoo.exceptions import UserError
 from odoo.tools.misc import get_lang
 
+class ProForma(models.TransientModel):
+    _name = 'hms.proforma.invoice'
+    _inherits = {'mail.compose.message':'composer_id'}
+    _description = 'Proforma Invoice'
 
-class AccountInvoiceSend(models.TransientModel):
-    _inherit = "account.invoice.send"
+    is_email = fields.Boolean('Email', default=lambda self: self.env.company.invoice_is_email)
+    invoice_without_email = fields.Text(compute='_compute_invoice_without_email', string='invoice(s) that will not be sent')
+    is_print = fields.Boolean('Print', default=lambda self: self.env.company.invoice_is_print)
+    printed = fields.Boolean('Is Printed', default=False)
+    composer_id = fields.Many2one('mail.compose.message', string='Composer', required=True, ondelete='cascade')
+    template_id = fields.Many2one(
+        'mail.template', 'Use template', index=True,
+        domain="[('model', '=', 'account.move')]"
+        )
 
-    def action_confirm_letter(self):
+    @api.onchange('template_id')
+    def onchange_template_id(self):
+        for wizard in self:
+            if wizard.composer_id:
+                wizard.composer_id.template_id = wizard.template_id.id
+                wizard.composer_id.onchange_template_id_wrapper()
+
+    def _send_email(self):
+        self.composer_id.send_mail()
+
+    def action_pro_forma(self):
         self.ensure_one()
         # Send the mails in the correct language by splitting the ids per lang.
         # This should ideally be fixed in mail_compose_message, so when a fix is made there this whole commit should be reverted.

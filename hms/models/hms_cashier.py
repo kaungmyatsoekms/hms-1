@@ -26,6 +26,29 @@ def calc_check_digits(number):
     return '%02d' % ((98 - 100 * checksum) % 97)
 
 
+from datetime import date, timedelta
+from itertools import groupby
+from itertools import zip_longest
+from hashlib import sha256
+from json import dumps
+
+import json
+import re
+
+#forbidden fields
+INTEGRITY_HASH_MOVE_FIELDS = ('date', 'journal_id', 'company_id')
+INTEGRITY_HASH_LINE_FIELDS = ('debit', 'credit', 'account_id', 'partner_id')
+
+
+def calc_check_digits(number):
+    """Calculate the extra digits that should be appended to the number to make it a valid number.
+    Source: python-stdnum iso7064.mod_97_10.calc_check_digits
+    """
+    number_base10 = ''.join(str(int(x, 36)) for x in number)
+    checksum = int(number_base10) % 97
+    return '%02d' % ((98 - 100 * checksum) % 97)
+
+
 # Cashier Transaction
 class HMSCashierFolio(models.Model):
     _name = "hms.cashier.folio"
@@ -131,10 +154,6 @@ class HMSCashierFolio(models.Model):
                              tracking=True,
                              default='draft')
     reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
-    # room_no = fields.Many2one('Room No')
-    transaction_date = fields.Date("Date")
-    transaction_time = fields.Datetime("Time", help='Transaction Time')
-    transaction_id = fields.Char("Transaction")
     type = fields.Selection(selection=[
         ('entry', 'Journal Entry'),
         ('out_invoice', 'Customer Invoice'),
@@ -3117,12 +3136,11 @@ class HMSCashierFolioLine(models.Model):
     _order = 'sequence, name'
 
     sequence = fields.Integer("Sequence")
-    name = fields.Char("Name")
     active = fields.Boolean("Active", default=True)
-    reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
-    transaction_date = fields.Date("Date")
-    transaction_time = fields.Datetime("Time", help='Transaction Time')
-    transaction_id = fields.Char("Transaction")
+    # reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
+    # transaction_date = fields.Date("Date")
+    # transaction_time = fields.Datetime("Time", help='Transaction Time')
+    # transaction_id = fields.Char("Transaction")
 
     # ==== Business fields ====
     move_id = fields.Many2one('hms.cashier.folio',

@@ -11,6 +11,7 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as dt
 import pytz
 import calendar
 from odoo.tools.misc import formatLang, format_date, get_lang
+from werkzeug.urls import url_encode
 
 
 class HMSReason(models.Model):
@@ -118,6 +119,9 @@ class Reservation(models.Model):
                                  index=True,
                                  default=(lambda *a: time.strftime(dt)),
                                  help='Date Ordered')
+    system_date = fields.Date("System Date",
+                              related="property_id.system_date",
+                              help='System Date')
     type = fields.Selection(string='Type',
                             selection=[('individual', 'Individual'),
                                        ('group', 'Group')],
@@ -512,15 +516,6 @@ class Reservation(models.Model):
             rec._state_update_forecast(state, property_id, arrival, departure,
                                        room_type, rooms, reduce, status)
             rec.write({'state': status})
-            # Create Sale Order and Sale Order Line
-            # charge_line_obj = self.env[
-            #     'hms.room.transaction.charge.line'].search([
-            #         ('reservation_line_id', '=', rec.id)
-            #     ])
-            # if charge_line_obj:
-            #     rec.create_sale_order(rec)
-            #     for obj in charge_line_obj:
-            #         rec.create_sale_order_line(obj)
 
     def checkin_status(self):
         for rec in self:
@@ -975,6 +970,7 @@ class Reservation(models.Model):
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
     _description = "Reservation Line"
+    _inherit = ['mail.thread', 'portal.mixin', 'mail.activity.mixin']
 
     def get_rooms(self):
         if self._context.get('rooms') != False:
@@ -1210,8 +1206,12 @@ class ReservationLine(models.Model):
     madeondate = fields.Datetime("Date",
                                  related='reservation_id.date_order',
                                  help='Date')
-    citime = fields.Datetime("Check-In Time", help='Check-In Time')
-    cotime = fields.Datetime("Check-Out Time", help='Check-Out Time')
+    citime = fields.Datetime("Check-In Time",
+                             readonly=True,
+                             help='Check-In Time')
+    cotime = fields.Datetime("Check-Out Time",
+                             readonly=True,
+                             help='Check-Out Time')
 
     extrabed = fields.Integer("Extra Bed", help="No. of Extra Bed")
     extrabed_amount = fields.Float("Extra Bed Amount",
@@ -1260,6 +1260,9 @@ class ReservationLine(models.Model):
     updown_rate = fields.Float(string='Up/Down Rate',
                                digits='Discount',
                                default=0.0)
+    cashier_folio_ids = fields.One2many('hms.cashier.folio',
+                                        'reservation_line_id',
+                                        string="Cashier")
 
     def name_get(self):
         result = []
@@ -1833,9 +1836,6 @@ class ReservationLine(models.Model):
             self.write({'state': 'confirm'})
         else:
             self.write({'state': 'reservation'})
-
-    def checkin_status(self):
-        self.write({'state': 'checkin'})
 
     @api.onchange('reservation_id')
     def onchange_rsvn_data(self):
@@ -2502,6 +2502,44 @@ class ReservationLine(models.Model):
                         res, transaction_date, pkg)
             day_count += 1
 
+    # Create Cashier Folio and Folio Line when Checkin
+    def create_cashier_folio(self, reservation_line_id):
+        vals = []
+        vals.append((0, 0, {
+            'type': 'out_invoice',
+            'state': 'draft',
+            'partner_id': reservation_line_id.guest_id.id,
+            'currency_id': reservation_line_id.currency_id.id,
+            'reservation_line_id': reservation_line_id.id,
+        }))
+        reservation_line_id.update({'cashier_folio_ids': vals})
+        charge_line_objs = self.env['hms.room.transaction.charge.line'].search(
+            [('reservation_line_id', '=', reservation_line_id.id)])
+        if charge_line_objs:
+            for line in charge_line_objs:
+                fiscal_position = reservation_line_id.cashier_folio_ids.fiscal_position_id
+                accounts = line.transaction_id.product_id.product_tmpl_id.get_product_accounts(
+                    fiscal_pos=fiscal_position)
+                account_id = accounts['income']
+                self.env['hms.cashier.folio.line'].create({
+                    'move_id':
+                    reservation_line_id.cashier_folio_ids.id,
+                    'product_id':
+                    line.transaction_id.product_id.id,
+                    'name':
+                    line.transaction_id.product_id.product_tmpl_id.name,
+                    'account_id':
+                    account_id.id,
+                    'quantity':
+                    line.total_qty,
+                    'price_unit':
+                    line.price_unit,
+                    'discount':
+                    line.updown_rate,
+                    # 'tax_ids':
+                    # line.tax_ids,
+                })
+
     @api.model
     def create(self, values):
         res = super(ReservationLine, self).create(values)
@@ -2875,15 +2913,6 @@ class ReservationLine(models.Model):
         #         rsvn_state = reservation_id.state
         #         rsvn.write({'state' : rsvn_state})
 
-    # Scheduled Update No Show Reservation Daily
-    @api.model
-    def _no_show_reservation(self):
-        no_show_rsvn_lines = self.env['hms.reservation.line'].search([
-            ('arrival', '<', datetime.today()), ('state', '=', 'confirm')
-        ])
-        for no_show_rsvn_line in no_show_rsvn_lines:
-            no_show_rsvn_line.update({'is_no_show': True})
-
     def rate_calculate(self, package_id, reservation_line_id):
         rate = 0.0
         if reservation_line_id.currency_id.id == reservation_line_id.ratecode_id.currency_id.id:
@@ -2941,6 +2970,41 @@ class ReservationLine(models.Model):
         bedtype = self.env['hms.bedtype']
         if self.room_type.fix_type is True:
             self.bedtype_id = bedtype
+
+    def action_proforma_send(self):
+        ''' Opens a wizard to compose an email, with relevant mail template loaded by default '''
+        self.ensure_one()
+        template_id = self.env.ref('hms.pro_forma_template',
+                                   raise_if_not_found=False)
+
+        compose_form = self.env.ref('hms.proforma_invoice_wizard_form',
+                                    raise_if_not_found=False)
+        # lang = self.env.context.get('lang')
+        # template = self.env['mail.template'].browse(template_id)
+        # if template.lang:
+        #     lang = template._render_template(template.lang, 'sale.order', self.ids[0])
+        ctx = {
+            'default_model': 'hms.reservation.line',
+            'default_res_id': self.ids[0],
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id.id,
+            'default_composition_mode': 'comment',
+            'mark_so_as_sent': True,
+            'custom_layout': "mail.mail_notification_paynow",
+            'proforma': self.env.context.get('proforma', False),
+            'force_email': True,
+            # 'model_description': self.with_context(lang=lang).type_name,
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'hms.proforma.invoice',
+            'views': [(compose_form.id, 'form')],
+            'view_id': compose_form.id,
+            'target': 'new',
+            'context': ctx,
+        }
 
 
 # Cancel Reservation

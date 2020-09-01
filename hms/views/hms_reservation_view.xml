@@ -165,42 +165,7 @@
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
                                                                 'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
-                                    <!-- <form string="Reservation Line">
-                                        <group colspan="4" col="4">
-                                            <field name="is_roomtype_fix" invisible="1"/>
-                                            <field name="required_color" widget="color" invisible="1"/>
-                                            <field name="is_no_show" invisible="1"/>
-                                            <field name="state"/>
-                                            <field name="ispartial" invisible="1"/>
-                                            <field name="property_id"/>
-                                            <field name="guest_id"/>
-                                            <field name="arrival"/>
-                                            <field name="departure"/>
-                                            <field name="nights" string="Nights"/>
-                                            <field name="roomtype_ids" invisible="1"/>
-                                            <field name="room_type" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
-                                            <field name="bedtype_ids" invisible="1"/>
-                                            <field name="bedtype_id" attrs="{'invisible': [('is_roomtype_fix', '=', True)], 'required': [('is_roomtype_fix', '=', False)]}" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                            <field name="rooms"/>
-                                            <field name="pax"/>
-                                            <field name="child"/>
-                                            <field name="ratehead_id"/>
-                                            <field name="ratecode_id" string="Rate Code"/>
-                                            <field name="room_rate" string="Room Rate"/>
-                                            <field name="market_ids" invisible="1"/>
-                                            <field name="market" invisible="1"/>
-                                            <field name="source" string='Source' invisible='1'/>
-                                            <field name="reservation_type" invisible='1'/>
-                                            <field name='reservation_status' invisible='1'/>
-                                            <field name='arrival_flight' invisible='1'/>
-                                            <field name='arrival_flighttime' invisible='1'/>
-                                            <field name='dep_flight' invisible='1'/>
-                                            <field name='dep_flighttime' invisible='1'/>
-                                            <field name='eta' invisible='1'/>
-                                            <field name='etd' invisible='1'/>
-                                            <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
-                                        </group>
-                                    </form> -->
+
                                     <tree string="Reservation Line" editable="bottom" class="tree_no_open" decoration-muted="state=='cancel'" decoration-info="state=='reservation'" decoration-success="state=='confirm'">
                                         <field name="is_roomtype_fix" invisible="1"/>
                                         <field name="sequence" widget="handle"/>
@@ -543,16 +508,25 @@
                         <button string="Split Invoice" name="%(hms.charge_line_action_window)d" type="action" class="btn btn-primary">
                             <i class="fa fa-paint-brush"></i>
                         </button>
+                        <button string="Pro Forma" type="object" name="action_proforma_send" class="brn btn-primary">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
-                        <!-- <div class="oe_button_box" name="button_box">
-                            <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
+                        <div class="oe_button_box" name="button_box">
+                            <!-- <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible': [('sale_order_id', '=', False)]}">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">Sale Order</span>
                                 </div>
+                            </button>-->
+                            <button name="preview_proforma_invoice" type="object" class="oe_stat_button" icon="fa-dollar">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Preview</span>
+                                    <span class="o_stat_text">Invoice</span>
+                                </div>
                             </button>
-                        </div> -->
+                        </div>
                         <separator colspan='1' string="Reservation Details"/>
                         <div class="oe_title">
                             <h2>
@@ -650,7 +624,7 @@
                                     <field name="updown_method" style="width:50%%"/>
                                     <field name="updown_rate" style="width:50%%" attrs="{'invisible': [('updown_method', '=', False)]}"/>
                                 </div>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id': 2}" options="{'no_quick_create': True, 'no_create_edit': True}" attrs="{'invisible': [('updown_rate', '=', 0.00)]}"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id': 2}" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" attrs="{'invisible': [('updown_rate', '=', 0.00)], 'required': [('updown_rate', '&lt;', 0.00)]}"/>
                             </group>
                         </group>
                         <hr></hr>
@@ -730,6 +704,10 @@
                                 <field name="cancel_rsvn_ids" readonly="1"/>
                             </page>
                         </notebook>
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </div>
                     </sheet>
                 </form>
             </field>
@@ -1300,7 +1278,6 @@
                                 <field name="additional_pkg_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <field name="room_rate"/>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -1312,6 +1289,12 @@
                                     <field name="extrabed_amount" style="width: 50%"/>
                                 </div>
                                 <field name="rate_nett" style="width:50%%"/>
+                                <label for="updown_method" string="Up/Down Method"/>
+                                <div class="address_format">
+                                    <field name="updown_method" style="width:50%%"/>
+                                    <field name="updown_rate" style="width:50%%" attrs="{'invisible': [('updown_method', '=', False)]}"/>
+                                </div>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id': 2}" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" attrs="{'invisible': [('updown_rate', '=', 0.00)], 'required': [('updown_rate', '&lt;', 0.00)]}"/>
                             </group>
                         </group>
                         <hr></hr>
@@ -1533,7 +1516,6 @@
                                 <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <field name="room_rate"/>
-                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -1546,6 +1528,12 @@
                                     <field name="extrabed_amount" style="width: 50%"/>
                                 </div>
                                 <field name="rate_nett" style="width:50%%"/>
+                                <label for="updown_method" string="Up/Down Method"/>
+                                <div class="address_format">
+                                    <field name="updown_method" style="width:50%%"/>
+                                    <field name="updown_rate" style="width:50%%" attrs="{'invisible': [('updown_method', '=', False)]}"/>
+                                </div>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id': 2}" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" attrs="{'invisible': [('updown_rate', '=', 0.00)], 'required': [('updown_rate', '&lt;', 0.00)]}"/>
                             </group>
                         </group>
                         <hr></hr>

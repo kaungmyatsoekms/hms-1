@@ -67,5 +67,7 @@ access_hms_cashier_folio_line,hms.cashier.folio.line,model_hms_cashier_folio_lin
 access_hms_excel_extended,hms.excel.extended,model_hms_excel_extended,base.group_user,1,1,1,1
 access_res_users_role,access_res_users_role,model_res_users_role,"base.group_erp_manager",1,1,1,1
 access_res_users_role_line,access_res_users_role_line,model_res_users_role_line,"base.group_erp_manager",1,1,1,1
+access_hms_cashier_folio,hms.cashier.folio,model_hms_cashier_folio,base.group_user,1,1,1,1
+access_hms_cashier_folio_line,hms.cashier.folio.line,model_hms_cashier_folio_line,base.group_user,1,1,1,1
 
 

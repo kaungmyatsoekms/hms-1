@@ -4,39 +4,129 @@
     <!-- Mail template are declared in a NOUPDATE block
          so users can freely customize/delete them -->
     <data noupdate="0">
-        <!--Email template -->
-        <record id="confirm_letter_template" model="mail.template">
-            <field name="name">Confirm Letter</field>
-            <field name="model_id" ref="hms.model_hms_reservation"/>
-            <field name="email_from">${(object.sales_id.email_formatted or user.email_formatted) |safe}</field>
-            <field name="email_to">${object.guest_id.email}</field>
-            <field name="subject">${object.sales_id.company_id.name} Confirm Letter ${object.confirm_no}</field>
-            <field name="body_html" type="html">
-                <div style="margin: 0px; padding: 0px;">
-                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
-                        Dear
-                        % if object.guest_id.parent_id:
-                            ${object.guest_id.name} (${object.guest_id.parent_id.name}),
-                        % else:
-                            ${object.guest_id.name},
-                        % endif
-                        <br /><br />
-                        Here is your reservation ${object.confirm_no} to ${object.property_id.name}
-                        % if object.state == 'confirm':
-                            This reservation is confirmed. 
-                        % else:
-                            Please confirm your reservation at your earliest convenience.
-                        % endif
-                        <br /><br />
-                        Do not hesitate to contact us if you have any questions.
-                    </p>
-                </div>
-            </field>
-            <!-- <field name="report_template" ref="reservation_report_id"/> -->
-            <field name="report_name">Confirm Letter</field>
-            <field name="lang">${object.guest_id.lang}</field>
-            <field name="user_signature" eval="False"/>
-            <field name="auto_delete" eval="False"/>
-        </record>
+        <template id="report_confirm_letter">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <t t-foreach="docs" t-as="doc">
+                        <t t-set="doc" t-value="doc.with_context(lang=doc.user_id.lang)" />
+                        <t t-set="address">
+                            <div t-field="doc.user_id"
+                                t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}' />
+                            <p t-if="doc.user_id.vat"><t t-esc="doc.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="doc.user_id.vat"/></p>
+                        </t>
+                        <div class="page">
+                            <div class="oe_structure"/>
+
+                            <h2 class="mt16">
+                                <span>Confirm Letter # </span>
+                                <span t-field="doc.confirm_no"/>
+                            </h2>
+
+                            <div class="row mt32 mb32" id="informations">
+                                <div t-if="doc.system_date" class="col-auto mw-100 mb-2">
+                                    <strong>Quotation Date:</strong>
+                                    <p class="m-0" t-field="doc.system_date" t-options='{"widget": "date"}'/>
+                                </div>
+                                <div t-if="doc.user_id.name" class="col-auto mw-100 mb-2">
+                                    <strong>Salesperson:</strong>
+                                    <p class="m-0" t-field="doc.user_id"/>
+                                </div>
+                            </div>
+
+                            <!-- Is there a discount on at least one line? -->
+                            <!-- <t t-set="display_discount" t-value="any([l.discount for l in doc.order_line])"/> -->
+
+                            <table class="table table-sm o_main_table">
+                                <thead>
+                                    <tr>
+                                        <th name="th_guest" class="text-left">Guest</th>
+                                        <th name="th_arrival" class="text-left">Arrival</th>
+                                        <th name="th_departure" class="text-right">Departure</th>
+                                        <th name="th_nights" class="text-right">Nights</th>
+                                        <th name="th_roomtype" class="text-right">Room Type</th>
+                                        <th name="th_rooms" class="text-right">Rooms</th>
+                                        <th name="th_room_no" class="text-right">Room No.</th>
+                                        <th name="th_adult" class="text-right">Adult</th>
+                                        <th name="th_child" class="text-right">Child</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="rsvn_tbody">
+
+                                    <t t-foreach="doc.reservation_line_ids" t-as="line">
+
+                                        <tr t-att-class="'bg-200 font-weight-bold o_line_section'">
+                                            <t>
+                                                <td name="td_guest"><span t-field="line.guest_id"/></td>
+                                                <td name="td_arrival" class="text-left">
+                                                    <span t-field="line.arrival"/>
+                                                </td>
+                                                <td name="td_departure" class="text-right">
+                                                    <span t-field="line.departure"/>
+                                                </td>
+                                                <td name="td_nights" class="text-right">
+                                                    <span t-field="line.nights"/>
+                                                </td>
+                                                <td name="td_roomtype" class="text-right">
+                                                    <span t-field="line.room_type"/>
+                                                </td>
+                                                <td name="td_rooms" class="text-right">
+                                                    <span t-field="line.rooms"/>
+                                                </td>
+                                                <td name="td_room_no" class="text-right">
+                                                    <span t-field="line.room_no"/>
+                                                </td>
+                                                <td name="td_adult" class="text-right">
+                                                    <span t-field="line.pax" />
+                                                </td>
+                                                <td name="td_child" class="text-right">
+                                                    <span t-field="line.child" />
+                                                </td>
+                                            </t>
+                                        </tr>
+
+                                        <!-- <tr class="is-subtotal text-right">
+                                            <td name="td_section_subtotal" colspan="99">
+                                                <strong class="mr16">Subtotal</strong>
+                                                <span
+                                                    t-esc="current_subtotal"
+                                                    t-options='{"widget": "monetary", "display_currency": doc.currency_id}'
+                                                />
+                                            </td>
+                                        </tr> -->
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- <div class="clearfix" name="so_total_summary">
+                                <div id="total" class="row" name="total">
+                                    <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                                        <table class="table table-sm">
+                                            <tr class="border-black o_subtotal" style="">
+                                                <td name="td_amount_untaxed_label"><strong>Subtotal</strong></td>
+                                                <td name="td_amount_untaxed" class="text-right">
+                                                    <span t-field="doc.amount_untaxed"/>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-black o_tax">
+                                                <td name="td_amount_tax_label"><strong>Tax</strong></td>
+                                                <td name="td_amount_tax" class="text-right">
+                                                    <span t-field="doc.amount_tax"/>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-black o_total">
+                                                <td name="td_amount_total_label"><strong>Total</strong></td>
+                                                <td name="td_amount_total" class="text-right">
+                                                    <span t-field="doc.amount_total"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
     </data>
 </odoo>
