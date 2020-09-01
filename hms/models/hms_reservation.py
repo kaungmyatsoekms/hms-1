@@ -515,15 +515,6 @@ class Reservation(models.Model):
             rec._state_update_forecast(state, property_id, arrival, departure,
                                        room_type, rooms, reduce, status)
             rec.write({'state': status})
-            # Create Sale Order and Sale Order Line
-            # charge_line_obj = self.env[
-            #     'hms.room.transaction.charge.line'].search([
-            #         ('reservation_line_id', '=', rec.id)
-            #     ])
-            # if charge_line_obj:
-            #     rec.create_sale_order(rec)
-            #     for obj in charge_line_obj:
-            #         rec.create_sale_order_line(obj)
 
     def checkin_status(self):
         for rec in self:
@@ -978,7 +969,7 @@ class Reservation(models.Model):
 class ReservationLine(models.Model):
     _name = "hms.reservation.line"
     _description = "Reservation Line"
-    _inherit = ['mail.thread','portal.mixin', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'portal.mixin', 'mail.activity.mixin']
 
     def get_rooms(self):
         if self._context.get('rooms') != False:
@@ -1214,8 +1205,12 @@ class ReservationLine(models.Model):
     madeondate = fields.Datetime("Date",
                                  related='reservation_id.date_order',
                                  help='Date')
-    citime = fields.Datetime("Check-In Time", help='Check-In Time')
-    cotime = fields.Datetime("Check-Out Time", help='Check-Out Time')
+    citime = fields.Datetime("Check-In Time",
+                             readonly=True,
+                             help='Check-In Time')
+    cotime = fields.Datetime("Check-Out Time",
+                             readonly=True,
+                             help='Check-Out Time')
 
     extrabed = fields.Integer("Extra Bed", help="No. of Extra Bed")
     extrabed_amount = fields.Float("Extra Bed Amount",
@@ -1264,6 +1259,9 @@ class ReservationLine(models.Model):
     updown_rate = fields.Float(string='Up/Down Rate',
                                digits='Discount',
                                default=0.0)
+    cashier_folio_ids = fields.One2many('hms.cashier.folio',
+                                        'reservation_line_id',
+                                        string="Cashier")
 
     def name_get(self):
         result = []
@@ -1837,9 +1835,6 @@ class ReservationLine(models.Model):
             self.write({'state': 'confirm'})
         else:
             self.write({'state': 'reservation'})
-
-    def checkin_status(self):
-        self.write({'state': 'checkin'})
 
     @api.onchange('reservation_id')
     def onchange_rsvn_data(self):
@@ -2506,6 +2501,44 @@ class ReservationLine(models.Model):
                         res, transaction_date, pkg)
             day_count += 1
 
+    # Create Cashier Folio and Folio Line when Checkin
+    def create_cashier_folio(self, reservation_line_id):
+        vals = []
+        vals.append((0, 0, {
+            'type': 'out_invoice',
+            'state': 'draft',
+            'partner_id': reservation_line_id.guest_id.id,
+            'currency_id': reservation_line_id.currency_id.id,
+            'reservation_line_id': reservation_line_id.id,
+        }))
+        reservation_line_id.update({'cashier_folio_ids': vals})
+        charge_line_objs = self.env['hms.room.transaction.charge.line'].search(
+            [('reservation_line_id', '=', reservation_line_id.id)])
+        if charge_line_objs:
+            for line in charge_line_objs:
+                fiscal_position = reservation_line_id.cashier_folio_ids.fiscal_position_id
+                accounts = line.transaction_id.product_id.product_tmpl_id.get_product_accounts(
+                    fiscal_pos=fiscal_position)
+                account_id = accounts['income']
+                self.env['hms.cashier.folio.line'].create({
+                    'move_id':
+                    reservation_line_id.cashier_folio_ids.id,
+                    'product_id':
+                    line.transaction_id.product_id.id,
+                    'name':
+                    line.transaction_id.product_id.product_tmpl_id.name,
+                    'account_id':
+                    account_id.id,
+                    'quantity':
+                    line.total_qty,
+                    'price_unit':
+                    line.price_unit,
+                    'discount':
+                    line.updown_rate,
+                    # 'tax_ids':
+                    # line.tax_ids,
+                })
+
     @api.model
     def create(self, values):
         res = super(ReservationLine, self).create(values)
@@ -2776,19 +2809,6 @@ class ReservationLine(models.Model):
                         })
                     for pkg in self.additional_pkg_ids:
                         self.update_additional_packages(self, True, pkg)
-                # Change Sale Order State to Cancel and Create New SO and SO line
-                charge_line_objs = self.env[
-                    'hms.room.transaction.charge.line'].search([
-                        ('reservation_line_id', '=', self.id)
-                    ])
-                if charge_line_objs:
-                    self.sale_order_id.action_cancel()
-                    self.create_sale_order(self)
-                    for obj in charge_line_objs:
-                        self.create_sale_order_line(obj)
-                    if self.state == 'confirm':
-                        self.sale_order_id.action_confirm()
-
         return res
 
     # Unlink Function
@@ -2954,7 +2974,7 @@ class ReservationLine(models.Model):
         ''' Opens a wizard to compose an email, with relevant mail template loaded by default '''
         self.ensure_one()
         template_id = self.env.ref('hms.pro_forma_template',
-                                raise_if_not_found=False)
+                                   raise_if_not_found=False)
 
         compose_form = self.env.ref('hms.proforma_invoice_wizard_form',
                                     raise_if_not_found=False)
@@ -2972,7 +2992,7 @@ class ReservationLine(models.Model):
             'custom_layout': "mail.mail_notification_paynow",
             'proforma': self.env.context.get('proforma', False),
             'force_email': True,
-            # 'model_description': self.with_context(lang=lang).type_name, 
+            # 'model_description': self.with_context(lang=lang).type_name,
         }
         return {
             'type': 'ir.actions.act_window',
