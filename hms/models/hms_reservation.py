@@ -2505,10 +2505,15 @@ class ReservationLine(models.Model):
     # Create Cashier Folio and Folio Line when Checkin
     def create_cashier_folio(self, reservation_line_id):
         vals = []
+        journal_id = self.env['account.journal'].search([
+            ('type', '=', 'sale'),
+            ('company_id', '=', reservation_line_id.property_id.company_id.id)
+        ])
         vals.append((0, 0, {
             'type': 'out_invoice',
             'state': 'draft',
             'partner_id': reservation_line_id.guest_id.id,
+            'journal_id': journal_id.id,
             'currency_id': reservation_line_id.currency_id.id,
             'reservation_line_id': reservation_line_id.id,
         }))
