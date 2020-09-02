@@ -2515,6 +2515,7 @@ class ReservationLine(models.Model):
             'currency_id': reservation_line_id.currency_id.id,
             'reservation_line_id': reservation_line_id.id,
             'invoice_date': datetime.now().date(),
+            'room_no': reservation_line_id.room_no.id,
         }))
         reservation_line_id.update({'cashier_folio_ids': vals})
         charge_line_objs = self.env['hms.room.transaction.charge.line'].search(
@@ -2528,6 +2529,10 @@ class ReservationLine(models.Model):
                 self.env['hms.cashier.folio.line'].create({
                     'move_id':
                     reservation_line_id.cashier_folio_ids.id,
+                    'transaction_date':
+                    line.transaction_date,
+                    'transaction_id':
+                    line.transaction_id.id,
                     'product_id':
                     line.transaction_id.product_id.id,
                     'name':

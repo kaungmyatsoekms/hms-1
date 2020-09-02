@@ -8,6 +8,7 @@ from itertools import groupby
 from itertools import zip_longest
 from hashlib import sha256
 from json import dumps
+from functools import partial
 
 import json
 import re
@@ -112,6 +113,14 @@ class HMSCashierFolio(models.Model):
         ''' Get the default incoterm for invoice. '''
         return self.env.company.incoterm_id
 
+    # ==== New Custom Fields ====
+
+    reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
+    room_no = fields.Many2one('hms.property.room',
+                              string="Room No",
+                              help='Room No')
+    remark = fields.Text("Remark")
+
     # ==== Business fields ====
 
     sequence = fields.Integer("Sequence")
@@ -138,7 +147,6 @@ class HMSCashierFolio(models.Model):
                              copy=False,
                              tracking=True,
                              default='draft')
-    reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
     type = fields.Selection(selection=[
         ('entry', 'Journal Entry'),
         ('out_invoice', 'Customer Invoice'),
@@ -211,20 +219,21 @@ class HMSCashierFolio(models.Model):
         compute='_compute_commercial_partner_id')
 
     # === Amount fields ===
-    amount_untaxed = fields.Monetary(string='Untaxed Amount',
-                                     store=True,
-                                     readonly=True,
-                                     tracking=True,
-                                     compute='_compute_amount')
+    amount_untaxed = fields.Monetary(
+        string='Untaxed Amount',
+        store=True,
+        readonly=True,
+        tracking=True,
+        compute='_compute_amount_all')  #compute='_compute_amount'
     amount_tax = fields.Monetary(string='Tax',
                                  store=True,
                                  readonly=True,
-                                 compute='_compute_amount')
-    amount_total = fields.Monetary(string='Total',
-                                   store=True,
-                                   readonly=True,
-                                   compute='_compute_amount',
-                                   inverse='_inverse_amount_total')
+                                 compute='_compute_amount_all')
+    amount_total = fields.Monetary(
+        string='Total',
+        store=True,
+        readonly=True,
+        compute='_compute_amount_all')  # inverse='_inverse_amount_total'
     amount_residual = fields.Monetary(string='Amount Due',
                                       store=True,
                                       compute='_compute_amount')
@@ -249,8 +258,9 @@ class HMSCashierFolio(models.Model):
         store=True,
         compute='_compute_amount',
         currency_field='company_currency_id')
-    amount_by_group = fields.Binary(string="Tax amount by group",
-                                    compute='_compute_invoice_taxes_by_group')
+    amount_by_group = fields.Binary(
+        string="Tax amount by group",
+        compute='_amount_by_group')  #compute='_compute_invoice_taxes_by_group'
 
     # ==== Cash basis feature fields ====
     tax_cash_basis_rec_id = fields.Many2one(
@@ -448,6 +458,62 @@ class HMSCashierFolio(models.Model):
                                    copy=False)
     string_to_hash = fields.Char(compute='_compute_string_to_hash',
                                  readonly=True)
+
+    # NEWLY ADDED CUSTOM FUNCTIONS
+    @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.tax_ids',
+                 'partner_id', 'currency_id')
+    def _amount_by_group(self):
+        ''' Helper to get the taxes grouped according their account.tax.group.
+        This method is only used when printing the invoice.
+        '''
+        for rec in self:
+            currency = rec.currency_id
+            fmt = partial(formatLang,
+                          self.with_context(lang=rec.partner_id.lang).env,
+                          currency_obj=currency)
+            res = {}
+            for line in rec.invoice_line_ids:
+                if rec.reservation_line_id.updown_method == 'pc':
+                    update_price = line.price_unit * (1.0 +
+                                                      line.discount / 100.0)
+                else:
+                    update_price = line.price_unit + line.discount
+                taxes = line.tax_ids.compute_all(
+                    update_price,
+                    quantity=line.quantity,
+                    product=line.product_id,
+                    partner=rec.partner_id)['taxes']
+                for tax in line.tax_ids:
+                    group = tax.tax_group_id
+                    res.setdefault(group, {'amount': 0.0, 'base': 0.0})
+                    for t in taxes:
+                        if t['id'] == tax.id or t[
+                                'id'] in tax.children_tax_ids.ids:
+                            res[group]['amount'] += t['amount']
+                            res[group]['base'] += t['base']
+            res = sorted(res.items(), key=lambda l: l[0].sequence)
+            rec.amount_by_group = [(
+                l[0].name,
+                l[1]['amount'],
+                l[1]['base'],
+                fmt(l[1]['amount']),
+                fmt(l[1]['base']),
+                len(res),
+            ) for l in res]
+
+    @api.depends('invoice_line_ids.price_total')
+    def _compute_amount_all(self):
+        for rec in self:
+            if rec.invoice_line_ids:
+                amount_untaxed = amount_tax = 0.0
+                for line in rec.invoice_line_ids:
+                    amount_untaxed += line.price_subtotal
+                    amount_tax += line.price_total - line.price_subtotal
+                rec.update({
+                    'amount_untaxed': amount_untaxed,
+                    'amount_tax': amount_tax,
+                    'amount_total': amount_untaxed + amount_tax,
+                })
 
     @api.model
     def _field_will_change(self, record, vals, field_name):
@@ -3122,7 +3188,16 @@ class HMSCashierFolioLine(models.Model):
 
     sequence = fields.Integer("Sequence")
     active = fields.Boolean("Active", default=True)
+
+    # ==== New Custom Fields
+
     folio_id = fields.Many2one('hms.folio', string="Folio ID")
+    transaction_date = fields.Date("Date")
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        domain="[('property_id', '=', move_id.reservation_line_id.property_id)]"
+    )
 
     # ==== Business fields ====
     move_id = fields.Many2one('hms.cashier.folio',
