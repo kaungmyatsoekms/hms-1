@@ -1300,20 +1300,34 @@
                         <hr></hr>
                         <notebook>
                             <page string="Charges">
-                                <field name='room_transaction_line_ids' readonly="1" context="{'default_property_id': property_id, 'reservation_line_id': id}">
-                                    <tree editable="bottom" class="tree_no_open">
+                                <field name='room_transaction_line_ids' context="{'default_property_id': property_id, 'reservation_line_id': id}">
+                                    <tree editable="bottom" class="tree_no_open" default_order="transaction_date,transaction_id">
+                                        <field name="reservation_line_id" invisible="1"/>
                                         <field name="property_id" invisible="1"/>
                                         <field name="transaction_date"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
                                         <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="price_unit"/>
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="total_room" />
-                                        <field name="price_subtotal" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/>
+                                        <field name="price_unit"/>
+                                        <field name="total_room"/>
+                                        <field name="total_qty" invisible="1"/>
+                                        <field name="updown_rate"/>
+                                        <field name="tax_ids" domain="[('type_tax_use', 'in', ('sale', 'all'))]" widget="many2many_tags"/>
+                                        <field name="tax_amount" optional="hide"/>
+                                        <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <field name="price_total" sum="Total" groups="account.group_show_line_subtotals_tax_included"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>
+                                <group class="oe_subtotal_footer oe_right" colspan="2">
+                                    <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
+                                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                        <label for="amount_total"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                </group>
                             </page>
                             <page string="Travelling Info">
                                 <group>
@@ -1541,19 +1555,32 @@
                             <page string="Charges">
                                 <field name='room_transaction_line_ids' context="{'default_property_id': property_id, 'reservation_line_id': id}">
                                     <tree editable="bottom" class="tree_no_open" default_order="transaction_date,transaction_id">
+                                        <field name="reservation_line_id" invisible="1"/>
                                         <field name="property_id" invisible="1"/>
                                         <field name="transaction_date"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
                                         <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <!-- <field name="rate"/> -->
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="total_room" />
-                                        <!-- <field name="total_amount" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" sum="Total"/> -->
-                                        <!-- <field name="price_subtotal"/> -->
+                                        <field name="price_unit"/>
+                                        <field name="total_room"/>
+                                        <field name="total_qty" invisible="1"/>
+                                        <field name="updown_rate"/>
+                                        <field name="tax_ids" domain="[('type_tax_use', 'in', ('sale', 'all'))]" widget="many2many_tags"/>
+                                        <field name="tax_amount" optional="hide"/>
+                                        <field name="price_subtotal" sum="Total" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <field name="price_total" sum="Total" groups="account.group_show_line_subtotals_tax_included"/>
                                         <field name="ref"/>
                                     </tree>
                                 </field>
+                                <group class="oe_subtotal_footer oe_right" colspan="2">
+                                    <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
+                                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                        <label for="amount_total"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                </group>
                             </page>
                             <page string="Travelling Info">
                                 <group>

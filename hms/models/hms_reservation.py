@@ -1599,9 +1599,7 @@ class ReservationLine(models.Model):
 
     def _compute_is_arrival_today(self):
         for rec in self:
-            arrival_date = rec.arrival
-            if datetime.strptime(str(arrival_date), DEFAULT_SERVER_DATE_FORMAT
-                                 ).date() == datetime.now().date():
+            if rec.arrival == rec.system_date:
                 rec.is_arrival_today = True
             else:
                 rec.is_arrival_today = False
@@ -2516,6 +2514,7 @@ class ReservationLine(models.Model):
             'journal_id': journal_id.id,
             'currency_id': reservation_line_id.currency_id.id,
             'reservation_line_id': reservation_line_id.id,
+            'invoice_date': datetime.now().date(),
         }))
         reservation_line_id.update({'cashier_folio_ids': vals})
         charge_line_objs = self.env['hms.room.transaction.charge.line'].search(
@@ -2541,8 +2540,8 @@ class ReservationLine(models.Model):
                     line.price_unit,
                     'discount':
                     line.updown_rate,
-                    # 'tax_ids':
-                    # line.tax_ids,
+                    'tax_ids':
+                    line.tax_ids,
                 })
 
     @api.model
