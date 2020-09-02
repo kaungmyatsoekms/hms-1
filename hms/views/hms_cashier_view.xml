@@ -77,6 +77,7 @@
                         </div>
                         <group>
                             <group id="header_left_group">
+                                <field name="room_no" options="{'no_quick_create': True, 'no_open': True, 'no_create_edit': True}"/>
                                 <div class="o_td_label">
                                     <label for="partner_id" string="Customer" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
                                     <label for="partner_id" string="Vendor" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_receipt'))]}"/>
@@ -84,14 +85,15 @@
                                 <field name="partner_id" widget="res_partner_many2one" nolabel="1" context="{'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
                                 <field name="ref"/>
                                 <field name="invoice_vendor_bill_id" attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('type', '!=', 'in_invoice')]}" domain="[('company_id', '=', company_id), ('partner_id','child_of', [partner_id]), ('type','=','in_invoice')]" string="Auto-Complete" placeholder="Select an old vendor bill" options="{'no_create': True}" context="{'show_total_amount': True}"/>
+                                <field name="remark"/>
                             </group>
                             <group id="header_right_group">
                                 <!-- Invoice date (only invoices / receipts) -->
                                 <div class="o_td_label">
-                                    <label for="invoice_date" string="Invoice Date" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
-                                    <label for="invoice_date" string="Bill Date" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_receipt'))]}"/>
+                                    <label for="invoice_date" string="Invoice Date" style="font-weight:bold;" invisible="1" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
+                                    <label for="invoice_date" string="Bill Date" style="font-weight:bold;" invisible="1" attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_receipt'))]}"/>
                                 </div>
-                                <field name="invoice_date" nolabel="1" options="{'datepicker': {'warn_future': true}}" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
+                                <field name="invoice_date" nolabel="1" invisible="1" options="{'datepicker': {'warn_future': true}}" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
                                 <field name="date" string="Accounting Date" attrs="{'invisible': [('type', 'in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
                                 <!-- Invoice payment terms (only invoices) + due date (only invoices / receipts) -->
                                 <label for="invoice_payment_term_id" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
@@ -117,9 +119,13 @@
                                         </control>
                                         <!-- Displayed fields -->
                                         <field name="sequence" widget="handle"/>
+                                        <field name="transaction_date"/>
+                                        <field name="folio_id"/>
+                                        <field name="move_id" invisible="1"/>
                                         <field name="move_name" invisible="1"/>
+                                        <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="product_id" optional="show" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
-                                        <field name="name" widget="section_and_note_text" attrs="{'required': [('parent.type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
+                                        <field name="name" optional="hide" widget="section_and_note_text" attrs="{'required': [('parent.type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
                                         <field name="account_id" groups="account.group_account_user" domain="[('deprecated', '=', False), ('user_type_id.type', 'not in', ('receivable', 'payable')), ('company_id', '=', parent.company_id)]" attrs="{'required': [('display_type', '=', False)]}"/>
                                         <field name="analytic_account_id" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting" optional="show"/>
                                         <field name="analytic_tag_ids" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_tags" optional="show" widget="many2many_tags"/>
@@ -462,9 +468,9 @@
             <field name="name">Invoices</field>
             <field name="res_model">hms.cashier.folio</field>
             <field name="view_mode">tree,form</field>
-            <!-- <field name="view_id" ref="view_cashier_folio_tree"/> -->
-            <field name="domain">[]</field>
-            <field name="context">{}</field>
+            <field name="view_id" ref="view_cashier_folio_tree"/>
+            <field name="domain">[('type', '=', 'out_invoice')]</field>
+            <field name="context">{'default_type': 'out_invoice'}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Create a customer invoice
@@ -474,8 +480,6 @@
                 </p>
             </field>
         </record>
-        <!-- ('type', '=', 'out_invoice')
-        'default_type': 'out_invoice' -->
 
         <menuitem id="hms_menu_cashier" name="Cashier" parent="hotel_menu_root" sequence="3"/>
         <menuitem id="cashier_menu" name="Cashier" parent="hms_menu_cashier" sequence="1" action="action_cashier_folio"/>

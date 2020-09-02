@@ -8,6 +8,7 @@ from itertools import groupby
 from itertools import zip_longest
 from hashlib import sha256
 from json import dumps
+from functools import partial
 
 import json
 import re
@@ -24,6 +25,15 @@ def calc_check_digits(number):
     number_base10 = ''.join(str(int(x, 36)) for x in number)
     checksum = int(number_base10) % 97
     return '%02d' % ((98 - 100 * checksum) % 97)
+
+
+class HMSFolio(models.Model):
+    _name = "hms.folio"
+    _description = "HMS Folio"
+
+    folio_no = fields.Integer("Folio No.")
+    folio_name = fields.Char("Folio Name")
+
 
 # Cashier Transaction
 class HMSCashierFolio(models.Model):
@@ -103,6 +113,14 @@ class HMSCashierFolio(models.Model):
         ''' Get the default incoterm for invoice. '''
         return self.env.company.incoterm_id
 
+    # ==== New Custom Fields ====
+
+    reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
+    room_no = fields.Many2one('hms.property.room',
+                              string="Room No",
+                              help='Room No')
+    remark = fields.Text("Remark")
+
     # ==== Business fields ====
 
     sequence = fields.Integer("Sequence")
@@ -129,7 +147,6 @@ class HMSCashierFolio(models.Model):
                              copy=False,
                              tracking=True,
                              default='draft')
-    reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
     type = fields.Selection(selection=[
         ('entry', 'Journal Entry'),
         ('out_invoice', 'Customer Invoice'),
@@ -202,20 +219,21 @@ class HMSCashierFolio(models.Model):
         compute='_compute_commercial_partner_id')
 
     # === Amount fields ===
-    amount_untaxed = fields.Monetary(string='Untaxed Amount',
-                                     store=True,
-                                     readonly=True,
-                                     tracking=True,
-                                     compute='_compute_amount')
+    amount_untaxed = fields.Monetary(
+        string='Untaxed Amount',
+        store=True,
+        readonly=True,
+        tracking=True,
+        compute='_compute_amount_all')  #compute='_compute_amount'
     amount_tax = fields.Monetary(string='Tax',
                                  store=True,
                                  readonly=True,
-                                 compute='_compute_amount')
-    amount_total = fields.Monetary(string='Total',
-                                   store=True,
-                                   readonly=True,
-                                   compute='_compute_amount',
-                                   inverse='_inverse_amount_total')
+                                 compute='_compute_amount_all')
+    amount_total = fields.Monetary(
+        string='Total',
+        store=True,
+        readonly=True,
+        compute='_compute_amount_all')  # inverse='_inverse_amount_total'
     amount_residual = fields.Monetary(string='Amount Due',
                                       store=True,
                                       compute='_compute_amount')
@@ -240,8 +258,9 @@ class HMSCashierFolio(models.Model):
         store=True,
         compute='_compute_amount',
         currency_field='company_currency_id')
-    amount_by_group = fields.Binary(string="Tax amount by group",
-                                    compute='_compute_invoice_taxes_by_group')
+    amount_by_group = fields.Binary(
+        string="Tax amount by group",
+        compute='_amount_by_group')  #compute='_compute_invoice_taxes_by_group'
 
     # ==== Cash basis feature fields ====
     tax_cash_basis_rec_id = fields.Many2one(
@@ -439,6 +458,62 @@ class HMSCashierFolio(models.Model):
                                    copy=False)
     string_to_hash = fields.Char(compute='_compute_string_to_hash',
                                  readonly=True)
+
+    # NEWLY ADDED CUSTOM FUNCTIONS
+    @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.tax_ids',
+                 'partner_id', 'currency_id')
+    def _amount_by_group(self):
+        ''' Helper to get the taxes grouped according their account.tax.group.
+        This method is only used when printing the invoice.
+        '''
+        for rec in self:
+            currency = rec.currency_id
+            fmt = partial(formatLang,
+                          self.with_context(lang=rec.partner_id.lang).env,
+                          currency_obj=currency)
+            res = {}
+            for line in rec.invoice_line_ids:
+                if rec.reservation_line_id.updown_method == 'pc':
+                    update_price = line.price_unit * (1.0 +
+                                                      line.discount / 100.0)
+                else:
+                    update_price = line.price_unit + line.discount
+                taxes = line.tax_ids.compute_all(
+                    update_price,
+                    quantity=line.quantity,
+                    product=line.product_id,
+                    partner=rec.partner_id)['taxes']
+                for tax in line.tax_ids:
+                    group = tax.tax_group_id
+                    res.setdefault(group, {'amount': 0.0, 'base': 0.0})
+                    for t in taxes:
+                        if t['id'] == tax.id or t[
+                                'id'] in tax.children_tax_ids.ids:
+                            res[group]['amount'] += t['amount']
+                            res[group]['base'] += t['base']
+            res = sorted(res.items(), key=lambda l: l[0].sequence)
+            rec.amount_by_group = [(
+                l[0].name,
+                l[1]['amount'],
+                l[1]['base'],
+                fmt(l[1]['amount']),
+                fmt(l[1]['base']),
+                len(res),
+            ) for l in res]
+
+    @api.depends('invoice_line_ids.price_total')
+    def _compute_amount_all(self):
+        for rec in self:
+            if rec.invoice_line_ids:
+                amount_untaxed = amount_tax = 0.0
+                for line in rec.invoice_line_ids:
+                    amount_untaxed += line.price_subtotal
+                    amount_tax += line.price_total - line.price_subtotal
+                rec.update({
+                    'amount_untaxed': amount_untaxed,
+                    'amount_tax': amount_tax,
+                    'amount_total': amount_untaxed + amount_tax,
+                })
 
     @api.model
     def _field_will_change(self, record, vals, field_name):
@@ -3113,10 +3188,16 @@ class HMSCashierFolioLine(models.Model):
 
     sequence = fields.Integer("Sequence")
     active = fields.Boolean("Active", default=True)
-    # reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
-    # transaction_date = fields.Date("Date")
-    # transaction_time = fields.Datetime("Time", help='Transaction Time')
-    # transaction_id = fields.Char("Transaction")
+
+    # ==== New Custom Fields
+
+    folio_id = fields.Many2one('hms.folio', string="Folio ID")
+    transaction_date = fields.Date("Date")
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        domain="[('property_id', '=', move_id.reservation_line_id.property_id)]"
+    )
 
     # ==== Business fields ====
     move_id = fields.Many2one('hms.cashier.folio',
@@ -3213,11 +3294,13 @@ class HMSCashierFolioLine(models.Model):
     price_subtotal = fields.Monetary(string='Subtotal',
                                      store=True,
                                      readonly=True,
-                                     currency_field='always_set_currency_id')
+                                     currency_field='always_set_currency_id',
+                                     compute='_compute_line_price_total')
     price_total = fields.Monetary(string='Total',
                                   store=True,
                                   readonly=True,
-                                  currency_field='always_set_currency_id')
+                                  currency_field='always_set_currency_id',
+                                  compute='_compute_line_price_total')
     reconciled = fields.Boolean(compute='_amount_residual', store=True)
     blocked = fields.Boolean(
         string='No Follow-up',
@@ -3412,6 +3495,28 @@ class HMSCashierFolioLine(models.Model):
          "The amount expressed in the secondary currency must be positive when account is debited and negative when account is credited. Moreover, the currency field has to be left empty when the amount is expressed in the company currency."
          ),
     ]
+
+    # NEW CUSTOM DEFINE FUNCTIONS
+    @api.depends('quantity', 'discount', 'price_unit', 'tax_ids')
+    def _compute_line_price_total(self):
+        """
+            Compute Price Subtotal and Price Total
+        """
+        for line in self:
+            if line.move_id.reservation_line_id.updown_method == 'pc':
+                price = line.price_unit * (1.0 + line.discount / 100.0)
+            else:
+                price = line.price_unit + line.discount
+            taxes = line.tax_ids.compute_all(price,
+                                             line.move_id.currency_id,
+                                             line.quantity,
+                                             partner=line.move_id.partner_id)
+            line.update({
+                # 'tax_amount':
+                # sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+                'price_total': taxes['total_included'],
+                'price_subtotal': taxes['total_excluded'],
+            })
 
     # -------------------------------------------------------------------------
     # HELPERS
@@ -4124,116 +4229,116 @@ class HMSCashierFolioLine(models.Model):
                 'CREATE INDEX account_move_line_partner_id_ref_idx ON account_move_line (partner_id, ref)'
             )
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        # OVERRIDE
-        ACCOUNTING_FIELDS = ('debit', 'credit', 'amount_currency')
-        BUSINESS_FIELDS = ('price_unit', 'quantity', 'discount', 'tax_ids')
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     # OVERRIDE
+    #     ACCOUNTING_FIELDS = ('debit', 'credit', 'amount_currency')
+    #     BUSINESS_FIELDS = ('price_unit', 'quantity', 'discount', 'tax_ids')
 
-        for vals in vals_list:
-            move = self.env['hms.cashier.folio'].browse(vals['move_id'])
-            vals.setdefault(
-                'company_currency_id', move.company_id.currency_id.id
-            )  # important to bypass the ORM limitation where monetary fields are not rounded; more info in the commit message
+    #     for vals in vals_list:
+    #         move = self.env['hms.cashier.folio'].browse(vals['move_id'])
+    #         vals.setdefault(
+    #             'company_currency_id', move.company_id.currency_id.id
+    #         )  # important to bypass the ORM limitation where monetary fields are not rounded; more info in the commit message
 
-            if move.is_invoice(include_receipts=True):
-                currency = move.currency_id
-                partner = self.env['res.partner'].browse(
-                    vals.get('partner_id'))
-                taxes = self.resolve_2many_commands('tax_ids',
-                                                    vals.get('tax_ids', []),
-                                                    fields=['id'])
-                tax_ids = set(tax['id'] for tax in taxes)
-                taxes = self.env['account.tax'].browse(tax_ids)
+    #         if move.is_invoice(include_receipts=True):
+    #             currency = move.currency_id
+    #             partner = self.env['res.partner'].browse(
+    #                 vals.get('partner_id'))
+    #             taxes = self.resolve_2many_commands('tax_ids',
+    #                                                 vals.get('tax_ids', []),
+    #                                                 fields=['id'])
+    #             tax_ids = set(tax['id'] for tax in taxes)
+    #             taxes = self.env['account.tax'].browse(tax_ids)
 
-                # Ensure consistency between accounting & business fields.
-                # As we can't express such synchronization as computed fields without cycling, we need to do it both
-                # in onchange and in create/write. So, if something changed in accounting [resp. business] fields,
-                # business [resp. accounting] fields are recomputed.
-                if any(vals.get(field) for field in ACCOUNTING_FIELDS):
-                    if vals.get('currency_id'):
-                        balance = vals.get('amount_currency', 0.0)
-                    else:
-                        balance = vals.get('debit', 0.0) - vals.get(
-                            'credit', 0.0)
-                    price_subtotal = self._get_price_total_and_subtotal_model(
-                        vals.get('price_unit', 0.0),
-                        vals.get('quantity', 0.0),
-                        vals.get('discount', 0.0),
-                        currency,
-                        self.env['product.product'].browse(
-                            vals.get('product_id')),
-                        partner,
-                        taxes,
-                        move.type,
-                    ).get('price_subtotal', 0.0)
-                    vals.update(
-                        self._get_fields_onchange_balance_model(
-                            vals.get('quantity',
-                                     0.0), vals.get('discount', 0.0), balance,
-                            move.type, currency, taxes, price_subtotal))
-                    vals.update(
-                        self._get_price_total_and_subtotal_model(
-                            vals.get('price_unit', 0.0),
-                            vals.get('quantity', 0.0),
-                            vals.get('discount', 0.0),
-                            currency,
-                            self.env['product.product'].browse(
-                                vals.get('product_id')),
-                            partner,
-                            taxes,
-                            move.type,
-                        ))
-                elif any(vals.get(field) for field in BUSINESS_FIELDS):
-                    vals.update(
-                        self._get_price_total_and_subtotal_model(
-                            vals.get('price_unit', 0.0),
-                            vals.get('quantity', 0.0),
-                            vals.get('discount', 0.0),
-                            currency,
-                            self.env['product.product'].browse(
-                                vals.get('product_id')),
-                            partner,
-                            taxes,
-                            move.type,
-                        ))
-                    vals.update(
-                        self._get_fields_onchange_subtotal_model(
-                            vals['price_subtotal'],
-                            move.type,
-                            currency,
-                            move.company_id,
-                            move.date,
-                        ))
+    #             # Ensure consistency between accounting & business fields.
+    #             # As we can't express such synchronization as computed fields without cycling, we need to do it both
+    #             # in onchange and in create/write. So, if something changed in accounting [resp. business] fields,
+    #             # business [resp. accounting] fields are recomputed.
+    #             if any(vals.get(field) for field in ACCOUNTING_FIELDS):
+    #                 if vals.get('currency_id'):
+    #                     balance = vals.get('amount_currency', 0.0)
+    #                 else:
+    #                     balance = vals.get('debit', 0.0) - vals.get(
+    #                         'credit', 0.0)
+    #                 price_subtotal = self._get_price_total_and_subtotal_model(
+    #                     vals.get('price_unit', 0.0),
+    #                     vals.get('quantity', 0.0),
+    #                     vals.get('discount', 0.0),
+    #                     currency,
+    #                     self.env['product.product'].browse(
+    #                         vals.get('product_id')),
+    #                     partner,
+    #                     taxes,
+    #                     move.type,
+    #                 ).get('price_subtotal', 0.0)
+    #                 vals.update(
+    #                     self._get_fields_onchange_balance_model(
+    #                         vals.get('quantity',
+    #                                  0.0), vals.get('discount', 0.0), balance,
+    #                         move.type, currency, taxes, price_subtotal))
+    #                 vals.update(
+    #                     self._get_price_total_and_subtotal_model(
+    #                         vals.get('price_unit', 0.0),
+    #                         vals.get('quantity', 0.0),
+    #                         vals.get('discount', 0.0),
+    #                         currency,
+    #                         self.env['product.product'].browse(
+    #                             vals.get('product_id')),
+    #                         partner,
+    #                         taxes,
+    #                         move.type,
+    #                     ))
+    #             elif any(vals.get(field) for field in BUSINESS_FIELDS):
+    #                 vals.update(
+    #                     self._get_price_total_and_subtotal_model(
+    #                         vals.get('price_unit', 0.0),
+    #                         vals.get('quantity', 0.0),
+    #                         vals.get('discount', 0.0),
+    #                         currency,
+    #                         self.env['product.product'].browse(
+    #                             vals.get('product_id')),
+    #                         partner,
+    #                         taxes,
+    #                         move.type,
+    #                     ))
+    #                 vals.update(
+    #                     self._get_fields_onchange_subtotal_model(
+    #                         vals['price_subtotal'],
+    #                         move.type,
+    #                         currency,
+    #                         move.company_id,
+    #                         move.date,
+    #                     ))
 
-            # Ensure consistency between taxes & tax exigibility fields.
-            if 'tax_exigible' in vals:
-                continue
-            if vals.get('tax_repartition_line_id'):
-                repartition_line = self.env[
-                    'account.tax.repartition.line'].browse(
-                        vals['tax_repartition_line_id'])
-                tax = repartition_line.invoice_tax_id or repartition_line.refund_tax_id
-                vals['tax_exigible'] = tax.tax_exigibility == 'on_invoice'
-            elif vals.get('tax_ids'):
-                tax_ids = [
-                    v['id'] for v in self.resolve_2many_commands(
-                        'tax_ids', vals['tax_ids'], fields=['id'])
-                ]
-                taxes = self.env['account.tax'].browse(
-                    tax_ids).flatten_taxes_hierarchy()
-                vals['tax_exigible'] = not any(
-                    tax.tax_exigibility == 'on_payment' for tax in taxes)
+    #         # Ensure consistency between taxes & tax exigibility fields.
+    #         if 'tax_exigible' in vals:
+    #             continue
+    #         if vals.get('tax_repartition_line_id'):
+    #             repartition_line = self.env[
+    #                 'account.tax.repartition.line'].browse(
+    #                     vals['tax_repartition_line_id'])
+    #             tax = repartition_line.invoice_tax_id or repartition_line.refund_tax_id
+    #             vals['tax_exigible'] = tax.tax_exigibility == 'on_invoice'
+    #         elif vals.get('tax_ids'):
+    #             tax_ids = [
+    #                 v['id'] for v in self.resolve_2many_commands(
+    #                     'tax_ids', vals['tax_ids'], fields=['id'])
+    #             ]
+    #             taxes = self.env['account.tax'].browse(
+    #                 tax_ids).flatten_taxes_hierarchy()
+    #             vals['tax_exigible'] = not any(
+    #                 tax.tax_exigibility == 'on_payment' for tax in taxes)
 
-        lines = super(HMSCashierFolioLine, self).create(vals_list)
+    #     lines = super(HMSCashierFolioLine, self).create(vals_list)
 
-        moves = lines.mapped('move_id')
-        if self._context.get('check_move_validity', True):
-            moves._check_balanced()
-        moves._check_fiscalyear_lock_date()
-        lines._check_tax_lock_date()
+    #     moves = lines.mapped('move_id')
+    #     if self._context.get('check_move_validity', True):
+    #         moves._check_balanced()
+    #     moves._check_fiscalyear_lock_date()
+    #     lines._check_tax_lock_date()
 
-        return lines
+    #     return lines
 
     def write(self, vals):
         # OVERRIDE
