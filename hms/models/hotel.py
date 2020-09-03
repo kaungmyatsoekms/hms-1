@@ -2274,7 +2274,8 @@ class SubGroup(models.Model):
     revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
-                                 required=True)
+                                 required=True,
+                                 readonly=True)
     sub_group = fields.Char(string="Sub Group Code", size=1, required=True)
     sub_desc = fields.Char(string="Description", required=True)
     transsub_id = fields.Many2one('hms.transaction', 'subgroup_id')

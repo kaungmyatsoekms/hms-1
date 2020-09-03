@@ -1491,14 +1491,15 @@ class ReservationLine(models.Model):
     def _compute_amount_all(self):
         for rec in self:
             if rec.room_transaction_line_ids:
-                amount_untaxed = amount_tax = 0.0
+                amount_untaxed = amount_tax = amount_total = 0.0
                 for line in rec.room_transaction_line_ids:
                     amount_untaxed += line.price_subtotal
                     amount_tax += line.tax_amount
+                    amount_total += line.price_total
                 rec.update({
                     'amount_untaxed': amount_untaxed,
                     'amount_tax': amount_tax,
-                    'amount_total': amount_untaxed + amount_tax,
+                    'amount_total': amount_total,
                 })
 
     # Get default rate code based on ratehead_id
