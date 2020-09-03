@@ -1071,37 +1071,7 @@
                                                                 'reservation_type':reservation_type, 'reservation_status': reservation_status,
                                                                 'default_arrival_flight': arrival_flight, 'default_arrival_flighttime': arrival_flighttime, 
                                                                 'default_eta':eta, 'default_etd':etd, 
-                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">                                    <!-- 'tree_view_ref':'hms.reservation_line_view_list_tree'-->
-                                    <!-- <form string="Reservation Line">
-                                        <group colspan="4" col="4">
-                                            <field name="state"/>
-                                            <field name="property_id"/>
-                                            <field name="guest_id"/>
-                                            <field name="arrival"/>
-                                            <field name="departure"/>
-                                            <field name="nights" string="Nights"/>
-                                            <field name="roomtype_ids" invisible="1"/>
-                                            <field name="room_type" options="{'no_quick_create':True, 'no_create_edit':True, 'no_edit':True}"/>
-                                            <field name="rooms"/>
-                                            <field name="pax"/>
-                                            <field name="child"/>
-                                            <field name="ratehead_id"/>
-                                            <field name="ratecode_id" string="Rate Code"/>
-                                            <field name="room_rate" string="Room Rate"/>
-                                            <field name="market_ids" invisible="1"/>
-                                            <field name="market" invisible="1"/>
-                                            <field name="source" string='Source' invisible='1'/>
-                                            <field name="reservation_type" invisible='1'/>
-                                            <field name='reservation_status' invisible='1'/>
-                                            <field name='arrival_flight' invisible='1'/>
-                                            <field name='arrival_flighttime' invisible='1'/>
-                                            <field name='dep_flight' invisible='1'/>
-                                            <field name='dep_flighttime' invisible='1'/>
-                                            <field name='eta' invisible='1'/>
-                                            <field name='etd' invisible='1'/>
-                                            <field name="avail_room_ids" widget='many2many_tags' invisible='1'/>
-                                        </group>
-                                    </form> -->
+                                                                'default_dep_flight':dep_flight, 'default_dep_flighttime':dep_flighttime}" colspan="4" nolabel="1">
                                     <tree string="Reservation Line" editable="bottom">
                                         <field name="is_roomtype_fix" invisible="1"/>
                                         <field name="sequence" widget="handle"/>

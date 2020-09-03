@@ -31,8 +31,17 @@ class HMSFolio(models.Model):
     _name = "hms.folio"
     _description = "HMS Folio"
 
+    sequence = fields.Integer("Sequence")
+    active = fields.Boolean("Active", default=True)
     folio_no = fields.Integer("Folio No.")
     folio_name = fields.Char("Folio Name")
+
+    def name_get(self):
+        result = []
+        for rec in self:
+            result.append((record.id, "{} ({})".format(record.folio_no,
+                                                       record.folio_name)))
+        return result
 
 
 # Cashier Transaction
@@ -116,6 +125,9 @@ class HMSCashierFolio(models.Model):
     # ==== New Custom Fields ====
 
     reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  related="reservation_line_id.property_id", store=True)
     room_no = fields.Many2one('hms.property.room',
                               string="Room No",
                               help='Room No')
@@ -235,28 +247,23 @@ class HMSCashierFolio(models.Model):
         readonly=True,
         compute='_compute_amount_all')  # inverse='_inverse_amount_total'
     amount_residual = fields.Monetary(string='Amount Due',
-                                      store=True,
-                                      compute='_compute_amount')
+                                      store=True)  #compute='_compute_amount'
     amount_untaxed_signed = fields.Monetary(
         string='Untaxed Amount Signed',
         store=True,
         readonly=True,
-        compute='_compute_amount',
         currency_field='company_currency_id')
     amount_tax_signed = fields.Monetary(string='Tax Signed',
                                         store=True,
                                         readonly=True,
-                                        compute='_compute_amount',
                                         currency_field='company_currency_id')
     amount_total_signed = fields.Monetary(string='Total Signed',
                                           store=True,
                                           readonly=True,
-                                          compute='_compute_amount',
                                           currency_field='company_currency_id')
     amount_residual_signed = fields.Monetary(
         string='Amount Due Signed',
         store=True,
-        compute='_compute_amount',
         currency_field='company_currency_id')
     amount_by_group = fields.Binary(
         string="Tax amount by group",
@@ -311,16 +318,14 @@ class HMSCashierFolio(models.Model):
         related='invoice_user_id',
         help=
         'Technical field used to fit the generic behavior in mail templates.')
-    invoice_payment_state = fields.Selection(selection=[
-        ('not_paid', 'Not Paid'), ('in_payment', 'In Payment'),
-        ('paid', 'Paid')
-    ],
-                                             string='Payment',
-                                             store=True,
-                                             readonly=True,
-                                             copy=False,
-                                             tracking=True,
-                                             compute='_compute_amount')
+    invoice_payment_state = fields.Selection(
+        selection=[('not_paid', 'Not Paid'), ('in_payment', 'In Payment'),
+                   ('paid', 'Paid')],
+        string='Payment',
+        store=True,
+        readonly=True,
+        copy=False,
+        tracking=True)  #compute='_compute_amount'
     invoice_date = fields.Date(string='Invoice/Bill Date',
                                readonly=True,
                                index=True,
@@ -1410,111 +1415,111 @@ class HMSCashierFolio(models.Model):
             else:
                 move.bank_partner_id = move.company_id.partner_id
 
-    @api.depends('line_ids.debit', 'line_ids.credit', 'line_ids.currency_id',
-                 'line_ids.amount_currency', 'line_ids.amount_residual',
-                 'line_ids.amount_residual_currency',
-                 'line_ids.payment_id.state')
-    def _compute_amount(self):
-        invoice_ids = [
-            move.id for move in self
-            if move.id and move.is_invoice(include_receipts=True)
-        ]
-        self.env['account.payment'].flush(['state'])
-        if invoice_ids:
-            self._cr.execute(
-                '''
-                    SELECT move.id
-                    FROM account_move move
-                    JOIN account_move_line line ON line.move_id = move.id
-                    JOIN account_partial_reconcile part ON part.debit_move_id = line.id OR part.credit_move_id = line.id
-                    JOIN account_move_line rec_line ON
-                        (rec_line.id = part.credit_move_id AND line.id = part.debit_move_id)
-                        OR
-                        (rec_line.id = part.debit_move_id AND line.id = part.credit_move_id)
-                    JOIN account_payment payment ON payment.id = rec_line.payment_id
-                    JOIN account_journal journal ON journal.id = rec_line.journal_id
-                    WHERE payment.state IN ('posted', 'sent')
-                    AND journal.post_at = 'bank_rec'
-                    AND move.id IN %s
-                ''', [tuple(invoice_ids)])
-            in_payment_set = set(res[0] for res in self._cr.fetchall())
-        else:
-            in_payment_set = {}
+    # @api.depends('line_ids.debit', 'line_ids.credit', 'line_ids.currency_id',
+    #              'line_ids.amount_currency', 'line_ids.amount_residual',
+    #              'line_ids.amount_residual_currency',
+    #              'line_ids.payment_id.state')
+    # def _compute_amount(self):
+    #     invoice_ids = [
+    #         move.id for move in self
+    #         if move.id and move.is_invoice(include_receipts=True)
+    #     ]
+    #     self.env['account.payment'].flush(['state'])
+    #     if invoice_ids:
+    #         self._cr.execute(
+    #             '''
+    #                 SELECT move.id
+    #                 FROM account_move move
+    #                 JOIN account_move_line line ON line.move_id = move.id
+    #                 JOIN account_partial_reconcile part ON part.debit_move_id = line.id OR part.credit_move_id = line.id
+    #                 JOIN account_move_line rec_line ON
+    #                     (rec_line.id = part.credit_move_id AND line.id = part.debit_move_id)
+    #                     OR
+    #                     (rec_line.id = part.debit_move_id AND line.id = part.credit_move_id)
+    #                 JOIN account_payment payment ON payment.id = rec_line.payment_id
+    #                 JOIN account_journal journal ON journal.id = rec_line.journal_id
+    #                 WHERE payment.state IN ('posted', 'sent')
+    #                 AND journal.post_at = 'bank_rec'
+    #                 AND move.id IN %s
+    #             ''', [tuple(invoice_ids)])
+    #         in_payment_set = set(res[0] for res in self._cr.fetchall())
+    #     else:
+    #         in_payment_set = {}
 
-        for move in self:
-            total_untaxed = 0.0
-            total_untaxed_currency = 0.0
-            total_tax = 0.0
-            total_tax_currency = 0.0
-            total_residual = 0.0
-            total_residual_currency = 0.0
-            total = 0.0
-            total_currency = 0.0
-            currencies = set()
+    #     for move in self:
+    #         total_untaxed = 0.0
+    #         total_untaxed_currency = 0.0
+    #         total_tax = 0.0
+    #         total_tax_currency = 0.0
+    #         total_residual = 0.0
+    #         total_residual_currency = 0.0
+    #         total = 0.0
+    #         total_currency = 0.0
+    #         currencies = set()
 
-            for line in move.line_ids:
-                if line.currency_id:
-                    currencies.add(line.currency_id)
+    #         for line in move.line_ids:
+    #             if line.currency_id:
+    #                 currencies.add(line.currency_id)
 
-                if move.is_invoice(include_receipts=True):
-                    # === Invoices ===
+    #             if move.is_invoice(include_receipts=True):
+    #                 # === Invoices ===
 
-                    if not line.exclude_from_invoice_tab:
-                        # Untaxed amount.
-                        total_untaxed += line.balance
-                        total_untaxed_currency += line.amount_currency
-                        total += line.balance
-                        total_currency += line.amount_currency
-                    elif line.tax_line_id:
-                        # Tax amount.
-                        total_tax += line.balance
-                        total_tax_currency += line.amount_currency
-                        total += line.balance
-                        total_currency += line.amount_currency
-                    elif line.account_id.user_type_id.type in ('receivable',
-                                                               'payable'):
-                        # Residual amount.
-                        total_residual += line.amount_residual
-                        total_residual_currency += line.amount_residual_currency
-                else:
-                    # === Miscellaneous journal entry ===
-                    if line.debit:
-                        total += line.balance
-                        total_currency += line.amount_currency
+    #                 if not line.exclude_from_invoice_tab:
+    #                     # Untaxed amount.
+    #                     total_untaxed += line.balance
+    #                     total_untaxed_currency += line.amount_currency
+    #                     total += line.balance
+    #                     total_currency += line.amount_currency
+    #                 elif line.tax_line_id:
+    #                     # Tax amount.
+    #                     total_tax += line.balance
+    #                     total_tax_currency += line.amount_currency
+    #                     total += line.balance
+    #                     total_currency += line.amount_currency
+    #                 elif line.account_id.user_type_id.type in ('receivable',
+    #                                                            'payable'):
+    #                     # Residual amount.
+    #                     total_residual += line.amount_residual
+    #                     total_residual_currency += line.amount_residual_currency
+    #             else:
+    #                 # === Miscellaneous journal entry ===
+    #                 if line.debit:
+    #                     total += line.balance
+    #                     total_currency += line.amount_currency
 
-            if move.type == 'entry' or move.is_outbound():
-                sign = 1
-            else:
-                sign = -1
-            move.amount_untaxed = sign * (total_untaxed_currency if len(
-                currencies) == 1 else total_untaxed)
-            move.amount_tax = sign * (total_tax_currency
-                                      if len(currencies) == 1 else total_tax)
-            move.amount_total = sign * (total_currency
-                                        if len(currencies) == 1 else total)
-            move.amount_residual = -sign * (total_residual_currency if len(
-                currencies) == 1 else total_residual)
-            move.amount_untaxed_signed = -total_untaxed
-            move.amount_tax_signed = -total_tax
-            move.amount_total_signed = abs(
-                total) if move.type == 'entry' else -total
-            move.amount_residual_signed = total_residual
+    #         if move.type == 'entry' or move.is_outbound():
+    #             sign = 1
+    #         else:
+    #             sign = -1
+    #         move.amount_untaxed = sign * (total_untaxed_currency if len(
+    #             currencies) == 1 else total_untaxed)
+    #         move.amount_tax = sign * (total_tax_currency
+    #                                   if len(currencies) == 1 else total_tax)
+    #         move.amount_total = sign * (total_currency
+    #                                     if len(currencies) == 1 else total)
+    #         move.amount_residual = -sign * (total_residual_currency if len(
+    #             currencies) == 1 else total_residual)
+    #         move.amount_untaxed_signed = -total_untaxed
+    #         move.amount_tax_signed = -total_tax
+    #         move.amount_total_signed = abs(
+    #             total) if move.type == 'entry' else -total
+    #         move.amount_residual_signed = total_residual
 
-            currency = len(currencies) == 1 and currencies.pop(
-            ) or move.company_id.currency_id
-            is_paid = currency and currency.is_zero(
-                move.amount_residual) or not move.amount_residual
+    #         currency = len(currencies) == 1 and currencies.pop(
+    #         ) or move.company_id.currency_id
+    #         is_paid = currency and currency.is_zero(
+    #             move.amount_residual) or not move.amount_residual
 
-            # Compute 'invoice_payment_state'.
-            if move.type == 'entry':
-                move.invoice_payment_state = False
-            elif move.state == 'posted' and is_paid:
-                if move.id in in_payment_set:
-                    move.invoice_payment_state = 'in_payment'
-                else:
-                    move.invoice_payment_state = 'paid'
-            else:
-                move.invoice_payment_state = 'not_paid'
+    #         # Compute 'invoice_payment_state'.
+    #         if move.type == 'entry':
+    #             move.invoice_payment_state = False
+    #         elif move.state == 'posted' and is_paid:
+    #             if move.id in in_payment_set:
+    #                 move.invoice_payment_state = 'in_payment'
+    #             else:
+    #                 move.invoice_payment_state = 'paid'
+    #         else:
+    #             move.invoice_payment_state = 'not_paid'
 
     def _inverse_amount_total(self):
         for move in self:
@@ -3186,18 +3191,31 @@ class HMSCashierFolioLine(models.Model):
     _description = "Cashier Transaction"
     _order = 'sequence, name'
 
+    def get_cashier_folio_id(self):
+        cashier_folio_id = self.env['hms.cashier.folio'].browse(
+            self._context.get('active_id', []))
+        if cashier_folio_id:
+            return cashier_folio_id
+
     sequence = fields.Integer("Sequence")
     active = fields.Boolean("Active", default=True)
 
     # ==== New Custom Fields
 
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  related="reservation_line_id.property_id")
+    reservation_line_id = fields.Many2one(
+        'hms.reservation.line',
+        string="Reservation Line",
+        related="move_id.reservation_line_id")
     folio_id = fields.Many2one('hms.folio', string="Folio ID")
     transaction_date = fields.Date("Date")
     transaction_id = fields.Many2one(
         'hms.transaction',
         string='Transaction',
-        domain="[('property_id', '=', move_id.reservation_line_id.property_id)]"
-    )
+        domain="[('property_id', '=', property_id)]")
+    remark = fields.Text("Remark")
 
     # ==== Business fields ====
     move_id = fields.Many2one('hms.cashier.folio',
@@ -3206,6 +3224,7 @@ class HMSCashierFolioLine(models.Model):
                               required=True,
                               readonly=True,
                               auto_join=True,
+                              default=get_cashier_folio_id,
                               ondelete="cascade",
                               help="The move of this entry line.")
     move_name = fields.Char(string='Number',
@@ -3256,7 +3275,6 @@ class HMSCashierFolioLine(models.Model):
                                       string="Account Root",
                                       store=True,
                                       readonly=True)
-    sequence = fields.Integer(default=10)
     name = fields.Char(string='Label')
     quantity = fields.Float(
         string='Quantity',

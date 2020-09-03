@@ -1,13 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <!-- Folio Form View -->
+        <record id="view_folio_form" model="ir.ui.view">
+            <field name="name">hms.folio.form</field>
+            <field name="model">hms.folio</field>
+            <field name="arch" type="xml">
+                <form string="Folio Form" import="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="folio_no"/>
+                            </group>
+                            <group>
+                                <field name="folio_name"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Folio List View -->
+        <record id="view_folio_tree" model="ir.ui.view">
+            <field name="name">hms.folio.tree</field>
+            <field name="model">hms.folio</field>
+            <field name="arch" type="xml">
+                <tree string="Folio List" import="false">
+                    <field name="sequence"/>
+                    <field name="folio_no"/>
+                    <field name="folio_name"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_hms_folio" model="ir.actions.act_window">
+            <field name="name">Folio</field>
+            <field name="res_model">hms.folio</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Cashier Folio Form View -->
         <record id="view_cashier_folio_form" model="ir.ui.view">
             <field name="name">hms.cashier.folio.form</field>
             <field name="model">hms.cashier.folio</field>
             <field name="arch" type="xml">
-                <form string="Account Entry">
+                <form string="Cashier Folio">
                     <header>
                         <!-- Post -->
                         <button name="action_post" string="Post" class="oe_highlight" type="object" groups="account.group_account_invoice" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
@@ -26,7 +65,6 @@
                         <button name="button_draft" string="Reset to Draft" type="object" groups="account.group_account_invoice" attrs="{'invisible' : ['|', ('restrict_mode_hash_table', '=', True), ('state', 'not in', ('posted', 'cancel'))]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
-
                     <sheet>
                         <div name="button_box" class="oe_button_box">
                             <button name="open_reconcile_view" class="oe_stat_button" icon="fa-bars" type="object" attrs="{'invisible': ['|', '|', ('type', '!=', 'entry'), ('id', '=', False), ('has_reconciled_entries', '=', False)]}" string="Reconciled Entries">
@@ -75,8 +113,12 @@
                                 <field name="invoice_sequence_number_next" class="oe_inline"/>
                             </div>
                         </div>
+                        <div class="oe_title">
+                            <field name="property_id" readonly="1"/>
+                        </div>
                         <group>
                             <group id="header_left_group">
+                                <field name="reservation_line_id" invisible="1"/>
                                 <field name="room_no" options="{'no_quick_create': True, 'no_open': True, 'no_create_edit': True}"/>
                                 <div class="o_td_label">
                                     <label for="partner_id" string="Customer" style="font-weight:bold;" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
@@ -110,19 +152,16 @@
                         <notebook>
                             <page id="invoice_tab" string="Invoice Lines">
                                 <!-- attrs="{'invisible': [('type', '=', 'entry')]}" -->
-                                <field name="invoice_line_ids" widget="section_and_note_one2many" mode="tree" context="{'default_type': context.get('default_type'), 'journal_id': journal_id, 'default_partner_id': commercial_partner_id, 'default_currency_id': currency_id != company_currency_id and currency_id or False}">
-                                    <tree editable="bottom" string="Journal Items" default_order="sequence, date desc, move_name desc, id">
-                                        <control>
-                                            <create name="add_line_control" string="Add a line"/>
-                                            <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
-                                            <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
-                                        </control>
+                                <field name="invoice_line_ids" mode="tree" context="{'default_move_id': id, 'default_reservation_line_id': reservation_line_id, 'default_property_id': property_id, 'default_type': context.get('default_type'), 'journal_id': journal_id, 'default_partner_id': commercial_partner_id, 'default_currency_id': currency_id != company_currency_id and currency_id or False}">
+                                    <tree string="Journal Items" default_order="sequence, transaction_date, transaction_id">
                                         <!-- Displayed fields -->
                                         <field name="sequence" widget="handle"/>
                                         <field name="transaction_date"/>
                                         <field name="folio_id"/>
                                         <field name="move_id" invisible="1"/>
                                         <field name="move_name" invisible="1"/>
+                                        <field name="reservation_line_id" invisible="1"/>
+                                        <field name="property_id" invisible="1"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="product_id" optional="show" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
                                         <field name="name" optional="hide" widget="section_and_note_text" attrs="{'required': [('parent.type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
@@ -261,7 +300,7 @@
             </field>
         </record>
 
-        <!-- Folio Tree View -->
+        <!-- Cashier Folio Tree View -->
         <record id="view_cashier_folio_tree" model="ir.ui.view">
             <field name="name">hms.cashier.folio.tree</field>
             <field name="model">hms.cashier.folio</field>
@@ -280,8 +319,37 @@
             </field>
         </record>
 
-        <!-- Folio Line Form View -->
+        <!-- Cashier Folio Line Form View -->
         <record id="view_cashier_folio_line_form" model="ir.ui.view">
+            <field name="name">hms.cashier.folio.line.form</field>
+            <field name="model">hms.cashier.folio.line</field>
+            <field name="arch" type="xml">
+                <form string="Cashier Folio Line" create="false" import="false">
+                    <sheet>
+                        <field name="company_id" invisible="1"/>
+                        <field name="parent_state" invisible="1"/>
+                        <field name="move_id" invisible="1"/>
+                        <field name="reservation_line_id" invisible="1"/>
+                        <div class="oe_title">
+                            <field name="property_id" readonly="1"/>
+                            <br></br>
+                            <label for="folio_id" string="Folio ID"/>
+                            <field name="folio_id"/>
+                        </div>
+                        <group>
+                            <field name="transaction_id" style="width:50%%" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                            <field name="price_unit" style="width:50%%"/>
+                            <field name="quantity" style="width:50%%"/>
+                            <field name="ref" style="width:50%%"/>
+                            <field name="remark" style="width:50%%"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Old folio line form view -->
+        <!-- <record id="view_cashier_folio_line_form" model="ir.ui.view">
             <field name="name">hms.cashier.folio.line.form</field>
             <field name="model">hms.cashier.folio.line</field>
             <field eval="2" name="priority"/>
@@ -351,9 +419,9 @@
                     </sheet>
                 </form>
             </field>
-        </record>
+        </record> -->
 
-        <!-- Folio Line Tree View -->
+        <!-- Cashier Folio Line Tree View -->
         <record id="view_cashier_folio_line_tree" model="ir.ui.view">
             <field name="name">hms.cashier.folio.line.tree</field>
             <field name="model">hms.cashier.folio.line</field>
@@ -454,13 +522,11 @@
 
         <!-- hms.cashier.folio.line (Journal Items) -->
 
-        <record id="action_cashier_folio_journal_sales" model="ir.actions.act_window">
-            <field name="context">{'journal_type':'sales', 'search_default_group_by_move': 1, 'search_default_posted':1, 'search_default_sales':1, 'name_groupby':1, 'expand': 1}</field>
-            <field name="name">Sales</field>
+        <record id="action_cashier_folio_line" model="ir.actions.act_window">
+            <field name="name">Folio Line</field>
             <field name="res_model">hms.cashier.folio.line</field>
-            <field name="domain">[('display_type', 'not in', ('line_section', 'line_note'))]</field>
-            <field name="view_id" ref="view_cashier_folio_line_tree_grouped_sales_purchases"/>
-            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_cashier_folio_line_tree"/>
+            <field name="view_mode">tree, form</field>
         </record>
 
         <!-- Folio Action -->
