@@ -550,7 +550,7 @@ class Property(models.Model):
         for no_show_rsvn in no_show_rsvns:
             no_show_line_count = 0
             for line in no_show_rsvn.reservation_line_ids:
-                if line.is_no_show is True:
+                if line.is_no_show is True or line.is_cancel is True:
                     no_show_line_count += 1
             if len(no_show_rsvn.reservation_line_ids) == no_show_line_count:
                 no_show_rsvn.update({'is_no_show': True})
@@ -669,7 +669,7 @@ class Property(models.Model):
             if no_show_rsvn.property_id.is_manual is False:
                 no_show_line_count = 0
                 for line in no_show_rsvn.reservation_line_ids:
-                    if line.is_no_show is True:
+                    if line.is_no_show is True or line.is_cancel is True:
                         no_show_line_count += 1
                 if len(no_show_rsvn.reservation_line_ids
                        ) == no_show_line_count:
@@ -698,6 +698,7 @@ class Property(models.Model):
         for ex_rc_detail in ex_rc_details:
             if ex_rc_detail.is_manual is False:
                 ex_rc_detail.update({'active': False})
+
 
 
     def set_onboarding_step_done(self, step_name):
