@@ -328,10 +328,14 @@
                     <sheet>
                         <field name="company_id" invisible="1"/>
                         <field name="parent_state" invisible="1"/>
-                        <field name="move_id"/>
-                        <field name="reservation_line_id"/>
-                        <field name="property_id"/>
-                        <field name="folio_id"/>
+                        <field name="move_id" invisible="1"/>
+                        <field name="reservation_line_id" invisible="1"/>
+                        <div class="oe_title">
+                            <field name="property_id" readonly="1"/>
+                            <br></br>
+                            <label for="folio_id" string="Folio ID"/>
+                            <field name="folio_id"/>
+                        </div>
                         <group>
                             <field name="transaction_id" style="width:50%%" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <field name="price_unit" style="width:50%%"/>
