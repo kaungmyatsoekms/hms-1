@@ -471,8 +471,7 @@ class Reservation(models.Model):
     def _compute_is_arrival_today(self):
         for rec in self:
             arrival_date = rec.arrival
-            if datetime.strptime(str(arrival_date), DEFAULT_SERVER_DATE_FORMAT
-                                 ).date() == datetime.now().date():
+            if datetime.strptime(str(arrival_date), DEFAULT_SERVER_DATE_FORMAT).date() == datetime.now().date():
                 rec.is_arrival_today = True
             else:
                 rec.is_arrival_today = False
@@ -636,6 +635,7 @@ class Reservation(models.Model):
             room_no = avail_room[0]
 
         vals.append((0, 0, {
+            'is_hfo': True,
             'state': state,
             'reservation_id': reservation_id.id,
             'confirm_no': confirm_no,
@@ -1000,6 +1000,7 @@ class ReservationLine(models.Model):
         if self._context.get('state') != False:
             return self._context.get('state')
 
+    is_hfo = fields.Boolean(string="HFO", default=False, readonly=True)
     is_cancel = fields.Boolean(string="Cancel", default=False, readonly=True)
     is_no_show = fields.Boolean(string="No Show", default=False, readonly=True)
     is_roomtype_fix = fields.Boolean(string="Fixed Type?",
@@ -1145,10 +1146,7 @@ class ReservationLine(models.Model):
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         string="Rate Code",
-        required=True,
-        domain=
-        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
-    )
+        domain="[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]")
     # ratecode_ids = fields.One2many(
     #     'hms.ratecode.details',
     #     'ratehead_id',
@@ -1160,7 +1158,6 @@ class ReservationLine(models.Model):
                                    related='ratehead_id.ratecode_details')
     ratecode_id = fields.Many2one(
         'hms.ratecode.details',
-        required=True,
         domain=
         "[('ratehead_id', '=?', ratehead_id),('roomtype_id', '=?', room_type),'|','&',('start_date','<=',arrival),('end_date', '>=', arrival),'&',('start_date','<=',departure),('end_date', '>=', departure)]"
     )
@@ -3016,6 +3013,19 @@ class ReservationLine(models.Model):
             'context': ctx,
         }
 
+    def preview_proforma_invoice(self):
+        self.ensure_one()
+        url = self.get_portal_url(),
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'self',
+            'url': self.get_portal_url(),
+        }
+
+    def _compute_access_url(self):
+        super(ReservationLine, self)._compute_access_url()
+        for line in self:
+            line.access_url = '/my/reservations/%s' % (line.id)
 
 # Cancel Reservation
 class CancelReservation(models.Model):

@@ -168,6 +168,7 @@
 
                                     <tree string="Reservation Line" editable="bottom" class="tree_no_open" decoration-muted="state=='cancel'" decoration-info="state=='reservation'" decoration-success="state=='confirm'">
                                         <field name="is_roomtype_fix" invisible="1"/>
+                                        <field name="is_hfo" invisible="1"/>
                                         <field name="sequence" widget="handle"/>
                                         <field name="required_color" widget="color"/>
                                         <field name="is_no_show" invisible="1"/>
@@ -188,8 +189,8 @@
                                         <field name="avail_room_ids" widget='many2many_tags' invisible="1"/>
                                         <field name="pax"/>
                                         <field name="child"/>
-                                        <field name="ratehead_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
-                                        <field name="ratecode_id" string="Rate Code" optional="hide" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="ratehead_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" attrs="{'required': [('is_hfo', '=', False)]}"/>
+                                        <field name="ratecode_id" string="Rate Code" optional="hide" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" attrs="{'required': [('is_hfo', '=', False)]}"/>
                                         <field name="additional_pkg_ids" widget='many2many_tags' options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="room_rate" string="Room Rate"/>
                                         <button string="Details" name="action_show_record_details" type="object" class="oe_highlight"/>
@@ -1248,6 +1249,7 @@
                                 <field name="additional_pkg_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <field name="room_rate"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
@@ -1500,6 +1502,7 @@
                                 <field name="additional_pkg_ids" widget="many2many_tags" context="{'default_rate_attribute': 'SS'}" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                 <label for="room_rate" string="Room Rate"/>
                                 <field name="room_rate"/>
+                                <field name="discount_reason_id" placeholder="Discount Reason" context="{'default_type_id' : 2}"/>
                                 <label for="child_bfpax" string="Child BF"/>
                                 <div class="address_format">
                                     <field name="child_bfpax" style="width: 50%"/>
