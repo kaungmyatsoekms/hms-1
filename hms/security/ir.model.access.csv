@@ -72,4 +72,3 @@ access_account_invoice,account.invoice,model_account_invoice,base.group_user,1,1
 access_account_invoice_line,account.invoice.line,model_account_invoice_line,base.group_user,1,1,1,1
 access_account_invoice_tax,account.invoice.tax,model_account_invoice_tax,base.group_user,1,1,1,1
 
-

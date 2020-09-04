@@ -76,6 +76,8 @@
                         <!-- Invisible fields -->
                         <field name="id" invisible="1"/>
                         <field name="type"/>
+                        <br></br>
+                        <field name="property_id" readonly="1"/>
                         <field name="invoice_payment_state" invisible="1" force_save="1"/>
                         <field name="invoice_filter_type_domain" invisible="1"/>
                         <field name="company_currency_id" invisible="1"/>
@@ -113,9 +115,9 @@
                                 <field name="invoice_sequence_number_next" class="oe_inline"/>
                             </div>
                         </div>
-                        <div class="oe_title">
+                        <!-- <div class="oe_title">
                             <field name="property_id" readonly="1"/>
-                        </div>
+                        </div> -->
                         <group>
                             <group id="header_left_group">
                                 <field name="reservation_line_id" invisible="1"/>
@@ -330,18 +332,25 @@
                         <field name="parent_state" invisible="1"/>
                         <field name="move_id" invisible="1"/>
                         <field name="reservation_line_id" invisible="1"/>
+                        <field name="property_id" readonly="1"/>
                         <div class="oe_title">
-                            <field name="property_id" readonly="1"/>
-                            <br></br>
                             <label for="folio_id" string="Folio ID"/>
                             <field name="folio_id"/>
                         </div>
                         <group>
-                            <field name="transaction_id" style="width:50%%" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                            <field name="price_unit" style="width:50%%"/>
-                            <field name="quantity" style="width:50%%"/>
-                            <field name="ref" style="width:50%%"/>
-                            <field name="remark" style="width:50%%"/>
+                            <group>
+                                <field name="transaction_date"/>
+                                <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="product_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="ref"/>
+                                <field name="remark"/>
+                            </group>
+                            <group>
+                                <field name="price_unit"/>
+                                <field name="quantity"/>
+                                <field name="discount" string="Up/Down"/>
+                                <field name="tax_ids" widget="many2many_tags" domain="[('type_tax_use', '=?', parent.invoice_filter_type_domain), ('company_id', '=', parent.company_id)]" context="{'append_type_to_tax_name': not parent.invoice_filter_type_domain}" options="{'no_create': True}"/>
+                            </group>
                         </group>
                     </sheet>
                 </form>

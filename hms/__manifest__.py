@@ -116,13 +116,12 @@
         'data/hms_color_attribute_data.xml',
         'report/cashier_mail_template.xml',
         'wizard/hms_invoice_send_views.xml',
-        'views/hms_cashier_view.xml',
         'report/proforma_template.xml',
         'wizard/hms_pro_forma_invoice_view.xml',
         'wizard/hms_proforma_report_wizard_view.xml',
         'wizard/hms_split_invoice_wizard_view.xml',
         'report/proforma_portal_template.xml',
-        'views/account_invoice_view.xml'
+        'views/hms_account_invoice_view.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',
