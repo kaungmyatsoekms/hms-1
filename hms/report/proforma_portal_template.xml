@@ -7,7 +7,7 @@
                 <t t-else="">Proforma Invoice</t>
             </li>
             <li t-if="reservations" class="breadcrumb-item active">
-                <t t-esc="reservations.confirm_no"/>
+                <t t-esc="reservations.confirm_no" t-if="reservations.confirm_no != '/'"/>
                 <t t-else=""><em>Proforma Invoice</em></t>
             </li>
         </xpath>
@@ -48,7 +48,7 @@
                     <tr>
                         <td>
                             <a t-att-href="reservations.get_portal_url()" t-att-title="invreservationsoice.confirm_no">
-                                <t t-esc="reservations.confirm_no"/>
+                                <t t-esc="reservations.confirm_no" t-if="reservations.confirm_no != '/'"/>
                                 <em t-else="">Proforma Invoice</em>
                             </a>
                         </td>

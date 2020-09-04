@@ -2019,7 +2019,7 @@ class ReservationLine(models.Model):
                     curr_room_count = sum(current_rooms.mapped('rooms'))
                     t_rooms = occ_room_count + curr_room_count
                     total_rooms = rec.get_rooms()
-                    if total_rooms and t_rooms and total_rooms > t_rooms:
+                    if total_rooms > t_rooms:
                         rec.rooms = total_rooms - t_rooms
                     else:
                         rec.rooms = 1
@@ -3026,6 +3026,11 @@ class ReservationLine(models.Model):
         super(ReservationLine, self)._compute_access_url()
         for line in self:
             line.access_url = '/my/reservations/%s' % (line.id)
+
+    def _get_report_base_filename(self):
+        # if any(line for line in self):
+        #     raise UserError(_("Only invoices could be printed."))
+        return "Proforma Invoice_" + self.confirm_no
 
 # Cancel Reservation
 class CancelReservation(models.Model):
