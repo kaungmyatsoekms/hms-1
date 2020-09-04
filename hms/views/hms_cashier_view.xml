@@ -529,6 +529,8 @@
             <field name="view_mode">tree, form</field>
         </record>
 
+        
+
         <!-- Folio Action -->
         <record id="action_cashier_folio" model="ir.actions.act_window">
             <field name="name">Invoices</field>

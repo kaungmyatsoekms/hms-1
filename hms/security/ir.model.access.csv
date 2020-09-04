@@ -68,4 +68,8 @@ access_hms_cashier_folio_line,hms.cashier.folio.line,model_hms_cashier_folio_lin
 access_hms_excel_extended,hms.excel.extended,model_hms_excel_extended,base.group_user,1,1,1,1
 access_res_users_role,access_res_users_role,model_res_users_role,"base.group_erp_manager",1,1,1,1
 access_res_users_role_line,access_res_users_role_line,model_res_users_role_line,"base.group_erp_manager",1,1,1,1
+access_account_invoice,account.invoice,model_account_invoice,base.group_user,1,1,1,1
+access_account_invoice_line,account.invoice.line,model_account_invoice_line,base.group_user,1,1,1,1
+access_account_invoice_tax,account.invoice.tax,model_account_invoice_tax,base.group_user,1,1,1,1
+
 
