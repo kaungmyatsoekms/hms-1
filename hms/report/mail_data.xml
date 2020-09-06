@@ -35,7 +35,7 @@
         <record id="group_proforma_template" model="mail.template">
             <field name="name">Proforma Invoices</field>
             <field name="model_id" ref="hms.model_hms_reservation"/>
-            <field name="email_from">${(object.reservation_user_id.email_formatted) | safe}</field>
+            <field name="email_from">${(object.user_id.email_formatted) | safe}</field>
             <!-- <field name="partner_to">${object.contact_id.id}</field> -->
             <field name="email_to">${object.guest_id.email}</field>
             <field name="subject">${object.property_id.name} ${object.state in ('reservation', 'booking') and 'Quotation' or 'Order'} (Ref ${object.confirm_no or 'n/a' })</field>
