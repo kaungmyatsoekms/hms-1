@@ -142,7 +142,13 @@
                         <field name="type" invisible="1"/>
                         <group>
                             <group>
-                                <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{'search_default_customer':1, 'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' domain="[('customer', '=', True)]" required="1"/>
+                                <!-- <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{'search_default_customer':1, 'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' domain="[('customer', '=', True)]" required="1"/> -->
+                                <field string="Customer" name="partner_id" widget="res_partner_many2one"
+                                       context="{
+                                            'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,
+                                            'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+                                       options='{"always_reload": True, "no_quick_create": True}'
+                                       attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
                                 <field name="payment_term_id"/>
                                 <field name="cash_rounding_id" groups="account.group_cash_rounding"/>
                             </group>
@@ -372,7 +378,7 @@
         </record>
 
         <!-- Supplier -->
-        <record id="invoice_supplier_tree" model="ir.ui.view">
+        <!-- <record id="invoice_supplier_tree" model="ir.ui.view">
             <field name="name">account.invoice.supplier.tree</field>
             <field name="model">account.invoice</field>
             <field name="arch" type="xml">
@@ -400,8 +406,9 @@
                     <field name="type" invisible="context.get('type',True)"/>
                 </tree>
             </field>
-        </record>
-        <record id="invoice_supplier_form" model="ir.ui.view">
+        </record> -->
+        
+        <!-- <record id="invoice_supplier_form" model="ir.ui.view">
             <field name="name">account.invoice.supplier.form</field>
             <field name="model">account.invoice</field>
             <field name="priority">2</field>
@@ -473,7 +480,6 @@
                                             <field name="tax_line_ids">
                                                 <tree editable="bottom" string="Taxes">
                                                     <field name="name"/>
-                                                    <!--Need invisible fields for on_change to create all necessary info -->
                                                     <field name="tax_id" invisible="1"/>
                                                     <field name="sequence" invisible="1"/>
                                                     <field name="manual" invisible="1"/>
@@ -530,7 +536,7 @@
                     </div>
                 </form>
             </field>
-        </record>
+        </record> -->
 
         <!-- ACTION -->
         <!-- Invoices -->
@@ -633,6 +639,17 @@
 
         <!-- MENU -->
         <menuitem id="hms_menu_invoice" name="Invoice" parent="hotel_menu_root" sequence="10"/>
-        <menuitem id="invoice_menu" name="Invoice" parent="hms_menu_invoice" sequence="1" action="action_invoice_tree"/>
+        <menuitem id="hms_menu_invoice_payable" name="Invoice" parent="hotel_menu_root" sequence="10"/>
+        <!-- <menuitem id="invoice_menu" parent="hms_menu_invoice" sequence="1" action="action_invoice_tree"/> -->
+        <menuitem action="action_invoice_tree1" id="menu_action_invoice_tree1" parent="hms_menu_invoice" sequence="2"/>
+        <!-- <menuitem action="action_invoice_tree2" id="menu_action_invoice_tree2" parent="hms_menu_invoice_payable" sequence="1"/> -->
+        <menuitem action="action_invoice_in_refund"
+            id="menu_action_invoice_in_refund"
+            parent="hms_menu_invoice_payable"
+            sequence="2"/>
+        <menuitem action="action_invoice_out_refund"
+                  id="menu_action_invoice_out_refund"
+                  parent="hms_menu_invoice"
+                  sequence="3"/>
     </data>
 </odoo>
