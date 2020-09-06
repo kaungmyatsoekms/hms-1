@@ -53,6 +53,11 @@
         <field name="report_name">hms.report_hms_pro_forma</field>
     </record>
 
+    <!-- Custom Report for Group Proforma -->
+    <report 
+        id="group_proforma_report_id" string="Pro-Forma Report" model="hms.reservation" report_type="qweb-pdf" file="hms.report_group_proforma" name="hms.report_group_proforma"
+        print_report_name="'Proforma - %s' % (object.confirm_no)"/>
+
     <!-- Custom Report for Confirm Letter -->
     <report 
         id="confirm_letter_report" string="Confirm Letter" model="hms.reservation" report_type="qweb-pdf" file="hms.report_confirm_letter" name="hms.report_confirm_letter"

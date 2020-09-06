@@ -857,665 +857,361 @@ class HMSExcelExtended(models.Model):
     file_name = fields.Char('Excel File', size=64)
 
 
-class SaleOrder(models.Model):
-    _inherit = "sale.order"
+# class SaleOrder(models.Model):
+#     _inherit = "sale.order"
 
-    reservation_line_id = fields.Many2one('hms.reservation.line')
-    property_id = fields.Many2one('hms.property', string="Property")
-    group_id = fields.Many2one('res.partner',
-                               string="Group",
-                               domain="[('is_group','=',True)]",
-                               help='Group')
-    service_charge = fields.Monetary(string="Service Charges",
-                                     compute='_compute_service_charges',
-                                     readonly=True)
-    @api.model
-    def create(self, vals):
-        if vals.get('name', _('New')) == _('New'):
-            # seq_date = None
-            # if 'date_order' in vals:
-            #     seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
-            # if 'company_id' in vals:
-            #     vals['name'] = self.env['ir.sequence'].with_context(force_company=vals['company_id']).next_by_code(
-            #         'sale.order', sequence_date=seq_date) or _('New')
-            # else:
-            #     vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
+#     reservation_line_id = fields.Many2one('hms.reservation.line')
+#     property_id = fields.Many2one('hms.property', string="Property")
+#     group_id = fields.Many2one('res.partner',
+#                                string="Group",
+#                                domain="[('is_group','=',True)]",
+#                                help='Group')
+#     service_charge = fields.Monetary(string="Service Charges",
+#                                      compute='_compute_service_charges',
+#                                      readonly=True)
 
-            property_id = vals['property_id']
-            property_id = self.env['hms.property'].search([('id', '=', property_id)])
+#     @api.model
+#     def create(self, vals):
+#         if vals.get('name', _('New')) == _('New'):
+#             # seq_date = None
+#             # if 'date_order' in vals:
+#             #     seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
+#             # if 'company_id' in vals:
+#             #     vals['name'] = self.env['ir.sequence'].with_context(force_company=vals['company_id']).next_by_code(
+#             #         'sale.order', sequence_date=seq_date) or _('New')
+#             # else:
+#             #     vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
 
-            if self.env.user.company_id.soprofile_id_format:
-                format_ids = self.env['hms.format.detail'].search(
-                    [('format_id', '=',
-                      self.env.user.company_id.soprofile_id_format.id)],
-                    order='position_order asc')
-            val = []
-            for ft in format_ids:
-                if ft.value_type == 'dynamic':
-                    if property_id.code and ft.dynamic_value == 'property code':
-                        val.append(property_id.code)
-                if ft.value_type == 'fix':
-                    val.append(ft.fix_value)
-                if ft.value_type == 'digit':
-                    sequent_ids = self.env['ir.sequence'].search([
-                        ('code', '=',
-                         self.env.user.company_id.soprofile_id_format.code)
-                    ])
-                    sequent_ids.write({'padding': ft.digit_value})
-                if ft.value_type == 'datetime':
-                    mon = yrs = ''
-                    if ft.datetime_value == 'MM':
-                        mon = datetime.today().month
-                        val.append(mon)
-                    if ft.datetime_value == 'MMM':
-                        mon = datetime.today().strftime('%b')
-                        val.append(mon)
-                    if ft.datetime_value == 'YY':
-                        yrs = datetime.today().strftime("%y")
-                        val.append(yrs)
-                    if ft.datetime_value == 'YYYY':
-                        yrs = datetime.today().strftime("%Y")
-                        val.append(yrs)
-            p_no_pre = ''
-            if len(val) > 0:
-                for l in range(len(val)):
-                    p_no_pre += str(val[l])
-            p_no = ''
-            p_no += self.env['ir.sequence'].\
-                    next_by_code(property_id.code + property_id.soprofile_id_format.code) or 'New'
-            pf_no = p_no_pre + p_no
+#             property_id = vals['property_id']
+#             property_id = self.env['hms.property'].search([('id', '=',
+#                                                             property_id)])
 
-            vals['name'] = pf_no
+#             if self.env.user.company_id.soprofile_id_format:
+#                 format_ids = self.env['hms.format.detail'].search(
+#                     [('format_id', '=',
+#                       self.env.user.company_id.soprofile_id_format.id)],
+#                     order='position_order asc')
+#             val = []
+#             for ft in format_ids:
+#                 if ft.value_type == 'dynamic':
+#                     if property_id.code and ft.dynamic_value == 'property code':
+#                         val.append(property_id.code)
+#                 if ft.value_type == 'fix':
+#                     val.append(ft.fix_value)
+#                 if ft.value_type == 'digit':
+#                     sequent_ids = self.env['ir.sequence'].search([
+#                         ('code', '=',
+#                          self.env.user.company_id.soprofile_id_format.code)
+#                     ])
+#                     sequent_ids.write({'padding': ft.digit_value})
+#                 if ft.value_type == 'datetime':
+#                     mon = yrs = ''
+#                     if ft.datetime_value == 'MM':
+#                         mon = datetime.today().month
+#                         val.append(mon)
+#                     if ft.datetime_value == 'MMM':
+#                         mon = datetime.today().strftime('%b')
+#                         val.append(mon)
+#                     if ft.datetime_value == 'YY':
+#                         yrs = datetime.today().strftime("%y")
+#                         val.append(yrs)
+#                     if ft.datetime_value == 'YYYY':
+#                         yrs = datetime.today().strftime("%Y")
+#                         val.append(yrs)
+#             p_no_pre = ''
+#             if len(val) > 0:
+#                 for l in range(len(val)):
+#                     p_no_pre += str(val[l])
+#             p_no = ''
+#             p_no += self.env['ir.sequence'].\
+#                     next_by_code(property_id.code + property_id.soprofile_id_format.code) or 'New'
+#             pf_no = p_no_pre + p_no
 
-        # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
-        if any(f not in vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
-            partner = self.env['res.partner'].browse(vals.get('partner_id'))
-            addr = partner.address_get(['delivery', 'invoice'])
-            vals['partner_invoice_id'] = vals.setdefault('partner_invoice_id', addr['invoice'])
-            vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
-            vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
-        result = super(SaleOrder, self).create(vals)
-        return result
+#             vals['name'] = pf_no
 
-    @api.depends('order_line.svc_amount')
-    def _compute_service_charges(self):
-        svc = 0.0
-        for rec in self.order_line:
-            svc += rec.svc_amount
-        self.service_charge = svc
+#         # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
+#         if any(f not in vals for f in
+#                ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
+#             partner = self.env['res.partner'].browse(vals.get('partner_id'))
+#             addr = partner.address_get(['delivery', 'invoice'])
+#             vals['partner_invoice_id'] = vals.setdefault(
+#                 'partner_invoice_id', addr['invoice'])
+#             vals['partner_shipping_id'] = vals.setdefault(
+#                 'partner_shipping_id', addr['delivery'])
+#             vals['pricelist_id'] = vals.setdefault(
+#                 'pricelist_id', partner.property_product_pricelist
+#                 and partner.property_product_pricelist.id)
+#         result = super(SaleOrder, self).create(vals)
+#         return result
 
-    def _prepare_invoice(self):
-        """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
-        """
-        self.ensure_one()
-        # ensure a correct context for the _get_default_journal method and company-dependent fields
-        self = self.with_context(default_company_id=self.company_id.id,
-                                 force_company=self.company_id.id)
-        journal = self.env['account.move'].with_context(
-            default_type='out_invoice')._get_default_journal()
-        if not journal:
-            raise UserError(
-                _('Please define an accounting sales journal for the company %s (%s).'
-                  ) % (self.company_id.name, self.company_id.id))
+#     @api.depends('order_line.svc_amount')
+#     def _compute_service_charges(self):
+#         svc = 0.0
+#         for rec in self.order_line:
+#             svc += rec.svc_amount
+#         self.service_charge = svc
 
-        invoice_vals = {
-            'property_id':
-            self.property_id.id,
-            'group_id':
-            self.group_id.id,
-            'ref':
-            self.client_order_ref or '',
-            'type':
-            'out_invoice',
-            'narration':
-            self.note,
-            'currency_id':
-            self.pricelist_id.currency_id.id,
-            'campaign_id':
-            self.campaign_id.id,
-            'medium_id':
-            self.medium_id.id,
-            'source_id':
-            self.source_id.id,
-            'invoice_user_id':
-            self.user_id and self.user_id.id,
-            'team_id':
-            self.team_id.id,
-            'partner_id':
-            self.partner_invoice_id.id,
-            'partner_shipping_id':
-            self.partner_shipping_id.id,
-            'invoice_partner_bank_id':
-            self.company_id.partner_id.bank_ids[:1].id,
-            'fiscal_position_id':
-            self.fiscal_position_id.id
-            or self.partner_invoice_id.property_account_position_id.id,
-            'journal_id':
-            journal.id,  # company comes from the journal
-            'invoice_origin':
-            self.name,
-            'invoice_payment_term_id':
-            self.payment_term_id.id,
-            'invoice_payment_ref':
-            self.reference,
-            'transaction_ids': [(6, 0, self.transaction_ids.ids)],
-            'invoice_line_ids': [],
-        }
-        return invoice_vals
+#     def _prepare_invoice(self):
+#         """
+#         Prepare the dict of values to create the new invoice for a sales order. This method may be
+#         overridden to implement custom invoice generation (making sure to call super() to establish
+#         a clean extension chain).
+#         """
+#         self.ensure_one()
+#         # ensure a correct context for the _get_default_journal method and company-dependent fields
+#         self = self.with_context(default_company_id=self.company_id.id,
+#                                  force_company=self.company_id.id)
+#         journal = self.env['account.move'].with_context(
+#             default_type='out_invoice')._get_default_journal()
+#         if not journal:
+#             raise UserError(
+#                 _('Please define an accounting sales journal for the company %s (%s).'
+#                   ) % (self.company_id.name, self.company_id.id))
 
+#         invoice_vals = {
+#             'property_id':
+#             self.property_id.id,
+#             'group_id':
+#             self.group_id.id,
+#             'ref':
+#             self.client_order_ref or '',
+#             'type':
+#             'out_invoice',
+#             'narration':
+#             self.note,
+#             'currency_id':
+#             self.pricelist_id.currency_id.id,
+#             'campaign_id':
+#             self.campaign_id.id,
+#             'medium_id':
+#             self.medium_id.id,
+#             'source_id':
+#             self.source_id.id,
+#             'invoice_user_id':
+#             self.user_id and self.user_id.id,
+#             'team_id':
+#             self.team_id.id,
+#             'partner_id':
+#             self.partner_invoice_id.id,
+#             'partner_shipping_id':
+#             self.partner_shipping_id.id,
+#             'invoice_partner_bank_id':
+#             self.company_id.partner_id.bank_ids[:1].id,
+#             'fiscal_position_id':
+#             self.fiscal_position_id.id
+#             or self.partner_invoice_id.property_account_position_id.id,
+#             'journal_id':
+#             journal.id,  # company comes from the journal
+#             'invoice_origin':
+#             self.name,
+#             'invoice_payment_term_id':
+#             self.payment_term_id.id,
+#             'invoice_payment_ref':
+#             self.reference,
+#             'transaction_ids': [(6, 0, self.transaction_ids.ids)],
+#             'invoice_line_ids': [],
+#         }
+#         return invoice_vals
 
-class SaleOrderLine(models.Model):
-    _inherit = "sale.order.line"
+# class SaleOrderLine(models.Model):
+#     _inherit = "sale.order.line"
 
-    reservation_line_id = fields.Many2one('hms.reservation.line')
-    property_id = fields.Many2one('hms.property', string="Property")
-    transaction_id = fields.Many2one(
-        'hms.transaction',
-        string='Transaction',
-        domain="[('property_id', '=?', property_id)]")
-    package_id = fields.Many2one('hms.package.header', string='Package')
-    transaction_date = fields.Date("Date")
-    ref = fields.Char("Reference")
-    svc_amount = fields.Monetary(string='Service Charge',
-                                 store=True,
-                                 readonly=True)
-    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
-                                      store=True,
-                                      readonly=True)
-    price_unit = fields.Float('Unit Price',
-                              required=True,
-                              digits='Product Price',
-                              default=0.0)
-    price_subtotal = fields.Monetary(string='Subtotal',
-                                     compute='_compute_amount',
-                                     readonly=True,
-                                     store=True)
-    price_tax = fields.Float(string='Total Tax',
-                             compute='_compute_amount',
-                             readonly=True,
-                             store=True)
-    price_total = fields.Monetary(string='Total',
-                                  compute='_compute_amount',
-                                  readonly=True,
-                                  store=True)
+#     reservation_line_id = fields.Many2one('hms.reservation.line')
+#     property_id = fields.Many2one('hms.property', string="Property")
+#     transaction_id = fields.Many2one(
+#         'hms.transaction',
+#         string='Transaction',
+#         domain="[('property_id', '=?', property_id)]")
+#     package_id = fields.Many2one('hms.package.header', string='Package')
+#     transaction_date = fields.Date("Date")
+#     ref = fields.Char("Reference")
+#     svc_amount = fields.Monetary(string='Service Charge',
+#                                  store=True,
+#                                  readonly=True)
+#     subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+#                                       store=True,
+#                                       readonly=True)
+#     price_unit = fields.Float('Unit Price',
+#                               required=True,
+#                               digits='Product Price',
+#                               default=0.0)
+#     price_subtotal = fields.Monetary(string='Subtotal',
+#                                      readonly=True,
+#                                      store=True)
+#     price_tax = fields.Float(string='Total Tax', readonly=True, store=True)
+#     price_total = fields.Monetary(string='Total', readonly=True, store=True)
 
-    @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id')
-    def _compute_amount(self):
-        """
-        Compute the amounts of the SO line.
-        """
-        # for line in self:
-        # price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-        # taxes = line.tax_id.compute_all(
-        #     price,
-        #     line.order_id.currency_id,
-        #     line.product_uom_qty,
-        #     product=line.product_id,
-        #     partner=line.order_id.partner_shipping_id)
-        # line.update({
-        #     'price_tax':
-        #     sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
-        #     'price_total':
-        #     taxes['total_included'],
-        #     'price_subtotal':
-        #     taxes['total_excluded'],
-        # })
+#     def _prepare_invoice_line(self):
+#         """
+#         Prepare the dict of values to create the new invoice line for a sales order line.
 
-    def _prepare_invoice_line(self):
-        """
-        Prepare the dict of values to create the new invoice line for a sales order line.
+#         :param qty: float quantity to invoice
+#         """
+#         self.ensure_one()
+#         res = {
+#             'display_type': self.display_type,
+#             'sequence': self.sequence,
+#             'name': self.name,
+#             'product_id': self.product_id.id,
+#             'product_uom_id': self.product_uom.id,
+#             'quantity': self.qty_to_invoice,
+#             'discount': self.discount,
+#             'price_unit': self.price_unit,
+#             'tax_ids': [(6, 0, self.tax_id.ids)],
+#             'analytic_account_id': self.order_id.analytic_account_id.id,
+#             'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)],
+#             'sale_line_ids': [(4, self.id)],
+#             # start custom adding new field create
+#             'property_id': self.property_id.id,
+#             'partner_id': self.order_partner_id.id,
+#             'transaction_date': self.transaction_date,
+#             'transaction_id': self.transaction_id.id,
+#             'package_id': self.package_id.id,
+#             'currency_id': self.currency_id.id,
+#             'tax_amount': self.price_tax,
+#             'svc_amount': self.svc_amount,
+#             'subtotal_wo_svc': self.subtotal_wo_svc,
+#             'price_subtotal': self.price_subtotal,
+#             'price_total': self.price_total,
+#         }
+#         if self.display_type:
+#             res['account_id'] = False
+#         return res
 
-        :param qty: float quantity to invoice
-        """
-        self.ensure_one()
-        res = {
-            'display_type': self.display_type,
-            'sequence': self.sequence,
-            'name': self.name,
-            'product_id': self.product_id.id,
-            'product_uom_id': self.product_uom.id,
-            'quantity': self.qty_to_invoice,
-            'discount': self.discount,
-            'price_unit': self.price_unit,
-            'tax_ids': [(6, 0, self.tax_id.ids)],
-            'analytic_account_id': self.order_id.analytic_account_id.id,
-            'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)],
-            'sale_line_ids': [(4, self.id)],
-            # start custom adding new field create
-            'property_id': self.property_id.id,
-            'partner_id': self.order_partner_id.id,
-            'transaction_date': self.transaction_date,
-            'transaction_id': self.transaction_id.id,
-            'package_id': self.package_id.id,
-            'currency_id': self.currency_id.id,
-            'tax_amount': self.price_tax,
-            'svc_amount': self.svc_amount,
-            'subtotal_wo_svc': self.subtotal_wo_svc,
-            'price_subtotal': self.price_subtotal,
-            'price_total': self.price_total,
-        }
-        if self.display_type:
-            res['account_id'] = False
-        return res
+# class AccountMove(models.Model):
+#     _inherit = "account.move"
+#     _description = "Journal Entries"
 
+#     property_id = fields.Many2one('hms.property', "Property", readonly=True)
+#     invoice_sequence_number_next = fields.Char(string='Next Number')
+#     group_id = fields.Many2one('res.partner',
+#                                string="Group",
+#                                domain="[('is_group','=',True)]",
+#                                help='Group')
 
-class AccountMove(models.Model):
-    _inherit = "account.move"
-    _description = "Journal Entries"
+#     @api.model_create_multi
+#     def create(self, vals_list):
+#         # OVERRIDE
+#         if any('state' in vals and vals.get('state') == 'posted'
+#                for vals in vals_list):
+#             raise UserError(
+#                 _('You cannot create a move already in the posted state. Please create a draft move and post it after.'
+#                   ))
 
-    property_id = fields.Many2one('hms.property', "Property", readonly=True)
-    invoice_sequence_number_next = fields.Char(string='Next Number')
-    group_id = fields.Many2one('res.partner',
-                               string="Group",
-                               domain="[('is_group','=',True)]",
-                               help='Group')
+#         for v in vals_list:
+#             property_id = v.get('property_id')
+#             property_id = self.env['hms.property'].search([('id', '=',
+#                                                             property_id)])
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        # OVERRIDE
-        if any('state' in vals and vals.get('state') == 'posted'
-               for vals in vals_list):
-            raise UserError(
-                _('You cannot create a move already in the posted state. Please create a draft move and post it after.'
-                  ))
+#             if self.env.user.company_id.ivprofile_id_format:
+#                 format_ids = self.env['hms.format.detail'].search(
+#                     [('format_id', '=',
+#                       self.env.user.company_id.ivprofile_id_format.id)],
+#                     order='position_order asc')
+#             val = []
+#             for ft in format_ids:
+#                 if ft.value_type == 'dynamic':
+#                     if property_id.code and ft.dynamic_value == 'property code':
+#                         val.append(property_id.code)
+#                 if ft.value_type == 'fix':
+#                     val.append(ft.fix_value)
+#                 if ft.value_type == 'digit':
+#                     sequent_ids = self.env['ir.sequence'].search([
+#                         ('code', '=',
+#                          self.env.user.company_id.ivprofile_id_format.code)
+#                     ])
+#                     sequent_ids.write({'padding': ft.digit_value})
+#                 if ft.value_type == 'datetime':
+#                     mon = yrs = ''
+#                     if ft.datetime_value == 'MM':
+#                         mon = datetime.today().month
+#                         val.append(mon)
+#                     if ft.datetime_value == 'MMM':
+#                         mon = datetime.today().strftime('%b')
+#                         val.append(mon)
+#                     if ft.datetime_value == 'YY':
+#                         yrs = datetime.today().strftime("%y")
+#                         val.append(yrs)
+#                     if ft.datetime_value == 'YYYY':
+#                         yrs = datetime.today().strftime("%Y")
+#                         val.append(yrs)
+#             p_no_pre = ''
+#             if len(val) > 0:
+#                 for l in range(len(val)):
+#                     p_no_pre += str(val[l])
+#             p_no = ''
+#             p_no += self.env['ir.sequence'].\
+#                     next_by_code(property_id.code + property_id.ivprofile_id_format.code) or 'New'
+#             pf_no = p_no_pre + p_no
 
-        for v in vals_list:
-            property_id = v.get('property_id')
-            property_id = self.env['hms.property'].search([('id', '=',
-                                                            property_id)])
+#             v['name'] = pf_no
 
-            if self.env.user.company_id.ivprofile_id_format:
-                format_ids = self.env['hms.format.detail'].search(
-                    [('format_id', '=',
-                      self.env.user.company_id.ivprofile_id_format.id)],
-                    order='position_order asc')
-            val = []
-            for ft in format_ids:
-                if ft.value_type == 'dynamic':
-                    if property_id.code and ft.dynamic_value == 'property code':
-                        val.append(property_id.code)
-                if ft.value_type == 'fix':
-                    val.append(ft.fix_value)
-                if ft.value_type == 'digit':
-                    sequent_ids = self.env['ir.sequence'].search([
-                        ('code', '=',
-                         self.env.user.company_id.ivprofile_id_format.code)
-                    ])
-                    sequent_ids.write({'padding': ft.digit_value})
-                if ft.value_type == 'datetime':
-                    mon = yrs = ''
-                    if ft.datetime_value == 'MM':
-                        mon = datetime.today().month
-                        val.append(mon)
-                    if ft.datetime_value == 'MMM':
-                        mon = datetime.today().strftime('%b')
-                        val.append(mon)
-                    if ft.datetime_value == 'YY':
-                        yrs = datetime.today().strftime("%y")
-                        val.append(yrs)
-                    if ft.datetime_value == 'YYYY':
-                        yrs = datetime.today().strftime("%Y")
-                        val.append(yrs)
-            p_no_pre = ''
-            if len(val) > 0:
-                for l in range(len(val)):
-                    p_no_pre += str(val[l])
-            p_no = ''
-            p_no += self.env['ir.sequence'].\
-                    next_by_code(property_id.code + property_id.ivprofile_id_format.code) or 'New'
-            pf_no = p_no_pre + p_no
+#         vals_list = self._move_autocomplete_invoice_lines_create(vals_list)
+#         return super(AccountMove, self).create(vals_list)
 
-            v['name'] = pf_no
+#     @api.depends('state', 'journal_id', 'date', 'invoice_date')
+#     def _compute_invoice_sequence_number_next(self):
+#         """ computes the prefix of the number that will be assigned to the first invoice/bill/refund of a journal, in order to
+#         let the user manually change it.
+#         """
+#         #Check user group.
+#         system_user = self.env.is_system()
+#         if not system_user:
+#             self.invoice_sequence_number_next_prefix = False
+#             self.invoice_sequence_number_next = False
+#             return
 
-        vals_list = self._move_autocomplete_invoice_lines_create(vals_list)
-        return super(AccountMove, self).create(vals_list)
+#         # Check moves being candidates to set a custom number next.
+#         moves = self.filtered(
+#             lambda move: move.is_invoice() and move.name == '/')
+#         if not moves:
+#             self.invoice_sequence_number_next_prefix = False
+#             self.invoice_sequence_number_next = False
+#             return
 
-    @api.depends('state', 'journal_id', 'date', 'invoice_date')
-    def _compute_invoice_sequence_number_next(self):
-        """ computes the prefix of the number that will be assigned to the first invoice/bill/refund of a journal, in order to
-        let the user manually change it.
-        """
-        #Check user group.
-        system_user = self.env.is_system()
-        if not system_user:
-            self.invoice_sequence_number_next_prefix = False
-            self.invoice_sequence_number_next = False
-            return
+#         treated = self.browse()
+#         for key, group in groupby(moves,
+#                                   key=lambda move:
+#                                   (move.journal_id, move._get_sequence())):
+#             journal, sequence = key
+#             domain = [('journal_id', '=', journal.id),
+#                       ('state', '=', 'posted')]
+#             if self.ids:
+#                 domain.append(('id', 'not in', self.ids))
+#             if journal.type == 'sale':
+#                 domain.append(('type', 'in', ('out_invoice', 'out_refund')))
+#             elif journal.type == 'purchase':
+#                 domain.append(('type', 'in', ('in_invoice', 'in_refund')))
+#             else:
+#                 continue
+#             if self.search_count(domain):
+#                 continue
 
-        # Check moves being candidates to set a custom number next.
-        moves = self.filtered(
-            lambda move: move.is_invoice() and move.name == '/')
-        if not moves:
-            self.invoice_sequence_number_next_prefix = False
-            self.invoice_sequence_number_next = False
-            return
+#             # for move in group:
+#             #     sequence_date = move.date or move.invoice_date
+#             #     prefix, dummy = sequence._get_prefix_suffix(date=sequence_date, date_range=sequence_date)
+#             #     number_next = sequence._get_current_sequence(sequence_date=sequence_date).number_next_actual
+#             #     move.invoice_sequence_number_next_prefix = prefix
+#             #     move.invoice_sequence_number_next = '%%0%sd' % sequence.padding % number_next
+#             #     treated |= move
+#         remaining = (self - treated)
+#         remaining.invoice_sequence_number_next_prefix = False
+#         remaining.invoice_sequence_number_next = False
 
-        treated = self.browse()
-        for key, group in groupby(moves,
-                                  key=lambda move:
-                                  (move.journal_id, move._get_sequence())):
-            journal, sequence = key
-            domain = [('journal_id', '=', journal.id),
-                      ('state', '=', 'posted')]
-            if self.ids:
-                domain.append(('id', 'not in', self.ids))
-            if journal.type == 'sale':
-                domain.append(('type', 'in', ('out_invoice', 'out_refund')))
-            elif journal.type == 'purchase':
-                domain.append(('type', 'in', ('in_invoice', 'in_refund')))
-            else:
-                continue
-            if self.search_count(domain):
-                continue
+# class AccountMoveLine(models.Model):
+#     _inherit = "account.move.line"
 
-            # for move in group:
-            #     sequence_date = move.date or move.invoice_date
-            #     prefix, dummy = sequence._get_prefix_suffix(date=sequence_date, date_range=sequence_date)
-            #     number_next = sequence._get_current_sequence(sequence_date=sequence_date).number_next_actual
-            #     move.invoice_sequence_number_next_prefix = prefix
-            #     move.invoice_sequence_number_next = '%%0%sd' % sequence.padding % number_next
-            #     treated |= move
-        remaining = (self - treated)
-        remaining.invoice_sequence_number_next_prefix = False
-        remaining.invoice_sequence_number_next = False
-
-    @api.constrains('name', 'journal_id', 'state')
-    def _check_unique_sequence_number(self):
-        moves = self.filtered(lambda move: move.state == 'posted')
-        if not moves:
-            return
-
-        self.flush()
-
-        # /!\ Computed stored fields are not yet inside the database.
-        self._cr.execute('''
-            SELECT move2.id
-            FROM account_move move
-            INNER JOIN account_move move2 ON
-                move2.name = move.name
-                AND move2.journal_id = move.journal_id
-                AND move2.type = move.type
-                AND move2.id != move.id
-            WHERE move.id IN %s AND move2.state = 'posted'
-        ''', [tuple(moves.ids)])
-        res = self._cr.fetchone()
-        # if res:
-        #     raise ValidationError(_('Posted journal entry must have an unique sequence number per company.'))
-
-
-class AccountMoveLine(models.Model):
-    _inherit = "account.move.line"
-
-    property_id = fields.Many2one('hms.property', "Property", readonly=True)
-    transaction_id = fields.Many2one(
-        'hms.transaction',
-        string='Transaction',
-        domain="[('property_id', '=?', property_id)]")
-    package_id = fields.Many2one('hms.package.header', string='Package')
-    transaction_date = fields.Date("Date")
-    tax_amount = fields.Monetary(string='Total Tax', store=True, readonly=True)
-    svc_amount = fields.Monetary(string='Service Charge',
-                                 store=True,
-                                 readonly=True)
-    subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
-                                      store=True,
-                                      readonly=True)
-
-class account_payment(models.Model):
-    _inherit = "account.payment"
-
-    def post(self):
-        """ Create the journal items for the payment and update the payment's state to 'posted'.
-            A journal entry is created containing an item in the source liquidity account (selected journal's default_debit or default_credit)
-            and another in the destination reconcilable account (see _compute_destination_account_id).
-            If invoice_ids is not empty, there will be one reconcilable move line per invoice to reconcile with.
-            If the payment is a transfer, a second journal entry is created in the destination journal to receive money from the transfer account.
-        """
-        AccountMove = self.env['account.move'].with_context(default_type='entry')
-        for rec in self:
-
-            if rec.state != 'draft':
-                raise UserError(_("Only a draft payment can be posted."))
-
-            if any(inv.state != 'posted' for inv in rec.invoice_ids):
-                raise ValidationError(_("The payment cannot be processed because the invoice is not open!"))
-
-            # keep the name in case of a payment reset to draft
-            if not rec.name:
-                # Use the right sequence to set the name
-                if rec.payment_type == 'transfer':
-                    sequence_code = 'account.payment.transfer'
-                else:
-                    if rec.partner_type == 'customer':
-                        if rec.payment_type == 'inbound':
-                            sequence_code = 'account.payment.customer.invoice'
-                        if rec.payment_type == 'outbound':
-                            sequence_code = 'account.payment.customer.refund'
-                    if rec.partner_type == 'supplier':
-                        if rec.payment_type == 'inbound':
-                            sequence_code = 'account.payment.supplier.refund'
-                        if rec.payment_type == 'outbound':
-                            sequence_code = 'account.payment.supplier.invoice'
-                rec.name = self.env['ir.sequence'].next_by_code(sequence_code, sequence_date=rec.payment_date)
-                if not rec.name and rec.payment_type != 'transfer':
-                    raise UserError(_("You have to define a sequence for %s in your company.") % (sequence_code,))
-
-            moves = AccountMove.create(rec._prepare_payment_moves())
-            moves.filtered(lambda move: move.journal_id.post_at != 'bank_rec').post()
-
-            # Update the state / move before performing any reconciliation.
-            move_name = self._get_move_name_transfer_separator().join(moves.mapped('name'))
-            rec.write({'state': 'posted', 'move_name': move_name})
-
-            if rec.payment_type in ('inbound', 'outbound'):
-                # ==== 'inbound' / 'outbound' ====
-                if rec.invoice_ids:
-                    (moves[0] + rec.invoice_ids).line_ids \
-                        .filtered(lambda line: not line.reconciled and line.account_id == rec.destination_account_id)\
-                        .reconcile()
-            elif rec.payment_type == 'transfer':
-                # ==== 'transfer' ====
-                moves.mapped('line_ids')\
-                    .filtered(lambda line: line.account_id == rec.company_id.transfer_account_id)\
-                    .reconcile()
-
-        return True
-
-    def _prepare_payment_moves(self):
-        ''' Prepare the creation of journal entries (account.move) by creating a list of python dictionary to be passed
-        to the 'create' method.
-
-        Example 1: outbound with write-off:
-
-        Account             | Debit     | Credit
-        ---------------------------------------------------------
-        BANK                |   900.0   |
-        RECEIVABLE          |           |   1000.0
-        WRITE-OFF ACCOUNT   |   100.0   |
-
-        Example 2: internal transfer from BANK to CASH:
-
-        Account             | Debit     | Credit
-        ---------------------------------------------------------
-        BANK                |           |   1000.0
-        TRANSFER            |   1000.0  |
-        CASH                |   1000.0  |
-        TRANSFER            |           |   1000.0
-
-        :return: A list of Python dictionary to be passed to env['account.move'].create.
-        '''
-        all_move_vals = []
-        for payment in self:
-            company_currency = payment.company_id.currency_id
-            move_names = payment.move_name.split(payment._get_move_name_transfer_separator()) if payment.move_name else None
-
-            # Compute amounts.
-            write_off_amount = payment.payment_difference_handling == 'reconcile' and -payment.payment_difference or 0.0
-            if payment.payment_type in ('outbound', 'transfer'):
-                counterpart_amount = payment.amount
-                liquidity_line_account = payment.journal_id.default_debit_account_id
-            else:
-                counterpart_amount = -payment.amount
-                liquidity_line_account = payment.journal_id.default_credit_account_id
-
-            # Manage currency.
-            if payment.currency_id == company_currency:
-                # Single-currency.
-                balance = counterpart_amount
-                write_off_balance = write_off_amount
-                counterpart_amount = write_off_amount = 0.0
-                currency_id = False
-            else:
-                # Multi-currencies.
-                balance = payment.currency_id._convert(counterpart_amount, company_currency, payment.company_id, payment.payment_date)
-                write_off_balance = payment.currency_id._convert(write_off_amount, company_currency, payment.company_id, payment.payment_date)
-                currency_id = payment.currency_id.id
-
-            # Manage custom currency on journal for liquidity line.
-            if payment.journal_id.currency_id and payment.currency_id != payment.journal_id.currency_id:
-                # Custom currency on journal.
-                if payment.journal_id.currency_id == company_currency:
-                    # Single-currency
-                    liquidity_line_currency_id = False
-                else:
-                    liquidity_line_currency_id = payment.journal_id.currency_id.id
-                liquidity_amount = company_currency._convert(
-                    balance, payment.journal_id.currency_id, payment.company_id, payment.payment_date)
-            else:
-                # Use the payment currency.
-                liquidity_line_currency_id = currency_id
-                liquidity_amount = counterpart_amount
-
-            # Compute 'name' to be used in receivable/payable line.
-            rec_pay_line_name = ''
-            if payment.payment_type == 'transfer':
-                rec_pay_line_name = payment.name
-            else:
-                if payment.partner_type == 'customer':
-                    if payment.payment_type == 'inbound':
-                        rec_pay_line_name += _("Customer Payment")
-                    elif payment.payment_type == 'outbound':
-                        rec_pay_line_name += _("Customer Credit Note")
-                elif payment.partner_type == 'supplier':
-                    if payment.payment_type == 'inbound':
-                        rec_pay_line_name += _("Vendor Credit Note")
-                    elif payment.payment_type == 'outbound':
-                        rec_pay_line_name += _("Vendor Payment")
-                if payment.invoice_ids:
-                    rec_pay_line_name += ': %s' % ', '.join(payment.invoice_ids.mapped('name'))
-
-            # Compute 'name' to be used in liquidity line.
-            if payment.payment_type == 'transfer':
-                liquidity_line_name = _('Transfer to %s') % payment.destination_journal_id.name
-            else:
-                liquidity_line_name = payment.name
-
-            # ==== 'inbound' / 'outbound' ====
-
-            move_vals = {
-                'date': payment.payment_date,
-                'ref': payment.communication,
-                'journal_id': payment.journal_id.id,
-                'currency_id': payment.journal_id.currency_id.id or payment.company_id.currency_id.id,
-                'partner_id': payment.partner_id.id,
-                'line_ids': [
-                    # Receivable / Payable / Transfer line.
-                    (0, 0, {
-                        'name': rec_pay_line_name,
-                        'amount_currency': counterpart_amount + write_off_amount if currency_id else 0.0,
-                        'currency_id': currency_id,
-                        'debit': balance + write_off_balance > 0.0 and balance + write_off_balance or 0.0,
-                        'credit': balance + write_off_balance < 0.0 and -balance - write_off_balance or 0.0,
-                        'date_maturity': payment.payment_date,
-                        'partner_id': payment.partner_id.commercial_partner_id.id,
-                        'account_id': payment.destination_account_id.id,
-                        'payment_id': payment.id,
-                    }),
-                    # Liquidity line.
-                    (0, 0, {
-                        'name': liquidity_line_name,
-                        'amount_currency': -liquidity_amount if liquidity_line_currency_id else 0.0,
-                        'currency_id': liquidity_line_currency_id,
-                        'debit': balance < 0.0 and -balance or 0.0,
-                        'credit': balance > 0.0 and balance or 0.0,
-                        'date_maturity': payment.payment_date,
-                        'partner_id': payment.partner_id.commercial_partner_id.id,
-                        'account_id': liquidity_line_account.id,
-                        'payment_id': payment.id,
-                    }),
-                ],
-            }
-            if write_off_balance:
-                # Write-off line.
-                move_vals['line_ids'].append((0, 0, {
-                    'name': payment.writeoff_label,
-                    'amount_currency': -write_off_amount,
-                    'currency_id': currency_id,
-                    'debit': write_off_balance < 0.0 and -write_off_balance or 0.0,
-                    'credit': write_off_balance > 0.0 and write_off_balance or 0.0,
-                    'date_maturity': payment.payment_date,
-                    'partner_id': payment.partner_id.commercial_partner_id.id,
-                    'account_id': payment.writeoff_account_id.id,
-                    'payment_id': payment.id,
-                }))
-
-            if move_names:
-                move_vals['name'] = move_names[0]
-
-            all_move_vals.append(move_vals)
-
-            # ==== 'transfer' ====
-            if payment.payment_type == 'transfer':
-                journal = payment.destination_journal_id
-
-                # Manage custom currency on journal for liquidity line.
-                if journal.currency_id and payment.currency_id != journal.currency_id:
-                    # Custom currency on journal.
-                    liquidity_line_currency_id = journal.currency_id.id
-                    transfer_amount = company_currency._convert(balance, journal.currency_id, payment.company_id, payment.payment_date)
-                else:
-                    # Use the payment currency.
-                    liquidity_line_currency_id = currency_id
-                    transfer_amount = counterpart_amount
-
-                transfer_move_vals = {
-                    'date': payment.payment_date,
-                    'ref': payment.communication,
-                    'partner_id': payment.partner_id.id,
-                    'journal_id': payment.destination_journal_id.id,
-                    'line_ids': [
-                        # Transfer debit line.
-                        (0, 0, {
-                            'name': payment.name,
-                            'amount_currency': -counterpart_amount if currency_id else 0.0,
-                            'currency_id': currency_id,
-                            'debit': balance < 0.0 and -balance or 0.0,
-                            'credit': balance > 0.0 and balance or 0.0,
-                            'date_maturity': payment.payment_date,
-                            'partner_id': payment.partner_id.commercial_partner_id.id,
-                            'account_id': payment.company_id.transfer_account_id.id,
-                            'payment_id': payment.id,
-                        }),
-                        # Liquidity credit line.
-                        (0, 0, {
-                            'name': _('Transfer from %s') % payment.journal_id.name,
-                            'amount_currency': transfer_amount if liquidity_line_currency_id else 0.0,
-                            'currency_id': liquidity_line_currency_id,
-                            'debit': balance > 0.0 and balance or 0.0,
-                            'credit': balance < 0.0 and -balance or 0.0,
-                            'date_maturity': payment.payment_date,
-                            'partner_id': payment.partner_id.commercial_partner_id.id,
-                            'account_id': payment.destination_journal_id.default_credit_account_id.id,
-                            'payment_id': payment.id,
-                        }),
-                    ],
-                }
-
-                if move_names and len(move_names) == 2:
-                    transfer_move_vals['name'] = move_names[1]
-
-                all_move_vals.append(transfer_move_vals)
-        return all_move_vals
+#     property_id = fields.Many2one('hms.property', "Property", readonly=True)
+#     transaction_id = fields.Many2one(
+#         'hms.transaction',
+#         string='Transaction',
+#         domain="[('property_id', '=?', property_id)]")
+#     package_id = fields.Many2one('hms.package.header', string='Package')
+#     transaction_date = fields.Date("Date")
+#     tax_amount = fields.Monetary(string='Total Tax', store=True, readonly=True)
+#     svc_amount = fields.Monetary(string='Service Charge',
+#                                  store=True,
+#                                  readonly=True)
+#     subtotal_wo_svc = fields.Monetary(string='Subtotal Without SVC',
+#                                       store=True,
+#                                       readonly=True)

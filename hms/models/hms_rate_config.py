@@ -102,6 +102,10 @@ class RateCodeHeader(models.Model):
                 rate_category_id, property_id, start_date, end_date, rate_code,
                 ratecode_name, create)
 
+            if not res.pkg_group_id:
+                raise UserError(
+                    _("Please choose a Package"))
+
         return res
 
 
@@ -126,10 +130,9 @@ class RateCodeDetails(models.Model):
                                   string="Property",
                                   readonly=True,
                                   store=True)
-    season_code = fields.Selection([('low', "Low"),
-                                    ('normal', "Normal"),
+    season_code = fields.Selection([('low', "Low"), ('normal', "Normal"),
                                     ('high', "High")],
-                                    required=True,
+                                   required=True,
                                    string="Season Code",
                                    help='Season Code')
     roomtype_ids = fields.Many2many("hms.roomtype",
@@ -150,7 +153,7 @@ class RateCodeDetails(models.Model):
         string='Transaction',
         domain=
         "[('property_id', '=?', property_id), ('allowed_pkg', '=?', True)]",
-        required=False)
+        required=True)
 
     currency_id = fields.Many2one("res.currency",
                                   "Main Currency",
@@ -203,6 +206,9 @@ class RateCodeDetails(models.Model):
     def name_get(self):
         result = []
         for record in self:
+            # this line is to get the string of season code
+            # season_code = dict(self._fields['season_code'].selection).get(
+            #     self.season_code)
             result.append(
                 (record.id,
                  "{} | ({} {}) | 1Pax-{}| 2Pax-{}| 3Pax-{}| 4Pax-{}| Extra-{}".

@@ -15,3 +15,5 @@ from . import sale_make_invoice_advance
 from . import hms_invoice_send
 from . import hms_pro_forma_invoice
 from . import hms_proforma_report
+from . import hms_split_invoice_wizard
+from . import hms_group_proforma_wizard

@@ -107,6 +107,7 @@ class Property(models.Model):
     def default_get_roomtype(self):
         return self.env['hms.roomtype'].search([('code', '=', 'HFO')]).ids
 
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     is_property = fields.Boolean(string='Is Property',
                                  compute='_compute_is_property',
                                  help='Is Property')
@@ -115,8 +116,8 @@ class Property(models.Model):
                                     required=True,
                                     help='Parent Company')
     company_id = fields.Many2one('res.company',
-                                    string='Hotel Company',
-                                    help='Hotel Company')
+                                 string='Hotel Company',
+                                 help='Hotel Company')
     active = fields.Boolean(string="Active",
                             default=True,
                             track_visibility=True)
@@ -381,14 +382,13 @@ class Property(models.Model):
         "Invoice No Format",
         track_visibility=True,
         default=lambda self: self.env.user.company_id.ivprofile_id_format.id)
-
     # Tax
     sale_tax_id = fields.Many2one(
         'account.tax',
         string="Default Sale Tax",
         required=True,
         track_visibility=True,
-        default=lambda self: self.env.user.company_id.account_sale_tax_id.id)
+        default=lambda self: self.env.user.company_id.sale_tax_id.id)
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -410,52 +410,29 @@ class Property(models.Model):
     enable_service_charge = fields.Boolean(
         string='Service Charges',
         default=lambda self: self.env.user.company_id.enable_service_charge)
-    service_charge_type = fields.Selection(
-        [('amount', 'Amount'), ('percentage', 'Percentage')],
-        string='Type',
-        default=lambda self: self.env.user.company_id.service_charge_type)
-    service_product_id = fields.Many2one(
-        'product.product',
-        string='Service Product',
-        domain="[('sale_ok', '=', True),"
-        "('type', '=', 'service')]",
-        default=lambda self: self.env.user.company_id.service_product_id.id)
-    service_charge = fields.Float(
-        string='Service Charge',
-        default=lambda self: self.env.user.company_id.service_charge)
     svc_include_tax = fields.Boolean(string='Include Tax')
-    svc_as_line = fields.Boolean(string='Service Charge as Invoice Line')
     disable_popup = fields.Boolean(string='Disable Popup')
-    svc_inc_exc = fields.Selection(string='Service Charges Included/Excluded',
-                                   selection=[('included', 'Svc-Included'),
-                                              ('excluded', 'Svc-Excluded')],
-                                   compute='_compute_svc_include_exclude',
-                                   inverse='_write_svc_include_exclude',
-                                   track_visibility=True,
-                                   help='Service Charges Included or Excluded')
-    is_include = fields.Boolean(string="Is Included", default=False)
+    sale_svc_id = fields.Many2one('account.tax', string="Service Charge")
 
     _sql_constraints = [('code_unique', 'UNIQUE(code)',
                          'Hotel ID already exists! Hotel ID must be unique!')]
 
-    # Radio Button for Service Charge Include/Exclude
-    @api.depends('is_include')
-    def _compute_svc_include_exclude(self):
+    @api.onchange('enable_service_charge')
+    def onchange_service_charge(self):
         for rec in self:
-            if rec.is_include or self._context.get(
-                    'default_svc_inc_exc') == 'included':
-                rec.svc_inc_exc = 'included'
-                rec.is_include = True
-            else:
-                rec.svc_inc_exc = 'excluded'
+            if rec.enable_service_charge == False:
+                rec.svc_include_tax = rec.sale_svc_id.include_base_amount = rec.sale_svc_id = rec.disable_popup = False
+                for t in rec._origin.transaction_ids:
+                    t.write({'trans_svc': False})
 
-    def _write_svc_include_exclude(self):
+    @api.onchange('svc_include_tax')
+    def onchange_include_base_amount(self):
         for rec in self:
-            rec.is_include = rec.svc_inc_exc == 'included'
-
-    @api.onchange('svc_inc_exc')
-    def onchange_svc_inc_exc(self):
-        self.is_include = (self.svc_inc_exc == 'included')
+            if rec.sale_svc_id:
+                if rec.svc_include_tax == True:
+                    rec.sale_svc_id.include_base_amount = True
+                else:
+                    rec.sale_svc_id.include_base_amount = False
 
     @api.onchange('show_line_subtotals_tax_selection')
     def _onchange_sale_tax(self):
@@ -469,18 +446,6 @@ class Property(models.Model):
                 'group_show_line_subtotals_tax_included': True,
                 'group_show_line_subtotals_tax_excluded': False,
             })
-
-    @api.onchange('enable_service_charge')
-    def set_config_service_charge(self):
-        if self.enable_service_charge:
-            if not self.service_product_id:
-                domain = [('sale_ok', '=', True), ('type', '=', 'service')]
-                self.service_product_id = self.env['product.product'].search(
-                    domain, limit=1)
-            self.service_charge = 10.0
-        else:
-            self.service_product_id = False
-            self.service_charge = 0.0
 
     @api.depends('system_date')
     def _compute_is_night_audit(self):
@@ -586,7 +551,7 @@ class Property(models.Model):
         for no_show_rsvn in no_show_rsvns:
             no_show_line_count = 0
             for line in no_show_rsvn.reservation_line_ids:
-                if line.is_no_show is True:
+                if line.is_no_show is True or line.is_cancel is True:
                     no_show_line_count += 1
             if len(no_show_rsvn.reservation_line_ids) == no_show_line_count:
                 no_show_rsvn.update({'is_no_show': True})
@@ -610,8 +575,7 @@ class Property(models.Model):
 
         # For removing Ratecode Details
         ex_rc_details = self.env['hms.ratecode.details'].search([
-            ('property_id', '=', self.id),
-            ('end_date', '<', self.system_date)
+            ('property_id', '=', self.id), ('end_date', '<', self.system_date)
         ])
         for ex_rc_detail in ex_rc_details:
             ex_rc_detail.update({'active': False})
@@ -706,7 +670,7 @@ class Property(models.Model):
             if no_show_rsvn.property_id.is_manual is False:
                 no_show_line_count = 0
                 for line in no_show_rsvn.reservation_line_ids:
-                    if line.is_no_show is True:
+                    if line.is_no_show is True or line.is_cancel is True:
                         no_show_line_count += 1
                 if len(no_show_rsvn.reservation_line_ids
                        ) == no_show_line_count:
@@ -735,6 +699,7 @@ class Property(models.Model):
         for ex_rc_detail in ex_rc_details:
             if ex_rc_detail.is_manual is False:
                 ex_rc_detail.update({'active': False})
+
 
 
     def set_onboarding_step_done(self, step_name):
@@ -1296,25 +1261,37 @@ class Property(models.Model):
         if res.name:
             company = self.env['res.company'].search([('name', '=', res.name)])
             company_obj = self.env['res.company']
-            crm = self.env['hms.company.category'].search([
-                ('code', '=', 'HTL')
-            ]).id
+            crm = self.env['hms.company.category'].search([('code', '=', 'HTL')
+                                                           ]).id
 
             if not company:
                 company_obj = self.env['res.company'].create({
-                    'name': res.name,
-                    'street': res.address1,
-                    'street2': res.address2,
-                    'zip': res.zip,
-                    'city': res.city_id.id,
-                    'state_id': res.state_id.id,
-                    'country_id': res.country_id.id,
-                    'email': res.email,
-                    'phone': res.phone,
-                    'website': res.website,
-                    'currency_id': res.currency_id.id,
-                    'scurrency_id': res.scurrency_id.id,
-                    'company_channel_type': crm,
+                    'name':
+                    res.name,
+                    'street':
+                    res.address1,
+                    'street2':
+                    res.address2,
+                    'zip':
+                    res.zip,
+                    'city':
+                    res.city_id.id,
+                    'state_id':
+                    res.state_id.id,
+                    'country_id':
+                    res.country_id.id,
+                    'email':
+                    res.email,
+                    'phone':
+                    res.phone,
+                    'website':
+                    res.website,
+                    'currency_id':
+                    res.currency_id.id,
+                    'scurrency_id':
+                    res.scurrency_id.id,
+                    'company_channel_type':
+                    crm,
                 })
                 res.company_id = company_obj.id
 
@@ -1322,23 +1299,35 @@ class Property(models.Model):
                 res.company_id = company.id
                 res.currency_id = company.currency_id.id
                 res.scurrency_id = company.scurrency_id.id
-            
-            pos_admin = self.env['ir.model.data'].xmlid_to_res_id('point_of_sale.group_pos_manager')
-            sale_admin = self.env['ir.model.data'].xmlid_to_res_id('sales_team.group_sale_manager')
-            contact = self.env['ir.model.data'].xmlid_to_res_id('base.group_partner_manager')
-            setting = self.env['ir.model.data'].xmlid_to_res_id('base.group_system')
-            internal_user = self.env['ir.model.data'].xmlid_to_res_id('base.group_user')
-            property = self.env['ir.model.data'].xmlid_to_res_id('hms.group_property_manager')
-            reservation = self.env['ir.model.data'].xmlid_to_res_id('hms.group_reservation_manager')
+
+            pos_admin = self.env['ir.model.data'].xmlid_to_res_id(
+                'point_of_sale.group_pos_manager')
+            sale_admin = self.env['ir.model.data'].xmlid_to_res_id(
+                'sales_team.group_sale_manager')
+            contact = self.env['ir.model.data'].xmlid_to_res_id(
+                'base.group_partner_manager')
+            setting = self.env['ir.model.data'].xmlid_to_res_id(
+                'base.group_system')
+            internal_user = self.env['ir.model.data'].xmlid_to_res_id(
+                'base.group_user')
+            property = self.env['ir.model.data'].xmlid_to_res_id(
+                'hms.group_property_manager')
+            reservation = self.env['ir.model.data'].xmlid_to_res_id(
+                'hms.group_reservation_manager')
 
             user_obj = self.env['res.users'].create({
-                'name': res.code+" Administrator",
-                'login': res.code.lower()+"admin",
-                'company_ids': [(4, company.id or company_obj.id), (4,res.hotelgroup_id.id)],
-                'company_id': company.id or company_obj.id,
+                'name':
+                res.code + " Administrator",
+                'login':
+                res.code.lower() + "admin",
+                'company_ids': [(4, company.id or company_obj.id),
+                                (4, res.hotelgroup_id.id)],
+                'company_id':
+                company.id or company_obj.id,
                 'property_id': [(4, res.id)],
-                'groups_id': [(4,property), (4, reservation), (4, internal_user), (4, setting), (4, contact),
-                (4, pos_admin), (4, sale_admin)]
+                'groups_id': [(4, property), (4, reservation),
+                              (4, internal_user), (4, setting), (4, contact),
+                              (4, pos_admin), (4, sale_admin)]
             })
 
         if not res.show_line_subtotals_tax_selection:
@@ -2287,7 +2276,8 @@ class SubGroup(models.Model):
     revtype_id = fields.Many2one('hms.revenuetype',
                                  string="Revenue Type",
                                  domain="[('rev_subgroup', '=?', True)]",
-                                 required=True)
+                                 required=True,
+                                 readonly=True)
     sub_group = fields.Char(string="Sub Group Code", size=1, required=True)
     sub_desc = fields.Char(string="Description", required=True)
     transsub_id = fields.Many2one('hms.transaction', 'subgroup_id')
@@ -2372,6 +2362,8 @@ class Transaction(models.Model):
         ('N', 'No'),
     ],
                                        string="Utilities")
+    enable_service_charge = fields.Boolean(
+        'Enable SVC', related='property_id.enable_service_charge')
     trans_svc = fields.Boolean(string="Service Charge")
     trans_tax = fields.Boolean(string="Tax")
     trans_internal = fields.Boolean(string="Internal Use")

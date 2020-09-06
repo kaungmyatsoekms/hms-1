@@ -1,160 +1,170 @@
 <odoo>
-  <data>
-    <!-- res.company form view -->
-    <record id="base.view_company_form" model="ir.ui.view">
-      <field name="name">res.company.form</field>
-      <field name="model">res.company</field>
-      <field name="arch" type="xml">
-        <form string="Company" import="false">
-          <sheet>
-            <field name="logo" widget="image" class="oe_avatar"/>
-            <div class="oe_title">
-              <label for="name" class="oe_edit_only"/>
-              <h1>
-                <field name="name"/>
-              </h1>
-            </div>
-            <group>
-              <group>
-                <field name="company_channel_type" placeholder="Company Type" options="{'no_quick_create': True, 'no_open': True}"/>
-                <field name="partner_id" string="Contact" readonly="1" required="0" groups="base.group_no_one"/>
-                <label for="street" string="Address"/>
-                <div class="o_address_format">
-                  <field name="street" placeholder="Street..." class="o_address_street"/>
-                  <field name="street2" placeholder="Street 2..." class="o_address_street"/>
-                  <field name="city" placeholder="City" class="o_address_city" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
-                  <field name="state_id" class="o_address_state" placeholder="State" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
-                  <field name="zip" placeholder="ZIP" class="o_address_zip"/>
-                  <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
-                  <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
-                </div>
-              </group>
-              <group>
-                <field name="phone"/>
-                <field name="email"/>
-                <field name="website" string="Website" widget="url" placeholder="e.g. https://www.odoo.com"/>
-                <field name="vat"/>
-                <field name="company_registry"/>
-                <field name="currency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
-                <field name="scurrency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
-              </group>
-            </group>
-            <notebook>
-              <page string="Format Definition">
-                <group name="format_difinition">
-                  <group>
-                    <field name="property_code_len"/>
-                    <field name="building_code_len"/>
-                    <field name="location_code_len"/>
-                    <field name="roomtype_code_len"/>
-                  </group>
-                  <group>
-                    <field name="profile_id_format" widget="selection"/>
-                    <field name="cprofile_id_format" widget="selection"/>
-                    <field name="gprofile_id_format" widget="selection"/>
-                    <field name="confirm_id_format" widget="selection"/>
-                    <field name="soprofile_id_format" widget="selection"/>
-                    <field name="ivprofile_id_format" widget="selection"/>
-                  </group>
-                  <!-- <field name="cancellation_id_format" widget="selection"/> -->
-                </group>
-              </page>
-              <page string="Service Charges / Taxes">
-                <div class="row mt16 o_settings_container">
-                  <!-- Service Charges-->
-                  <div class="col-xs-12 col-lg-4 o_setting_box" >
-                    <div class="o_setting_left_pane">
-                        <field name="enable_service_charge"/>
-                    </div>
-                    <div class="o_setting_right_pane">
-                        <label for="enable_service_charge"/>
-                        <div class="text-muted">
-                            Allow service charges on orders
+    <data>
+        <!-- res.company form view -->
+        <record id="base.view_company_form" model="ir.ui.view">
+            <field name="name">res.company.form</field>
+            <field name="model">res.company</field>
+            <field name="arch" type="xml">
+                <form string="Company" import="false">
+                    <sheet>
+                        <field name="logo" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
                         </div>
-                        <div class="content-group " attrs="{'invisible':[('enable_service_charge','=',False)]}">
-                            <div class="row">
-                                <label for="service_charge_type" class="col-lg-3 o_light_label"/>
-                                <field name="service_charge_type" widget="radio" options="{'horizontal': true}"
-                                        class="o_light_label" attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                            </div>
-                            <div class="row mt16">
-                                <label for="service_product_id" class="col-lg-3 o_light_label"/>
-                                <field name="service_product_id"
-                                        attrs="{'required':[('enable_service_charge','=',True)]}"/>
-                            </div>
-                            <div class="row">
-                                <label for="service_charge" class="col-lg-3 o_light_label"/>
-                                <field name="service_charge"/>
-                            </div>
-                        </div>
-                    </div>
-                  </div>
-                  <!-- Taxes-->
-                  <div class="col-12 col-lg-4 o_setting_box" title="This tax is applied to any new product created in the catalog.">
-                      <div class="o_setting_right_pane">
-                          <div>
-                              <label string="Default Sales Tax" for="sale_tax_id"/>
-                              <div class="text-muted">
-                                  Default sales tax for HMS System
-                              </div>
-                              <div class="content-group mt16">
-                                  <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', id)]"/>
-                              </div>
-                          </div>
-                          <div class="mt8">
-                              <button name="%(account.action_tax_form)d" icon="fa-arrow-right" type="action" string="Taxes" class="btn-link"/>
-                          </div>
-                      </div>
-                  </div>
-                  <!-- Tax Included or Excluded-->
-                    <div class="col-12 col-lg-4 o_setting_box">
-                      <div class="o_setting_left_pane">
-                      </div>
-                      <div class="o_setting_right_pane">
-                          <label for="show_line_subtotals_tax_selection"/>
-                          <div class="text-muted">
-                              Line subtotals tax display
-                          </div>
-                          <div class="mt16">
-                              <field name="show_line_subtotals_tax_selection" class="o_light_label" widget="radio"/>
-                              <field name="group_show_line_subtotals_tax_excluded" invisible="1"/>
-                              <field name="group_show_line_subtotals_tax_included" invisible="1"/>
-                          </div>
-                      </div>
-                    </div>
-                </div>
-              </page>
-              <page string="Social Media">
-                <group name="social_media"/>
-              </page>
-            </notebook>
-          </sheet>
-        </form>
-      </field>
-    </record>
+                        <group>
+                            <group>
+                                <field name="company_channel_type" placeholder="Company Type" options="{'no_quick_create': True, 'no_open': True}"/>
+                                <field name="partner_id" string="Contact" readonly="1" required="0" groups="base.group_no_one"/>
+                                <label for="street" string="Address"/>
+                                <div class="o_address_format">
+                                    <field name="street" placeholder="Street..." class="o_address_street"/>
+                                    <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                    <field name="city" placeholder="City" class="o_address_city" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                                    <field name="township" placeholder="Township" class="o_address_country" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="phone"/>
+                                <field name="email"/>
+                                <field name="website" string="Website" widget="url" placeholder="e.g. https://www.odoo.com"/>
+                                <field name="vat"/>
+                                <field name="company_registry"/>
+                                <field name="currency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
+                                <field name="scurrency_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit':True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Format Definition">
+                                <group name="format_difinition">
+                                    <group>
+                                        <field name="property_code_len"/>
+                                        <field name="building_code_len"/>
+                                        <field name="location_code_len"/>
+                                        <field name="roomtype_code_len"/>
+                                    </group>
+                                    <group>
+                                        <field name="profile_id_format" widget="selection"/>
+                                        <field name="cprofile_id_format" widget="selection"/>
+                                        <field name="gprofile_id_format" widget="selection"/>
+                                        <field name="confirm_id_format" widget="selection"/>
+                                        <field name="soprofile_id_format" widget="selection"/>
+                                        <field name="ivprofile_id_format" widget="selection"/>
+                                    </group>
+                                    <!-- <field name="cancellation_id_format" widget="selection"/> -->
+                                </group>
+                            </page>
+                            <page string="Service Charges / Taxes">
+                                <group string="Service Charges">
+                                    <div class="row mt16 o_settings_container">
+                                        <div class="col-xs-12 col-lg-6 o_setting_box">
+                                            <div class="o_setting_left_pane">
+                                                <field name="enable_service_charge"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="enable_service_charge"/>
+                                                <div class="text-muted">
+                                                    Allow service charges on orders
+                                                </div>
+                                                <div class="content-group mt16" attrs="{'invisible':[('enable_service_charge', '=', False)]}">
+                                                    <field name="sale_svc_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', id)]" attrs="{'required':[('enable_service_charge','=',True)]}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-lg-6 o_setting_box" attrs="{'invisible':['|', ('enable_service_charge', '=', False), ('sale_svc_id', '=', False)]}">
+                                            <div class="o_setting_left_pane">
+                                                <field name="svc_include_tax"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="svc_include_tax"/>
+                                                <div class="text-muted">
+                                                    Service charge will be taxable if enabled
+                                                </div>
+                                            </div>
+                                            <div class="o_setting_left_pane">
+                                                <field name="disable_popup"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="disable_popup"/>
+                                                <div class="text-muted">
+                                                    Service Charges are not mentioned on Bill if enabled
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </group>
+                                <group string="Taxes">
+                                    <div class="row mt16 o_settings_container">
+                                        <div class="col-12 col-lg-6 o_setting_box" title="This tax is applied to any new product created in the catalog.">
+                                            <div class="o_setting_right_pane">
+                                                <div>
+                                                    <label string="Default Sales Tax" for="sale_tax_id"/>
+                                                    <div class="text-muted">
+                                                        Default sales tax for HMS System
+                                                    </div>
+                                                    <div class="content-group mt16">
+                                                        <field name="sale_tax_id" colspan="4" nolabel="1" domain="[('type_tax_use', 'in', ('sale', 'all')), ('company_id', '=', id)]"/>
+                                                    </div>
+                                                </div>
+                                                <div class="mt8">
+                                                    <button name="%(account.action_tax_form)d" icon="fa-arrow-right" type="action" string="Taxes" class="btn-link"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-lg-6 o_setting_box">
+                                            <div class="o_setting_left_pane">
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="show_line_subtotals_tax_selection"/>
+                                                <div class="text-muted">
+                                                    Line subtotals tax display
+                                                </div>
+                                                <div class="mt16">
+                                                    <field name="show_line_subtotals_tax_selection" class="o_light_label" widget="radio"/>
+                                                    <field name="group_show_line_subtotals_tax_excluded" invisible="1"/>
+                                                    <field name="group_show_line_subtotals_tax_included" invisible="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string="Social Media">
+                                <group name="social_media"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- res.company tree view extension -->
-    <record id="view_company_tree_extension" model="ir.ui.view">
-      <field name="name">res.company.tree</field>
-      <field name="model">res.company</field>
-      <field name="inherit_id" ref="base.view_company_tree"/>
-      <field name="arch" type="xml">
-        <xpath expr="/tree" position="attributes">
-          <attribute name="import">false</attribute>
-        </xpath>
-      </field>
-    </record>
+        <!-- res.company tree view extension -->
+        <record id="view_company_tree_extension" model="ir.ui.view">
+            <field name="name">res.company.tree</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="/tree" position="attributes">
+                    <attribute name="import">false</attribute>
+                </xpath>
+            </field>
+        </record>
 
-    <!-- res.company kanban view extension -->
-    <record id="view_res_company_kanban_extension" model="ir.ui.view">
-      <field name="name">res.company.kanban</field>
-      <field name="model">res.company</field>
-      <field name="inherit_id" ref="base.view_res_company_kanban"/>
-      <field name="arch" type="xml">
-        <xpath expr="/kanban" position="attributes">
-          <attribute name="import">false</attribute>
-        </xpath>
-      </field>
-    </record>
-  </data>
+        <!-- res.company kanban view extension -->
+        <record id="view_res_company_kanban_extension" model="ir.ui.view">
+            <field name="name">res.company.kanban</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_res_company_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="/kanban" position="attributes">
+                    <attribute name="import">false</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
 </odoo>

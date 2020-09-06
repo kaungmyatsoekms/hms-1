@@ -12,3 +12,4 @@ from . import hms_rate_config
 from . import hms_package_config
 from . import res_user_and_role
 from . import hms_cashier
+from . import hms_account_invoice
