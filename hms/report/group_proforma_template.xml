@@ -105,7 +105,7 @@
                             </tbody>
                         </table>
 
-                        <!-- <div class="clearfix" name="so_total_summary">
+                        <div class="clearfix" name="so_total_summary">
                             <div id="total" class="row" name="total">
                                 <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
                                     <table class="table table-sm">
@@ -130,7 +130,7 @@
                                     </table>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
                     </div>
                 </t>
             </t>

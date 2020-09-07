@@ -69,7 +69,7 @@ class Reservation(models.Model):
     _name = 'hms.reservation'
     _description = "Reservation"
     _order = 'confirm_no desc'
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread', 'portal.mixin', 'mail.activity.mixin']
 
     is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     is_property_used = fields.Boolean(default=False)
@@ -233,6 +233,10 @@ class Reservation(models.Model):
                                        compute='_compute_cancel_rooms')
     checkin_room_count = fields.Integer(string="Check-in",
                                         compute='_compute_checkin_rooms')
+    
+    amount_untaxed = fields.Monetary(string="Untaxed amount")
+    amount_tax = fields.Monetary(string="Tax amount")
+    amount_total = fields.Monetary(string="Total")
 
     @api.onchange('property_ids')
     def default_get_property_id(self):
@@ -1001,6 +1005,23 @@ class Reservation(models.Model):
             'context': ctx,
         }
 
+    def preview_group_proforma_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'self',
+            'url': self.get_portal_url(),
+        }
+
+    def _compute_access_url(self):
+        super(Reservation, self)._compute_access_url()
+        for line in self:
+            line.access_url = '/my/reservation/%s' % (line.id)
+
+    def _get_report_base_filename(self):
+        # if any(line for line in self):
+        #     raise UserError(_("Only invoices could be printed."))
+        return "Proforma Invoice_" + self.confirm_no
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -2017,6 +2038,24 @@ class ReservationLine(models.Model):
                 'departure': tmp_departure_date,
                 'nights': int(days)
             })
+
+    @api.constrains('amount_untaxed', 'amount_tax','amount_total')
+    def _update_amount(self):
+
+        amount_untaxed = 0
+        amount_tax = 0
+        amount_total = 0
+
+        for rec in self.reservation_id.reservation_line_ids:
+            amount_untaxed += rec.amount_untaxed
+            amount_tax += rec.amount_tax
+            amount_total += rec.amount_total
+
+        self.reservation_id.write({
+            'amount_untaxed': amount_untaxed,
+            'amount_tax': amount_tax,
+            'amount_total': amount_total,
+        })
 
     @api.onchange('arrival', 'departure', 'room_type', 'rooms')
     def onchange_roomtype(self):

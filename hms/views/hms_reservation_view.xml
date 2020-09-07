@@ -89,6 +89,12 @@
                             <button class="oe_stat_button" icon="fa-map-marker" name="action_checkin_room_count" type="object">
                                 <field name="checkin_room_count" widget='statinfo'/>
                             </button>
+                            <button name="preview_group_proforma_invoice" type="object" class="oe_stat_button" icon="fa-dollar">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Preview</span>
+                                    <span class="o_stat_text">Invoice</span>
+                                </div>
+                            </button>
                         </div>
                         <div class="oe_title">
                             <h1>
