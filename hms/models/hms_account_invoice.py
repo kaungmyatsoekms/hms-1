@@ -677,7 +677,8 @@ class AccountInvoice(models.Model):
                     vendor_display_name = _('From: ') + invoice.source_email
                     invoice.invoice_icon = '@'
                 else:
-                    vendor_display_name = ('Created by: ') + invoice.create_uid.name
+                    vendor_display_name = (
+                        'Created by: ') + invoice.create_uid.name
                     invoice.invoice_icon = '#'
             invoice.vendor_display_name = vendor_display_name
 

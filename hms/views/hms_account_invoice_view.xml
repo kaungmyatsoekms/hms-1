@@ -143,18 +143,9 @@
                         <group>
                             <group>
                                 <!-- <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{'search_default_customer':1, 'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' domain="[('customer', '=', True)]" required="1"/> -->
-<<<<<<< HEAD
-                                <field string="Customer" name="partner_id" widget="res_partner_many2one"
-                                       context="{
-                                            'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,
-                                            'show_address': 1, 'default_is_company': True, 'show_vat': True}"
-                                       options='{"always_reload": True, "no_quick_create": True}'
-                                       attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
-=======
                                 <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{
                                             'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,
                                             'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
->>>>>>> fb8d2d18a342083a1f0cf47d3354ba5a5a1dfedd
                                 <field name="payment_term_id"/>
                                 <field name="cash_rounding_id" groups="account.group_cash_rounding"/>
                             </group>
@@ -413,11 +404,7 @@
                 </tree>
             </field>
         </record> -->
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> fb8d2d18a342083a1f0cf47d3354ba5a5a1dfedd
         <!-- <record id="invoice_supplier_form" model="ir.ui.view">
             <field name="name">account.invoice.supplier.form</field>
             <field name="model">account.invoice</field>
@@ -653,18 +640,7 @@
         <!-- <menuitem id="invoice_menu" parent="hms_menu_invoice" sequence="1" action="action_invoice_tree"/> -->
         <menuitem action="action_invoice_tree1" id="menu_action_invoice_tree1" parent="hms_menu_invoice" sequence="2"/>
         <!-- <menuitem action="action_invoice_tree2" id="menu_action_invoice_tree2" parent="hms_menu_invoice_payable" sequence="1"/> -->
-<<<<<<< HEAD
-        <menuitem action="action_invoice_in_refund"
-            id="menu_action_invoice_in_refund"
-            parent="hms_menu_invoice_payable"
-            sequence="2"/>
-        <menuitem action="action_invoice_out_refund"
-                  id="menu_action_invoice_out_refund"
-                  parent="hms_menu_invoice"
-                  sequence="3"/>
-=======
         <menuitem action="action_invoice_in_refund" id="menu_action_invoice_in_refund" parent="hms_menu_invoice_payable" sequence="2"/>
         <menuitem action="action_invoice_out_refund" id="menu_action_invoice_out_refund" parent="hms_menu_invoice" sequence="3"/>
->>>>>>> fb8d2d18a342083a1f0cf47d3354ba5a5a1dfedd
     </data>
 </odoo>
