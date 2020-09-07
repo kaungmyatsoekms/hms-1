@@ -215,6 +215,8 @@ class AccountInvoice(models.Model):
                 info['title'] = type_payment
                 self.outstanding_credits_debits_widget = json.dumps(info)
                 self.has_outstanding = True
+        else:
+            pass
 
     # account.move & account.move.line
     @api.model
@@ -620,11 +622,15 @@ class AccountInvoice(models.Model):
 
     outstanding_credits_debits_widget = fields.Text(
         compute='_get_outstanding_info_JSON',
-        groups="account.group_account_invoice")
+        store=True,
+        groups="account.group_account_invoice"
+    )  #compute='_get_outstanding_info_JSON',
     payments_widget = fields.Text(compute='_get_payment_info_JSON',
                                   groups="account.group_account_invoice")
     has_outstanding = fields.Boolean(compute='_get_outstanding_info_JSON',
-                                     groups="account.group_account_invoice")
+                                     store=True,
+                                     groups="account.group_account_invoice"
+                                     )  #compute='_get_outstanding_info_JSON',
     cash_rounding_id = fields.Many2one(
         'account.cash.rounding',
         string='Cash Rounding Method',
@@ -652,8 +658,8 @@ class AccountInvoice(models.Model):
     source_email = fields.Char(string='Source Email',
                                track_visibility='onchange')
     vendor_display_name = fields.Char(
-        compute='_get_vendor_display_info',
-        store=True)  # store=True to enable sorting on that column
+        compute='_get_vendor_display_info', store=True
+    )  #compute='_get_vendor_display_info', # store=True to enable sorting on that column
     invoice_icon = fields.Char(compute='_get_vendor_display_info', store=False)
 
     _sql_constraints = [
@@ -661,7 +667,7 @@ class AccountInvoice(models.Model):
          'Invoice Number must be unique per Company!'),
     ]
 
-    @api.depends('partner_id', 'source_email')
+    # @api.depends('partner_id', 'source_email')
     def _get_vendor_display_info(self):
         for invoice in self:
             vendor_display_name = invoice.partner_id.name
@@ -1194,7 +1200,7 @@ class AccountInvoice(models.Model):
             pterm = self.payment_term_id
             pterm_list = pterm.with_context(
                 currency_id=self.company_id.currency_id.id).compute(
-                    value=1, date_ref=date_invoice)[0]
+                    value=1, date_ref=date_invoice)
             self.date_due = max(line[0] for line in pterm_list)
         elif self.date_due and (date_invoice > self.date_due):
             self.date_due = date_invoice

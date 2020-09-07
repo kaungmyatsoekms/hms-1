@@ -857,6 +857,18 @@ class HMSExcelExtended(models.Model):
     file_name = fields.Char('Excel File', size=64)
 
 
+class AccountTax(models.Model):
+    _inherit = "account.tax"
+
+    def get_grouping_key(self, invoice_tax_val):
+        """ Returns a string that will be used to group account.invoice.tax sharing the same properties"""
+        for rec in self:
+            return str(invoice_tax_val['tax_id']) + '-' + \
+               str(invoice_tax_val['account_id']) + '-' + \
+               str(invoice_tax_val['account_analytic_id']) + '-' + \
+               str(invoice_tax_val.get('analytic_tag_ids', []))
+
+
 # class SaleOrder(models.Model):
 #     _inherit = "sale.order"
 
