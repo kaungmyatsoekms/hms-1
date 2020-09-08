@@ -123,6 +123,7 @@
         'wizard/hms_split_invoice_wizard_view.xml',
         'report/proforma_portal_template.xml',
         'views/hms_account_invoice_view.xml',
+        'data/hms_folio_data.xml',
 
         #'views/views.xml',
         # 'views/templates.xml',
