@@ -92,4 +92,4 @@ class HMSRsvnCheckinLineWizard(models.TransientModel):
             if hfo_reservation:
                 hfo_reservation.write({'state': 'checkin'})
         # Create Cashier Folio when Check-in
-        reservation_lines.create_cashier_folio(reservation_lines)
+        reservation_lines.create_invoice(reservation_lines)

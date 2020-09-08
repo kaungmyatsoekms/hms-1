@@ -179,9 +179,9 @@
                                         <field name="sequence" widget="handle"/>
                                         <field name="transaction_date"/>
                                         <field name="folio_id"/>
-                                        <field name="invoice_id" invisible="0"/>
-                                        <field name="reservation_line_id" invisible="0"/>
-                                        <field name="property_id" invisible="0"/>
+                                        <field name="invoice_id" invisible="1"/>
+                                        <field name="reservation_line_id" invisible="1"/>
+                                        <field name="property_id" invisible="1"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="product_id" domain="[('sale_ok','=',True)]"/>
                                         <field name="origin" invisible="1"/>
