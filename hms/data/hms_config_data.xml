@@ -453,16 +453,39 @@
             <field name="value">6</field>
         </record>
 
+        <record id="main_tax_group" model="account.tax.group">
+            <field name="name">Tax 5%</field>
+        </record>
+
+        <record id="main_sale_tax" model="account.tax">
+            <field name="name">Tax 5%</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount">5</field>
+            <field name="tax_group_id" ref="main_tax_group"/>
+        </record>
+
+        <record id="main_purchase_tax" model="account.tax">
+            <field name="name">Tax 5%</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="tax_group_id" ref="main_tax_group"/>
+        </record>
+
         <record id="base.main_company" model="res.company">
             <field name="name">Zando Technology</field>
             <field name="partner_id" ref="base.main_partner"/>
             <field name="currency_id" ref="base.MMK"/>
+            <field name="scurrency_id" ref="base.USD"/>
             <field name="profile_id_format" ref="pms_format_id1"/>
             <field name="cprofile_id_format" ref="pms_format_id2"/>
             <field name="gprofile_id_format" ref="pms_format_id3"/>
             <field name="confirm_id_format" ref="pms_format_id4"/>
             <field name="soprofile_id_format" ref="pms_format_id5"/>
             <field name="ivprofile_id_format" ref="pms_format_id6"/>
+            <field name="sale_tax_id" ref="main_sale_tax"/>
+            <field name="account_purchase_tax_id" ref="main_purchase_tax"/>
             <!-- <field name="cancellation_id_format" ref="pms_format_id5"/>
             <field name="share_id_format" ref="pms_format_id6"/> -->
             <!-- <field name="image" type="base64" file="base/static/img/res_company_logo.png"/> -->
