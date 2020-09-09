@@ -50,7 +50,7 @@ class HMSFolio(models.Model):
 
     def name_get(self):
         result = []
-        for rec in self:
+        for record in self:
             result.append((record.id, "{} ({})".format(record.folio_no,
                                                        record.folio_name)))
         return result

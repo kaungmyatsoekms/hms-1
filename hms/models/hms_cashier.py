@@ -35,10 +35,17 @@ class HMSFolio(models.Model):
     active = fields.Boolean("Active", default=True)
     folio_no = fields.Integer("Folio No.")
     folio_name = fields.Char("Folio Name")
+    # invoice_line_ids = fields.One2many('account.invoice.line',
+    #                                    'invoice_id',
+    #                                    string='Invoice Lines',
+    #                                    oldname='invoice_line',
+    #                                    readonly=True,
+    #                                    states={'draft': [('readonly', False)]},
+    #                                    copy=True)
 
     def name_get(self):
         result = []
-        for rec in self:
+        for record in self:
             result.append((record.id, "{} ({})".format(record.folio_no,
                                                        record.folio_name)))
         return result

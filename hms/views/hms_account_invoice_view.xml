@@ -125,6 +125,9 @@
                     <sheet string="Invoice">
                         <div class="oe_button_box" name="button_box">
                         </div>
+                        <div class="oe_title">
+                            <field name="property_id"/>
+                        </div>
                         <span class="o_form_label" attrs="{'invisible': ['|',('state','=','draft'), ('type','!=','out_refund')]}">Credit Note</span>
                         <h1 class="mt0">
                             <div attrs="{'invisible': [('sequence_number_next_prefix','!=',False)]}">
@@ -140,14 +143,15 @@
                             </div>
                         </h1>
                         <field name="type" invisible="1"/>
+                        <field name="reservation_line_id" invisible="1"/>
                         <group>
                             <group>
                                 <!-- <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{'search_default_customer':1, 'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' domain="[('customer', '=', True)]" required="1"/> -->
-                                <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{
-                                            'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,
-                                            'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
+                                <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': (context.get('default_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or (context.get('default_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,'show_address': 1, 'default_is_company': True, 'show_vat': True}" options='{"always_reload": True, "no_quick_create": True}' attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
+                                <field name="room_no" options="{'no_quick_create': True, 'no_open': True, 'no_create_edit': True}"/>
                                 <field name="payment_term_id"/>
                                 <field name="cash_rounding_id" groups="account.group_cash_rounding"/>
+                                <field name="remark"/>
                             </group>
                             <group>
                                 <field name="date_invoice" options="{'datepicker': {'warn_future': true}}"/>
@@ -164,8 +168,9 @@
                         <field name="sent" invisible="1"/>
                         <notebook colspan="4">
                             <page string="Invoice Lines">
-                                <field name="invoice_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree,kanban" context="{'type': type, 'journal_id': journal_id, 'default_invoice_id': id}">
-                                    <tree string="Invoice Lines" editable="bottom">
+                                <separator string="Folio 1" colspan="4" />
+                                <field name="invoice_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree" context="{'default_invoice_id': id, 'default_reservation_line_id': reservation_line_id, 'default_property_id': property_id, 'type': type, 'journal_id': journal_id}">
+                                    <tree string="Invoice Lines" editable="bottom" default_order="sequence, transaction_date, transaction_id">
                                         <control>
                                             <create string="Add a line"/>
                                             <create string="Add a section" context="{'default_display_type': 'line_section'}"/>
@@ -173,6 +178,12 @@
                                         </control>
 
                                         <field name="sequence" widget="handle"/>
+                                        <field name="transaction_date"/>
+                                        <field name="folio_id"/>
+                                        <field name="invoice_id" invisible="1"/>
+                                        <field name="reservation_line_id" invisible="1"/>
+                                        <field name="property_id" invisible="1"/>
+                                        <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="product_id" domain="[('sale_ok','=',True)]"/>
                                         <field name="origin" invisible="1"/>
                                         <field name="is_rounding_line" invisible="1"/>
@@ -180,10 +191,45 @@
                                         <field name="display_type" invisible="1"/>
                                         <field name="company_id" invisible="1"/>
                                         <field name="account_id" groups="account.group_account_user" domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False)]" attrs="{'required': [('display_type', '=', False)]}" />
-                                        <field name="account_analytic_id" groups="analytic.group_analytic_accounting" domain="[('company_id', '=', parent.company_id)]" context="{'default_partner_id': parent.partner_id}"/>
-                                        <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                        <field name="account_analytic_id" optional="hide" groups="analytic.group_analytic_accounting" domain="[('company_id', '=', parent.company_id)]" context="{'default_partner_id': parent.partner_id}"/>
+                                        <field name="analytic_tag_ids" optional="hide" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
                                         <field name="quantity"/>
-                                        <field name="uom_id" groups="uom.group_uom"/>
+                                        <field name="uom_id" groups="uom.group_uom" optional="hide"/>
+                                        <field name="price_unit" string="Price"/>
+                                        <field name="discount" groups="base.group_no_one" string="Disc (%)"/>
+                                        <field name="invoice_line_tax_ids" widget="many2many_tags" options="{'no_create': True}" context="{'type':parent.type, 'tree_view_ref': 'account.account_tax_view_tree', 'search_view_ref': 'account.account_tax_view_search'}" domain="[('type_tax_use','=','sale'),('company_id', '=', parent.company_id)]"/>
+                                        <field name="price_subtotal" string="Subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <field name="price_total" string="Total" groups="account.group_show_line_subtotals_tax_included"/>
+                                        <field name="currency_id" invisible="1"/>
+                                    </tree>
+                                </field>
+                                 <separator string="Folio 2" colspan="4" />
+                                <field name="invoice2_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree" context="{'default_invoice_id': id, 'default_reservation_line_id': reservation_line_id, 'default_property_id': property_id, 'type': type, 'journal_id': journal_id}">
+                                    <tree string="Invoice Lines" editable="bottom" default_order="sequence, transaction_date, transaction_id">
+                                        <control>
+                                            <create string="Add a line"/>
+                                            <create string="Add a section" context="{'default_display_type': 'line_section'}"/>
+                                            <create string="Add a note" context="{'default_display_type': 'line_note'}"/>
+                                        </control>
+
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="transaction_date"/>
+                                        <field name="folio_id"/>
+                                        <field name="invoice_id" invisible="1"/>
+                                        <field name="reservation_line_id" invisible="1"/>
+                                        <field name="property_id" invisible="1"/>
+                                        <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="product_id" domain="[('sale_ok','=',True)]"/>
+                                        <field name="origin" invisible="1"/>
+                                        <field name="is_rounding_line" invisible="1"/>
+                                        <field name="name" widget="section_and_note_text"/>
+                                        <field name="display_type" invisible="1"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="account_id" groups="account.group_account_user" domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False)]" attrs="{'required': [('display_type', '=', False)]}" />
+                                        <field name="account_analytic_id" optional="hide" groups="analytic.group_analytic_accounting" domain="[('company_id', '=', parent.company_id)]" context="{'default_partner_id': parent.partner_id}"/>
+                                        <field name="analytic_tag_ids" optional="hide" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                        <field name="quantity"/>
+                                        <field name="uom_id" groups="uom.group_uom" optional="hide"/>
                                         <field name="price_unit" string="Price"/>
                                         <field name="discount" groups="base.group_no_one" string="Disc (%)"/>
                                         <field name="invoice_line_tax_ids" widget="many2many_tags" options="{'no_create': True}" context="{'type':parent.type, 'tree_view_ref': 'account.account_tax_view_tree', 'search_view_ref': 'account.account_tax_view_search'}" domain="[('type_tax_use','=','sale'),('company_id', '=', parent.company_id)]"/>
@@ -194,7 +240,8 @@
                                 </field>
                                 <group class="oe_subtotal_footer oe_right">
                                     <field name="amount_untaxed"/>
-                                    <field name="amount_tax"/>
+                                    <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
+                                    <!-- <field name="amount_tax"/> -->
                                     <field name="amount_total" class="oe_subtotal_footer_separator"/>
                                     <field name="payments_widget" colspan="2" nolabel="1" widget="payment"/>
                                     <field name="residual" class="oe_subtotal_footer_separator" attrs="{'invisible': [('state', '=', 'draft')]}"/>

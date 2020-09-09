@@ -313,6 +313,7 @@ class AccountInvoice(models.Model):
         self.payment_move_line_ids = self.env['account.move.line'].browse(
             list(payment_lines)).sorted()
 
+    active = fields.Boolean("Active", default=True)
     name = fields.Char(string='Reference/Description',
                        index=True,
                        readonly=True,
@@ -451,7 +452,14 @@ class AccountInvoice(models.Model):
                                        oldname='invoice_line',
                                        readonly=True,
                                        states={'draft': [('readonly', False)]},
-                                       copy=True)
+                                       copy=True, domain=[('folio_id','=', 1)])
+    invoice2_line_ids = fields.One2many('account.invoice.line',
+                                       'invoice_id',
+                                       string='Invoice Lines',
+                                       oldname='invoice_line',
+                                       readonly=True,
+                                       states={'draft': [('readonly', False)]},
+                                       copy=True, domain=[('folio_id','=', 2)])
     tax_line_ids = fields.One2many('account.invoice.tax',
                                    'invoice_id',
                                    string='Tax Lines',
@@ -658,9 +666,23 @@ class AccountInvoice(models.Model):
     source_email = fields.Char(string='Source Email',
                                track_visibility='onchange')
     vendor_display_name = fields.Char(
-        compute='_get_vendor_display_info', store=True
-    )  #compute='_get_vendor_display_info', # store=True to enable sorting on that column
+        compute='_get_vendor_display_info',
+        store=True)  # store=True to enable sorting on that column
     invoice_icon = fields.Char(compute='_get_vendor_display_info', store=False)
+
+    # NEW FIELDS ADDED
+    reservation_line_id = fields.Many2one("hms.reservation.line",
+                                          store=True,
+                                          help='Reservation')
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  related="reservation_line_id.property_id",
+                                  store=True,
+                                  help='Property')
+    room_no = fields.Many2one('hms.property.room',
+                              string="Room No",
+                              help='Room No')
+    remark = fields.Text("Remark")
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type)',
@@ -1406,7 +1428,7 @@ class AccountInvoice(models.Model):
             if not line.account_id:
                 continue
             price_unit = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            taxes = line.invoice_line_tax_ids.compute_all(
+            taxes = line.invoice_line_tax_ids._origin.compute_all(
                 price_unit, self.currency_id, line.quantity, line.product_id,
                 self.partner_id)['taxes']
             for tax in taxes:
@@ -1656,7 +1678,7 @@ class AccountInvoice(models.Model):
             if inv.payment_term_id:
                 totlines = inv.payment_term_id.with_context(
                     currency_id=company_currency.id).compute(
-                        total, inv.date_invoice)[0]
+                        total, inv.date_invoice)
                 res_amount_currency = total_currency
                 for i, t in enumerate(totlines):
                     if inv.currency_id != company_currency:
@@ -2142,29 +2164,31 @@ class AccountInvoiceLine(models.Model):
                  'invoice_id.currency_id', 'invoice_id.company_id',
                  'invoice_id.date_invoice', 'invoice_id.date')
     def _compute_price(self):
-        currency = self.invoice_id and self.invoice_id.currency_id or None
-        price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
-        taxes = False
-        if self.invoice_line_tax_ids:
-            taxes = self.invoice_line_tax_ids.compute_all(
-                price,
-                currency,
-                self.quantity,
-                product=self.product_id,
-                partner=self.invoice_id.partner_id)
-        self.price_subtotal = price_subtotal_signed = taxes[
-            'total_excluded'] if taxes else self.quantity * price
-        self.price_total = taxes[
-            'total_included'] if taxes else self.price_subtotal
-        if self.invoice_id.currency_id and self.invoice_id.currency_id != self.invoice_id.company_id.currency_id:
-            currency = self.invoice_id.currency_id
-            date = self.invoice_id._get_currency_rate_date()
-            price_subtotal_signed = currency._convert(
-                price_subtotal_signed, self.invoice_id.company_id.currency_id,
-                self.company_id or self.env.user.company_id, date
-                or fields.Date.today())
-        sign = self.invoice_id.type in ['in_refund', 'out_refund'] and -1 or 1
-        self.price_subtotal_signed = price_subtotal_signed * sign
+        for rec in self:
+            currency = rec.invoice_id and rec.invoice_id.currency_id or None
+            price = rec.price_unit * (1 - (rec.discount or 0.0) / 100.0)
+            taxes = False
+            if rec.invoice_line_tax_ids:
+                taxes = rec.invoice_line_tax_ids.compute_all(
+                    price,
+                    currency,
+                    rec.quantity,
+                    product=rec.product_id,
+                    partner=rec.invoice_id.partner_id)
+            rec.price_subtotal = price_subtotal_signed = taxes[
+                'total_excluded'] if taxes else rec.quantity * price
+            rec.price_total = taxes[
+                'total_included'] if taxes else rec.price_subtotal
+            if rec.invoice_id.currency_id and rec.invoice_id.currency_id != rec.invoice_id.company_id.currency_id:
+                currency = rec.invoice_id.currency_id
+                date = rec.invoice_id._get_currency_rate_date()
+                price_subtotal_signed = currency._convert(
+                    price_subtotal_signed,
+                    rec.invoice_id.company_id.currency_id, rec.company_id
+                    or rec.env.user.company_id, date or fields.Date.today())
+            sign = rec.invoice_id.type in ['in_refund', 'out_refund'
+                                           ] and -1 or 1
+            rec.price_subtotal_signed = price_subtotal_signed * sign
 
     @api.model
     def _default_account(self):
@@ -2286,6 +2310,23 @@ class AccountInvoiceLine(models.Model):
                                      ('line_note', "Note")],
                                     default=False,
                                     help="Technical field for UX purpose.")
+
+    # NEW FIELDS ADDED
+    active = fields.Boolean("Active", default=True)
+    property_id = fields.Many2one('hms.property',
+                                  string="Property",
+                                  related="reservation_line_id.property_id")
+    reservation_line_id = fields.Many2one(
+        'hms.reservation.line',
+        string="Reservation Line",
+        related="invoice_id.reservation_line_id")
+    folio_id = fields.Many2one('hms.folio', string="Folio ID")
+    transaction_date = fields.Date("Date")
+    transaction_id = fields.Many2one(
+        'hms.transaction',
+        string='Transaction',
+        domain="[('property_id', '=', property_id)]")
+    remark = fields.Text("Remark")
 
     @api.model
     def fields_view_get(self,
