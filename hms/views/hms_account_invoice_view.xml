@@ -168,7 +168,10 @@
                         <field name="sent" invisible="1"/>
                         <notebook colspan="4">
                             <page string="Invoice Lines">
+<<<<<<< HEAD
                                 <separator string="Folio 1" colspan="4" />
+=======
+>>>>>>> 9b3e5d2fe68400c4ecdc512dc1400ba03afd09af
                                 <field name="invoice_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree" context="{'default_invoice_id': id, 'default_reservation_line_id': reservation_line_id, 'default_property_id': property_id, 'type': type, 'journal_id': journal_id}">
                                     <tree string="Invoice Lines" editable="bottom" default_order="sequence, transaction_date, transaction_id">
                                         <control>
@@ -195,6 +198,7 @@
                                         <field name="analytic_tag_ids" optional="hide" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
                                         <field name="quantity"/>
                                         <field name="uom_id" groups="uom.group_uom" optional="hide"/>
+<<<<<<< HEAD
                                         <field name="price_unit" string="Price"/>
                                         <field name="discount" groups="base.group_no_one" string="Disc (%)"/>
                                         <field name="invoice_line_tax_ids" widget="many2many_tags" options="{'no_create': True}" context="{'type':parent.type, 'tree_view_ref': 'account.account_tax_view_tree', 'search_view_ref': 'account.account_tax_view_search'}" domain="[('type_tax_use','=','sale'),('company_id', '=', parent.company_id)]"/>
@@ -230,6 +234,8 @@
                                         <field name="analytic_tag_ids" optional="hide" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
                                         <field name="quantity"/>
                                         <field name="uom_id" groups="uom.group_uom" optional="hide"/>
+=======
+>>>>>>> 9b3e5d2fe68400c4ecdc512dc1400ba03afd09af
                                         <field name="price_unit" string="Price"/>
                                         <field name="discount" groups="base.group_no_one" string="Disc (%)"/>
                                         <field name="invoice_line_tax_ids" widget="many2many_tags" options="{'no_create': True}" context="{'type':parent.type, 'tree_view_ref': 'account.account_tax_view_tree', 'search_view_ref': 'account.account_tax_view_search'}" domain="[('type_tax_use','=','sale'),('company_id', '=', parent.company_id)]"/>

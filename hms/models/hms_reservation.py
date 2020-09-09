@@ -471,7 +471,8 @@ class Reservation(models.Model):
     def _compute_is_arrival_today(self):
         for rec in self:
             arrival_date = rec.arrival
-            if datetime.strptime(str(arrival_date), DEFAULT_SERVER_DATE_FORMAT).date() == datetime.now().date():
+            if datetime.strptime(str(arrival_date), DEFAULT_SERVER_DATE_FORMAT
+                                 ).date() == datetime.now().date():
                 rec.is_arrival_today = True
             else:
                 rec.is_arrival_today = False
@@ -1146,7 +1147,9 @@ class ReservationLine(models.Model):
     ratehead_id = fields.Many2one(
         'hms.ratecode.header',
         string="Rate Code",
-        domain="[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]")
+        domain=
+        "[('property_id', '=', property_id),('start_date', '<=', arrival), ('end_date', '>=', departure)]"
+    )
     # ratecode_ids = fields.One2many(
     #     'hms.ratecode.details',
     #     'ratehead_id',
@@ -1260,6 +1263,9 @@ class ReservationLine(models.Model):
     cashier_folio_ids = fields.One2many('hms.cashier.folio',
                                         'reservation_line_id',
                                         string="Cashier")
+    invoice_ids = fields.One2many('account.invoice',
+                                  'reservation_line_id',
+                                  string="Invoices")
 
     def name_get(self):
         result = []
@@ -2547,6 +2553,22 @@ class ReservationLine(models.Model):
                     line.tax_ids,
                 })
 
+    # Create Invoice & Invoice Lines
+    def create_invoice(self, reservation_line_id):
+        vals = []
+        vals.append((0, 0, {
+            'property_id': reservation_line_id.property_id.id,
+            'company_id': reservation_line_id.property_id.company_id.id,
+            'type': 'out_invoice',
+            'state': 'draft',
+            'partner_id': reservation_line_id.guest_id.id,
+            'currency_id': reservation_line_id.currency_id.id,
+            'reservation_line_id': reservation_line_id.id,
+            'date_invoice': datetime.now().date(),
+            'room_no': reservation_line_id.room_no.id,
+        }))
+        reservation_line_id.update({'invoice_ids': vals})
+
     @api.model
     def create(self, values):
         res = super(ReservationLine, self).create(values)
@@ -3031,6 +3053,7 @@ class ReservationLine(models.Model):
         # if any(line for line in self):
         #     raise UserError(_("Only invoices could be printed."))
         return "Proforma Invoice_" + self.confirm_no
+
 
 # Cancel Reservation
 class CancelReservation(models.Model):
