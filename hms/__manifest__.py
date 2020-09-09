@@ -25,13 +25,12 @@
     '1.0.0',
     # any module necessary for this one to work correctly
     'depends': [
-        'base', 'graphql_base', 'contacts', 'uom', 'account',
-        'sale_management', 'mail', 'web', 'website', 'web_one2many_kanban',
-        'web_tree_no_open', 'l10n_mm_coa'
+        'base', 'contacts', 'uom', 'account', 'mail', 'sale',
+        'web', 'website', 'web_one2many_kanban','web_tree_no_open','l10n_mm_coa','base_accounting_kit'
     ],
-    "external_dependencies": {
-        "python": ["graphene"]
-    },
+    # "external_dependencies": {
+    #     "python": ["graphene"]
+    # },
     #  'depends': ['base', 'contacts', 'uom', 'account', 'mail', 'web','website'],
     'css': ['static/src/css/room_kanban.css'],
     'qweb': ['static/src/xml/hotel_room_summary.xml'],
@@ -122,8 +121,12 @@
         'wizard/hms_proforma_report_wizard_view.xml',
         'wizard/hms_split_invoice_wizard_view.xml',
         'report/proforma_portal_template.xml',
+        'report/group_proforma_portal_template.xml',
         'views/hms_account_invoice_view.xml',
-        'data/hms_folio_data.xml',
+        'report/group_proforma_template.xml',
+        'wizard/hms_group_proforma_wizard_view.xml',
+         'data/hms_folio_data.xml',
+
 
         #'views/views.xml',
         # 'views/templates.xml',

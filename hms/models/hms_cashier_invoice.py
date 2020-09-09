@@ -39,7 +39,6 @@ TYPE2REFUND = {
 
 MAGIC_COLUMNS = ('id', 'create_uid', 'create_date', 'write_uid', 'write_date')
 
-
 class HMSFolio(models.Model):
     _name = "hms.folio"
     _description = "HMS Folio"
@@ -55,7 +54,6 @@ class HMSFolio(models.Model):
             result.append((record.id, "{} ({})".format(record.folio_no,
                                                        record.folio_name)))
         return result
-
 
 class HMSCashierFolio(models.Model):
     _name = "hms.cashier.folio"

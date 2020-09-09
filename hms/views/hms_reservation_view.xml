@@ -70,6 +70,9 @@
                         <button string="Confirm Letter" name="action_confirm_letter_send" type="object" class="btn btn-primary" attrs="{'invisible': [('is_reservation', '=', False)]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
+                        <button string="Pro Forma" type="object" name="action_group_proforma" class="brn btn-primary">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
                     </header>
                     <sheet>
@@ -85,6 +88,12 @@
                             </button>
                             <button class="oe_stat_button" icon="fa-map-marker" name="action_checkin_room_count" type="object">
                                 <field name="checkin_room_count" widget='statinfo'/>
+                            </button>
+                            <button name="preview_group_proforma_invoice" type="object" class="oe_stat_button" icon="fa-dollar">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Preview</span>
+                                    <span class="o_stat_text">Invoice</span>
+                                </div>
                             </button>
                         </div>
                         <div class="oe_title">
@@ -121,7 +130,7 @@
                                 <field name="is_dummy" widget="boolean_toggle" options="{'no_quick_edit': True}" attrs="{'readonly': [('dummy_readonly', '!=',  False)]}" />
                             </group>
                             <group>
-                                <field name="group_id" options="{'no_quick_create': True}" attrs="{'invisible': [('type','!=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
+                                <field name="group_id" options="{'no_quick_create': True}" attrs="{'invisible': [('type','!=', 'group')], 'required': [('type','=', 'group')]}" context="{'default_company_type' : 'group','default_is_from_hms': True }"/>
                                 <field name="guest_id" options="{'no_quick_create': True}" context="{'default_company_type' : 'guest','default_is_from_hms': True }"/>
                                 <label for="arrival" string="Arrival"/>
                                 <div class="o_address_format">
@@ -210,11 +219,18 @@
                                 </field>
                             </page>
                         </notebook>
+                        <div>
+                            <group>
+                                <field name="is_mail_follower" widget="boolean_toggle"/>
+                            </group>
+                        </div>
                     </sheet>
                     <footer>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="message_ids" widget="mail_thread"/>
+                        <div attrs="{'invisible': [('is_mail_follower', '=', False)]}">
+                            <div class="oe_chatter">
+                                <field name="message_follower_ids" widget="mail_followers"/>
+                                <field name="message_ids" widget="mail_thread"/>
+                            </div>
                         </div>
                     </footer>
                 </form>
@@ -705,9 +721,16 @@
                                 <field name="cancel_rsvn_ids" readonly="1"/>
                             </page>
                         </notebook>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="message_ids" widget="mail_thread"/>
+                        <div>
+                            <group>
+                                <field name="is_mail_follower" widget="boolean_toggle"/>
+                            </group>
+                        </div>
+                        <div attrs="{'invisible': [('is_mail_follower', '=', False)]}">
+                            <div class="oe_chatter">
+                                <field name="message_follower_ids" widget="mail_followers" />
+                                <field name="message_ids" widget="mail_thread"/>
+                            </div>
                         </div>
                     </sheet>
                 </form>
@@ -1115,11 +1138,18 @@
                                 </field>
                             </page>
                         </notebook>
+                        <div>
+                            <group>
+                                <field name="is_mail_follower" widget="boolean_toggle"/>
+                            </group>
+                        </div>
                     </sheet>
                     <footer>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="message_ids" widget="mail_thread"/>
+                        <div attrs="{'invisible': [('is_mail_follower', '=', False)]}">
+                            <div class="oe_chatter">
+                                <field name="message_follower_ids" widget="mail_followers" />
+                                <field name="message_ids" widget="mail_thread"/>
+                            </div>
                         </div>
                     </footer>
                 </form>

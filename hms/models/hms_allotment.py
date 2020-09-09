@@ -13,6 +13,7 @@ class HMSAllotment(models.Model):
     _description = "Allotment"
     _order = "name"
 
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     name = fields.Char("Allotment Name", required=True)
     description = fields.Char("Description", required=True)
     property_id = fields.Many2one('hms.property', track_visibility=True)
