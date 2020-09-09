@@ -130,7 +130,7 @@ class HMSCashierFolio(models.Model):
         return self.env.company.incoterm_id
 
     # ==== New Custom Fields ====
-
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     reservation_line_id = fields.Many2one("hms.reservation.line", store=True)
     property_id = fields.Many2one('hms.property',
                                   string="Property",
@@ -3203,7 +3203,7 @@ class HMSCashierFolioLine(models.Model):
             self._context.get('active_id', []))
         if cashier_folio_id:
             return cashier_folio_id
-
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     sequence = fields.Integer("Sequence")
     active = fields.Boolean("Active", default=True)
 

@@ -67,10 +67,10 @@
                         <button string="Group Check In" name="checkin_status" type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('is_arrival_today', '=', False), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Confirm Letter" name="action_confirm_letter_send" type="object" class="btn btn-primary" attrs="{'invisible': [('is_reservation', '=', False)]}">
+                        <button string="Confirm Letter" name="action_confirm_letter_send" type="object" class="btn btn-primary" attrs="{'invisible': [('is_reservation', '=', False), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
-                        <button string="Pro Forma" type="object" name="action_group_proforma" class="brn btn-primary">
+                        <button string="Pro Forma" type="object" name="action_group_proforma" class="brn btn-primary" attrs="{'invisible': [('is_reservation', '=', False), ('state', '!=', 'confirm')]}">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <field name="state" widget="statusbar" statusbar_colors="{'booking': 'blue', 'reservation': 'purple', 'cancel': 'red', 'confirm': 'green', 'checkin': 'green'}"/>
@@ -654,7 +654,7 @@
                                         <field name="transaction_date"/>
                                         <field name="transaction_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="package_ids" invisible="1"/>
-                                        <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
+                                        <field name="package_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}" invisible="1"/>
                                         <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit':True, 'no_open':True}"/>
                                         <field name="price_unit"/>
                                         <field name="total_room"/>

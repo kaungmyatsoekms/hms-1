@@ -167,8 +167,7 @@
                         </group>
                         <field name="sent" invisible="1"/>
                         <notebook colspan="4">
-                            <page string="Invoice Lines">
-                                <separator string="Folio 1" colspan="4" />
+                            <page string="Folio 1">
                                 <field name="invoice_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree" context="{'default_invoice_id': id, 'default_reservation_line_id': reservation_line_id, 'default_property_id': property_id, 'type': type, 'journal_id': journal_id}">
                                     <tree string="Invoice Lines" editable="bottom" default_order="sequence, transaction_date, transaction_id">
                                         <control>
@@ -203,7 +202,20 @@
                                         <field name="currency_id" invisible="1"/>
                                     </tree>
                                 </field>
-                                 <separator string="Folio 2" colspan="4" />
+                                
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="amount_untaxed"/>
+                                    <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
+                                    <!-- <field name="amount_tax"/> -->
+                                    <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                                    <field name="payments_widget" colspan="2" nolabel="1" widget="payment"/>
+                                    <field name="residual" class="oe_subtotal_footer_separator" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                                    <field name="reconciled" invisible="1"/>
+                                    <field name="outstanding_credits_debits_widget" colspan="2" nolabel="1" widget="payment" attrs="{'invisible': [('state', 'not in', 'open')]}"/>
+                                </group>
+                                <field name="comment" placeholder="Terms and conditions..."/>
+                            </page>
+                            <page string="Folio 2">
                                 <field name="invoice2_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree" context="{'default_invoice_id': id, 'default_reservation_line_id': reservation_line_id, 'default_property_id': property_id, 'type': type, 'journal_id': journal_id}">
                                     <tree string="Invoice Lines" editable="bottom" default_order="sequence, transaction_date, transaction_id">
                                         <control>
@@ -238,6 +250,7 @@
                                         <field name="currency_id" invisible="1"/>
                                     </tree>
                                 </field>
+                                
                                 <group class="oe_subtotal_footer oe_right">
                                     <field name="amount_untaxed"/>
                                     <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
