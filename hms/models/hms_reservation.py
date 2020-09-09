@@ -3128,10 +3128,6 @@ class ReservationLine(models.Model):
         # if any(line for line in self):
         #     raise UserError(_("Only invoices could be printed."))
         return "Proforma Invoice_" + self.confirm_no
-<<<<<<< HEAD
-
-=======
->>>>>>> ca78c1f66f7cbfab0819f7d2dd4cfe8d04e4f597
 
 # Cancel Reservation
 class CancelReservation(models.Model):

@@ -95,7 +95,7 @@
         'views/action_manager.xml',
         'data/hms.reasontype.csv',
         'data/hms.reason.csv',
-        'views/hms_cashier_view.xml',
+        # 'views/hms_cashier_view.xml',
         'views/hms_managment_report.xml',
         'wizard/hms_rc_detail_copy_wizard_view.xml',
         'views/hms_ratecode_view.xml',

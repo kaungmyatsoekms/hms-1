@@ -1,4 +1,4 @@
-id,market_code,market_name,"group_id:id",options,is_csv
+id,market_code,market_name,group_id,options,is_csv
 1,AIR,Airline,1,O,True
 2,COR,Coporate,2,O,True
 3,EMB,Embassy,3,O,True
