@@ -3,6 +3,7 @@ import json
 import re
 import uuid
 from functools import partial
+from datetime import datetime
 
 from lxml import etree
 from dateutil.relativedelta import relativedelta
@@ -320,6 +321,8 @@ class AccountInvoice(models.Model):
                        states={'draft': [('readonly', False)]},
                        copy=False,
                        help='The name that will be used on account move lines')
+    
+    sequence_no = fields.Char(string="Number", default="/", readonly=True)
 
     origin = fields.Char(
         string='Source Document',
@@ -674,11 +677,18 @@ class AccountInvoice(models.Model):
     reservation_line_id = fields.Many2one("hms.reservation.line",
                                           store=True,
                                           help='Reservation')
+    property_ids = fields.Many2many('hms.property',
+                                    related="luser_id.property_id")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
+                                  domain="[('id', '=?', property_ids)]",
                                   related="reservation_line_id.property_id",
                                   store=True,
                                   help='Property')
+    luser_id = fields.Many2one('res.users',
+                              string='User',
+                              default=lambda self: self.env.uid,
+                              help='Salesperson')
     room_no = fields.Many2one('hms.property.room',
                               string="Room No",
                               help='Room No')
@@ -835,6 +845,52 @@ class AccountInvoice(models.Model):
                     if field not in vals and invoice[field]:
                         vals[field] = invoice._fields[field].convert_to_write(
                             invoice[field], invoice)
+
+        property_id = vals['property_id']
+        property_id = self.env['hms.property'].search([('id', '=', property_id)])
+
+        if self.env.user.company_id.ivprofile_id_format:
+            format_ids = self.env['hms.format.detail'].search(
+                [('format_id', '=',
+                    self.env.user.company_id.ivprofile_id_format.id)],
+                order='position_order asc')
+        val = []
+        for ft in format_ids:
+            if ft.value_type == 'dynamic':
+                if property_id.code and ft.dynamic_value == 'property code':
+                    val.append(property_id.code)
+            if ft.value_type == 'fix':
+                val.append(ft.fix_value)
+            if ft.value_type == 'digit':
+                sequent_ids = self.env['ir.sequence'].search([
+                    ('code', '=',
+                        self.env.user.company_id.ivprofile_id_format.code)
+                ])
+                sequent_ids.write({'padding': ft.digit_value})
+            if ft.value_type == 'datetime':
+                mon = yrs = ''
+                if ft.datetime_value == 'MM':
+                    mon = datetime.today().month
+                    val.append(mon)
+                if ft.datetime_value == 'MMM':
+                    mon = datetime.today().strftime('%b')
+                    val.append(mon)
+                if ft.datetime_value == 'YY':
+                    yrs = datetime.today().strftime("%y")
+                    val.append(yrs)
+                if ft.datetime_value == 'YYYY':
+                    yrs = datetime.today().strftime("%Y")
+                    val.append(yrs)
+        p_no_pre = ''
+        if len(val) > 0:
+            for l in range(len(val)):
+                p_no_pre += str(val[l])
+        p_no = ''
+        p_no += self.env['ir.sequence'].\
+                next_by_code(property_id.code + property_id.ivprofile_id_format.code) or 'New'
+        pf_no = p_no_pre + p_no
+
+        vals['sequence_no'] = pf_no
 
         invoice = super(AccountInvoice,
                         self.with_context(mail_create_nolog=True)).create(vals)
@@ -1128,6 +1184,7 @@ class AccountInvoice(models.Model):
                       ))
         return super(AccountInvoice, self).unlink()
 
+    @api.depends('invoice_line_ids')
     @api.onchange('invoice_line_ids')
     def _onchange_invoice_line_ids(self):
         taxes_grouped = self.get_taxes_values()
@@ -2313,9 +2370,18 @@ class AccountInvoiceLine(models.Model):
 
     # NEW FIELDS ADDED
     active = fields.Boolean("Active", default=True)
+    property_ids = fields.Many2many('hms.property',
+                                    related="luser_id.property_id")
     property_id = fields.Many2one('hms.property',
                                   string="Property",
-                                  related="reservation_line_id.property_id")
+                                  domain="[('id', '=?', property_ids)]",
+                                  related="reservation_line_id.property_id",
+                                  store=True,
+                                  help='Property')
+    luser_id = fields.Many2one('res.users',
+                              string='User',
+                              default=lambda self: self.env.uid,
+                              help='Salesperson')
     reservation_line_id = fields.Many2one(
         'hms.reservation.line',
         string="Reservation Line",
@@ -2327,6 +2393,11 @@ class AccountInvoiceLine(models.Model):
         string='Transaction',
         domain="[('property_id', '=', property_id)]")
     remark = fields.Text("Remark")
+
+    @api.onchange('transaction_id')
+    def _onchange_partner_id(self):
+        for rec in self:
+            rec.product_id = rec.transaction_id.product_id
 
     @api.model
     def fields_view_get(self,
@@ -2550,13 +2621,12 @@ class AccountInvoiceLine(models.Model):
         }
         return data
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get('display_type',
-                        self.default_get(['display_type'])['display_type']):
-                vals.update(price_unit=0, account_id=False, quantity=0)
-        return super(AccountInvoiceLine, self).create(vals_list)
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     for vals in vals_list:
+    #         if vals.get('display_type', self.default_get(['display_type'])['display_type']):
+    #             vals.update(price_unit=0, account_id=False, quantity=0)
+    #     return super(AccountInvoiceLine, self).create(vals_list)
 
     def write(self, values):
         if 'display_type' in values and self.filtered(

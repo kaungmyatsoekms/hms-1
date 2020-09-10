@@ -105,7 +105,7 @@ class Reservation(models.Model):
                                   domain="[('id', '=?', property_ids)]",
                                   help='Property')
     user_id = fields.Many2one('res.users',
-                              string='Salesperson',
+                              string='User',
                               default=lambda self: self.env.uid,
                               help='Salesperson')
     currency_id = fields.Many2one("res.currency",
@@ -2643,6 +2643,39 @@ class ReservationLine(models.Model):
             'room_no': reservation_line_id.room_no.id,
         }))
         reservation_line_id.update({'invoice_ids': vals})
+        charge_line_objs = self.env['hms.room.transaction.charge.line'].search(
+            [('reservation_line_id', '=', reservation_line_id.id)])
+        if charge_line_objs:
+            for line in charge_line_objs:
+                fiscal_position = reservation_line_id.invoice_ids.fiscal_position_id
+                accounts = line.transaction_id.product_id.product_tmpl_id.get_product_accounts(
+                    fiscal_pos=fiscal_position)
+                account_id = accounts['income']
+                self.env['account.invoice.line'].create({
+                    'property_id': line.property_id.id,
+                    'reservation_line_id': line.reservation_line_id.id,
+                    'folio_id': 1,
+                    'invoice_id':
+                    reservation_line_id.invoice_ids.id,
+                    'transaction_date':
+                    line.transaction_date,
+                    'transaction_id':
+                    line.transaction_id.id,
+                    'product_id':
+                    line.transaction_id.product_id.id,
+                    'name':
+                    line.transaction_id.product_id.product_tmpl_id.name,
+                    'account_id':
+                    account_id.id,
+                    'quantity':
+                    line.total_qty,
+                    'price_unit':
+                    line.price_unit,
+                    'discount':
+                    line.updown_rate,
+                    'invoice_line_tax_ids':
+                    line.tax_ids,
+                })
 
     @api.model
     def create(self, values):
