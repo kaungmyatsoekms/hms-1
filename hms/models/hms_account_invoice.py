@@ -474,6 +474,7 @@ class AccountInvoice(models.Model):
                                          'refund_invoice_id',
                                          string='Refund Invoices',
                                          readonly=True)
+    folio_ids = fields.Many2many('hms.folio', string= 'Folios')
     move_id = fields.Many2one(
         'account.move',
         string='Journal Entry',

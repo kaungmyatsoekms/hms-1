@@ -173,6 +173,7 @@
                                 </div>
                             </group>
                         </group>
+                        <field name="folio_ids"/>
                         <field name="sent" invisible="1"/>
                         <notebook colspan="4">
                             <page string="Folio 1">
