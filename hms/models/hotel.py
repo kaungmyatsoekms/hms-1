@@ -107,6 +107,7 @@ class Property(models.Model):
     def default_get_roomtype(self):
         return self.env['hms.roomtype'].search([('code', '=', 'HFO')]).ids
 
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     is_property = fields.Boolean(string='Is Property',
                                  compute='_compute_is_property',
                                  help='Is Property')

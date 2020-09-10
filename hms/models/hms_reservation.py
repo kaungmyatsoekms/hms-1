@@ -69,8 +69,9 @@ class Reservation(models.Model):
     _name = 'hms.reservation'
     _description = "Reservation"
     _order = 'confirm_no desc'
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread', 'portal.mixin', 'mail.activity.mixin']
 
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     is_property_used = fields.Boolean(default=False)
     is_no_show = fields.Boolean(default=False, string="No Show")
     sequence = fields.Integer(default=1)
@@ -104,7 +105,7 @@ class Reservation(models.Model):
                                   domain="[('id', '=?', property_ids)]",
                                   help='Property')
     user_id = fields.Many2one('res.users',
-                              string='Salesperson',
+                              string='User',
                               default=lambda self: self.env.uid,
                               help='Salesperson')
     currency_id = fields.Many2one("res.currency",
@@ -232,6 +233,10 @@ class Reservation(models.Model):
                                        compute='_compute_cancel_rooms')
     checkin_room_count = fields.Integer(string="Check-in",
                                         compute='_compute_checkin_rooms')
+
+    amount_untaxed = fields.Monetary(string="Untaxed amount")
+    amount_tax = fields.Monetary(string="Tax amount")
+    amount_total = fields.Monetary(string="Total")
 
     @api.onchange('property_ids')
     def default_get_property_id(self):
@@ -966,6 +971,59 @@ class Reservation(models.Model):
             'context': ctx,
         }
 
+    def action_group_proforma(self):
+        ''' Opens a wizard to compose an email, with relevant mail template loaded by default '''
+        self.ensure_one()
+        template_id = self.env.ref('hms.group_proforma_template',
+                                   raise_if_not_found=False)
+
+        compose_form = self.env.ref('hms.group_proforma_invoice_wizard_form',
+                                    raise_if_not_found=False)
+        # lang = self.env.context.get('lang')
+        # template = self.env['mail.template'].browse(template_id)
+        # if template.lang:
+        #     lang = template._render_template(template.lang, 'sale.order', self.ids[0])
+        ctx = {
+            'default_model': 'hms.reservation',
+            'default_res_id': self.ids[0],
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id.id,
+            'default_composition_mode': 'comment',
+            'mark_so_as_sent': True,
+            'custom_layout': "mail.mail_notification_paynow",
+            'proforma': self.env.context.get('proforma', False),
+            'force_email': True,
+            # 'model_description': self.with_context(lang=lang).type_name,
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'hms.group.proforma',
+            'views': [(compose_form.id, 'form')],
+            'view_id': compose_form.id,
+            'target': 'new',
+            'context': ctx,
+        }
+
+    def preview_group_proforma_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'self',
+            'url': self.get_portal_url(),
+        }
+
+    def _compute_access_url(self):
+        super(Reservation, self)._compute_access_url()
+        for line in self:
+            line.access_url = '/my/reservation/%s' % (line.id)
+
+    def _get_report_base_filename(self):
+        # if any(line for line in self):
+        #     raise UserError(_("Only invoices could be printed."))
+        return "Proforma Invoice_" + self.confirm_no
+
 
 # Reservation Line
 class ReservationLine(models.Model):
@@ -1001,6 +1059,7 @@ class ReservationLine(models.Model):
         if self._context.get('state') != False:
             return self._context.get('state')
 
+    is_mail_follower = fields.Boolean(string="Show Mail Followers?")
     is_hfo = fields.Boolean(string="HFO", default=False, readonly=True)
     is_cancel = fields.Boolean(string="Cancel", default=False, readonly=True)
     is_no_show = fields.Boolean(string="No Show", default=False, readonly=True)
@@ -1987,6 +2046,24 @@ class ReservationLine(models.Model):
                 'nights': int(days)
             })
 
+    @api.constrains('amount_untaxed', 'amount_tax', 'amount_total')
+    def _update_amount(self):
+
+        amount_untaxed = 0
+        amount_tax = 0
+        amount_total = 0
+
+        for rec in self.reservation_id.reservation_line_ids:
+            amount_untaxed += rec.amount_untaxed
+            amount_tax += rec.amount_tax
+            amount_total += rec.amount_total
+
+        self.reservation_id.write({
+            'amount_untaxed': amount_untaxed,
+            'amount_tax': amount_tax,
+            'amount_total': amount_total,
+        })
+
     @api.onchange('arrival', 'departure', 'room_type', 'rooms')
     def onchange_roomtype(self):
         for rec in self:
@@ -2568,6 +2645,42 @@ class ReservationLine(models.Model):
             'room_no': reservation_line_id.room_no.id,
         }))
         reservation_line_id.update({'invoice_ids': vals})
+        charge_line_objs = self.env['hms.room.transaction.charge.line'].search(
+            [('reservation_line_id', '=', reservation_line_id.id)])
+        if charge_line_objs:
+            for line in charge_line_objs:
+                fiscal_position = reservation_line_id.invoice_ids.fiscal_position_id
+                accounts = line.transaction_id.product_id.product_tmpl_id.get_product_accounts(
+                    fiscal_pos=fiscal_position)
+                account_id = accounts['income']
+                self.env['account.invoice.line'].create({
+                    'property_id':
+                    line.property_id.id,
+                    'reservation_line_id':
+                    line.reservation_line_id.id,
+                    'folio_id':
+                    1,
+                    'invoice_id':
+                    reservation_line_id.invoice_ids.id,
+                    'transaction_date':
+                    line.transaction_date,
+                    'transaction_id':
+                    line.transaction_id.id,
+                    'product_id':
+                    line.transaction_id.product_id.id,
+                    'name':
+                    line.transaction_id.product_id.product_tmpl_id.name,
+                    'account_id':
+                    account_id.id,
+                    'quantity':
+                    line.total_qty,
+                    'price_unit':
+                    line.price_unit,
+                    'discount':
+                    line.updown_rate,
+                    'invoice_line_tax_ids':
+                    line.tax_ids,
+                })
 
     @api.model
     def create(self, values):

@@ -26,12 +26,12 @@
           <field name="code">confirm.format</field>
           <field name="active">True</field>
         </record>
-        <record model="hms.format" id="pms_format_id5">
+        <!-- <record model="hms.format" id="pms_format_id5">
           <field name="name">Sale Order No Format</field>
           <field name="sample">S-property code-YYYY-xxxxxx</field>
           <field name="code">sale.order</field>
           <field name="active">True</field>
-        </record>
+        </record> -->
         <record model="hms.format" id="pms_format_id6">
           <field name="name">Invoice No Format</field>
           <field name="sample">INV-property code-YYYY-xxxxxx</field>
@@ -319,7 +319,7 @@
             <field name="value">6</field>
         </record>
         <!-- Sale Order ID Format-->
-        <record model="hms.format.detail" id="pms_format_detail_id25">
+        <!-- <record model="hms.format.detail" id="pms_format_detail_id25">
             <field name="format_id" ref="pms_format_id5"/>
             <field name="name">Fix Char</field>
             <field name="position_order">1</field>
@@ -384,7 +384,7 @@
             <field name="dynamic_value"></field>
             <field name="datetime_value"></field>
             <field name="value">6</field>
-        </record>
+        </record> -->
         <!-- Invoice No Format-->
         <record model="hms.format.detail" id="pms_format_detail_id31">
             <field name="format_id" ref="pms_format_id6"/>

@@ -299,9 +299,16 @@
                                 <field name="comments" placeholder="Internal notes..."/>
                             </page>
                         </notebook>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="message_ids" widget="mail_thread"/>
+                        <div>
+                            <group>
+                                <field name="is_mail_follower" widget="boolean_toggle"/>
+                            </group>
+                        </div>
+                        <div attrs="{'invisible': [('is_mail_follower', '=', False)]}">
+                            <div class="oe_chatter">
+                                <field name="message_follower_ids" widget="mail_followers" />
+                                <field name="message_ids" widget="mail_thread"/>
+                            </div>
                         </div>
                     </sheet>
                 </form>
@@ -460,7 +467,7 @@
             <field name="name">building.view.form</field>
             <field name="model">hms.building</field>
             <field name="arch" type="xml">
-                <form string="Building" import="false">
+                <form string="Building">
                     <sheet>
                         <h2>Hotel Building</h2>
                         <br></br>
@@ -498,7 +505,7 @@
             <field name="name">building.view.list</field>
             <field name="model">hms.building</field>
             <field name="arch" type="xml">
-                <tree string="Building" import="false">
+                <tree string="Building">
                     <field name="sequence" widget="handle"/>
                     <field name="building_name"/>
                     <field name="building_type"/>
@@ -560,7 +567,7 @@
             <field name="name">hms.roomlocation.view.form</field>
             <field name="model">hms.roomlocation</field>
             <field name="arch" type="xml">
-                <form string="Room Location" import="false">
+                <form string="Room Location">
                     <sheet>
                         <h2>Room Location</h2>
                         <br></br>
@@ -580,7 +587,7 @@
             <field name="name">hms.roomlocation.view.list</field>
             <field name="model">hms.roomlocation</field>
             <field name="arch" type="xml">
-                <tree string="Room Location" import="false">
+                <tree string="Room Location">
                     <field name="sequence" widget="handle"/>
                     <field name="location_code"/>
                     <field name="location_name"/>
@@ -601,7 +608,7 @@
             <field name="name">hms.roomtype.view.form</field>
             <field name="model">hms.roomtype</field>
             <field name="arch" type="xml">
-                <form string="Room Type" import="false">
+                <form string="Room Type">
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -632,7 +639,7 @@
             <field name="name">hms.roomtype.view.list</field>
             <field name="model">hms.roomtype</field>
             <field name="arch" type="xml">
-                <tree string="Room Type List" import="false">
+                <tree string="Room Type List">
                     <field name="sequence" widget="handle"/>
                     <field name="code"/>
                     <field name="name" />
