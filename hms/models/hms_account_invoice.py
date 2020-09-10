@@ -2621,12 +2621,12 @@ class AccountInvoiceLine(models.Model):
         }
         return data
 
-    # @api.model_create_multi
-    # def create(self, vals_list):
-    #     for vals in vals_list:
-    #         if vals.get('display_type', self.default_get(['display_type'])['display_type']):
-    #             vals.update(price_unit=0, account_id=False, quantity=0)
-    #     return super(AccountInvoiceLine, self).create(vals_list)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('display_type', self.default_get(['display_type'])['display_type']):
+                vals.update(price_unit=0, account_id=False, quantity=0)
+        return super(AccountInvoiceLine, self).create(vals_list)
 
     def write(self, values):
         if 'display_type' in values and self.filtered(
